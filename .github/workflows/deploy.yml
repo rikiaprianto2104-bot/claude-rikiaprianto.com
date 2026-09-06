@@ -32,7 +32,7 @@ jobs:
 
       - name: Install dependencies (frontend)
         working-directory: frontend
-        run: npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
       - name: Build React
         working-directory: frontend
