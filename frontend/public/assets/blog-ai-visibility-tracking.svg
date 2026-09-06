@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="55%" stop-color="#0a3a63"/>
+      <stop offset="100%" stop-color="#0d9eff"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0d9eff"/>
+      <stop offset="100%" stop-color="#8fe0ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+
+  <!-- dot grid -->
+  <g fill="#ffffff" opacity="0.08">
+    <g id="dotrow">
+      <circle cx="40" cy="40" r="3"/><circle cx="90" cy="40" r="3"/><circle cx="140" cy="40" r="3"/>
+      <circle cx="190" cy="40" r="3"/><circle cx="240" cy="40" r="3"/><circle cx="290" cy="40" r="3"/>
+      <circle cx="340" cy="40" r="3"/><circle cx="390" cy="40" r="3"/><circle cx="440" cy="40" r="3"/>
+      <circle cx="490" cy="40" r="3"/><circle cx="540" cy="40" r="3"/><circle cx="590" cy="40" r="3"/>
+    </g>
+    <use href="#dotrow" y="50"/>
+    <use href="#dotrow" y="100"/>
+    <use href="#dotrow" y="150"/>
+    <use href="#dotrow" y="200"/>
+    <use href="#dotrow" y="250"/>
+    <use href="#dotrow" y="300"/>
+    <use href="#dotrow" y="350"/>
+    <use href="#dotrow" y="400"/>
+    <use href="#dotrow" y="450"/>
+    <use href="#dotrow" y="500"/>
+    <use href="#dotrow" y="550"/>
+    <use href="#dotrow" y="600"/>
+  </g>
+
+  <circle cx="980" cy="150" r="260" fill="url(#glow)"/>
+
+  <!-- floating chat/answer bubbles representing AI engines -->
+  <g opacity="0.9">
+    <rect x="700" y="90" width="230" height="70" rx="18" fill="#ffffff" opacity="0.10"/>
+    <rect x="720" y="112" width="140" height="10" rx="5" fill="#ffffff" opacity="0.55"/>
+    <rect x="720" y="132" width="90" height="10" rx="5" fill="#ffffff" opacity="0.35"/>
+
+    <rect x="940" y="190" width="220" height="70" rx="18" fill="#ffffff" opacity="0.10"/>
+    <rect x="960" y="212" width="120" height="10" rx="5" fill="#ffffff" opacity="0.55"/>
+    <rect x="960" y="232" width="160" height="10" rx="5" fill="#ffffff" opacity="0.35"/>
+
+    <rect x="760" y="290" width="230" height="70" rx="18" fill="#ffffff" opacity="0.10"/>
+    <rect x="780" y="312" width="150" height="10" rx="5" fill="#ffffff" opacity="0.55"/>
+    <rect x="780" y="332" width="100" height="10" rx="5" fill="#ffffff" opacity="0.35"/>
+  </g>
+
+  <!-- rising bar chart representing tracked AI visibility -->
+  <g>
+    <rect x="120" y="470" width="60" height="110" rx="8" fill="url(#bar)" opacity="0.55"/>
+    <rect x="200" y="420" width="60" height="160" rx="8" fill="url(#bar)" opacity="0.7"/>
+    <rect x="280" y="360" width="60" height="220" rx="8" fill="url(#bar)" opacity="0.85"/>
+    <rect x="360" y="290" width="60" height="290" rx="8" fill="url(#bar)"/>
+  </g>
+
+  <!-- trend line with markers -->
+  <polyline points="150,510 230,460 310,400 390,320" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  <circle cx="150" cy="510" r="7" fill="#ffffff"/>
+  <circle cx="230" cy="460" r="7" fill="#ffffff"/>
+  <circle cx="310" cy="400" r="7" fill="#ffffff"/>
+  <circle cx="390" cy="320" r="9" fill="#ffffff"/>
+
+  <!-- magnifier icon (tracking / search) -->
+  <g transform="translate(430,300)" stroke="#ffffff" stroke-width="10" fill="none" stroke-linecap="round">
+    <circle cx="0" cy="0" r="34"/>
+    <line x1="24" y1="24" x2="55" y2="55"/>
+  </g>
+
+  <text x="120" y="220" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="800" fill="#ffffff">AI VISIBILITY</text>
+  <text x="120" y="270" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="600" fill="#c9ecff">Tracking your brand across AI search</text>
+</svg>
