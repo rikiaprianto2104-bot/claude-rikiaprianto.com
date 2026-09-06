@@ -1,0 +1,1552 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Space Explorer Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+
+<style>
+/* ============ TOKENS — dunia visual tunggal: kokpit misi luar angkasa ============ */
+:root{
+  --void:#070B1E;      /* latar ruang angkasa */
+  --void-2:#040714;
+  --hull:#101733;      /* permukaan panel */
+  --hull-2:#18224A;    /* panel terangkat */
+  --line:#2A3566;      /* garis pemisah */
+  --line-soft:#1E2850;
+  --ink:#EEF2FF;       /* teks utama (putih berbias biru) */
+  --ink-dim:#A6B1D4;   /* teks sekunder */
+  --ink-faint:#7A86AD;
+  --ion:#57C7FF;       /* biru terang — interaktif */
+  --nebula:#A78BFA;    /* ungu — level & aksen kedua */
+  --flare:#FF7A2F;     /* oranye — aksi utama & Mars */
+  --flare-soft:#FFA76B;
+  --go:#3DDC97;        /* benar */
+  --go-bg:rgba(61,220,151,.14);
+  --hold:#FF6E8A;      /* belum tepat */
+  --hold-bg:rgba(255,110,138,.14);
+  --amber:#FFC55C;
+
+  --r-s:10px; --r-m:16px; --r-l:22px;
+  --shadow:0 18px 44px -20px rgba(0,0,0,.85);
+  --wrap:1080px;
+
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:var(--f-body);
+  background:var(--void);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+#starfield{
+  position:fixed; inset:0; width:100%; height:100%;
+  z-index:0; pointer-events:none;
+  background:
+    radial-gradient(1200px 700px at 78% -8%, rgba(167,139,250,.20), transparent 62%),
+    radial-gradient(900px 600px at 10% 108%, rgba(87,199,255,.14), transparent 60%),
+    linear-gradient(180deg,var(--void-2),var(--void) 42%);
+}
+
+#app{position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column}
+
+/* ============ BARIS MISI (nav) ============ */
+.mission-bar{
+  position:sticky; top:0; z-index:40;
+  background:rgba(7,11,30,.86);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-soft);
+}
+.mission-bar-in{
+  max-width:var(--wrap); margin:0 auto; padding:12px 18px;
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:center; gap:10px; margin-right:auto}
+.brand-mark{width:34px; height:34px; flex:none}
+.brand-text{display:flex; flex-direction:column; line-height:1.1}
+.brand-name{font-family:var(--f-display); font-weight:800; font-size:16px; letter-spacing:-.01em}
+.brand-sub{font-family:var(--f-mono); font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint)}
+
+nav.nav{display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; max-width:100%}
+nav.nav::-webkit-scrollbar{display:none}
+.nav-btn{
+  font-family:var(--f-body); font-size:13.5px; font-weight:600;
+  color:var(--ink-dim); background:transparent;
+  border:1px solid transparent; border-radius:999px;
+  padding:8px 14px; cursor:pointer; white-space:nowrap;
+  transition:color .15s, background .15s, border-color .15s;
+}
+.nav-btn:hover{color:var(--ink); background:rgba(87,199,255,.08)}
+.nav-btn[aria-current="page"]{color:var(--void); background:var(--ion); border-color:var(--ion)}
+
+:where(button,a,input,[tabindex]):focus-visible{
+  outline:3px solid var(--flare); outline-offset:3px; border-radius:6px;
+}
+
+/* ============ LAYOUT ============ */
+main{flex:1; width:100%; max-width:var(--wrap); margin:0 auto; padding:26px 18px 64px}
+.stack{display:flex; flex-direction:column; gap:22px}
+.site-foot{
+  border-top:1px solid var(--line-soft); padding:20px 18px 30px;
+  text-align:center; color:var(--ink-faint); font-size:12.5px;
+}
+
+/* ============ TIPOGRAFI ============ */
+h1,h2,h3,h4{font-family:var(--f-display); font-weight:800; margin:0; text-wrap:balance; letter-spacing:-.02em; line-height:1.12}
+h1{font-size:clamp(32px,6.4vw,54px)}
+h2{font-size:clamp(22px,3.4vw,30px)}
+h3{font-size:clamp(18px,2.4vw,21px)}
+h4{font-size:16px; font-weight:600}
+p{margin:0}
+.lede{font-size:clamp(15.5px,2vw,18px); color:var(--ink-dim); max-width:60ch}
+.muted{color:var(--ink-dim)}
+.faint{color:var(--ink-faint); font-size:13px}
+.eyebrow{
+  font-family:var(--f-mono); font-size:10.5px; font-weight:700;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--ion);
+}
+
+/* ============ KOMPONEN DASAR ============ */
+.panel{
+  background:linear-gradient(180deg,rgba(24,34,74,.62),rgba(16,23,51,.62));
+  border:1px solid var(--line-soft); border-radius:var(--r-l);
+  padding:clamp(18px,3vw,28px);
+}
+.panel-flat{background:rgba(16,23,51,.5); border:1px solid var(--line-soft); border-radius:var(--r-m); padding:16px 18px}
+
+.btn{
+  font-family:var(--f-body); font-weight:700; font-size:16px;
+  border-radius:999px; border:1px solid transparent; cursor:pointer;
+  padding:14px 26px; min-height:52px;
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  transition:transform .12s ease, filter .15s ease, background .15s, color .15s;
+}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--flare); color:#1A0A00; box-shadow:0 12px 30px -14px rgba(255,122,47,.9)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ion{background:var(--ion); color:#04121D}
+.btn-ion:hover{filter:brightness(1.08)}
+.btn-ghost{background:rgba(87,199,255,.08); color:var(--ink); border-color:var(--line)}
+.btn-ghost:hover{background:rgba(87,199,255,.16)}
+.btn-lg{font-size:18px; padding:17px 34px; min-height:60px}
+.btn-sm{font-size:13.5px; padding:9px 16px; min-height:40px}
+.btn-row{display:flex; flex-wrap:wrap; gap:12px}
+
+.chip{
+  font-family:var(--f-mono); font-size:10.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase;
+  padding:5px 11px; border-radius:999px; border:1px solid var(--line);
+  color:var(--ink-dim); background:rgba(16,23,51,.7); display:inline-block;
+}
+.chip-easy{color:var(--go); border-color:rgba(61,220,151,.45); background:var(--go-bg)}
+.chip-medium{color:var(--ion); border-color:rgba(87,199,255,.45); background:rgba(87,199,255,.13)}
+.chip-hard{color:var(--flare-soft); border-color:rgba(255,122,47,.5); background:rgba(255,122,47,.14)}
+.chip-tier{color:var(--nebula); border-color:rgba(167,139,250,.45); background:rgba(167,139,250,.13)}
+.chip-demo{color:var(--amber); border-color:rgba(255,197,92,.45); background:rgba(255,197,92,.12)}
+
+/* ============ BERANDA ============ */
+.hero{
+  display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:clamp(20px,4vw,44px); align-items:center;
+  padding:clamp(22px,4vw,40px);
+  border:1px solid var(--line-soft); border-radius:28px;
+  background:
+    radial-gradient(700px 380px at 88% 18%, rgba(255,122,47,.13), transparent 66%),
+    linear-gradient(180deg,rgba(24,34,74,.68),rgba(11,16,38,.72));
+}
+.hero-tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px}
+.hero h1{margin-bottom:10px}
+.hero h1 .glow{
+  background:linear-gradient(96deg,var(--ion),var(--nebula) 52%,var(--flare));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero-sub{font-family:var(--f-display); font-weight:600; font-size:clamp(16px,2.4vw,21px); color:var(--flare-soft); margin-bottom:14px}
+.hero-cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:22px}
+.hero-by{margin-top:20px; padding-top:16px; border-top:1px dashed var(--line); font-size:13px; color:var(--ink-faint)}
+
+/* Panggung ilustrasi orisinal: Bumi, Bulan, bintang, Mars, pesawat */
+.stage{position:relative; aspect-ratio:1/1; min-height:250px}
+.stage svg{position:absolute; inset:0; width:100%; height:100%}
+.orbit-ring{transform-box:fill-box; transform-origin:center; animation:spin 46s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.float{animation:float 5.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.twinkle{animation:tw 3.2s ease-in-out infinite}
+.twinkle.d1{animation-delay:.9s} .twinkle.d2{animation-delay:1.8s} .twinkle.d3{animation-delay:2.6s}
+@keyframes tw{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* NOVA */
+.nova-row{display:flex; gap:14px; align-items:flex-start}
+.nova-av{width:56px; height:56px; flex:none}
+.nova-bubble{
+  background:rgba(87,199,255,.10); border:1px solid rgba(87,199,255,.32);
+  border-radius:4px 16px 16px 16px; padding:12px 16px; flex:1; min-width:0;
+}
+.nova-name{font-family:var(--f-mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ion); margin-bottom:3px}
+.nova-msg{font-size:15px; color:var(--ink)}
+
+/* ============ STRIP LINTASAN ============ */
+.traj-wrap{border:1px solid var(--line-soft); border-radius:var(--r-l); background:rgba(11,16,38,.6); padding:18px 20px 14px}
+.traj-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:26px}
+.traj-stage-name{font-family:var(--f-display); font-weight:600; font-size:15px}
+.traj-readout{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-faint); letter-spacing:.06em}
+.traj-track{position:relative; height:4px; margin:0 30px 8px; background:var(--line-soft); border-radius:4px}
+.traj-fill{position:absolute; inset:0 auto 0 0; background:linear-gradient(90deg,var(--ion),var(--nebula) 55%,var(--flare)); border-radius:4px; transition:width .55s cubic-bezier(.4,0,.2,1)}
+.traj-node{position:absolute; top:50%; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center}
+.traj-dot{width:15px; height:15px; border-radius:50%; border:2px solid var(--line); background:var(--void); transition:.35s}
+.traj-node.on .traj-dot{border-color:var(--ion); background:var(--ion); box-shadow:0 0 0 5px rgba(87,199,255,.18)}
+.traj-node[data-node="mars"].on .traj-dot{border-color:var(--flare); background:var(--flare); box-shadow:0 0 0 5px rgba(255,122,47,.22)}
+.traj-label{position:absolute; top:18px; font-family:var(--f-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); white-space:nowrap}
+.traj-node.on .traj-label{color:var(--ink-dim)}
+.traj-craft{
+  position:absolute; top:-24px; width:30px; height:30px;
+  transform:translateX(-50%); transition:left .55s cubic-bezier(.4,0,.2,1);
+}
+.traj-craft svg{width:100%; height:100%; display:block}
+
+/* ============ TELEMETRI ============ */
+.telemetry{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px}
+.tel{
+  background:rgba(16,23,51,.62); border:1px solid var(--line-soft);
+  border-radius:var(--r-m); padding:11px 13px; min-width:0;
+}
+.tel-k{font-family:var(--f-mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.tel-v{font-family:var(--f-mono); font-weight:700; font-size:19px; font-variant-numeric:tabular-nums; margin-top:2px}
+.tel-v small{font-size:12px; color:var(--ink-faint); font-weight:500}
+.tel-score .tel-v{color:var(--flare-soft)}
+.tel-correct .tel-v{color:var(--go)}
+
+/* ============ KARTU PERTANYAAN ============ */
+.qcard{border:1px solid var(--line-soft); border-radius:var(--r-l); background:linear-gradient(180deg,rgba(24,34,74,.66),rgba(16,23,51,.66)); padding:clamp(18px,3.2vw,30px)}
+.qhead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px}
+.qnum{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.1em; color:var(--ink-faint)}
+.qtext{font-family:var(--f-display); font-weight:600; font-size:clamp(19px,3vw,26px); line-height:1.32; margin-bottom:20px; text-wrap:balance}
+.opts{display:flex; flex-direction:column; gap:11px}
+.opt{
+  display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+  font-family:var(--f-body); font-size:16.5px; font-weight:600; color:var(--ink);
+  background:rgba(11,16,38,.62); border:1.5px solid var(--line);
+  border-radius:var(--r-m); padding:15px 17px; min-height:60px; cursor:pointer;
+  transition:border-color .15s, background .15s, transform .12s;
+}
+.opt:hover:not(:disabled){border-color:var(--ion); background:rgba(87,199,255,.09); transform:translateX(3px)}
+.opt:disabled{cursor:default}
+.opt-key{
+  font-family:var(--f-mono); font-weight:700; font-size:13px; flex:none;
+  width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+  background:rgba(87,199,255,.13); color:var(--ion); border:1px solid var(--line);
+}
+.opt-txt{flex:1; min-width:0}
+.opt-mark{font-size:19px; flex:none; line-height:1}
+.opt.correct{border-color:var(--go); background:var(--go-bg)}
+.opt.correct .opt-key{background:var(--go); color:#04180F; border-color:var(--go)}
+.opt.wrong{border-color:var(--hold); background:var(--hold-bg)}
+.opt.wrong .opt-key{background:var(--hold); color:#2A0710; border-color:var(--hold)}
+.opt.dim{opacity:.45}
+
+/* ============ FEEDBACK ============ */
+.feedback{margin-top:20px; border-radius:var(--r-m); border:1px solid var(--line); background:rgba(11,16,38,.72); overflow:hidden}
+.fb-top{display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line-soft)}
+.fb-icon{width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-size:19px; flex:none}
+.fb-good .fb-icon{background:var(--go-bg); border:1px solid var(--go)}
+.fb-bad .fb-icon{background:var(--hold-bg); border:1px solid var(--hold)}
+.fb-title{font-family:var(--f-display); font-weight:800; font-size:19px}
+.fb-good .fb-title{color:var(--go)} .fb-bad .fb-title{color:var(--hold)}
+.fb-pts{margin-left:auto; font-family:var(--f-mono); font-weight:700; font-size:15px; font-variant-numeric:tabular-nums}
+.fb-good .fb-pts{color:var(--go)} .fb-bad .fb-pts{color:var(--ink-faint)}
+.fb-body{padding:16px 18px; display:flex; flex-direction:column; gap:14px}
+.fb-explain{font-size:15.5px; line-height:1.62}
+.fb-src{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-faint); line-height:1.55}
+.fb-src a{color:var(--ion); text-decoration:none; border-bottom:1px solid rgba(87,199,255,.4); word-break:break-word}
+.fb-src a:hover{color:var(--flare-soft); border-color:var(--flare-soft)}
+.fb-actions{display:flex; justify-content:flex-end; padding:0 18px 18px}
+
+/* ============ CHECKPOINT ============ */
+.cp{text-align:center; display:flex; flex-direction:column; align-items:center; gap:18px; padding:clamp(24px,5vw,44px)}
+.cp-badge{width:96px; height:96px}
+.cp-stats{display:grid; grid-template-columns:repeat(2,minmax(120px,1fr)); gap:12px; width:100%; max-width:420px}
+.cp-stat{background:rgba(11,16,38,.62); border:1px solid var(--line-soft); border-radius:var(--r-m); padding:14px}
+.cp-stat .k{font-family:var(--f-mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint)}
+.cp-stat .v{font-family:var(--f-mono); font-weight:700; font-size:24px; font-variant-numeric:tabular-nums; color:var(--flare-soft)}
+
+/* ============ HASIL ============ */
+.landing{position:relative; height:150px; margin-bottom:6px}
+.landing svg{position:absolute; inset:0; width:100%; height:100%}
+.land-craft{animation:land 2.1s cubic-bezier(.35,.9,.35,1) 1 both}
+@keyframes land{from{transform:translate(-130px,-72px) rotate(28deg)}to{transform:translate(0,0) rotate(0)}}
+.score-hero{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:stretch}
+.score-big{
+  border-radius:var(--r-l); border:1px solid rgba(255,122,47,.35); padding:22px;
+  background:radial-gradient(420px 200px at 70% 0%, rgba(255,122,47,.18), transparent 70%), rgba(16,23,51,.7);
+  display:flex; flex-direction:column; justify-content:center;
+}
+.score-num{font-family:var(--f-mono); font-weight:700; font-size:clamp(40px,8vw,60px); line-height:1; color:var(--flare); font-variant-numeric:tabular-nums}
+.score-num span{font-size:.42em; color:var(--ink-faint)}
+.pct-ring{display:flex; align-items:center; gap:16px}
+.ring{width:104px; height:104px; flex:none}
+.rank-name{font-family:var(--f-display); font-weight:800; font-size:clamp(21px,3.6vw,28px); line-height:1.1}
+.rank-easy{color:var(--go)} .rank-mid{color:var(--ion)} .rank-max{color:var(--flare)}
+.levels{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+.lv{border:1px solid var(--line-soft); border-radius:var(--r-m); background:rgba(11,16,38,.6); padding:15px}
+.lv-bar{height:6px; border-radius:6px; background:var(--line-soft); margin-top:10px; overflow:hidden}
+.lv-bar i{display:block; height:100%; border-radius:6px}
+.lv-e i{background:var(--go)} .lv-m i{background:var(--ion)} .lv-h i{background:var(--flare)}
+.lv-v{font-family:var(--f-mono); font-weight:700; font-size:20px; font-variant-numeric:tabular-nums; margin-top:4px}
+.two-col{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
+.tick-list{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:8px}
+.tick-list li{display:flex; gap:9px; font-size:14.5px; line-height:1.5; color:var(--ink-dim)}
+.tick-list li b{color:var(--ink); font-weight:600}
+.tick{flex:none; font-size:14px}
+
+/* ============ REVIEW ============ */
+.filters{display:flex; gap:8px; flex-wrap:wrap}
+.fbtn{
+  font-family:var(--f-body); font-size:13px; font-weight:600; cursor:pointer;
+  background:rgba(16,23,51,.7); color:var(--ink-dim);
+  border:1px solid var(--line); border-radius:999px; padding:8px 15px; min-height:38px;
+}
+.fbtn:hover{color:var(--ink); border-color:var(--ion)}
+.fbtn[aria-pressed="true"]{background:var(--ion); color:var(--void); border-color:var(--ion)}
+.rv{border:1px solid var(--line-soft); border-left-width:4px; border-radius:var(--r-m); background:rgba(16,23,51,.55); padding:16px 18px; display:flex; flex-direction:column; gap:10px}
+.rv.ok{border-left-color:var(--go)}
+.rv.no{border-left-color:var(--hold)}
+.rv-head{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.rv-q{font-family:var(--f-display); font-weight:600; font-size:17px; line-height:1.35}
+.rv-ans{display:flex; flex-direction:column; gap:6px; font-size:14.5px}
+.rv-ans div{display:flex; gap:8px; flex-wrap:wrap}
+.rv-ans .lbl{font-family:var(--f-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); min-width:112px; padding-top:3px}
+.rv-ans .val{flex:1; min-width:160px}
+.val-ok{color:var(--go); font-weight:600}
+.val-no{color:var(--hold); font-weight:600}
+
+/* ============ TABEL ============ */
+.table-scroll{overflow-x:auto; border:1px solid var(--line-soft); border-radius:var(--r-m)}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:13.5px}
+th,td{text-align:left; padding:11px 13px; border-bottom:1px solid var(--line-soft); vertical-align:top}
+th{font-family:var(--f-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); background:rgba(11,16,38,.75); white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.st-ver{color:var(--go); font-weight:600}
+td.st-fix{color:var(--amber); font-weight:600}
+td.st-chk{color:var(--flare-soft); font-weight:600}
+
+/* ============ PUSAT FAKTA ============ */
+.fact-group{display:flex; flex-direction:column; gap:12px}
+.fact{border:1px solid var(--line-soft); border-radius:var(--r-m); background:rgba(11,16,38,.55); padding:15px 17px; display:flex; flex-direction:column; gap:7px}
+.fact-q{font-family:var(--f-display); font-weight:600; font-size:15.5px}
+.fact-a{font-size:14.5px; color:var(--ink-dim); line-height:1.6}
+.fact-a b{color:var(--ion); font-weight:700}
+.src-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.src-list li{display:flex; flex-direction:column; gap:2px; font-size:14px}
+.src-list a{color:var(--ion); text-decoration:none; font-family:var(--f-mono); font-size:12px; word-break:break-all; border-bottom:1px solid rgba(87,199,255,.3)}
+.src-list a:hover{color:var(--flare-soft)}
+.src-name{font-weight:600}
+
+/* ============ SERTIFIKAT ============ */
+.cert{
+  border-radius:var(--r-l); padding:clamp(24px,5vw,44px); text-align:center;
+  border:2px solid var(--flare);
+  background:
+    radial-gradient(600px 300px at 50% -10%, rgba(255,122,47,.16), transparent 70%),
+    linear-gradient(180deg,rgba(24,34,74,.9),rgba(11,16,38,.94));
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+}
+.cert-seal{width:78px; height:78px}
+.cert-title{font-family:var(--f-display); font-weight:800; font-size:clamp(23px,4.4vw,34px); color:var(--flare-soft)}
+.cert-rule{width:90px; height:2px; background:var(--flare); border-radius:2px}
+.cert-for{font-size:15.5px; color:var(--ink-dim); max-width:52ch; line-height:1.65}
+.cert-name{font-family:var(--f-display); font-weight:800; font-size:clamp(22px,4vw,30px)}
+.cert-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:12px; width:100%; margin-top:6px}
+.cert-cell{border:1px solid var(--line); border-radius:var(--r-m); padding:12px; background:rgba(11,16,38,.5)}
+.cert-cell .k{font-family:var(--f-mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint)}
+.cert-cell .v{font-family:var(--f-mono); font-weight:700; font-size:17px; margin-top:3px; font-variant-numeric:tabular-nums}
+.cert-foot{font-size:12.5px; color:var(--ink-faint); margin-top:6px; line-height:1.6}
+
+/* ============ MODAL ============ */
+.modal-back{position:fixed; inset:0; z-index:80; background:rgba(4,7,20,.78); backdrop-filter:blur(5px); display:grid; place-items:center; padding:20px}
+.modal{max-width:430px; width:100%; background:var(--hull); border:1px solid var(--line); border-radius:var(--r-l); padding:26px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:14px}
+
+/* ============ MISC ============ */
+.steps{list-style:none; counter-reset:s; margin:0; padding:0; display:flex; flex-direction:column; gap:11px}
+.steps li{counter-increment:s; display:flex; gap:13px; align-items:flex-start; font-size:15.5px; line-height:1.6}
+.steps li::before{
+  content:counter(s); flex:none; width:28px; height:28px; border-radius:9px;
+  background:rgba(87,199,255,.13); color:var(--ion); border:1px solid var(--line);
+  font-family:var(--f-mono); font-weight:700; font-size:12.5px; display:grid; place-items:center; margin-top:1px;
+}
+.bullets{margin:8px 0 0; padding-left:20px; display:flex; flex-direction:column; gap:7px; font-size:15px; color:var(--ink-dim); line-height:1.6}
+.bullets li::marker{color:var(--ion)}
+.legs{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:12px}
+.leg{border:1px solid var(--line-soft); border-radius:var(--r-m); padding:15px; background:rgba(11,16,38,.5); display:flex; flex-direction:column; gap:7px}
+.leg-ic{font-size:24px}
+.prompt-box{
+  font-family:var(--f-mono); font-size:13px; line-height:1.75; white-space:pre-wrap;
+  background:rgba(4,7,20,.72); border:1px solid var(--line); border-left:3px solid var(--nebula);
+  border-radius:var(--r-s); padding:15px 17px; overflow-x:auto; color:var(--ink-dim);
+}
+.prompt-box b{color:var(--nebula); font-weight:700}
+.notice{border:1px solid rgba(255,197,92,.42); background:rgba(255,197,92,.09); border-radius:var(--r-m); padding:14px 17px; font-size:14.5px; line-height:1.62; color:var(--ink-dim)}
+.notice b{color:var(--amber)}
+.divide{height:1px; background:var(--line-soft); border:0; margin:2px 0}
+.sec-head{display:flex; flex-direction:column; gap:6px; margin-bottom:4px}
+
+/* ============ RESPONSIF ============ */
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr; gap:24px}
+  .stage{max-width:330px; margin:0 auto; width:100%}
+  .score-hero{grid-template-columns:1fr}
+}
+@media (max-width:620px){
+  main{padding:18px 14px 52px}
+  .mission-bar-in{padding:10px 14px; gap:10px}
+  .brand-sub{display:none}
+  .telemetry{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .levels{grid-template-columns:1fr}
+  .traj-track{margin:0 26px 8px}
+  .traj-label{font-size:8.5px}
+  .opt{font-size:15.5px; padding:14px 14px; gap:11px}
+  .btn{width:100%}
+  .btn-row .btn{width:100%}
+  .fb-actions .btn{width:100%}
+  .rv-ans .lbl{min-width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
+}
+
+/* ============ CETAK SERTIFIKAT ============ */
+@media print{
+  #starfield,.mission-bar,.site-foot,.no-print{display:none !important}
+  body{background:#fff !important; color:#111 !important}
+  main{padding:0; max-width:none}
+  .cert{
+    background:#fff !important; border:3px solid #FF7A2F !important;
+    color:#111 !important; page-break-inside:avoid;
+  }
+  .cert *{color:#111 !important}
+  .cert-title{color:#C2410C !important}
+  .cert-cell{background:#FFF7ED !important; border-color:#FDBA74 !important}
+  .cert-foot,.cert-cell .k{color:#57534E !important}
+  .cert-rule{background:#FF7A2F !important}
+}
+</style>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<div id="app">
+  <header class="mission-bar">
+    <div class="mission-bar-in">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="20" r="18" fill="#101733" stroke="#2A3566" stroke-width="1.5"/>
+          <ellipse cx="20" cy="20" rx="17" ry="6.5" fill="none" stroke="#57C7FF" stroke-width="1.4" opacity=".65" transform="rotate(-22 20 20)"/>
+          <circle cx="20" cy="20" r="7.5" fill="#FF7A2F"/>
+          <circle cx="17.4" cy="17.6" r="2.1" fill="#FFA76B" opacity=".85"/>
+          <circle cx="22.4" cy="22.2" r="1.3" fill="#C2410C" opacity=".55"/>
+          <circle cx="32" cy="10" r="1.6" fill="#EEF2FF"/>
+          <circle cx="8" cy="29" r="1.2" fill="#A78BFA"/>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-name">Space Explorer Challenge</span>
+          <span class="brand-sub">Future Makers · Tier 2</span>
+        </div>
+      </div>
+      <nav class="nav" id="nav" aria-label="Menu utama"></nav>
+    </div>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <footer class="site-foot no-print">
+    Dibuat oleh <strong>Siswa Future Makers</strong> · Tier 2 – AI Explorers ·
+    Contoh portofolio proyek akhir program “Future Makers: Belajar AI, Ciptakan Aplikasi”.
+  </footer>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     1. SUMBER RUJUKAN — seluruh URL diperiksa satu per satu
+        pada 2 September 2026 dan benar-benar dapat dibuka.
+     ========================================================= */
+  var SRC = {
+    sun:    {name:"NASA Science — Sun Facts",            url:"https://science.nasa.gov/sun/facts/"},
+    sunKid: {name:"NASA Space Place — All About the Sun", url:"https://spaceplace.nasa.gov/all-about-the-sun/en/"},
+    earth:  {name:"NASA Science — Facts About Earth",     url:"https://science.nasa.gov/earth/facts/"},
+    moon:   {name:"NASA Science — Moon Facts",            url:"https://science.nasa.gov/moon/facts/"},
+    mars:   {name:"NASA Science — Mars Facts",            url:"https://science.nasa.gov/mars/facts/"},
+    jup:    {name:"NASA Science — Jupiter",               url:"https://science.nasa.gov/jupiter/"},
+    ven:    {name:"NASA Science — Venus Facts",           url:"https://science.nasa.gov/venus/venus-facts/"},
+    ast:    {name:"NASA Science — Asteroids",             url:"https://science.nasa.gov/solar-system/asteroids/"},
+    ss:     {name:"NASA Science — Our Solar System",      url:"https://science.nasa.gov/solar-system/"},
+    apollo: {name:"NASA — Apollo 11",                     url:"https://www.nasa.gov/mission/apollo-11/"},
+    nasm:   {name:"Smithsonian National Air and Space Museum — Apollo 11", url:"https://airandspace.si.edu/collections/apollo-11"},
+    esa:    {name:"ESA — Mars Express",                   url:"https://www.esa.int/Science_Exploration/Space_Science/Mars_Express"}
+  };
+  var CHECK_DATE = "2 September 2026";
+
+  /* =========================================================
+     2. BANK PERTANYAAN — 12 soal, 3 level
+     ========================================================= */
+  var QUESTIONS = [
+    { level:"easy", topic:"Pusat tata surya",
+      q:"Benda langit apakah yang menjadi pusat tata surya kita?",
+      options:["Matahari","Bulan","Bumi","Mars"], answer:0,
+      explain:"Matahari adalah bintang di pusat tata surya. Gravitasinya menahan seluruh tata surya, dan semua planet — termasuk Bumi — bergerak mengelilinginya.",
+      src:SRC.sun,
+      nova:"Kita mulai dari yang paling terang. Siap, Penjelajah?" },
+
+    { level:"easy", topic:"Planet tempat tinggal manusia",
+      q:"Planet manakah yang menjadi tempat tinggal manusia?",
+      options:["Venus","Bumi","Jupiter","Saturnus"], answer:1,
+      explain:"Bumi memiliki udara, air dalam bentuk cair, dan suhu yang pas untuk kehidupan. Sejauh ini Bumi adalah satu-satunya planet yang diketahui menampung kehidupan.",
+      src:SRC.earth,
+      nova:"Kita masih di landasan peluncuran. Lihat ke bawah kakimu." },
+
+    { level:"easy", topic:"Satelit alami Bumi",
+      q:"Apa nama satelit alami Bumi?",
+      options:["Bulan","Matahari","Mars","Merkurius"], answer:0,
+      explain:"Bulan adalah satu-satunya satelit alami Bumi. Jaraknya sekitar 385.000 km dan ia terus bergerak mengelilingi Bumi.",
+      src:SRC.moon,
+      nova:"Perhentian berikutnya nanti ada di sana. Ingat namanya!" },
+
+    { level:"easy", topic:"Planet Merah",
+      q:"Planet manakah yang dikenal sebagai Planet Merah?",
+      options:["Mars","Venus","Neptunus","Jupiter"], answer:0,
+      explain:"Mars terlihat kemerahan karena mineral besi di batuan dan debunya teroksidasi — berkarat — sehingga permukaannya tampak merah.",
+      src:SRC.mars,
+      nova:"Ini tujuan akhir misi kita. Hafalkan baik-baik." },
+
+    { level:"medium", topic:"Penyebab siang dan malam",
+      q:"Apa yang menyebabkan terjadinya siang dan malam di Bumi?",
+      options:["Rotasi Bumi","Revolusi Bulan","Gerakan awan","Perubahan musim"], answer:0,
+      explain:"Bumi berputar pada porosnya satu kali setiap sekitar 24 jam (tepatnya 23,9 jam). Sisi yang menghadap Matahari mengalami siang, sisi lainnya mengalami malam.",
+      src:SRC.earth,
+      nova:"Mesin menyala. Pertanyaan mulai naik tingkat, ya." },
+
+    { level:"medium", topic:"Lama Bumi mengelilingi Matahari",
+      q:"Berapa lama waktu yang dibutuhkan Bumi untuk mengelilingi Matahari?",
+      options:["Sekitar 24 jam","Sekitar 7 hari","Sekitar 30 hari","Sekitar 365 hari"], answer:3,
+      explain:"Bumi memerlukan sekitar 365,25 hari untuk satu kali mengelilingi Matahari. Seperempat hari yang tersisa itulah yang dikumpulkan menjadi tanggal 29 Februari setiap empat tahun.",
+      src:SRC.earth,
+      nova:"Petunjuk: coba pikirkan panjang satu tahun." },
+
+    { level:"medium", topic:"Planet terbesar",
+      q:"Planet terbesar dalam tata surya adalah?",
+      options:["Bumi","Mars","Jupiter","Saturnus"], answer:2,
+      explain:"Jupiter adalah planet terbesar di tata surya — massanya lebih dari dua kali massa seluruh planet lain digabungkan. Jika Jupiter berongga, sekitar 1.000 Bumi bisa masuk ke dalamnya.",
+      src:SRC.jup,
+      nova:"Yang ini raksasa. Benar-benar raksasa." },
+
+    { level:"medium", topic:"Manusia pertama di Bulan",
+      q:"Siapakah manusia pertama yang berjalan di permukaan Bulan?",
+      options:["Neil Armstrong","Yuri Gagarin","Albert Einstein","Galileo Galilei"], answer:0,
+      explain:"Neil Armstrong menjadi manusia pertama yang menginjak Bulan pada 20 Juli 1969 dalam misi Apollo 11, disusul Buzz Aldrin. Yuri Gagarin adalah manusia pertama yang terbang ke luar angkasa, tetapi ia tidak mendarat di Bulan.",
+      src:SRC.apollo,
+      nova:"Stasiun Bulan sudah dekat. Siapa yang lebih dulu sampai di sini?" },
+
+    { level:"hard", topic:"Letak sabuk asteroid",
+      q:"Di antara planet manakah sabuk asteroid utama berada?",
+      options:["Bumi dan Mars","Mars dan Jupiter","Jupiter dan Saturnus","Uranus dan Neptunus"], answer:1,
+      explain:"Sebagian besar asteroid mengorbit Matahari di sabuk asteroid utama, yaitu daerah di antara orbit Mars dan Jupiter.",
+      src:SRC.ast,
+      nova:"Hati-hati, ada banyak batuan di depan. Jawab dengan tepat!" },
+
+    { level:"hard", topic:"Planet terpanas",
+      q:"Planet manakah yang memiliki suhu permukaan rata-rata paling panas?",
+      options:["Merkurius","Venus","Mars","Jupiter"], answer:1,
+      explain:"Venus, bukan Merkurius. Atmosfer Venus sangat tebal dan memerangkap panas lewat efek rumah kaca yang tak terkendali, sehingga suhunya sekitar 467 °C — cukup panas untuk melelehkan timah, dan lebih panas daripada Merkurius yang letaknya lebih dekat ke Matahari.",
+      src:SRC.ven,
+      nova:"Jebakan klasik! Yang paling dekat belum tentu paling panas." },
+
+    { level:"hard", topic:"Waktu tempuh cahaya Matahari",
+      q:"Kira-kira berapa lama cahaya Matahari mencapai Bumi?",
+      options:["Sekitar 8 menit","Sekitar 8 jam","Sekitar 1 hari","Sekitar 1 minggu"], answer:0,
+      explain:"Sekitar 8 menit 20 detik. Matahari berjarak kira-kira 150 juta km dari Bumi, dan cahaya — benda tercepat di alam semesta — tetap butuh waktu untuk menempuhnya.",
+      src:SRC.sunKid,
+      nova:"Bahkan cahaya pun butuh waktu. Menurutmu berapa lama?" },
+
+    { level:"hard", topic:"Gunung berapi di Mars",
+      q:"Apa nama gunung berapi besar yang berada di Mars?",
+      options:["Mount Everest","Mauna Loa","Olympus Mons","Mount Fuji"], answer:2,
+      explain:"Olympus Mons adalah gunung berapi perisai raksasa di Mars dan salah satu gunung tertinggi yang diketahui di tata surya. Alasnya seluas negara bagian Arizona. Tiga pilihan lainnya adalah gunung di Bumi.",
+      src:SRC.mars,
+      nova:"Pertanyaan terakhir! Mars sudah tepat di depan kita." }
+  ];
+
+  var POINTS = {easy:10, medium:15, hard:20};
+  var LEVEL_LABEL = {easy:"Easy", medium:"Medium", hard:"Hard"};
+  var LEVEL_STAGE = {easy:"Persiapan di Bumi", medium:"Stasiun Bulan", hard:"Perjalanan Menuju Mars"};
+  var MAX = {easy:40, medium:60, hard:80, total:180};
+
+  /* =========================================================
+     3. VALIDASI DATA (mencegah layar kosong)
+     ========================================================= */
+  function validate(){
+    if(!Array.isArray(QUESTIONS) || QUESTIONS.length !== 12) return "Jumlah pertanyaan tidak berjumlah 12.";
+    for(var i=0;i<QUESTIONS.length;i++){
+      var q = QUESTIONS[i];
+      if(!q || !q.q) return "Pertanyaan nomor " + (i+1) + " tidak lengkap.";
+      if(!Array.isArray(q.options) || q.options.length !== 4) return "Pertanyaan nomor " + (i+1) + " tidak memiliki tepat empat pilihan.";
+      if(typeof q.answer !== "number" || q.answer < 0 || q.answer > 3) return "Pertanyaan nomor " + (i+1) + " tidak memiliki satu jawaban benar yang sah.";
+      if(!POINTS[q.level]) return "Pertanyaan nomor " + (i+1) + " tidak memiliki tingkat kesulitan yang dikenal.";
+    }
+    return null;
+  }
+  var DATA_ERROR = validate();
+
+  /* =========================================================
+     4. STATE
+     ========================================================= */
+  var S;
+  function freshRun(){
+    return {
+      started:false,
+      idx:0,
+      answers:new Array(12).fill(null), /* indeks pilihan pemain, null = belum dijawab */
+      finishedAt:null
+    };
+  }
+  S = {
+    view:"home",
+    run:freshRun(),
+    checkpoint:null,   /* 1 | 2 | 3 */
+    filter:"all"
+  };
+
+  /* ---- turunan skor: dihitung ulang dari answers, jadi tidak mungkin dobel ---- */
+  function isCorrect(i){ return S.run.answers[i] !== null && S.run.answers[i] === QUESTIONS[i].answer; }
+  function answeredCount(){ var n=0; for(var i=0;i<12;i++){ if(S.run.answers[i]!==null) n++; } return n; }
+  function correctCount(){ var n=0; for(var i=0;i<12;i++){ if(isCorrect(i)) n++; } return n; }
+  function scoreOf(level){
+    var t=0;
+    for(var i=0;i<12;i++){ if(QUESTIONS[i].level===level && isCorrect(i)) t += POINTS[level]; }
+    return t;
+  }
+  function totalScore(){ return scoreOf("easy") + scoreOf("medium") + scoreOf("hard"); }
+  function percent(){ return Math.round(totalScore() / MAX.total * 100); }
+  function rank(){
+    var p = percent();
+    if(p >= 85) return {name:"Space Master", cls:"rank-max", icon:"🛰️",
+      msg:"Luar biasa! Pengetahuanmu tentang tata surya sudah setara awak misi sungguhan."};
+    if(p >= 60) return {name:"Space Explorer", cls:"rank-mid", icon:"🚀",
+      msg:"Kerja bagus! Kamu sudah menguasai sebagian besar peta tata surya."};
+    return {name:"Space Beginner", cls:"rank-easy", icon:"🌱",
+      msg:"Perjalanan pertama selalu yang paling seru. Setiap fakta baru membuatmu lebih siap."};
+  }
+  function levelOfIndex(i){ return QUESTIONS[i].level; }
+  function levelRange(lv){ return lv==="easy" ? [0,3] : lv==="medium" ? [4,7] : [8,11]; }
+
+  /* =========================================================
+     5. UTIL
+     ========================================================= */
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function srcLine(src){
+    return '<div class="fb-src">Sumber fakta: ' + esc(src.name) +
+           ' · <a href="' + esc(src.url) + '" target="_blank" rel="noopener noreferrer">' + esc(src.url) + '</a></div>';
+  }
+  function todayID(d){
+    var bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    return d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear();
+  }
+
+  /* =========================================================
+     6. ILUSTRASI ORISINAL (SVG buatan sendiri, tanpa aset berhak cipta)
+     ========================================================= */
+  function craftSVG(){
+    return '<svg viewBox="0 0 32 32" aria-hidden="true">' +
+      '<path d="M16 2c3.4 3.2 5 7.6 5 12.2 0 3.2-.8 6-2 8.3h-6c-1.2-2.3-2-5.1-2-8.3C11 9.6 12.6 5.2 16 2Z" fill="#EEF2FF"/>' +
+      '<path d="M16 2c3.4 3.2 5 7.6 5 12.2 0 3.2-.8 6-2 8.3h-3V2Z" fill="#C7D2F5"/>' +
+      '<circle cx="16" cy="11" r="2.8" fill="#57C7FF" stroke="#101733" stroke-width="1"/>' +
+      '<path d="M11 16 7 21.5v3l4-2.4Z" fill="#FF7A2F"/>' +
+      '<path d="M21 16l4 5.5v3l-4-2.4Z" fill="#FF7A2F"/>' +
+      '<path d="M13.4 22.6h5.2l-1.1 3.2c-.5 1.4-1 2.6-1.5 3.8-.5-1.2-1-2.4-1.5-3.8Z" fill="#FFC55C"/>' +
+      '</svg>';
+  }
+  function novaSVG(){
+    return '<svg viewBox="0 0 64 64" role="img" aria-label="NOVA, robot pemandu luar angkasa">' +
+      '<line x1="32" y1="6" x2="32" y2="14" stroke="#57C7FF" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<circle cx="32" cy="5" r="3.4" fill="#FF7A2F"/>' +
+      '<rect x="12" y="14" width="40" height="32" rx="12" fill="#18224A" stroke="#57C7FF" stroke-width="2"/>' +
+      '<rect x="18" y="23" width="28" height="14" rx="7" fill="#070B1E"/>' +
+      '<circle cx="26" cy="30" r="3.4" fill="#57C7FF"/>' +
+      '<circle cx="38" cy="30" r="3.4" fill="#57C7FF"/>' +
+      '<circle cx="27.1" cy="28.8" r="1.1" fill="#EEF2FF"/>' +
+      '<circle cx="39.1" cy="28.8" r="1.1" fill="#EEF2FF"/>' +
+      '<rect x="21" y="48" width="22" height="9" rx="4.5" fill="#101733" stroke="#2A3566" stroke-width="1.6"/>' +
+      '<circle cx="32" cy="52.5" r="2" fill="#A78BFA"/>' +
+      '<path d="M8 26c-2.6 1.6-2.6 8.4 0 10" stroke="#2A3566" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+      '<path d="M56 26c2.6 1.6 2.6 8.4 0 10" stroke="#2A3566" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+      '</svg>';
+  }
+  function novaBlock(msg){
+    return '<div class="nova-row"><div class="nova-av">' + novaSVG() + '</div>' +
+      '<div class="nova-bubble"><div class="nova-name">NOVA · Pemandu Misi</div>' +
+      '<p class="nova-msg">' + esc(msg) + '</p></div></div>';
+  }
+  function heroStage(){
+    return '<div class="stage" aria-hidden="true"><svg viewBox="0 0 320 320">' +
+      /* bintang */
+      '<g fill="#EEF2FF">' +
+      '<circle class="twinkle" cx="34" cy="42" r="2.2"/>' +
+      '<circle class="twinkle d1" cx="284" cy="66" r="1.7"/>' +
+      '<circle class="twinkle d2" cx="60" cy="252" r="1.9"/>' +
+      '<circle class="twinkle d3" cx="252" cy="268" r="1.5"/>' +
+      '<circle class="twinkle d1" cx="150" cy="24" r="1.4"/>' +
+      '<circle class="twinkle d2" cx="296" cy="188" r="1.6"/>' +
+      '<circle class="twinkle" cx="20" cy="152" r="1.3"/>' +
+      '</g>' +
+      /* orbit ring */
+      '<g class="orbit-ring"><ellipse cx="160" cy="176" rx="120" ry="46" fill="none" stroke="#2A3566" stroke-width="1.6" stroke-dasharray="5 8"/></g>' +
+      /* Bumi */
+      '<circle cx="118" cy="192" r="52" fill="#1B4FA8"/>' +
+      '<path d="M78 176c11-5 17 2 26 0 8-2 11-9 19-8 7 1 9 7 15 8 4 .6 8-.4 11-2 1 6-1 12-6 15-6 4-14 3-20 7-5 3-6 9-12 10-7 1-11-5-18-6-6-1-11 3-16 1a52 52 0 0 1 1-25Z" fill="#3DDC97" opacity=".9"/>' +
+      '<path d="M108 224c7-3 12 1 18 1 5 0 9-3 14-2 4 1 6 4 6 8a52 52 0 0 1-40 4c-1-4 0-9 2-11Z" fill="#2FBF83" opacity=".85"/>' +
+      '<circle cx="118" cy="192" r="52" fill="none" stroke="#57C7FF" stroke-width="2" opacity=".55"/>' +
+      /* Bulan */
+      '<circle cx="228" cy="122" r="21" fill="#C7CEE8"/>' +
+      '<circle cx="221" cy="116" r="5" fill="#A6B1D4"/>' +
+      '<circle cx="234" cy="130" r="3.6" fill="#A6B1D4"/>' +
+      '<circle cx="233" cy="113" r="2.4" fill="#A6B1D4"/>' +
+      /* Mars */
+      '<circle cx="272" cy="232" r="27" fill="#D2551F"/>' +
+      '<circle cx="264" cy="224" r="6.4" fill="#FF9A5C" opacity=".55"/>' +
+      '<circle cx="279" cy="242" r="4.4" fill="#9C3A11" opacity=".6"/>' +
+      '<ellipse cx="272" cy="211" rx="12" ry="4" fill="#FFD8C0" opacity=".45"/>' +
+      /* jalur */
+      '<path d="M132 158 C 168 118, 196 112, 210 118" stroke="#57C7FF" stroke-width="2" stroke-dasharray="4 7" fill="none" opacity=".7"/>' +
+      '<path d="M244 138 C 262 168, 268 190, 268 206" stroke="#FF7A2F" stroke-width="2" stroke-dasharray="4 7" fill="none" opacity=".7"/>' +
+      /* pesawat melayang */
+      '<g transform="translate(168 100) rotate(38) scale(1.9)"><g class="float">' +
+      '<path d="M0 -14c3.4 3.2 5 7.6 5 12.2 0 3.2-.8 6-2 8.3h-6c-1.2-2.3-2-5.1-2-8.3C-5-6.4-3.4-10.8 0-14Z" fill="#EEF2FF"/>' +
+      '<circle cx="0" cy="-5" r="2.8" fill="#57C7FF" stroke="#101733" stroke-width="1"/>' +
+      '<path d="M-5 0-9 5.5v3L-5 6.1Z" fill="#FF7A2F"/>' +
+      '<path d="M5 0l4 5.5v3L5 6.1Z" fill="#FF7A2F"/>' +
+      '<path d="M-2.6 6.6h5.2L1.5 9.8C1 11.2.5 12.4 0 13.6c-.5-1.2-1-2.4-1.5-3.8Z" fill="#FFC55C"/>' +
+      '</g></g>' +
+      '</svg></div>';
+  }
+  function badgeSVG(color, glyph){
+    return '<svg class="cp-badge" viewBox="0 0 96 96" aria-hidden="true">' +
+      '<circle cx="48" cy="48" r="42" fill="#101733" stroke="' + color + '" stroke-width="3"/>' +
+      '<circle cx="48" cy="48" r="33" fill="none" stroke="' + color + '" stroke-width="1.4" stroke-dasharray="4 6" opacity=".6"/>' +
+      '<text x="48" y="60" font-size="34" text-anchor="middle">' + glyph + '</text>' +
+      '</svg>';
+  }
+  function ringSVG(p){
+    var r = 44, c = 2 * Math.PI * r, off = c * (1 - Math.min(100, Math.max(0, p)) / 100);
+    return '<svg class="ring" viewBox="0 0 104 104" role="img" aria-label="Nilai ' + p + ' persen">' +
+      '<circle cx="52" cy="52" r="' + r + '" fill="none" stroke="#1E2850" stroke-width="9"/>' +
+      '<circle cx="52" cy="52" r="' + r + '" fill="none" stroke="#FF7A2F" stroke-width="9" stroke-linecap="round" ' +
+      'stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 52 52)"/>' +
+      '<text x="52" y="58" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="23" font-weight="700" fill="#EEF2FF">' + p + '%</text>' +
+      '</svg>';
+  }
+  function landingSVG(){
+    return '<div class="landing" aria-hidden="true"><svg viewBox="0 0 400 150">' +
+      '<g fill="#EEF2FF"><circle class="twinkle" cx="40" cy="26" r="1.7"/><circle class="twinkle d1" cx="342" cy="34" r="1.4"/>' +
+      '<circle class="twinkle d2" cx="112" cy="18" r="1.2"/><circle class="twinkle d3" cx="268" cy="22" r="1.5"/></g>' +
+      '<path d="M0 118 Q 100 92 200 106 T 400 100 L400 150 L0 150Z" fill="#8C3A16"/>' +
+      '<path d="M0 128 Q 120 112 240 122 T 400 118 L400 150 L0 150Z" fill="#D2551F"/>' +
+      '<ellipse cx="96" cy="136" rx="26" ry="6" fill="#9C3A11" opacity=".6"/>' +
+      '<ellipse cx="308" cy="132" rx="18" ry="5" fill="#9C3A11" opacity=".5"/>' +
+      '<g class="land-craft" transform="translate(200 116)">' +
+      '<path d="M0 -46c8 8 12 18 12 29 0 5-1 9-2 13h-20c-1-4-2-8-2-13 0-11 4-21 12-29Z" fill="#EEF2FF"/>' +
+      '<circle cx="0" cy="-27" r="6" fill="#57C7FF" stroke="#101733" stroke-width="2"/>' +
+      '<path d="M-12 -8-22 6v6l10-6Z" fill="#FF7A2F"/><path d="M12 -8 22 6v6l-10-6Z" fill="#FF7A2F"/>' +
+      '<path d="M-8 -4h16v6H-8Z" fill="#C7D2F5"/>' +
+      '<path d="M-9 2-16 12M9 2l7 10" stroke="#A6B1D4" stroke-width="3" stroke-linecap="round"/>' +
+      '</g></svg></div>';
+  }
+
+  /* =========================================================
+     7. STRIP LINTASAN
+     ========================================================= */
+  var NODES = [
+    {id:"bumi",  label:"Bumi",         at:0},
+    {id:"bulan", label:"Bulan",        at:33.333},
+    {id:"deep",  label:"Luar Angkasa", at:66.666},
+    {id:"mars",  label:"Mars",         at:100}
+  ];
+  function stageName(done){
+    if(done >= 12) return "Pesawat mendarat di Mars";
+    if(done >= 8)  return "Melanjutkan perjalanan menuju Mars";
+    if(done >= 4)  return "Tiba di Stasiun Bulan";
+    return "Bersiap meninggalkan Bumi";
+  }
+  function trajectory(){
+    var done = answeredCount();
+    var pos  = done / 12 * 100;
+    var html = '<div class="traj-wrap"><div class="traj-head">' +
+      '<div class="traj-stage-name">🛰️ ' + esc(stageName(done)) + '</div>' +
+      '<div class="traj-readout">JARAK TEMPUH ' + Math.round(pos) + '% · BUMI → BULAN → LUAR ANGKASA → MARS</div>' +
+      '</div><div class="traj-track">' +
+      '<div class="traj-fill" style="width:' + pos + '%"></div>' +
+      '<div class="traj-craft" style="left:' + pos + '%">' + craftSVG() + '</div>';
+    NODES.forEach(function(n){
+      var on = pos >= n.at - 0.5;
+      html += '<div class="traj-node' + (on ? " on" : "") + '" data-node="' + n.id + '" style="left:' + n.at + '%">' +
+        '<div class="traj-dot"></div><div class="traj-label">' + esc(n.label) + '</div></div>';
+    });
+    return html + '</div><div style="height:14px"></div></div>';
+  }
+  function telemetry(){
+    var i = S.run.idx;
+    var lv = QUESTIONS[i] ? QUESTIONS[i].level : "easy";
+    return '<div class="telemetry">' +
+      '<div class="tel"><div class="tel-k">Pertanyaan</div><div class="tel-v">' + (i+1) + '<small> / 12</small></div></div>' +
+      '<div class="tel"><div class="tel-k">Level</div><div class="tel-v" style="font-size:15px">' + LEVEL_LABEL[lv] + '</div></div>' +
+      '<div class="tel tel-score"><div class="tel-k">Skor</div><div class="tel-v">' + totalScore() + '<small> / 180</small></div></div>' +
+      '<div class="tel tel-correct"><div class="tel-k">Benar</div><div class="tel-v">' + correctCount() + '<small> / 12</small></div></div>' +
+      '</div>';
+  }
+
+  /* =========================================================
+     8. TAMPILAN
+     ========================================================= */
+  function viewHome(){
+    var resume = S.run.started && !S.run.finishedAt && answeredCount() > 0;
+    var done   = !!S.run.finishedAt;
+    var mainLabel = done ? "🚀 Ulangi Misi" : resume ? "🚀 Lanjutkan Misi" : "🚀 Mulai Misi";
+    return '<div class="stack">' +
+      '<section class="hero">' +
+        '<div>' +
+          '<div class="hero-tags"><span class="chip chip-tier">Tier 2 – Interactive AI Quiz App</span>' +
+          '<span class="chip">Usia 9–11 tahun</span><span class="chip chip-demo">Konten statis, bukan AI live</span></div>' +
+          '<h1>Space Explorer <span class="glow">Challenge</span></h1>' +
+          '<p class="hero-sub">Jawab Pertanyaan dan Terbanglah Menuju Mars!</p>' +
+          '<p class="lede">Pesawatmu hanya bergerak kalau kamu menjawab. Lewati tiga level — persiapan di Bumi, Stasiun Bulan, lalu perjalanan panjang ke Mars — sambil mengumpulkan 180 poin dan belajar fakta luar angkasa yang sudah diperiksa dari sumber resmi NASA dan ESA.</p>' +
+          '<div class="hero-cta">' +
+            '<button class="btn btn-primary btn-lg" data-act="start-main">' + mainLabel + '</button>' +
+            '<button class="btn btn-ghost btn-lg" data-act="go" data-view="guide">📖 Cara Bermain</button>' +
+          '</div>' +
+          '<p class="hero-by">Dibuat oleh <strong>Siswa Future Makers</strong> · Proyek akhir Tier 2 – AI Explorers</p>' +
+        '</div>' +
+        heroStage() +
+      '</section>' +
+
+      '<section class="panel">' + novaBlock("Halo, aku NOVA — robot pemandu perjalananmu. Tugasku sederhana: menemanimu dari landasan di Bumi sampai mendarat di Mars, dan menjelaskan setiap fakta yang kita lewati. Jawaban yang belum tepat tidak akan menghentikan pesawat, jadi berani saja menebak!") + '</section>' +
+
+      '<section class="legs">' +
+        '<div class="leg"><div class="leg-ic">🌍</div><h4>Level 1 — Easy</h4><p class="faint">Persiapan di Bumi · 4 pertanyaan · 10 poin per jawaban benar</p></div>' +
+        '<div class="leg"><div class="leg-ic">🌕</div><h4>Level 2 — Medium</h4><p class="faint">Stasiun Bulan · 4 pertanyaan · 15 poin per jawaban benar</p></div>' +
+        '<div class="leg"><div class="leg-ic">🔴</div><h4>Level 3 — Hard</h4><p class="faint">Perjalanan Menuju Mars · 4 pertanyaan · 20 poin per jawaban benar</p></div>' +
+      '</section>' +
+    '</div>';
+  }
+
+  function viewGuide(){
+    return '<div class="stack">' +
+      '<div class="sec-head"><span class="eyebrow">Panduan Misi</span><h2>Cara bermain</h2>' +
+      '<p class="lede">Baca enam aturan ini dulu, lalu tekan Mulai Misi. Kamu bisa kembali ke halaman ini kapan saja tanpa kehilangan skor.</p></div>' +
+
+      '<section class="panel"><ol class="steps">' +
+        '<li>Misi terdiri dari <strong>12 pertanyaan</strong>.</li>' +
+        '<li>Setiap pertanyaan memiliki <strong>empat pilihan jawaban</strong>.</li>' +
+        '<li>Pilih satu jawaban yang menurutmu benar.</li>' +
+        '<li>Setelah menjawab, <strong>baca penjelasan faktanya</strong> — di situlah bagian belajarnya.</li>' +
+        '<li>Selesaikan <strong>tiga level</strong> untuk mencapai Mars.</li>' +
+        '<li><strong>Skor akhir</strong> menentukan gelar penjelajahmu.</li>' +
+      '</ol></section>' +
+
+      '<div class="sec-head"><h3>Pembagian misi</h3></div>' +
+      '<section class="legs">' +
+        '<div class="leg"><span class="chip chip-easy">Level 1 · Easy</span><h4>Persiapan di Bumi</h4><p class="faint">Pertanyaan 1–4. Fakta dasar tentang Matahari, Bumi, Bulan, dan Mars. Setiap jawaban benar bernilai 10 poin (maksimal 40).</p></div>' +
+        '<div class="leg"><span class="chip chip-medium">Level 2 · Medium</span><h4>Stasiun Bulan</h4><p class="faint">Pertanyaan 5–8. Gerakan Bumi, ukuran planet, dan sejarah pendaratan di Bulan. Setiap jawaban benar bernilai 15 poin (maksimal 60).</p></div>' +
+        '<div class="leg"><span class="chip chip-hard">Level 3 · Hard</span><h4>Perjalanan Menuju Mars</h4><p class="faint">Pertanyaan 9–12. Sabuk asteroid, suhu planet, cahaya Matahari, dan gunung di Mars. Setiap jawaban benar bernilai 20 poin (maksimal 80).</p></div>' +
+      '</section>' +
+
+      '<section class="panel"><h3>Aturan skor</h3>' +
+        '<ul class="bullets">' +
+        '<li>Easy 10 poin · Medium 15 poin · Hard 20 poin untuk setiap jawaban benar.</li>' +
+        '<li>Jawaban yang belum tepat bernilai 0 poin, tetapi <strong>skor yang sudah kamu kumpulkan tidak pernah berkurang</strong>.</li>' +
+        '<li>Skor maksimal 180 poin. Persentase dihitung dengan rumus: skor ÷ 180 × 100.</li>' +
+        '<li>Pesawat bergerak setiap kali satu pertanyaan selesai dijawab — benar atau belum tepat — jadi semua pemain pasti sampai di Mars.</li>' +
+        '</ul>' +
+      '</section>' +
+
+      '<section class="panel">' + novaBlock("Satu hal lagi. Setiap penjelasan punya tautan ke sumber aslinya. Kalau kamu penasaran, buka sumbernya dan periksa sendiri — itulah yang dilakukan penjelajah sungguhan.") + '</section>' +
+
+      '<div class="btn-row"><button class="btn btn-primary btn-lg" data-act="start-main">🚀 Mulai Misi Sekarang</button>' +
+      '<button class="btn btn-ghost" data-act="go" data-view="home">← Kembali ke Beranda</button></div>' +
+    '</div>';
+  }
+
+  function viewQuiz(){
+    var i = S.run.idx;
+    var q = QUESTIONS[i];
+    if(!q) return viewError("Data pertanyaan tidak ditemukan.");
+    var picked = S.run.answers[i];
+    var locked = picked !== null;
+
+    var html = '<div class="stack">' + trajectory() + telemetry() + '<div class="qcard">' +
+      '<div class="qhead">' +
+        '<span class="chip chip-' + q.level + '">' + LEVEL_LABEL[q.level] + ' · ' + POINTS[q.level] + ' poin</span>' +
+        '<span class="chip">' + esc(LEVEL_STAGE[q.level]) + '</span>' +
+        '<span class="qnum">PERTANYAAN ' + (i+1) + ' DARI 12</span>' +
+      '</div>' +
+      '<p class="qtext">' + esc(q.q) + '</p>' +
+      '<div class="opts" role="group" aria-label="Pilihan jawaban">';
+
+    var keys = ["A","B","C","D"];
+    q.options.forEach(function(opt, k){
+      var cls = "opt", mark = "";
+      if(locked){
+        if(k === q.answer){ cls += " correct"; mark = "✓"; }
+        else if(k === picked){ cls += " wrong"; mark = "✕"; }
+        else { cls += " dim"; }
+      }
+      html += '<button class="' + cls + '" data-act="answer" data-i="' + k + '"' + (locked ? " disabled" : "") + '>' +
+        '<span class="opt-key">' + keys[k] + '</span>' +
+        '<span class="opt-txt">' + esc(opt) + '</span>' +
+        (mark ? '<span class="opt-mark">' + mark + '</span>' : "") +
+        '</button>';
+    });
+    html += '</div>';
+
+    if(!locked){
+      html += '<div style="margin-top:20px">' + novaBlock(q.nova) + '</div>';
+    } else {
+      var good = picked === q.answer;
+      html += '<div class="feedback ' + (good ? "fb-good" : "fb-bad") + '" id="fb">' +
+        '<div class="fb-top">' +
+          '<div class="fb-icon">' + (good ? "✓" : "!") + '</div>' +
+          '<div class="fb-title">' + (good ? "Benar!" : "Belum Tepat") + '</div>' +
+          '<div class="fb-pts">' + (good ? "+" + POINTS[q.level] : "+0") + ' poin</div>' +
+        '</div>' +
+        '<div class="fb-body">' +
+          (good ? "" : '<p class="fb-explain" style="color:var(--ink-dim)"><strong style="color:var(--ink)">Jawaban yang tepat: ' + esc(q.options[q.answer]) + '</strong></p>') +
+          '<p class="fb-explain">' + esc(q.explain) + '</p>' +
+          srcLine(q.src) +
+          novaBlock(good
+            ? "Bagus! Pesawat maju satu langkah. Fakta ini akan berguna nanti."
+            : "Tidak apa-apa. Kita tetap terbang — yang penting kamu sekarang tahu jawabannya.") +
+        '</div>' +
+        '<div class="fb-actions">' +
+          '<button class="btn btn-primary" data-act="next" id="next-btn">' +
+            (i === 11 ? "Selesaikan Misi →" : "Lanjutkan →") +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    html += '</div>' +
+      '<div class="btn-row no-print">' +
+        '<button class="btn btn-ghost btn-sm" data-act="ask-restart">↺ Mulai Ulang Misi</button>' +
+        '<button class="btn btn-ghost btn-sm" data-act="go" data-view="guide">📖 Lihat Panduan</button>' +
+      '</div></div>';
+    return html;
+  }
+
+  function viewCheckpoint(){
+    var n = S.checkpoint;
+    var map = {
+      1:{lv:"easy",   title:"Persiapan Bumi Selesai!", color:"#3DDC97", glyph:"🌍",
+         msg:"Mesin panas, bahan bakar penuh. Empat pertanyaan pertama sudah kita lewati — sekarang kita menuju Stasiun Bulan."},
+      2:{lv:"medium", title:"Stasiun Bulan Berhasil Dicapai!", color:"#57C7FF", glyph:"🌕",
+         msg:"Kita berhasil sampai di Bulan, tempat Neil Armstrong dulu berjalan. Jalur berikutnya melewati sabuk asteroid — bersiap!"},
+      3:{lv:"hard",   title:"Mars Sudah Terlihat!", color:"#FF7A2F", glyph:"🔴",
+         msg:"Titik merah itu bukan bintang — itu Mars, dan kita sudah sangat dekat. Waktunya melihat hasil perjalananmu."}
+    };
+    var c = map[n];
+    if(!c) return viewError("Checkpoint tidak dikenal.");
+    var r = levelRange(c.lv);
+    var benar = 0;
+    for(var i = r[0]; i <= r[1]; i++){ if(isCorrect(i)) benar++; }
+    return '<div class="stack">' + trajectory() +
+      '<section class="panel cp">' +
+        badgeSVG(c.color, c.glyph) +
+        '<span class="chip chip-' + c.lv + '">Checkpoint ' + n + ' · Level ' + LEVEL_LABEL[c.lv] + '</span>' +
+        '<h2>' + esc(c.title) + '</h2>' +
+        '<div class="cp-stats">' +
+          '<div class="cp-stat"><div class="k">Skor level ini</div><div class="v">' + scoreOf(c.lv) + '<span style="font-size:14px;color:var(--ink-faint)"> / ' + MAX[c.lv] + '</span></div></div>' +
+          '<div class="cp-stat"><div class="k">Jawaban benar</div><div class="v">' + benar + '<span style="font-size:14px;color:var(--ink-faint)"> / 4</span></div></div>' +
+        '</div>' +
+        '<div style="width:100%;max-width:540px;text-align:left">' + novaBlock(c.msg) + '</div>' +
+        '<button class="btn btn-primary btn-lg" data-act="cp-continue">' + (n === 3 ? "Lihat Hasil Misi →" : "Lanjutkan Perjalanan →") + '</button>' +
+      '</section></div>';
+  }
+
+  function viewResult(){
+    if(!S.run.finishedAt) return viewEmpty("Misi belum selesai", "Selesaikan 12 pertanyaan dulu untuk melihat hasil akhirmu.");
+    var r = rank(), p = percent();
+    var benarList = [], belajarList = [];
+    for(var i=0;i<12;i++){
+      (isCorrect(i) ? benarList : belajarList).push(i);
+    }
+    function listItems(arr, tick){
+      if(!arr.length) return '<li><span class="tick">—</span><span>Tidak ada.</span></li>';
+      return arr.map(function(i){
+        return '<li><span class="tick">' + tick + '</span><span><b>' + esc(QUESTIONS[i].topic) + '</b> — ' +
+          esc(QUESTIONS[i].options[QUESTIONS[i].answer]) + ' <span class="faint">(' + LEVEL_LABEL[QUESTIONS[i].level] + ')</span></span></li>';
+      }).join("");
+    }
+    function lvCard(lv, cls, label){
+      var s = scoreOf(lv), m = MAX[lv];
+      return '<div class="lv ' + cls + '"><span class="chip chip-' + lv + '">' + label + '</span>' +
+        '<div class="lv-v">' + s + '<span style="font-size:13px;color:var(--ink-faint)"> / ' + m + '</span></div>' +
+        '<div class="lv-bar"><i style="width:' + (s/m*100) + '%"></i></div></div>';
+    }
+    return '<div class="stack">' +
+      landingSVG() +
+      '<div class="sec-head" style="text-align:center;align-items:center">' +
+        '<span class="eyebrow">Pendaratan Berhasil</span>' +
+        '<h2>Pesawatmu mendarat di Mars 🎉</h2>' +
+        '<p class="lede" style="text-align:center">Semua penjelajah sampai di Mars. Gelar di bawah ini menunjukkan seberapa banyak fakta yang sudah kamu kuasai — bukan berhasil atau gagalnya perjalanan.</p>' +
+      '</div>' +
+
+      '<section class="score-hero">' +
+        '<div class="score-big">' +
+          '<div class="eyebrow" style="color:var(--flare-soft)">Skor Akhir</div>' +
+          '<div class="score-num">' + totalScore() + '<span> / 180</span></div>' +
+          '<p class="faint" style="margin-top:8px">' + correctCount() + ' jawaban benar dari 12 pertanyaan</p>' +
+        '</div>' +
+        '<div class="panel" style="display:flex;align-items:center">' +
+          '<div class="pct-ring">' + ringSVG(p) +
+            '<div><div class="eyebrow">Gelar Penjelajah</div>' +
+            '<div class="rank-name ' + r.cls + '">' + r.icon + " " + r.name + '</div>' +
+            '<p class="faint" style="margin-top:6px">' + esc(r.msg) + '</p></div>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+
+      '<section class="levels">' +
+        lvCard("easy","lv-e","Easy · Bumi") +
+        lvCard("medium","lv-m","Medium · Bulan") +
+        lvCard("hard","lv-h","Hard · Mars") +
+      '</section>' +
+
+      '<section class="two-col">' +
+        '<div class="panel-flat"><h3 style="color:var(--go)">✓ Sudah kamu kuasai (' + benarList.length + ')</h3>' +
+          '<ul class="tick-list">' + listItems(benarList, "✓") + '</ul></div>' +
+        '<div class="panel-flat"><h3 style="color:var(--amber)">★ Fakta untuk dipelajari lagi (' + belajarList.length + ')</h3>' +
+          '<ul class="tick-list">' + listItems(belajarList, "★") + '</ul></div>' +
+      '</section>' +
+
+      '<section class="panel">' + novaBlock("Terima kasih sudah menerbangkan pesawat ini, Penjelajah. Kalau ada fakta yang masih menempel di kepala setelah misi selesai, berarti tugas kita berdua berhasil.") + '</section>' +
+
+      '<div class="btn-row no-print">' +
+        '<button class="btn btn-primary" data-act="restart-now">↺ Ulangi Misi</button>' +
+        '<button class="btn btn-ion" data-act="go" data-view="review">📚 Pelajari Jawaban</button>' +
+        '<button class="btn btn-ghost" data-act="go" data-view="certificate">🏅 Lihat Sertifikat</button>' +
+        '<button class="btn btn-ghost" data-act="go" data-view="home">🏠 Kembali ke Beranda</button>' +
+      '</div></div>';
+  }
+
+  var FILTERS = [
+    {id:"all",    label:"Semua"},
+    {id:"ok",     label:"Benar"},
+    {id:"no",     label:"Perlu Dipelajari"},
+    {id:"easy",   label:"Easy"},
+    {id:"medium", label:"Medium"},
+    {id:"hard",   label:"Hard"}
+  ];
+  function viewReview(){
+    if(answeredCount() === 0){
+      return viewEmpty("Belum ada jawaban untuk ditinjau", "Mainkan misi lebih dulu, lalu kembali ke sini untuk membaca ulang setiap penjelasan.");
+    }
+    var f = S.filter, shown = 0, cards = "";
+    for(var i=0;i<12;i++){
+      var q = QUESTIONS[i], picked = S.run.answers[i], ok = isCorrect(i);
+      var pass = f === "all" || (f === "ok" && ok) || (f === "no" && !ok) || (f === q.level);
+      if(!pass) continue;
+      shown++;
+      cards += '<div class="rv ' + (ok ? "ok" : "no") + '">' +
+        '<div class="rv-head">' +
+          '<span class="qnum">NO. ' + (i+1) + '</span>' +
+          '<span class="chip chip-' + q.level + '">' + LEVEL_LABEL[q.level] + '</span>' +
+          '<span class="chip" style="' + (ok ? "color:var(--go);border-color:rgba(61,220,151,.45)" : "color:var(--hold);border-color:rgba(255,110,138,.45)") + '">' +
+            (ok ? "✓ Benar" : "★ Perlu Dipelajari") + '</span>' +
+        '</div>' +
+        '<p class="rv-q">' + esc(q.q) + '</p>' +
+        '<div class="rv-ans">' +
+          '<div><span class="lbl">Jawabanmu</span><span class="val ' + (ok ? "val-ok" : "val-no") + '">' +
+            (picked === null ? "Tidak dijawab" : esc(q.options[picked])) + '</span></div>' +
+          '<div><span class="lbl">Jawaban benar</span><span class="val val-ok">' + esc(q.options[q.answer]) + '</span></div>' +
+        '</div>' +
+        '<p class="fb-explain" style="color:var(--ink-dim)">' + esc(q.explain) + '</p>' +
+        srcLine(q.src) +
+      '</div>';
+    }
+    if(shown === 0){
+      cards = '<div class="panel-flat" style="text-align:center"><p class="muted">Tidak ada pertanyaan pada filter ini. Coba pilih filter lain.</p></div>';
+    }
+    return '<div class="stack">' +
+      '<div class="sec-head"><span class="eyebrow">Pelajari Jawaban</span><h2>Review 12 pertanyaan</h2>' +
+      '<p class="lede">Baca ulang setiap fakta beserta sumbernya. Gunakan filter untuk fokus pada bagian yang masih ingin kamu kuasai.</p></div>' +
+      '<div class="filters" role="group" aria-label="Filter review">' +
+        FILTERS.map(function(x){
+          return '<button class="fbtn" data-act="filter" data-f="' + x.id + '" aria-pressed="' + (f === x.id) + '">' + x.label + '</button>';
+        }).join("") +
+      '</div>' +
+      '<p class="faint">Menampilkan ' + shown + ' dari 12 pertanyaan.</p>' +
+      '<div class="stack" style="gap:12px">' + cards + '</div>' +
+      '<div class="btn-row no-print">' +
+        (S.run.finishedAt ? '<button class="btn btn-ghost" data-act="go" data-view="result">← Kembali ke Hasil</button>' : "") +
+        '<button class="btn btn-ghost" data-act="go" data-view="facts">🔭 Buka Pusat Fakta</button>' +
+        '<button class="btn btn-ghost" data-act="go" data-view="home">🏠 Beranda</button>' +
+      '</div></div>';
+  }
+
+  function viewCertificate(){
+    if(!S.run.finishedAt){
+      return viewEmpty("Sertifikat belum terbuka", "Sertifikat muncul setelah kamu menyelesaikan seluruh 12 pertanyaan dan mendarat di Mars.");
+    }
+    var r = rank();
+    return '<div class="stack">' +
+      '<div class="sec-head no-print"><span class="eyebrow">Sertifikat Digital</span><h2>Bukti pendaratan di Mars</h2>' +
+      '<p class="lede">Sertifikat ini hanya memakai identitas contoh “Siswa Future Makers”. Tidak ada nama lengkap, sekolah, atau data pribadi apa pun.</p></div>' +
+      '<section class="cert">' +
+        '<svg class="cert-seal" viewBox="0 0 78 78" aria-hidden="true">' +
+          '<circle cx="39" cy="39" r="35" fill="none" stroke="#FF7A2F" stroke-width="2.5"/>' +
+          '<circle cx="39" cy="39" r="28" fill="none" stroke="#FF7A2F" stroke-width="1.2" stroke-dasharray="3 5"/>' +
+          '<text x="39" y="50" font-size="28" text-anchor="middle">🚀</text>' +
+        '</svg>' +
+        '<div class="cert-title">Space Explorer Challenge Certificate</div>' +
+        '<div class="cert-rule"></div>' +
+        '<p class="cert-for">Diberikan kepada</p>' +
+        '<div class="cert-name">Siswa Future Makers</div>' +
+        '<p class="cert-for">karena telah menyelesaikan perjalanan pengetahuan dari Bumi menuju Mars.</p>' +
+        '<div class="cert-grid">' +
+          '<div class="cert-cell"><div class="k">Gelar</div><div class="v" style="font-size:14px">' + r.name + '</div></div>' +
+          '<div class="cert-cell"><div class="k">Skor</div><div class="v">' + totalScore() + ' / 180</div></div>' +
+          '<div class="cert-cell"><div class="k">Persentase</div><div class="v">' + percent() + '%</div></div>' +
+          '<div class="cert-cell"><div class="k">Jawaban benar</div><div class="v">' + correctCount() + ' / 12</div></div>' +
+        '</div>' +
+        '<p class="cert-foot">Tier 2 – AI Explorers · Proyek “Space Explorer Challenge”<br>' +
+        'Program Future Makers: Belajar AI, Ciptakan Aplikasi<br>' +
+        'Diselesaikan pada ' + esc(todayID(new Date(S.run.finishedAt))) + '</p>' +
+      '</section>' +
+      '<div class="btn-row no-print">' +
+        '<button class="btn btn-primary" data-act="print">🖨️ Cetak atau Simpan sebagai PDF</button>' +
+        '<button class="btn btn-ghost" data-act="go" data-view="result">← Kembali ke Hasil</button>' +
+        '<button class="btn btn-ghost" data-act="go" data-view="home">🏠 Beranda</button>' +
+      '</div></div>';
+  }
+
+  /* ---- Pusat Fakta ---- */
+  var FACT_GROUPS = [
+    {title:"🌞 Matahari dan Tata Surya", ids:[0,10], extra:[]},
+    {title:"🌍 Bumi", ids:[1,4,5], extra:[]},
+    {title:"🌕 Bulan", ids:[2,7], extra:[]},
+    {title:"🪐 Planet", ids:[3,6,9], extra:[]},
+    {title:"🚀 Luar Angkasa dan Penjelajahan", ids:[8,11], extra:[]}
+  ];
+  function viewFacts(){
+    var groups = FACT_GROUPS.map(function(g){
+      var items = g.ids.map(function(i){
+        var q = QUESTIONS[i];
+        return '<div class="fact">' +
+          '<div class="rv-head"><span class="chip chip-' + q.level + '">' + LEVEL_LABEL[q.level] + '</span><span class="qnum">FAKTA ' + (i+1) + '</span></div>' +
+          '<p class="fact-q">' + esc(q.q) + '</p>' +
+          '<p class="fact-a"><b>' + esc(q.options[q.answer]) + '.</b> ' + esc(q.explain) + '</p>' +
+          srcLine(q.src) +
+        '</div>';
+      }).join("");
+      return '<section class="stack" style="gap:12px"><h3>' + g.title + '</h3><div class="fact-group">' + items + '</div></section>';
+    }).join("");
+
+    var srcItems = Object.keys(SRC).map(function(k){
+      var s = SRC[k];
+      return '<li><span class="src-name">' + esc(s.name) + '</span><a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">' + esc(s.url) + '</a></li>';
+    }).join("");
+
+    return '<div class="stack">' +
+      '<div class="sec-head"><span class="eyebrow">Pusat Fakta</span><h2>12 fakta di balik kuis ini</h2>' +
+      '<p class="lede">Semua fakta yang dipakai di dalam misi, dikelompokkan menurut topik, lengkap dengan sumber resminya.</p></div>' +
+
+      '<div class="notice"><b>Kenapa harus diperiksa?</b> Draf pertanyaan kuis ini dibuat dengan bantuan Claude AI. AI bisa saja memberikan informasi yang salah atau ketinggalan zaman, jadi setiap fakta dibandingkan dulu dengan halaman resmi NASA, ESA, dan Smithsonian National Air and Space Museum sebelum masuk ke dalam permainan. Pemeriksaan terakhir dilakukan pada <b>' + CHECK_DATE + '</b>. Log lengkap perbaikannya ada di halaman Tentang Proyek.</div>' +
+
+      groups +
+
+      '<section class="panel"><h3>Sumber rujukan resmi</h3>' +
+      '<p class="faint" style="margin-bottom:12px">Setiap tautan di bawah ini dibuka dan diperiksa satu per satu pada ' + CHECK_DATE + '. Tidak ada tautan yang dikarang.</p>' +
+      '<ul class="src-list">' + srcItems + '</ul></section>' +
+
+      '<div class="btn-row no-print"><button class="btn btn-primary" data-act="start-main">🚀 Uji Pengetahuanmu</button>' +
+      '<button class="btn btn-ghost" data-act="go" data-view="home">🏠 Beranda</button></div>' +
+    '</div>';
+  }
+
+  /* ---- Tentang Proyek ---- */
+  var FACTCHECK = [
+    ["Matahari adalah pusat tata surya",
+     "“Matahari berada di pusat tata surya dan semua planet mengelilinginya.”",
+     "NASA Science — Sun Facts", "Terverifikasi", "st-ver",
+     "NASA menyebut gravitasi Matahari menahan tata surya dan segalanya berputar mengelilinginya."],
+    ["Jupiter adalah planet terbesar",
+     "“Jupiter adalah planet terbesar di tata surya.”",
+     "NASA Science — Jupiter", "Terverifikasi", "st-ver",
+     "NASA: massanya lebih dari dua kali seluruh planet lain digabungkan."],
+    ["Planet dengan suhu permukaan paling panas",
+     "“Merkurius, karena letaknya paling dekat dengan Matahari.”",
+     "NASA Science — Venus Facts", "Diperbaiki", "st-fix",
+     "Salah. NASA menyatakan Venus lebih panas daripada Merkurius karena efek rumah kaca tak terkendali. Jawaban dan penjelasan soal diganti."],
+    ["Neil Armstrong berjalan di Bulan pada 1969",
+     "“Neil Armstrong adalah manusia pertama yang berjalan di Bulan.” (tanpa tanggal)",
+     "NASA — Apollo 11 · Smithsonian NASM", "Terverifikasi", "st-ver",
+     "Benar. Tanggal 20 Juli 1969 dan nama Buzz Aldrin ditambahkan agar penjelasan lebih lengkap."],
+    ["Sabuk asteroid utama berada antara Mars dan Jupiter",
+     "“Sabuk asteroid berada di antara Mars dan Jupiter.”",
+     "NASA Science — Asteroids", "Terverifikasi", "st-ver",
+     "Sesuai dengan halaman NASA tentang asteroid."],
+    ["Waktu tempuh cahaya Matahari ke Bumi",
+     "“Sekitar 8 menit.”",
+     "NASA Space Place — All About the Sun", "Diperbaiki", "st-fix",
+     "Diperjelas menjadi sekitar 8 menit 20 detik sesuai halaman NASA Space Place."],
+    ["Olympus Mons berada di Mars",
+     "“Olympus Mons adalah gunung berapi terbesar di tata surya, berada di Mars.”",
+     "NASA Science — Mars Facts", "Terverifikasi", "st-ver",
+     "Sesuai halaman fakta Mars milik NASA."],
+    ["Tinggi Olympus Mons",
+     "“Tingginya sekitar 27 km.”",
+     "NASA Science — Mars Facts", "Perlu Pemeriksaan Lanjutan", "st-chk",
+     "Angka berbeda-beda antar sumber (NASA menyebut lebih dari 40 km dari dasar ke puncak). Karena belum pasti, angka tinggi tidak dipakai di dalam soal maupun penjelasan."],
+    ["Lama Bumi mengelilingi Matahari",
+     "“Tepat 365 hari.”",
+     "NASA Science — Facts About Earth", "Diperbaiki", "st-fix",
+     "NASA menyebut 365,25 hari. Pilihan jawaban tetap “Sekitar 365 hari”, tetapi penjelasan diperbaiki dan alasan tahun kabisat ditambahkan."]
+  ];
+
+  function viewAbout(){
+    var rows = FACTCHECK.map(function(r, i){
+      return '<tr><td style="font-family:var(--f-mono)">' + (i+1) + '</td>' +
+        '<td><strong>' + esc(r[0]) + '</strong><br><span class="faint">' + esc(r[5]) + '</span></td>' +
+        '<td class="muted">' + esc(r[1]) + '</td>' +
+        '<td class="muted">' + esc(r[2]) + '</td>' +
+        '<td class="' + r[4] + '">' + esc(r[3]) + '</td></tr>';
+    }).join("");
+
+    return '<div class="stack">' +
+      '<div class="sec-head"><span class="eyebrow">Portofolio Proyek</span><h1 style="font-size:clamp(28px,5vw,42px)">Space Explorer Challenge</h1>' +
+      '<div class="hero-tags" style="margin-top:10px"><span class="chip chip-tier">Tier 2 – AI Explorers</span>' +
+      '<span class="chip">Usia 9–11 tahun</span><span class="chip">Interactive AI Quiz App</span>' +
+      '<span class="chip chip-demo">Konten statis, bukan AI live</span></div></div>' +
+
+      '<section class="panel"><h3>Pembuat</h3><p class="lede">Siswa Future Makers · proyek akhir program “Future Makers: Belajar AI, Ciptakan Aplikasi”.</p>' +
+      '<hr class="divide" style="margin:16px 0">' +
+      '<h3>Tujuan proyek</h3><p class="lede">Membuat aplikasi kuis interaktif tentang luar angkasa yang memiliki tingkat kesulitan bertahap, skor otomatis, feedback langsung, penjelasan fakta, dan pemeriksaan fakta dari sumber resmi.</p>' +
+      '<hr class="divide" style="margin:16px 0">' +
+      '<h3>Cara menggunakan</h3>' +
+      '<ol class="steps" style="margin-top:10px">' +
+        '<li>Buka Beranda, tekan <strong>Mulai Misi</strong>.</li>' +
+        '<li>Jawab 12 pertanyaan, satu per satu.</li>' +
+        '<li>Baca penjelasan dan sumbernya, lalu tekan <strong>Lanjutkan</strong>.</li>' +
+        '<li>Lewati checkpoint di pertanyaan 4, 8, dan 12.</li>' +
+        '<li>Lihat hasil, review jawaban, dan cetak sertifikat.</li>' +
+      '</ol></section>' +
+
+      '<section class="two-col">' +
+        '<div class="panel"><h3>👧 Peran siswa</h3><ul class="bullets">' +
+          '<li>Menentukan tema kuis: perjalanan Bumi → Mars.</li>' +
+          '<li>Menyusun struktur 12 pertanyaan dalam 3 level.</li>' +
+          '<li>Menentukan level kesulitan tiap pertanyaan.</li>' +
+          '<li>Memilih dan memperpendek pilihan jawaban.</li>' +
+          '<li>Membuat aturan skor 10 / 15 / 20 poin.</li>' +
+          '<li>Memeriksa setiap fakta hasil AI ke situs NASA dan ESA.</li>' +
+          '<li>Menguji aplikasi bersama tiga penguji.</li>' +
+          '<li>Memperbaiki soal yang membingungkan.</li>' +
+        '</ul></div>' +
+        '<div class="panel"><h3>🤖 Peran Claude AI</h3><ul class="bullets">' +
+          '<li>Menghasilkan ide pertanyaan luar angkasa.</li>' +
+          '<li>Membantu membuat empat pilihan jawaban tiap soal.</li>' +
+          '<li>Membantu menyesuaikan tingkat kesulitan untuk usia 9–11.</li>' +
+          '<li>Membuat draf awal penjelasan fakta.</li>' +
+          '<li>Membantu memperbaiki bahasa pertanyaan agar lebih jelas.</li>' +
+          '<li>Membantu membangun aplikasi kuis ini.</li>' +
+        '</ul></div>' +
+      '</section>' +
+
+      '<section class="panel"><h3>Contoh prompt terstruktur</h3>' +
+      '<p class="faint" style="margin:6px 0 12px">Prompt ditulis dengan lima bagian: konteks, tugas, batasan, format, dan gaya.</p>' +
+      '<div class="prompt-box"><b>Konteks:</b>\nSaya membuat kuis luar angkasa untuk anak usia 9–11 tahun.\n\n<b>Tugas:</b>\nBuat empat pertanyaan pilihan ganda mengenai tata surya.\n\n<b>Batasan:</b>\nSetiap pertanyaan harus memiliki empat pilihan dan hanya satu jawaban benar. Hindari pertanyaan yang terlalu teknis.\n\n<b>Format:</b>\nTampilkan pertanyaan, empat pilihan, jawaban benar, tingkat kesulitan, dan penjelasan.\n\n<b>Gaya:</b>\nGunakan Bahasa Indonesia yang sederhana, menyenangkan, dan edukatif.</div>' +
+      '<h4 style="margin-top:18px">Contoh prompt perbaikan</h4>' +
+      '<div class="prompt-box" style="border-left-color:var(--flare)">“Periksa pertanyaan ini menggunakan sumber resmi. Perbaiki jika ada fakta yang salah atau terdapat lebih dari satu jawaban yang dapat dianggap benar.”</div>' +
+      '</section>' +
+
+      '<section class="stack" style="gap:12px">' +
+        '<div class="sec-head"><span class="eyebrow">Fact-Check Log</span><h3>Pemeriksaan fakta hasil AI</h3>' +
+        '<p class="lede">Sembilan fakta diperiksa ulang oleh siswa terhadap sumber resmi pada ' + CHECK_DATE + '. Tidak ada fakta yang ditandai “Terverifikasi” sebelum dibandingkan dengan halaman aslinya.</p></div>' +
+        '<div class="table-scroll"><table>' +
+        '<thead><tr><th>No.</th><th>Fakta yang diperiksa</th><th>Hasil AI awal</th><th>Sumber pemeriksaan</th><th>Status</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table></div>' +
+        '<p class="faint">Status yang dipakai: <span style="color:var(--go)">Terverifikasi</span> · <span style="color:var(--amber)">Diperbaiki</span> · <span style="color:var(--flare-soft)">Perlu Pemeriksaan Lanjutan</span>.</p>' +
+      '</section>' +
+
+      '<section class="panel"><div class="rv-head" style="margin-bottom:10px"><h3>Hasil pengujian</h3><span class="chip chip-demo">Simulasi Portofolio</span></div>' +
+      '<div class="notice" style="margin-bottom:14px"><b>Catatan jujur:</b> data pengujian di bawah ini adalah <b>contoh untuk portofolio</b>, bukan hasil pengujian nyata dengan pengguna sungguhan.</div>' +
+      '<p class="muted" style="margin-bottom:10px"><strong>Jumlah penguji: 3</strong></p>' +
+      '<ul class="bullets">' +
+        '<li><strong>Penguji 1:</strong> beberapa pilihan jawaban terlalu panjang.</li>' +
+        '<li><strong>Penguji 2:</strong> progress perjalanan mudah dipahami.</li>' +
+        '<li><strong>Penguji 3:</strong> penjelasan jawaban membantu mempelajari fakta baru.</li>' +
+      '</ul>' +
+      '<h4 style="margin-top:18px">Perubahan versi 1.0 → 2.0</h4>' +
+      '<ul class="bullets">' +
+        '<li>Memperpendek teks pilihan jawaban.</li>' +
+        '<li>Memperjelas warna jawaban benar (hijau) dan belum tepat (merah muda).</li>' +
+        '<li>Menambahkan tombol Lanjutkan setelah feedback, supaya penjelasan sempat dibaca.</li>' +
+        '<li>Menambahkan sumber fakta pada setiap penjelasan.</li>' +
+        '<li>Memperbaiki tampilan pada ponsel.</li>' +
+      '</ul></section>' +
+
+      '<section class="two-col">' +
+        '<div class="panel"><h3>🎓 Pelajaran yang diperoleh</h3><ul class="bullets">' +
+          '<li>Menulis prompt dengan konteks, tugas, batasan, format, dan gaya.</li>' +
+          '<li>Menentukan tingkat kesulitan yang bertahap.</li>' +
+          '<li>Membuat sistem skor berbobot dan menghitung persentase.</li>' +
+          '<li>Menulis feedback yang membantu, bukan menghakimi.</li>' +
+          '<li>Memeriksa fakta hasil AI ke sumber resmi.</li>' +
+          '<li>Melakukan user testing dan membaca masukan.</li>' +
+          '<li>Memperbaiki aplikasi berdasarkan feedback.</li>' +
+        '</ul></div>' +
+        '<div class="panel"><h3>🔭 Rencana pengembangan berikutnya</h3><ul class="bullets">' +
+          '<li>Menambah bank soal menjadi 30 pertanyaan dan mengacaknya setiap misi.</li>' +
+          '<li>Menambahkan mode dua pemain untuk dimainkan di kelas.</li>' +
+          '<li>Menambahkan versi Bahasa Inggris untuk latihan kosakata.</li>' +
+          '<li>Menambahkan gambar planet dari galeri publik NASA yang bebas dipakai.</li>' +
+          '<li>Menyambungkan penjelasan ke AI sungguhan melalui backend yang aman, tanpa API key di sisi frontend.</li>' +
+          '<li>Menambahkan mode suara agar anak yang belum lancar membaca tetap bisa ikut.</li>' +
+        '</ul></div>' +
+      '</section>' +
+
+      '<section class="panel"><h3>Catatan keamanan dan keterbatasan</h3><ul class="bullets">' +
+        '<li><strong>Tidak ada pemanggilan AI saat aplikasi dimainkan.</strong> Semua pertanyaan, penjelasan, feedback, dan pesan NOVA sudah ditulis lebih dulu dan disimpan di dalam aplikasi. Aplikasi ini bukan chatbot dan tidak menghasilkan jawaban baru secara otomatis.</li>' +
+        '<li>Claude AI hanya membantu <em>proses pembuatan</em>: ide soal, draf penjelasan, dan penulisan kode.</li>' +
+        '<li>Tidak ada API key di sisi frontend, karena memang tidak ada panggilan API sama sekali.</li>' +
+        '<li>Aplikasi tidak meminta dan tidak menyimpan nama lengkap, alamat, sekolah, nomor telepon, atau foto. Sertifikat memakai identitas contoh “Siswa Future Makers”.</li>' +
+        '<li>Skor hanya tersimpan selama halaman dibuka. Menutup atau memuat ulang halaman akan mengosongkan misi.</li>' +
+        '<li>AI dapat memberikan informasi yang salah. Karena itu setiap fakta diperiksa ulang ke sumber resmi, dan satu fakta yang belum pasti sengaja tidak dipakai di dalam soal.</li>' +
+        '<li>Ilustrasi pesawat, planet, dan NOVA dibuat sendiri dengan SVG dan CSS. Tidak ada gambar, karakter, atau musik berhak cipta.</li>' +
+      '</ul></section>' +
+
+      '<div class="btn-row no-print"><button class="btn btn-primary" data-act="start-main">🚀 Mulai Misi</button>' +
+      '<button class="btn btn-ghost" data-act="go" data-view="facts">🔭 Pusat Fakta</button>' +
+      '<button class="btn btn-ghost" data-act="go" data-view="home">🏠 Beranda</button></div>' +
+    '</div>';
+  }
+
+  function viewEmpty(title, msg){
+    return '<div class="stack"><section class="panel cp">' +
+      badgeSVG("#57C7FF","🛰️") +
+      '<h2>' + esc(title) + '</h2><p class="lede" style="text-align:center">' + esc(msg) + '</p>' +
+      '<div class="btn-row"><button class="btn btn-primary" data-act="start-main">🚀 Mulai Misi</button>' +
+      '<button class="btn btn-ghost" data-act="go" data-view="home">🏠 Beranda</button></div>' +
+      '</section></div>';
+  }
+  function viewError(msg){
+    return '<div class="stack"><section class="panel cp">' +
+      badgeSVG("#FF6E8A","🛠️") +
+      '<h2>Ada gangguan di panel kendali</h2>' +
+      '<p class="lede" style="text-align:center">' + esc(msg) + ' Tenang, datanya tidak hilang — cukup mulai ulang misi.</p>' +
+      '<button class="btn btn-primary btn-lg" data-act="restart-now">↺ Mulai Ulang</button>' +
+      '</section></div>';
+  }
+
+  /* =========================================================
+     9. RENDER
+     ========================================================= */
+  var NAV = [
+    {id:"home",  label:"Beranda"},
+    {id:"quiz",  label:"Mulai Misi"},
+    {id:"guide", label:"Panduan"},
+    {id:"facts", label:"Pusat Fakta"},
+    {id:"about", label:"Tentang Proyek"}
+  ];
+  function navCurrent(){
+    if(S.view === "checkpoint" || S.view === "result" || S.view === "review" || S.view === "certificate") return "quiz";
+    return S.view;
+  }
+  function renderNav(){
+    var cur = navCurrent();
+    document.getElementById("nav").innerHTML = NAV.map(function(n){
+      return '<button class="nav-btn" data-act="nav" data-view="' + n.id + '"' +
+        (cur === n.id ? ' aria-current="page"' : "") + '>' + n.label + '</button>';
+    }).join("");
+  }
+
+  var VIEWS = {
+    home:viewHome, guide:viewGuide, quiz:viewQuiz, checkpoint:viewCheckpoint,
+    result:viewResult, review:viewReview, certificate:viewCertificate,
+    facts:viewFacts, about:viewAbout
+  };
+
+  function render(scrollTop){
+    var host = document.getElementById("view");
+    try{
+      if(DATA_ERROR){ host.innerHTML = viewError(DATA_ERROR); renderNav(); return; }
+      var fn = VIEWS[S.view] || viewHome;
+      host.innerHTML = fn();
+      renderNav();
+      if(scrollTop !== false) window.scrollTo({top:0, behavior:"instant" in window ? "auto" : "auto"});
+    }catch(err){
+      host.innerHTML = viewError("Terjadi kesalahan saat menampilkan halaman.");
+      if(window.console) console.error(err);
+    }
+  }
+
+  /* =========================================================
+     10. AKSI
+     ========================================================= */
+  function go(v){ S.view = v; render(); }
+
+  function startMission(){
+    /* Melanjutkan jika misi sedang berjalan; tidak pernah menghapus tanpa konfirmasi. */
+    if(S.run.finishedAt){ S.view = "result"; render(); return; }
+    if(!S.run.started){ S.run = freshRun(); S.run.started = true; }
+    S.view = "quiz"; render();
+  }
+  function restart(){
+    S.run = freshRun(); S.run.started = true;
+    S.checkpoint = null; S.filter = "all";
+    S.view = "quiz"; render();
+  }
+  function answer(k){
+    var i = S.run.idx;
+    if(S.run.answers[i] !== null) return;   /* kunci: tidak bisa diklik dua kali */
+    if(k < 0 || k > 3) return;
+    S.run.answers[i] = k;
+    render(false);
+    var fb = document.getElementById("fb");
+    var nb = document.getElementById("next-btn");
+    if(fb && fb.scrollIntoView) fb.scrollIntoView({behavior:"smooth", block:"nearest"});
+    if(nb) nb.focus({preventScroll:true});
+  }
+  function next(){
+    var i = S.run.idx;
+    if(S.run.answers[i] === null) return;
+    if(i === 3){ S.checkpoint = 1; S.view = "checkpoint"; render(); return; }
+    if(i === 7){ S.checkpoint = 2; S.view = "checkpoint"; render(); return; }
+    if(i === 11){
+      S.run.finishedAt = Date.now();
+      S.checkpoint = 3; S.view = "checkpoint"; render(); return;
+    }
+    S.run.idx = i + 1;
+    render();
+  }
+  function cpContinue(){
+    if(S.checkpoint === 3){ S.view = "result"; render(); return; }
+    S.run.idx = S.checkpoint === 1 ? 4 : 8;
+    S.view = "quiz"; render();
+  }
+
+  function closeModal(){ document.getElementById("modal-root").innerHTML = ""; }
+  function askRestart(){
+    document.getElementById("modal-root").innerHTML =
+      '<div class="modal-back" data-act="modal-close"><div class="modal" role="dialog" aria-modal="true" aria-label="Konfirmasi mulai ulang">' +
+      '<h3>Mulai ulang misi?</h3>' +
+      '<p class="muted">Skor <strong>' + totalScore() + ' poin</strong> dan ' + answeredCount() + ' jawaban yang sudah kamu isi akan dihapus, lalu pesawat kembali ke Bumi.</p>' +
+      '<div class="btn-row" style="margin-top:6px">' +
+      '<button class="btn btn-ghost" data-act="modal-close">Batal</button>' +
+      '<button class="btn btn-primary" data-act="restart-confirm">Ya, mulai ulang</button>' +
+      '</div></div></div>';
+    var b = document.querySelector("#modal-root .btn-primary");
+    if(b) b.focus();
+  }
+
+  /* =========================================================
+     11. EVENT DELEGATION
+     ========================================================= */
+  document.addEventListener("click", function(e){
+    var t = e.target.closest("[data-act]");
+    if(!t) return;
+    var act = t.getAttribute("data-act");
+
+    if(act === "modal-close"){ if(e.target === t) closeModal(); return; }
+    if(act === "restart-confirm"){ closeModal(); restart(); return; }
+    if(act === "ask-restart"){ askRestart(); return; }
+    if(act === "restart-now"){ restart(); return; }
+    if(act === "nav"){
+      var v = t.getAttribute("data-view");
+      if(v === "quiz"){ startMission(); } else { go(v); }
+      return;
+    }
+    if(act === "go"){ go(t.getAttribute("data-view")); return; }
+    if(act === "start-main"){
+      if(S.run.finishedAt){ restart(); } else { startMission(); }
+      return;
+    }
+    if(act === "answer"){ answer(parseInt(t.getAttribute("data-i"), 10)); return; }
+    if(act === "next"){ next(); return; }
+    if(act === "cp-continue"){ cpContinue(); return; }
+    if(act === "filter"){ S.filter = t.getAttribute("data-f"); render(false); return; }
+    if(act === "print"){ window.print(); return; }
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") closeModal();
+  });
+
+  /* =========================================================
+     12. BINTANG BERKILAU (canvas ringan)
+     ========================================================= */
+  (function stars(){
+    var cv = document.getElementById("starfield");
+    if(!cv || !cv.getContext) return;
+    var ctx = cv.getContext("2d"), pts = [], raf = null;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function build(){
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv.width  = Math.floor(window.innerWidth  * dpr);
+      cv.height = Math.floor(window.innerHeight * dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      var n = Math.min(150, Math.round(window.innerWidth * window.innerHeight / 11000));
+      pts = [];
+      for(var i=0;i<n;i++){
+        pts.push({
+          x:Math.random()*window.innerWidth,
+          y:Math.random()*window.innerHeight,
+          r:Math.random()*1.25 + .35,
+          a:Math.random()*Math.PI*2,
+          s:Math.random()*.016 + .005,
+          h:Math.random() < .12 ? "#A78BFA" : (Math.random() < .12 ? "#57C7FF" : "#EEF2FF")
+        });
+      }
+    }
+    function draw(){
+      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+      for(var i=0;i<pts.length;i++){
+        var p = pts[i];
+        if(!reduce){ p.a += p.s; }
+        var o = reduce ? .5 : (0.32 + 0.42 * (Math.sin(p.a) * .5 + .5));
+        ctx.globalAlpha = o;
+        ctx.fillStyle = p.h;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      if(!reduce) raf = requestAnimationFrame(draw);
+    }
+    function boot(){ build(); if(raf) cancelAnimationFrame(raf); draw(); }
+    var t;
+    window.addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(boot, 180); });
+    boot();
+  })();
+
+  /* =========================================================
+     13. MULAI
+     ========================================================= */
+  render();
+})();
+</script>
+
+</body></html>

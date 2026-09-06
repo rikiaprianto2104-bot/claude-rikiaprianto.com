@@ -1,0 +1,1454 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Robot Chef and the Magic Kitchen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{
+  --ground:#FBF6FF;
+  --ground-2:#F0E7FF;
+  --surface:#FFFFFF;
+  --surface-2:#F5EEFF;
+  --ink:#2E1F52;
+  --ink-soft:#6B5B90;
+  --line:#E4D8F7;
+  --line-strong:#CDB8F0;
+  --ungu:#7A4DE0;
+  --ungu-deep:#5A32B8;
+  --biru:#2FA9E8;
+  --biru-soft:#D8F1FD;
+  --kuning:#F0A500;
+  --kuning-soft:#FFF1CC;
+  --pink:#EE4E90;
+  --pink-soft:#FFE1EE;
+  --mint:#0FA97D;
+  --shadow:0 10px 0 rgba(122,77,224,.13);
+  --shadow-soft:0 8px 26px rgba(74,38,140,.12);
+  --r-lg:26px;
+  --r-md:18px;
+  --r-sm:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#171129;
+    --ground-2:#1F1638;
+    --surface:#241A3D;
+    --surface-2:#2E2250;
+    --ink:#F5EFFF;
+    --ink-soft:#BCACDE;
+    --line:#3C2C64;
+    --line-strong:#544090;
+    --ungu:#B196FF;
+    --ungu-deep:#8E6BFF;
+    --biru:#63CBFF;
+    --biru-soft:#22344F;
+    --kuning:#FFCE5C;
+    --kuning-soft:#413317;
+    --pink:#FF8DBB;
+    --pink-soft:#43213A;
+    --mint:#4FE3B8;
+    --shadow:0 10px 0 rgba(0,0,0,.35);
+    --shadow-soft:0 10px 30px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#171129;
+  --ground-2:#1F1638;
+  --surface:#241A3D;
+  --surface-2:#2E2250;
+  --ink:#F5EFFF;
+  --ink-soft:#BCACDE;
+  --line:#3C2C64;
+  --line-strong:#544090;
+  --ungu:#B196FF;
+  --ungu-deep:#8E6BFF;
+  --biru:#63CBFF;
+  --biru-soft:#22344F;
+  --kuning:#FFCE5C;
+  --kuning-soft:#413317;
+  --pink:#FF8DBB;
+  --pink-soft:#43213A;
+  --mint:#4FE3B8;
+  --shadow:0 10px 0 rgba(0,0,0,.35);
+  --shadow-soft:0 10px 30px rgba(0,0,0,.4);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:17px;
+  line-height:1.6;
+  -webkit-text-size-adjust:100%;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(60% 45% at 12% 0%, color-mix(in srgb, var(--biru) 22%, transparent), transparent 70%),
+    radial-gradient(55% 40% at 92% 6%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, color-mix(in srgb, var(--ungu) 16%, transparent), transparent 72%);
+  pointer-events:none;
+  z-index:0;
+}
+h1,h2,h3,h4{font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-weight:800;line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+button{font-family:inherit}
+
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 16px 56px}
+
+/* ---------- Header ---------- */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:2px solid var(--line);
+}
+.topbar-in{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;margin-right:auto;min-width:0}
+.brand-mark{
+  width:38px;height:38px;flex:none;border-radius:12px;
+  background:linear-gradient(150deg,var(--ungu),var(--biru));
+  display:grid;place-items:center;font-size:20px;box-shadow:0 4px 0 rgba(0,0,0,.14)
+}
+.brand-name{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.02rem;line-height:1.1;color:var(--ink)}
+.brand-sub{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav button{
+  border:2px solid var(--line);
+  background:var(--surface);
+  color:var(--ink);
+  font-weight:800;font-size:.9rem;
+  padding:8px 14px;border-radius:999px;cursor:pointer;
+  transition:transform .12s ease, border-color .12s ease;
+}
+.nav button:hover{transform:translateY(-2px);border-color:var(--line-strong)}
+.nav button[aria-current="page"]{background:var(--ungu);border-color:var(--ungu);color:#fff}
+.icon-btn{
+  border:2px solid var(--line);background:var(--surface);color:var(--ink);
+  width:42px;height:42px;border-radius:999px;cursor:pointer;font-size:1.05rem;
+  display:grid;place-items:center;transition:transform .12s ease;
+}
+.icon-btn:hover{transform:translateY(-2px)}
+:where(button,a,[tabindex]):focus-visible{outline:3px solid var(--kuning);outline-offset:3px;border-radius:8px}
+@media(max-width:660px){
+  .topbar-in{padding:8px 12px;gap:8px;row-gap:8px}
+  .brand-mark{width:32px;height:32px;font-size:17px;border-radius:10px}
+  .brand-name{font-size:.84rem}
+  .brand-sub{font-size:.58rem}
+  .icon-btn{width:36px;height:36px;font-size:.95rem}
+  .nav{order:3;width:100%;flex-wrap:nowrap;gap:6px}
+  .nav button{flex:1 1 0;min-width:0;padding:8px 4px;font-size:.82rem;white-space:nowrap}
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:58px;padding:14px 28px;border-radius:999px;
+  font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.15rem;
+  border:none;cursor:pointer;text-align:center;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.btn-primary{background:linear-gradient(160deg,var(--ungu),var(--ungu-deep));color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.2)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 9px 0 rgba(0,0,0,.2)}
+.btn-primary:active{transform:translateY(2px);box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.btn-sun{background:linear-gradient(160deg,#FFD166,var(--kuning));color:#3A2600;box-shadow:0 6px 0 rgba(0,0,0,.18)}
+.btn-sun:hover{transform:translateY(-3px)}
+.btn-ghost{background:var(--surface);color:var(--ink);border:3px solid var(--line-strong);box-shadow:0 5px 0 var(--line)}
+.btn-ghost:hover{transform:translateY(-3px)}
+.btn-sm{min-height:48px;padding:10px 20px;font-size:1rem}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+
+/* ---------- Hero ---------- */
+.hero{
+  margin-top:22px;
+  background:var(--surface);
+  border:3px solid var(--line);
+  border-radius:34px;
+  padding:26px;
+  box-shadow:var(--shadow-soft);
+  display:grid;grid-template-columns:1fr;gap:22px;align-items:center;
+  position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;inset:auto -40px -70px -40px;height:150px;
+  background:radial-gradient(50% 100% at 50% 0%, color-mix(in srgb,var(--kuning) 26%,transparent), transparent 70%);
+  pointer-events:none;
+}
+.hero-art{
+  position:relative;display:grid;place-items:center;
+  background:linear-gradient(165deg, var(--biru-soft), color-mix(in srgb,var(--pink-soft) 70%, transparent));
+  border-radius:26px;padding:18px 10px;border:2px dashed var(--line-strong);
+  overflow:hidden;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--kuning-soft);color:var(--ink);
+  border:2px solid color-mix(in srgb,var(--kuning) 55%, var(--line));
+  font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 12px;border-radius:999px;
+}
+.hero h1{font-size:clamp(1.9rem,7vw,3rem);margin:14px 0 6px}
+.hero .tag{font-family:'Baloo 2',sans-serif;font-size:1.05rem;color:var(--ungu);font-weight:700;margin-bottom:10px}
+.hero p.lead{color:var(--ink-soft);font-size:1.05rem;max-width:58ch;margin-bottom:18px}
+@media(min-width:760px){
+  .hero{grid-template-columns:1.05fr .95fr;padding:34px}
+  .hero-art{order:2}
+}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.chip{
+  background:var(--surface-2);border:2px solid var(--line);
+  border-radius:999px;padding:7px 14px;font-weight:700;font-size:.88rem;color:var(--ink-soft)
+}
+.chip strong{color:var(--ink)}
+
+/* ---------- ROBI ---------- */
+.robi-stage{display:grid;place-items:center;gap:8px}
+.robi{display:block;max-width:100%;height:auto;filter:drop-shadow(0 12px 14px rgba(60,25,120,.22))}
+.robi-float{animation:bob 3.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.robi g[data-part]{display:none}
+.robi[data-mood="senang"] g[data-part="eyes-normal"],
+.robi[data-mood="senang"] g[data-part="mouth-smile"],
+.robi[data-mood="masak"] g[data-part="eyes-happy"],
+.robi[data-mood="masak"] g[data-part="mouth-smile"],
+.robi[data-mood="kaget"] g[data-part="eyes-wow"],
+.robi[data-mood="kaget"] g[data-part="mouth-o"],
+.robi[data-mood="bangga"] g[data-part="eyes-star"],
+.robi[data-mood="bangga"] g[data-part="mouth-big"]{display:block}
+.robi .blink{animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Speech bubble */
+.bubble{
+  position:relative;background:var(--surface);border:3px solid var(--ungu);
+  border-radius:22px;padding:14px 18px;max-width:34ch;text-align:center;
+  font-weight:700;color:var(--ink);box-shadow:0 5px 0 color-mix(in srgb,var(--ungu) 35%, transparent);
+}
+.bubble::after{
+  content:"";position:absolute;left:50%;bottom:-13px;transform:translateX(-50%);
+  width:18px;height:18px;background:var(--surface);
+  border-right:3px solid var(--ungu);border-bottom:3px solid var(--ungu);
+  rotate:45deg;border-bottom-right-radius:5px;
+}
+
+/* ---------- Sections / cards ---------- */
+.section{margin-top:26px}
+.panel{
+  background:var(--surface);border:3px solid var(--line);border-radius:var(--r-lg);
+  padding:22px;box-shadow:var(--shadow-soft);
+}
+.panel h2{font-size:1.5rem;margin-bottom:6px}
+.panel h3{font-size:1.15rem;margin-bottom:6px}
+.muted{color:var(--ink-soft)}
+.small{font-size:.92rem}
+
+/* ---------- Progress ---------- */
+.progress{margin:6px 0 20px}
+.pbar{height:14px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);overflow:hidden}
+.pfill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--biru),var(--ungu),var(--pink));transition:width .45s cubic-bezier(.4,1.4,.5,1)}
+.psteps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0 0;padding:0}
+.psteps li{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;font-size:.72rem;font-weight:800;color:var(--ink-soft);line-height:1.2}
+.pnum{
+  width:30px;height:30px;border-radius:999px;display:grid;place-items:center;
+  background:var(--surface-2);border:2px solid var(--line);color:var(--ink-soft);font-size:.85rem;
+  transition:background .2s ease,color .2s ease,transform .2s ease;
+}
+.psteps li.done .pnum{background:var(--mint);border-color:var(--mint);color:#04281E}
+.psteps li.active .pnum{background:var(--ungu);border-color:var(--ungu);color:#fff;transform:scale(1.14)}
+.psteps li.active{color:var(--ink)}
+@media(min-width:620px){.psteps li{font-size:.82rem}.pnum{width:34px;height:34px}}
+
+/* ---------- Choice cards ---------- */
+.scene-title{font-size:clamp(1.4rem,5vw,2rem);text-align:center;margin-bottom:6px}
+.scene-sub{text-align:center;color:var(--ink-soft);margin-bottom:18px}
+.choices{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:700px){.choices{grid-template-columns:repeat(3,1fr)}}
+.choice{
+  display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+  background:var(--surface-2);border:3px solid var(--line);border-radius:var(--r-lg);
+  padding:20px 16px;cursor:pointer;color:var(--ink);
+  box-shadow:0 6px 0 var(--line);
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease;
+}
+.choice:hover{transform:translateY(-4px);box-shadow:0 10px 0 var(--line-strong);border-color:var(--line-strong)}
+.choice:active{transform:translateY(2px);box-shadow:0 3px 0 var(--line)}
+.choice[aria-pressed="true"]{border-color:var(--ungu);box-shadow:0 6px 0 var(--ungu);background:color-mix(in srgb,var(--ungu) 12%, var(--surface))}
+.choice-emoji{
+  font-size:2.7rem;line-height:1;width:78px;height:78px;border-radius:999px;display:grid;place-items:center;
+  background:var(--surface);border:3px solid var(--line);
+}
+.choice[data-warna="pink"] .choice-emoji{background:var(--pink-soft);border-color:color-mix(in srgb,var(--pink) 45%,var(--line))}
+.choice[data-warna="ungu"] .choice-emoji{background:color-mix(in srgb,var(--ungu) 16%,var(--surface));border-color:color-mix(in srgb,var(--ungu) 45%,var(--line))}
+.choice[data-warna="kuning"] .choice-emoji{background:var(--kuning-soft);border-color:color-mix(in srgb,var(--kuning) 50%,var(--line))}
+.choice[data-warna="biru"] .choice-emoji{background:var(--biru-soft);border-color:color-mix(in srgb,var(--biru) 45%,var(--line))}
+.choice-name{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.18rem;line-height:1.2}
+.choice-from{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ungu)}
+.choice-desc{font-size:.93rem;color:var(--ink-soft)}
+.choice-pick{
+  margin-top:4px;font-weight:800;font-size:.85rem;color:var(--ungu);
+  border:2px dashed color-mix(in srgb,var(--ungu) 45%,var(--line));border-radius:999px;padding:4px 12px;
+}
+
+.step-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:20px}
+
+/* ---------- Summary ---------- */
+.summary{display:grid;grid-template-columns:1fr;gap:12px;margin:16px 0}
+@media(min-width:620px){.summary{grid-template-columns:repeat(3,1fr)}}
+.sum-item{
+  display:flex;align-items:center;gap:12px;background:var(--surface-2);
+  border:2px solid var(--line);border-radius:var(--r-md);padding:12px 14px;
+}
+.sum-item .e{font-size:1.9rem;line-height:1}
+.sum-item .k{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);display:block}
+.sum-item .v{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.02rem;line-height:1.2}
+
+/* ---------- Cooking ---------- */
+.cooking{display:grid;place-items:center;gap:18px;padding:20px 0}
+.pot{
+  position:relative;width:190px;height:170px;display:grid;place-items:end center;
+}
+.pot-body{
+  width:170px;height:96px;border-radius:0 0 46px 46px;
+  background:linear-gradient(170deg,var(--ungu),var(--ungu-deep));
+  border:4px solid color-mix(in srgb,var(--ungu-deep) 70%, #000);
+  position:relative;box-shadow:inset 0 -10px 0 rgba(0,0,0,.15)
+}
+.pot-rim{
+  position:absolute;top:-14px;left:-14px;right:-14px;height:26px;border-radius:999px;
+  background:linear-gradient(180deg,#EBDDFF,#C6ABF2);border:4px solid color-mix(in srgb,var(--ungu-deep) 70%, #000);
+}
+.pot-light{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:1.4rem;animation:glow 1.2s ease-in-out infinite}
+.bubbles{position:absolute;inset:0 0 90px 0;pointer-events:none}
+.bubbles span{
+  position:absolute;bottom:0;font-size:1.5rem;animation:rise 2.2s linear infinite;opacity:0
+}
+@keyframes rise{0%{transform:translateY(10px) scale(.6);opacity:0}20%{opacity:1}100%{transform:translateY(-115px) scale(1.15) rotate(20deg);opacity:0}}
+.cook-status{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.25rem;text-align:center;min-height:2.6em}
+.cook-track{width:min(340px,90%);height:16px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);overflow:hidden}
+.cook-fill{height:100%;width:0;background:linear-gradient(90deg,var(--kuning),var(--pink),var(--ungu));border-radius:999px;transition:width .35s linear}
+
+/* ---------- Result ---------- */
+.result-hero{
+  border-radius:30px;padding:26px 20px;text-align:center;position:relative;overflow:hidden;
+  border:3px solid var(--line);
+}
+.result-hero[data-warna="pink"]{background:linear-gradient(165deg,var(--pink-soft), color-mix(in srgb,var(--kuning-soft) 70%, transparent))}
+.result-hero[data-warna="ungu"]{background:linear-gradient(165deg,color-mix(in srgb,var(--ungu) 18%,var(--surface)), var(--biru-soft))}
+.result-hero[data-warna="kuning"]{background:linear-gradient(165deg,var(--kuning-soft), var(--biru-soft))}
+.result-hero[data-warna="pelangi"]{background:linear-gradient(120deg,var(--pink-soft),var(--kuning-soft),var(--biru-soft),color-mix(in srgb,var(--ungu) 18%,var(--surface)))}
+.plate{
+  width:150px;height:150px;margin:0 auto 12px;border-radius:999px;display:grid;place-items:center;
+  background:var(--surface);border:5px solid var(--line-strong);font-size:4.4rem;line-height:1;
+  box-shadow:0 10px 0 color-mix(in srgb,var(--line-strong) 60%, transparent);
+  animation:pop .5s cubic-bezier(.3,1.6,.5,1) both;
+}
+@keyframes pop{from{transform:scale(.4) rotate(-12deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.tier-tag{
+  display:inline-block;font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 14px;border-radius:999px;margin-bottom:10px;border:2px solid transparent;
+}
+.tier-tag[data-t="rahasia"]{background:linear-gradient(90deg,var(--pink),var(--ungu));color:#fff}
+.tier-tag[data-t="utama"]{background:var(--mint);color:#04281E}
+.tier-tag[data-t="kejutan"]{background:var(--surface);color:var(--ink-soft);border-color:var(--line-strong)}
+.result-hero h2{font-size:clamp(1.6rem,6vw,2.4rem);margin-bottom:4px}
+
+.result-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px}
+@media(min-width:740px){.result-grid{grid-template-columns:1fr 1fr}}
+.info-card{background:var(--surface-2);border:2px solid var(--line);border-radius:var(--r-md);padding:16px}
+.info-card h3{font-size:1.05rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.recipe-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.recipe-list li{display:flex;align-items:center;gap:10px;font-weight:700}
+.recipe-list .e{font-size:1.4rem;width:38px;height:38px;flex:none;border-radius:10px;background:var(--surface);border:2px solid var(--line);display:grid;place-items:center}
+.badge{
+  display:flex;align-items:center;gap:12px;background:linear-gradient(150deg,var(--kuning-soft),var(--pink-soft));
+  border:3px dashed color-mix(in srgb,var(--kuning) 55%,var(--line));border-radius:var(--r-md);padding:14px 16px;
+}
+.badge .medal{font-size:2.2rem}
+.moral{
+  background:linear-gradient(150deg,color-mix(in srgb,var(--ungu) 14%,var(--surface)),var(--surface));
+  border:3px solid color-mix(in srgb,var(--ungu) 40%,var(--line));border-radius:var(--r-md);
+  padding:18px;text-align:center;margin-top:14px;
+}
+.moral .lbl{font-size:.72rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ungu)}
+.moral p{font-family:'Baloo 2',sans-serif;font-size:1.2rem;font-weight:700;margin-top:6px}
+
+.counter{
+  display:flex;align-items:center;gap:10px;justify-content:center;margin-top:16px;
+  font-weight:800;color:var(--ink-soft);font-size:.95rem;flex-wrap:wrap;text-align:center
+}
+.counter .dot{width:10px;height:10px;border-radius:999px;background:var(--mint)}
+
+/* ---------- How to play / modal ---------- */
+.modal-back{
+  position:fixed;inset:0;z-index:50;background:rgba(30,15,60,.55);
+  display:grid;place-items:center;padding:16px;overflow:auto;
+}
+.modal{
+  background:var(--surface);border:4px solid var(--ungu);border-radius:30px;
+  padding:24px;max-width:520px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+.steps-num{list-style:none;counter-reset:s;margin:14px 0 0;padding:0;display:grid;gap:10px}
+.steps-num li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-weight:700}
+.steps-num li::before{
+  content:counter(s);flex:none;width:32px;height:32px;border-radius:999px;
+  background:var(--ungu);color:#fff;display:grid;place-items:center;font-family:'Baloo 2',sans-serif;font-size:1rem;
+}
+.hint{
+  margin-top:16px;background:var(--kuning-soft);border:2px dashed color-mix(in srgb,var(--kuning) 60%,var(--line));
+  border-radius:var(--r-md);padding:14px;font-weight:700
+}
+
+/* ---------- About / portfolio ---------- */
+.about-head{
+  background:linear-gradient(160deg,color-mix(in srgb,var(--ungu) 16%,var(--surface)),var(--biru-soft));
+  border:3px solid var(--line);border-radius:var(--r-lg);padding:24px;
+}
+.meta{display:grid;grid-template-columns:1fr;gap:10px;margin-top:16px}
+@media(min-width:620px){.meta{grid-template-columns:repeat(3,1fr)}}
+.meta div{background:var(--surface);border:2px solid var(--line);border-radius:var(--r-md);padding:12px 14px}
+.meta .k{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);display:block}
+.meta .v{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:1rem;line-height:1.25}
+
+.two-col{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:760px){.two-col{grid-template-columns:1fr 1fr}}
+.tick{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:7px}
+.tick li{display:flex;gap:9px;align-items:flex-start;font-size:.97rem}
+.tick li::before{content:"●";color:var(--ungu);font-size:.7rem;line-height:1.9;flex:none}
+.tick.ai li::before{content:"◆";color:var(--biru)}
+.tick.learn li::before{content:"★";color:var(--kuning)}
+
+.prompt-box{
+  background:var(--surface-2);border-left:6px solid var(--biru);border-radius:0 var(--r-md) var(--r-md) 0;
+  padding:14px 16px;margin-top:10px;
+}
+.prompt-box .k{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--biru)}
+.prompt-box q{display:block;margin-top:6px;font-style:italic;font-weight:700;line-height:1.5}
+
+.note{
+  background:var(--pink-soft);border:2px solid color-mix(in srgb,var(--pink) 40%,var(--line));
+  border-radius:var(--r-md);padding:16px;margin-top:14px;
+}
+.note h3{color:var(--ink)}
+
+.iter{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media(min-width:620px){.iter{grid-template-columns:1fr 1fr}}
+.iter .v1,.iter .v2{border-radius:var(--r-md);padding:14px;border:2px solid var(--line);background:var(--surface-2)}
+.iter .v2{border-color:color-mix(in srgb,var(--mint) 55%,var(--line));background:color-mix(in srgb,var(--mint) 10%,var(--surface))}
+.iter .k{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);display:block;margin-bottom:5px}
+
+.footer{text-align:center;margin-top:30px;color:var(--ink-soft);font-size:.88rem;font-weight:700}
+
+/* Error fallback */
+.errbox{background:var(--surface);border:3px solid var(--pink);border-radius:var(--r-lg);padding:24px;text-align:center}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">🤖</div>
+      <div>
+        <div class="brand-name">Robot Chef &amp; the Magic Kitchen</div>
+        <div class="brand-sub">Future Makers · Tier 1</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Menu utama">
+      <button type="button" data-action="nav" data-view="beranda">Beranda</button>
+      <button type="button" data-action="nav" data-view="main">Bermain</button>
+      <button type="button" data-action="nav" data-view="tentang">Tentang Proyek</button>
+    </nav>
+    <button type="button" class="icon-btn" id="sound-btn" data-action="sound" aria-label="Hidupkan atau matikan suara">🔊</button>
+  </div>
+</header>
+
+<main class="wrap" id="app" role="main">
+  <div class="panel" style="margin-top:22px">Memuat permainan…</div>
+</main>
+
+<div id="modal-root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     DATA
+     ========================================================= */
+  var BAHAN_UTAMA = [
+    { kode:'S', nama:'Stroberi Bintang', asal:'Planet Merah', emoji:'🍓', warna:'pink',
+      desc:'Stroberi merah menyala yang berkilau seperti bintang kecil.',
+      reaksi:'Bip! Stroberi bintang! Lampu ROBI langsung ikut berkilau!' },
+    { kode:'C', nama:'Cokelat Pelangi', asal:'Hutan Ajaib', emoji:'🍫', warna:'ungu',
+      desc:'Cokelat lembut yang berubah warna seperti pelangi.',
+      reaksi:'Wah, cokelat pelangi! Warnanya berganti-ganti, lucu sekali!' },
+    { kode:'K', nama:'Keju Bulan', asal:'Negeri Awan', emoji:'🧀', warna:'kuning',
+      desc:'Keju kuning bulat yang bercahaya seperti bulan.',
+      reaksi:'Keju bulan! Bip-bip! Wanginya sampai ke antena ROBI!' }
+  ];
+
+  var BAHAN_AJAIB = [
+    { kode:'G', nama:'Gula Pelangi', asal:'Toples Warna', emoji:'🌈', warna:'pink',
+      desc:'Gula warna-warni yang membuat makanan jadi ceria.',
+      reaksi:'Gula pelangi masuk! Seluruh dapur jadi warna-warni!' },
+    { kode:'B', nama:'Bubuk Bintang', asal:'Langit Malam', emoji:'✨', warna:'ungu',
+      desc:'Bubuk berkilau yang membuat makanan bersinar.',
+      reaksi:'Bubuk bintang! Kelap-kelip di mana-mana. Kereeen!' },
+    { kode:'A', nama:'Krim Awan', asal:'Langit Pagi', emoji:'☁️', warna:'biru',
+      desc:'Krim putih selembut awan di langit.',
+      reaksi:'Krim awan! Adonannya jadi lembut sekali. Puk-puk!' }
+  ];
+
+  var CARA_MASAK = [
+    { kode:'N', nama:'Aduk sambil bernyanyi', asal:'Mode Musik', emoji:'🎵', warna:'biru',
+      desc:'ROBI mengaduk pelan sambil bernyanyi la-la-la.',
+      reaksi:'La-la-la! Menyanyi membuat adonan ikut senang!' },
+    { kode:'R', nama:'Tekan tombol roket', asal:'Mode Cepat', emoji:'🚀', warna:'ungu',
+      desc:'Mesin dapur menyala dan bekerja sangat cepat.',
+      reaksi:'Wush! Tombol roket menyala. Pegangan yang kuat, ya!' },
+    { kode:'D', nama:'Menari bersama ROBI', asal:'Mode Pesta', emoji:'💃', warna:'kuning',
+      desc:'ROBI berputar-putar, adonan ikut menari.',
+      reaksi:'Ayo menari! Satu, dua, tiga, putaaar!' }
+  ];
+
+  var RESEP = {
+    'S-G-N':{nama:'Rainbow Star Cake',emoji:'🍰',tier:'utama',warna:'pink',
+      reaksi:'Bip-bip-hore! Kuenya berwarna seperti pelangi sungguhan!',
+      cerita:'Kue pelangi berdiri tinggi di tengah meja pesta. Semua tamu bertepuk tangan dan pesta pun menjadi sangat meriah.',
+      pesan:'Kreativitas membuat sesuatu yang sederhana menjadi istimewa.',
+      lencana:'Lencana Kue Pelangi',medal:'🌈'},
+    'S-G-R':{nama:'Roket Stroberi Pelangi',emoji:'🚀',tier:'kejutan',warna:'pink',
+      reaksi:'Wush! Kuenya meluncur pelan ke setiap piring. Rapi sekali!',
+      cerita:'Roti stroberi kecil terbang pelan mengantar dirinya ke tangan para tamu. Semua tertawa senang.',
+      pesan:'Ide yang cepat pun bisa menjadi sesuatu yang menyenangkan.',
+      lencana:'Lencana Kurir Roket',medal:'🎖️'},
+    'S-G-D':{nama:'Puding Pelangi Menari',emoji:'🍮',tier:'kejutan',warna:'pink',
+      reaksi:'Lihat! Pudingnya bergoyang mengikuti musik!',
+      cerita:'Puding stroberi bergoyang di atas piring. Para tamu ikut menari mengelilingi meja.',
+      pesan:'Bergembira membuat hasil karyamu terasa hidup.',
+      lencana:'Lencana Puding Goyang',medal:'🎖️'},
+    'S-B-N':{nama:'Es Krim Bintang Bernyanyi',emoji:'🍨',tier:'kejutan',warna:'pink',
+      reaksi:'Dengar, dengar! Es krimnya berdenting seperti lonceng kecil.',
+      cerita:'Setiap sendok es krim mengeluarkan bunyi ting-ting yang lucu. Pesta berubah menjadi konser kecil.',
+      pesan:'Suara dan rasa bisa menjadi teman yang seru.',
+      lencana:'Lencana Es Krim Bernyanyi',medal:'🎖️'},
+    'S-B-R':{nama:'Donat Meteor Stroberi',emoji:'🍩',tier:'kejutan',warna:'pink',
+      reaksi:'Donatnya berputar cepat seperti meteor manis!',
+      cerita:'Donat berputar di udara lalu mendarat rapi di piring besar. Para tamu bersorak.',
+      pesan:'Mencoba hal baru kadang membawa kejutan yang lucu.',
+      lencana:'Lencana Donat Meteor',medal:'🎖️'},
+    'S-B-D':{nama:'Permen Kembang Api',emoji:'🍬',tier:'kejutan',warna:'pink',
+      reaksi:'Pop-pop! Permennya memercikkan kilau kecil yang aman.',
+      cerita:'Saat digigit, permen memercikkan cahaya kecil berwarna-warni. Semua anak tertawa gembira.',
+      pesan:'Hal kecil bisa membuat pesta menjadi berkesan.',
+      lencana:'Lencana Kembang Api',medal:'🎖️'},
+    'S-A-N':{nama:'Awan Stroberi Lembut',emoji:'🍧',tier:'kejutan',warna:'pink',
+      reaksi:'Hmm... lembut sekali, seperti tidur di atas awan.',
+      cerita:'Serutan es stroberi selembut awan pagi. Para tamu makan pelan-pelan sambil tersenyum.',
+      pesan:'Pelan-pelan juga bisa menghasilkan karya yang indah.',
+      lencana:'Lencana Awan Lembut',medal:'🎖️'},
+    'S-A-R':{nama:'Milkshake Awan Roket',emoji:'🥤',tier:'kejutan',warna:'pink',
+      reaksi:'Busanya naik tinggi sekali! Hati-hati, ya!',
+      cerita:'Milkshake berbusa tinggi hampir menyentuh balon pesta. Semua tamu tertawa geli.',
+      pesan:'Kadang hasilnya di luar dugaan, dan itu tetap seru.',
+      lencana:'Lencana Busa Tinggi',medal:'🎖️'},
+    'S-A-D':{nama:'Panekuk Awan Berputar',emoji:'🥞',tier:'kejutan',warna:'pink',
+      reaksi:'Panekuknya berputar seperti penari kecil!',
+      cerita:'Panekuk berputar pelan di atas piring lalu berhenti tepat di tengah. Tepuk tangan!',
+      pesan:'Berlatih dan mencoba membuat kita semakin hebat.',
+      lencana:'Lencana Panekuk Menari',medal:'🎖️'},
+
+    'C-G-N':{nama:'Simfoni Cokelat Pelangi',emoji:'🎂',tier:'kejutan',warna:'ungu',
+      reaksi:'La-la-la! Cokelatnya berganti warna setiap not lagu!',
+      cerita:'Kue cokelat berganti warna setiap kali ada yang bernyanyi. Pesta jadi penuh warna.',
+      pesan:'Menikmati proses membuat hasilnya jadi lebih indah.',
+      lencana:'Lencana Simfoni Warna',medal:'🎖️'},
+    'C-G-R':{nama:'Kuki Roket Cokelat',emoji:'🍪',tier:'kejutan',warna:'ungu',
+      reaksi:'Kukinya melesat lalu mendarat rapi. Bip, berhasil!',
+      cerita:'Kuki cokelat meluncur pelan dari dapur ke meja pesta tanpa jatuh satu pun.',
+      pesan:'Rencana yang rapi membuat hasilnya memuaskan.',
+      lencana:'Lencana Kuki Roket',medal:'🎖️'},
+    'C-G-D':{nama:'The Super Magic Party Feast',emoji:'🎉',tier:'rahasia',warna:'pelangi',
+      reaksi:'BIP-BIP-HORE! ROBI berhasil membuat semuanya sekaligus!',
+      cerita:'Kue pelangi, cupcake galaksi, dan pizza bulan muncul bersamaan di meja! Seluruh Kota Pelangi datang, dan pesta berlangsung sampai bintang-bintang keluar.',
+      pesan:'Saat kamu berani mencoba banyak ide, hal luar biasa bisa terjadi.',
+      lencana:'Master Chef Cilik',medal:'🏅'},
+    'C-B-N':{nama:'Brownies Bintang Berdendang',emoji:'🍫',tier:'kejutan',warna:'ungu',
+      reaksi:'Brownies-nya ikut bersenandung, hmm-hmm-hmm!',
+      cerita:'Brownies hangat bersenandung pelan di dalam loyang. Para tamu mendekat karena penasaran.',
+      pesan:'Karya yang dibuat dengan gembira mudah disukai.',
+      lencana:'Lencana Brownies Bernyanyi',medal:'🎖️'},
+    'C-B-R':{nama:'Galaxy Choco Cupcake',emoji:'🧁',tier:'utama',warna:'ungu',
+      reaksi:'Lihat! Cupcake-nya bercahaya seperti galaksi!',
+      cerita:'Cupcake cokelat berkilau seperti langit malam penuh bintang. Semua tamu langsung ingin menari.',
+      pesan:'Berani mencoba dapat menghasilkan kejutan yang menyenangkan.',
+      lencana:'Lencana Galaksi',medal:'🌌'},
+    'C-B-D':{nama:'Cokelat Komet Menari',emoji:'☄️',tier:'kejutan',warna:'ungu',
+      reaksi:'Ekor kometnya ikut berputar bersama kita!',
+      cerita:'Bola cokelat berekor cahaya berputar mengelilingi meja pesta seperti komet kecil.',
+      pesan:'Gerakan kecil bisa membuat ide terlihat hidup.',
+      lencana:'Lencana Komet Manis',medal:'🎖️'},
+    'C-A-N':{nama:'Cokelat Hangat Awan',emoji:'☕',tier:'kejutan',warna:'ungu',
+      reaksi:'Uapnya membentuk awan kecil berbentuk hati!',
+      cerita:'Cokelat hangat mengepul membentuk awan kecil di atas setiap cangkir.',
+      pesan:'Karya yang hangat membuat orang merasa nyaman.',
+      lencana:'Lencana Awan Hangat',medal:'🎖️'},
+    'C-A-R':{nama:'Puf Cokelat Terbang',emoji:'🎈',tier:'kejutan',warna:'ungu',
+      reaksi:'Puf-nya ringan sekali, melayang-layang di udara!',
+      cerita:'Kue puf cokelat melayang rendah di atas meja seperti balon kecil yang jinak.',
+      pesan:'Ide yang ringan pun bisa membuat orang tersenyum.',
+      lencana:'Lencana Puf Terbang',medal:'🎖️'},
+    'C-A-D':{nama:'Mus Cokelat Awan',emoji:'🍨',tier:'kejutan',warna:'ungu',
+      reaksi:'Selembut awan, semanis cokelat. Bip, sempurna!',
+      cerita:'Mus cokelat bergoyang pelan setiap kali musik pesta dimainkan.',
+      pesan:'Menggabungkan dua hal berbeda bisa terasa pas.',
+      lencana:'Lencana Mus Awan',medal:'🎖️'},
+
+    'K-G-N':{nama:'Roti Keju Warna-Warni',emoji:'🥖',tier:'kejutan',warna:'kuning',
+      reaksi:'Rotinya bergaris pelangi! Lucu sekali, ya!',
+      cerita:'Roti keju bergaris warna-warni tersusun rapi di keranjang pesta.',
+      pesan:'Warna sederhana bisa membuat karya terlihat ceria.',
+      lencana:'Lencana Roti Pelangi',medal:'🎖️'},
+    'K-G-R':{nama:'Stik Keju Roket',emoji:'🍟',tier:'kejutan',warna:'kuning',
+      reaksi:'Stiknya melesat lalu berdiri rapi. Bip!',
+      cerita:'Stik keju berdiri tegak seperti roket kecil yang siap meluncur di atas piring.',
+      pesan:'Bergerak cepat juga perlu latihan supaya rapi.',
+      lencana:'Lencana Stik Roket',medal:'🎖️'},
+    'K-G-D':{nama:'Keju Pelangi Menari',emoji:'🧀',tier:'kejutan',warna:'kuning',
+      reaksi:'Kejunya bergoyang mengikuti irama musik!',
+      cerita:'Potongan keju warna-warni bergoyang di piring setiap kali lagu pesta dimainkan.',
+      pesan:'Bermain sambil belajar itu menyenangkan.',
+      lencana:'Lencana Keju Goyang',medal:'🎖️'},
+    'K-B-N':{nama:'Sup Keju Bintang',emoji:'🥣',tier:'kejutan',warna:'kuning',
+      reaksi:'Ada bintang-bintang kecil mengambang di supnya!',
+      cerita:'Sup keju hangat penuh bintang kecil bercahaya. Para tamu menghangatkan tangan mereka.',
+      pesan:'Karya yang hangat bisa menenangkan hati.',
+      lencana:'Lencana Sup Bintang',medal:'🎖️'},
+    'K-B-R':{nama:'Pai Keju Komet',emoji:'🥧',tier:'kejutan',warna:'kuning',
+      reaksi:'Painya meluncur dan meninggalkan jejak kilau!',
+      cerita:'Pai keju meluncur pelan sambil meninggalkan jejak kilauan di udara.',
+      pesan:'Setiap percobaan meninggalkan jejak yang berharga.',
+      lencana:'Lencana Pai Komet',medal:'🎖️'},
+    'K-B-D':{nama:'Bola Keju Kejutan',emoji:'🧆',tier:'kejutan',warna:'kuning',
+      reaksi:'Pop! Ada kilau bintang di dalamnya!',
+      cerita:'Saat dibelah, bola keju mengeluarkan kilau bintang kecil. Semua tamu bersorak kaget.',
+      pesan:'Kejutan kecil membuat pesta lebih seru.',
+      lencana:'Lencana Bola Kejutan',medal:'🎖️'},
+    'K-A-N':{nama:'Keju Awan Lembut',emoji:'☁️',tier:'kejutan',warna:'kuning',
+      reaksi:'Hmm... selembut bantal awan.',
+      cerita:'Keju selembut awan meleleh pelan di lidah para tamu. Semua diam sejenak, lalu tersenyum.',
+      pesan:'Kelembutan juga merupakan kekuatan.',
+      lencana:'Lencana Keju Awan',medal:'🎖️'},
+    'K-A-R':{nama:'Roti Bulan Meluncur',emoji:'🥐',tier:'kejutan',warna:'kuning',
+      reaksi:'Rotinya melengkung seperti bulan sabit lalu meluncur!',
+      cerita:'Roti berbentuk bulan sabit meluncur pelan mengelilingi meja pesta.',
+      pesan:'Bentuk yang unik membuat karya mudah diingat.',
+      lencana:'Lencana Bulan Sabit',medal:'🎖️'},
+    'K-A-D':{nama:'Moon Cheese Pizza',emoji:'🍕',tier:'utama',warna:'kuning',
+      reaksi:'Pizzanya terbang! Bip-bip, hati-hati kepala, ya!',
+      cerita:'Pizza keju berbentuk bulan terbang pelan mengelilingi meja pesta. Semua tamu bertepuk tangan sambil melihat ke atas.',
+      pesan:'Setiap ide unik dapat menjadi karya yang hebat.',
+      lencana:'Lencana Pizza Bulan',medal:'🌙'}
+  };
+
+  var TOTAL_RESEP = 27;
+
+  function resepCadangan(u,a,c){
+    return {
+      nama:'Kudapan Kejutan ROBI',
+      emoji:'🍽️', tier:'kejutan', warna:(u && u.warna) ? u.warna : 'ungu',
+      reaksi:'Bip! Resep ini baru buat ROBI, tapi rasanya enak sekali!',
+      cerita:'ROBI mencampur bahan pilihanmu dengan cara baru. Hasilnya kudapan lucu yang belum punya nama. Para tamu tetap suka!',
+      pesan:'Setiap percobaan itu berharga. Ayo coba kombinasi lain!',
+      lencana:'Lencana Penjelajah Rasa', medal:'🎖️'
+    };
+  }
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  var state = { view:'beranda', step:0, main:null, magic:null, method:null, key:null };
+  var ditemukan = {};
+  var soundOn = true;
+  var cookTimers = [];
+  var cookToken = 0;
+
+  function simpan(){
+    try{ localStorage.setItem('robi_found', JSON.stringify(Object.keys(ditemukan))); }catch(e){}
+  }
+  function muat(){
+    try{
+      var raw = localStorage.getItem('robi_found');
+      if(raw){
+        var arr = JSON.parse(raw);
+        if(Object.prototype.toString.call(arr)==='[object Array]'){
+          for(var i=0;i<arr.length;i++){ if(RESEP[arr[i]]) ditemukan[arr[i]] = true; }
+        }
+      }
+    }catch(e){}
+  }
+  function jumlahDitemukan(){ return Object.keys(ditemukan).length; }
+
+  function cari(list, kode){
+    for(var i=0;i<list.length;i++){ if(list[i].kode===kode) return list[i]; }
+    return null;
+  }
+
+  /* =========================================================
+     SUARA (WebAudio, sederhana & bisa dimatikan)
+     ========================================================= */
+  var actx = null;
+  function nada(freq, dur, delay){
+    if(!soundOn) return;
+    try{
+      if(!actx){
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return;
+        actx = new AC();
+      }
+      if(actx.state === 'suspended'){ actx.resume(); }
+      var t0 = actx.currentTime + (delay||0);
+      var osc = actx.createOscillator();
+      var g = actx.createGain();
+      osc.type='triangle';
+      osc.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.09, t0+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+      osc.connect(g); g.connect(actx.destination);
+      osc.start(t0); osc.stop(t0+dur+0.03);
+    }catch(e){}
+  }
+  function sfxKlik(){ nada(620,0.10,0); }
+  function sfxPilih(){ nada(520,0.10,0); nada(780,0.12,0.09); }
+  function sfxHore(){ nada(523,0.14,0); nada(659,0.14,0.13); nada(784,0.16,0.26); nada(1047,0.30,0.40); }
+
+  /* =========================================================
+     ROBI (SVG orisinal)
+     ========================================================= */
+  function robi(mood, size, floaty){
+    mood = mood || 'senang';
+    size = size || 190;
+    return '' +
+    '<svg class="robi'+(floaty===false?'':' robi-float')+'" data-mood="'+mood+'" width="'+size+'" height="'+Math.round(size*1.12)+'" viewBox="0 0 160 180" role="img" aria-label="ROBI, robot koki yang ramah">' +
+      '<defs>' +
+        '<linearGradient id="rbBody" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0" stop-color="#EAF6FF"/><stop offset="1" stop-color="#B8D8F5"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="rbHead" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#CFE4FA"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="rbScreen" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0" stop-color="#7A4DE0"/><stop offset="1" stop-color="#2FA9E8"/>' +
+        '</linearGradient>' +
+      '</defs>' +
+      /* antenna */
+      '<line x1="80" y1="26" x2="80" y2="12" stroke="#8FA9C9" stroke-width="4" stroke-linecap="round"/>' +
+      '<circle class="blink" cx="80" cy="9" r="6" fill="#FFC93C" stroke="#E09A00" stroke-width="2"/>' +
+      /* chef hat */
+      '<path d="M44 44c-9 0-15-7-13-15 2-8 10-11 15-9 2-9 12-14 20-11 6-8 19-8 25 1 9-3 18 4 17 13 6 2 9 9 6 15-2 5-7 6-11 6z" fill="#FFFFFF" stroke="#B9C9DD" stroke-width="3" stroke-linejoin="round"/>' +
+      '<rect x="44" y="40" width="72" height="14" rx="7" fill="#F1F6FC" stroke="#B9C9DD" stroke-width="3"/>' +
+      /* head */
+      '<rect x="38" y="52" width="84" height="66" rx="24" fill="url(#rbHead)" stroke="#8FA9C9" stroke-width="3.5"/>' +
+      /* ears */
+      '<rect x="28" y="74" width="12" height="22" rx="6" fill="#B8D8F5" stroke="#8FA9C9" stroke-width="3"/>' +
+      '<rect x="120" y="74" width="12" height="22" rx="6" fill="#B8D8F5" stroke="#8FA9C9" stroke-width="3"/>' +
+      /* faceplate */
+      '<rect x="48" y="62" width="64" height="38" rx="16" fill="#2E1F52" opacity=".9"/>' +
+      /* eyes */
+      '<g data-part="eyes-normal">' +
+        '<circle cx="66" cy="80" r="8" fill="#8DE7FF"/><circle cx="69" cy="77" r="3" fill="#FFFFFF"/>' +
+        '<circle cx="94" cy="80" r="8" fill="#8DE7FF"/><circle cx="97" cy="77" r="3" fill="#FFFFFF"/>' +
+      '</g>' +
+      '<g data-part="eyes-happy">' +
+        '<path d="M58 83q8-11 16 0" fill="none" stroke="#8DE7FF" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M86 83q8-11 16 0" fill="none" stroke="#8DE7FF" stroke-width="5" stroke-linecap="round"/>' +
+      '</g>' +
+      '<g data-part="eyes-wow">' +
+        '<circle cx="66" cy="80" r="11" fill="#8DE7FF"/><circle cx="70" cy="76" r="4" fill="#FFFFFF"/>' +
+        '<circle cx="94" cy="80" r="11" fill="#8DE7FF"/><circle cx="98" cy="76" r="4" fill="#FFFFFF"/>' +
+      '</g>' +
+      '<g data-part="eyes-star">' +
+        '<path d="M66 69l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#FFD166"/>' +
+        '<path d="M94 69l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#FFD166"/>' +
+      '</g>' +
+      /* mouths */
+      '<g data-part="mouth-smile"><path d="M70 92q10 9 20 0" fill="none" stroke="#FF8FBC" stroke-width="4.5" stroke-linecap="round"/></g>' +
+      '<g data-part="mouth-big"><path d="M68 88q12 16 24 0z" fill="#FF8FBC"/></g>' +
+      '<g data-part="mouth-o"><ellipse cx="80" cy="92" rx="7" ry="8" fill="#FF8FBC"/></g>' +
+      /* cheeks */
+      '<circle cx="50" cy="99" r="6" fill="#FFB3D1" opacity=".85"/>' +
+      '<circle cx="110" cy="99" r="6" fill="#FFB3D1" opacity=".85"/>' +
+      /* body */
+      '<rect x="46" y="118" width="68" height="50" rx="20" fill="url(#rbBody)" stroke="#8FA9C9" stroke-width="3.5"/>' +
+      '<rect x="60" y="130" width="40" height="24" rx="10" fill="url(#rbScreen)"/>' +
+      '<path d="M80 148c-6-4-10-7-10-11a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-4 7-10 11z" fill="#FFD166"/>' +
+      /* arms */
+      '<rect x="24" y="122" width="22" height="11" rx="5.5" fill="#B8D8F5" stroke="#8FA9C9" stroke-width="3"/>' +
+      '<rect x="114" y="122" width="22" height="11" rx="5.5" fill="#B8D8F5" stroke="#8FA9C9" stroke-width="3"/>' +
+      /* spoon */
+      '<line x1="136" y1="127" x2="146" y2="106" stroke="#C98B4B" stroke-width="4" stroke-linecap="round"/>' +
+      '<ellipse cx="148" cy="101" rx="8" ry="6" fill="#E7B078" stroke="#C98B4B" stroke-width="2.5" transform="rotate(-20 148 101)"/>' +
+    '</svg>';
+  }
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function batalkanTimer(){
+    for(var i=0;i<cookTimers.length;i++){ clearTimeout(cookTimers[i]); }
+    cookTimers = [];
+    cookToken++;
+  }
+  function scrollAtas(){
+    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+  }
+
+  function kartuPilihan(item, terpilih, jenis){
+    return '<button type="button" class="choice" data-action="pilih" data-jenis="'+jenis+'" data-kode="'+item.kode+'" data-warna="'+item.warna+'" aria-pressed="'+(terpilih?'true':'false')+'">' +
+      '<span class="choice-emoji" aria-hidden="true">'+item.emoji+'</span>' +
+      '<span class="choice-from">'+esc(item.asal)+'</span>' +
+      '<span class="choice-name">'+esc(item.nama)+'</span>' +
+      '<span class="choice-desc">'+esc(item.desc)+'</span>' +
+      '<span class="choice-pick">'+(terpilih?'✓ Dipilih':'Pilih ini')+'</span>' +
+    '</button>';
+  }
+
+  function tahapDari(step){
+    if(step<=0) return 0;
+    if(step===1) return 1;
+    if(step===2) return 2;
+    if(step===3 || step===4) return 3;
+    return 4;
+  }
+
+  function progressHTML(){
+    var t = tahapDari(state.step);
+    var label = ['Bahan Utama','Bahan Ajaib','Cara Masak','Hasil Resep'];
+    var li = '';
+    for(var i=1;i<=4;i++){
+      var cls = t>i ? 'done' : (t===i ? 'active' : '');
+      li += '<li class="'+cls+'"><span class="pnum" aria-hidden="true">'+(t>i?'✓':i)+'</span><span>'+label[i-1]+'</span></li>';
+    }
+    var pct = (t/4)*100;
+    return '<div class="progress">' +
+      '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>' +
+      '<ol class="psteps">'+li+'</ol>' +
+      '<p class="sr">Tahap '+t+' dari 4</p>' +
+    '</div>';
+  }
+
+  /* =========================================================
+     VIEWS
+     ========================================================= */
+  function viewBeranda(){
+    var n = jumlahDitemukan();
+    return '' +
+    '<section class="hero">' +
+      '<div>' +
+        '<span class="eyebrow">🎂 Tier 1 · Usia 6–8 tahun</span>' +
+        '<h1>Robot Chef and the Magic Kitchen</h1>' +
+        '<p class="tag">Cerita interaktif · Kota Pelangi</p>' +
+        '<p class="lead">Pesta ulang tahun di Kota Pelangi hampir mulai, tetapi semua makanan pesta menghilang karena dapur terkena sihir! Bantu ROBI si robot koki memilih bahan, menambah keajaiban, dan memasak sebelum para tamu datang.</p>' +
+        '<div class="btn-row" style="justify-content:flex-start">' +
+          '<button type="button" class="btn btn-primary" data-action="mulai">🍳 Mulai Memasak</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-action="cara">📖 Cara Bermain</button>' +
+        '</div>' +
+        '<div class="chips">' +
+          '<span class="chip">🔀 <strong>27</strong> resep berbeda</span>' +
+          '<span class="chip">🏆 <strong>3</strong> resep utama</span>' +
+          '<span class="chip">🔒 <strong>1</strong> resep rahasia</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hero-art">' +
+        '<div class="robi-stage">' +
+          robi('senang', 200) +
+          '<div class="bubble">Halo! Aku ROBI. Ayo selamatkan pesta ulang tahun bersama-sama!</div>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
+
+    '<div class="counter"><span class="dot" aria-hidden="true"></span> Resep yang sudah kamu temukan: <strong>'+n+' dari '+TOTAL_RESEP+'</strong>'+(n>0?' <button type="button" class="btn btn-ghost btn-sm" style="min-height:38px;padding:6px 14px;font-size:.85rem" data-action="reset-koleksi">Kosongkan</button>':'')+'</div>' +
+
+    '<section class="section panel">' +
+      '<h2>Apa yang akan kamu lakukan?</h2>' +
+      '<p class="muted">Tiga pilihan, satu resep ajaib. Setiap pilihanmu mengubah hasil akhirnya.</p>' +
+      '<div class="choices" style="margin-top:16px">' +
+        '<div class="choice" style="cursor:default" data-warna="pink"><span class="choice-emoji" aria-hidden="true">🍓</span><span class="choice-name">1. Pilih Bahan Utama</span><span class="choice-desc">Stroberi, cokelat, atau keju ajaib.</span></div>' +
+        '<div class="choice" style="cursor:default" data-warna="ungu"><span class="choice-emoji" aria-hidden="true">✨</span><span class="choice-name">2. Tambah Bahan Ajaib</span><span class="choice-desc">Gula pelangi, bubuk bintang, atau krim awan.</span></div>' +
+        '<div class="choice" style="cursor:default" data-warna="kuning"><span class="choice-emoji" aria-hidden="true">💃</span><span class="choice-name">3. Pilih Cara Memasak</span><span class="choice-desc">Bernyanyi, tekan roket, atau menari.</span></div>' +
+      '</div>' +
+      '<div class="btn-row" style="margin-top:20px">' +
+        '<button type="button" class="btn btn-sun" data-action="mulai">Ayo Bantu ROBI! 🚀</button>' +
+      '</div>' +
+    '</section>' +
+    footer();
+  }
+
+  function viewMain(){
+    var s = state.step;
+    var inti = '';
+
+    if(s===0){
+      inti = '<div class="panel" style="text-align:center">' +
+        '<div class="robi-stage">' + robi('kaget', 180) +
+          '<div class="bubble">Wah, gawat! Semua makanan pesta menghilang!</div>' +
+        '</div>' +
+        '<h2 class="scene-title" style="margin-top:20px">Dapur Ajaib Terkena Sihir</h2>' +
+        '<p class="muted" style="max-width:52ch;margin:8px auto 0">Sepuluh menit lagi para tamu datang ke pesta ulang tahun di Kota Pelangi. Lemari dapur kosong, tetapi mesin masak ajaib ROBI masih menyala. ROBI membutuhkan bantuanmu untuk membuat hidangan ajaib!</p>' +
+        '<div class="btn-row" style="margin-top:22px">' +
+          '<button type="button" class="btn btn-primary" data-action="ke-step" data-step="1">🤝 Bantu ROBI</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-action="cara">📖 Cara Bermain</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    else if(s===1){
+      inti = '<div class="panel">' +
+        '<h2 class="scene-title">Pilih Bahan Utama</h2>' +
+        '<p class="scene-sub">ROBI membuka kulkas ajaib. Bahan mana yang kamu pilih?</p>' +
+        '<div class="choices">' +
+          kartuPilihan(BAHAN_UTAMA[0], state.main==='S', 'main') +
+          kartuPilihan(BAHAN_UTAMA[1], state.main==='C', 'main') +
+          kartuPilihan(BAHAN_UTAMA[2], state.main==='K', 'main') +
+        '</div>' +
+        '<div class="step-foot">' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-action="ke-step" data-step="0">← Kembali</button>' +
+          (state.main ? '<button type="button" class="btn btn-primary btn-sm" data-action="ke-step" data-step="2">Lanjut →</button>' : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    else if(s===2){
+      var u = cari(BAHAN_UTAMA, state.main);
+      if(!u){ state.step = 1; return viewMain(); }
+      inti = '<div class="panel">' +
+        '<div class="robi-stage" style="margin-bottom:16px">' + robi('senang', 130) +
+          '<div class="bubble">'+esc(u.reaksi)+'</div>' +
+        '</div>' +
+        '<h2 class="scene-title">Pilih Bahan Ajaib</h2>' +
+        '<p class="scene-sub">Sekarang tambahkan satu keajaiban ke dalam '+esc(u.nama)+'.</p>' +
+        '<div class="choices">' +
+          kartuPilihan(BAHAN_AJAIB[0], state.magic==='G', 'magic') +
+          kartuPilihan(BAHAN_AJAIB[1], state.magic==='B', 'magic') +
+          kartuPilihan(BAHAN_AJAIB[2], state.magic==='A', 'magic') +
+        '</div>' +
+        '<div class="step-foot">' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-action="ke-step" data-step="1">← Kembali</button>' +
+          (state.magic ? '<button type="button" class="btn btn-primary btn-sm" data-action="ke-step" data-step="3">Lanjut →</button>' : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    else if(s===3){
+      var a = cari(BAHAN_AJAIB, state.magic);
+      if(!state.main){ state.step = 1; return viewMain(); }
+      if(!a){ state.step = 2; return viewMain(); }
+      inti = '<div class="panel">' +
+        '<div class="robi-stage" style="margin-bottom:16px">' + robi('kaget', 130) +
+          '<div class="bubble">'+esc(a.reaksi)+'</div>' +
+        '</div>' +
+        '<h2 class="scene-title">Cara Memasak</h2>' +
+        '<p class="scene-sub">Mesin masak ajaib butuh tenaga. Bagaimana cara menyalakannya?</p>' +
+        '<div class="choices">' +
+          kartuPilihan(CARA_MASAK[0], state.method==='N', 'method') +
+          kartuPilihan(CARA_MASAK[1], state.method==='R', 'method') +
+          kartuPilihan(CARA_MASAK[2], state.method==='D', 'method') +
+        '</div>' +
+        '<div class="step-foot">' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-action="ke-step" data-step="2">← Kembali</button>' +
+          (state.method ? '<button type="button" class="btn btn-primary btn-sm" data-action="ke-step" data-step="4">Lanjut →</button>' : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    else if(s===4){
+      var u4 = cari(BAHAN_UTAMA, state.main);
+      var a4 = cari(BAHAN_AJAIB, state.magic);
+      var c4 = cari(CARA_MASAK, state.method);
+      if(!u4){ state.step=1; return viewMain(); }
+      if(!a4){ state.step=2; return viewMain(); }
+      if(!c4){ state.step=3; return viewMain(); }
+      inti = '<div class="panel">' +
+        '<h2 class="scene-title">Cek Dulu, Yuk!</h2>' +
+        '<p class="scene-sub">Ini pilihanmu. Kalau sudah pas, ROBI akan mulai memasak.</p>' +
+        '<div class="summary">' +
+          '<div class="sum-item"><span class="e" aria-hidden="true">'+u4.emoji+'</span><span><span class="k">Bahan Utama</span><span class="v">'+esc(u4.nama)+'</span></span></div>' +
+          '<div class="sum-item"><span class="e" aria-hidden="true">'+a4.emoji+'</span><span><span class="k">Bahan Ajaib</span><span class="v">'+esc(a4.nama)+'</span></span></div>' +
+          '<div class="sum-item"><span class="e" aria-hidden="true">'+c4.emoji+'</span><span><span class="k">Cara Memasak</span><span class="v">'+esc(c4.nama)+'</span></span></div>' +
+        '</div>' +
+        '<div class="robi-stage">' + robi('masak', 130, false) +
+          '<div class="bubble">'+esc(c4.reaksi)+'</div>' +
+        '</div>' +
+        '<div class="step-foot">' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-action="ke-step" data-step="3">← Ganti Cara Masak</button>' +
+          '<button type="button" class="btn btn-sun" data-action="masak">🔥 Masak Sekarang!</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    else if(s===5){
+      inti = '<div class="panel">' +
+        '<h2 class="scene-title">ROBI Sedang Memasak…</h2>' +
+        '<div class="cooking">' +
+          '<div class="pot">' +
+            '<div class="bubbles" aria-hidden="true">' +
+              '<span style="left:20%;animation-delay:0s">🫧</span>' +
+              '<span style="left:44%;animation-delay:.45s">✨</span>' +
+              '<span style="left:66%;animation-delay:.9s">🫧</span>' +
+              '<span style="left:32%;animation-delay:1.3s">⭐</span>' +
+              '<span style="left:56%;animation-delay:1.75s">✨</span>' +
+            '</div>' +
+            '<div class="pot-body"><div class="pot-rim"></div><div class="pot-light" aria-hidden="true">🔆</div></div>' +
+          '</div>' +
+          '<p class="cook-status" id="cook-status" role="status">ROBI sedang menciptakan resep ajaib…</p>' +
+          '<div class="cook-track"><div class="cook-fill" id="cook-fill"></div></div>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-action="lewati">Lihat Hasil Sekarang →</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    else {
+      return viewHasil();
+    }
+
+    return progressHTML() + inti + footer();
+  }
+
+  function viewHasil(){
+    var u = cari(BAHAN_UTAMA, state.main);
+    var a = cari(BAHAN_AJAIB, state.magic);
+    var c = cari(CARA_MASAK, state.method);
+    if(!u || !a || !c){ return viewError('Pilihan bahannya belum lengkap.'); }
+
+    var key = u.kode+'-'+a.kode+'-'+c.kode;
+    var r = RESEP[key] || resepCadangan(u,a,c);
+    var tierLabel = r.tier==='rahasia' ? '🔒 Resep Rahasia' : (r.tier==='utama' ? '🏆 Resep Utama' : '🎁 Resep Kejutan');
+    var n = jumlahDitemukan();
+
+    var catatan = '';
+    if(r.tier==='kejutan'){
+      catatan = '<div class="hint" style="margin-top:14px">💡 Masih ada <strong>3 resep utama</strong> dan <strong>1 resep rahasia</strong> yang bisa kamu temukan. Coba kombinasi lain, ya!</div>';
+    } else if(r.tier==='utama'){
+      catatan = '<div class="hint" style="margin-top:14px">💡 Hebat, ini salah satu resep utama! Masih ada <strong>1 resep rahasia</strong>. Petunjuk: pilih dua bahan yang sama-sama berwarna pelangi, lalu ajak ROBI menari.</div>';
+    } else {
+      catatan = '<div class="hint" style="margin-top:14px">🎉 Kamu menemukan resep rahasia! Coba juga ketiga resep utama: Rainbow Star Cake, Galaxy Choco Cupcake, dan Moon Cheese Pizza.</div>';
+    }
+
+    return '' +
+    progressHTML() +
+    '<section class="result-hero" data-warna="'+r.warna+'">' +
+      '<span class="tier-tag" data-t="'+r.tier+'">'+tierLabel+'</span>' +
+      '<div class="plate" aria-hidden="true">'+r.emoji+'</div>' +
+      '<h2>'+esc(r.nama)+'</h2>' +
+      '<p class="muted" style="font-weight:700">Hidangan buatanmu bersama ROBI</p>' +
+    '</section>' +
+
+    '<div class="result-grid">' +
+      '<div class="info-card">' +
+        '<h3>🧾 Resepmu</h3>' +
+        '<ul class="recipe-list">' +
+          '<li><span class="e" aria-hidden="true">'+u.emoji+'</span><span>'+esc(u.nama)+'</span></li>' +
+          '<li><span class="e" aria-hidden="true">'+a.emoji+'</span><span>'+esc(a.nama)+'</span></li>' +
+          '<li><span class="e" aria-hidden="true">'+c.emoji+'</span><span>'+esc(c.nama)+'</span></li>' +
+        '</ul>' +
+      '</div>' +
+      '<div class="info-card">' +
+        '<h3>🤖 Kata ROBI</h3>' +
+        '<p style="font-weight:700">"'+esc(r.reaksi)+'"</p>' +
+      '</div>' +
+      '<div class="info-card">' +
+        '<h3>🎈 Suasana Pesta</h3>' +
+        '<p>'+esc(r.cerita)+'</p>' +
+      '</div>' +
+      '<div class="info-card" style="display:grid;gap:12px;align-content:start">' +
+        '<h3>🏅 Lencanamu</h3>' +
+        '<div class="badge"><span class="medal" aria-hidden="true">'+r.medal+'</span><span><strong>'+esc(r.lencana)+'</strong><br><span class="small muted">Diberikan kepada Siswa Future Makers</span></span></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="moral">' +
+      '<span class="lbl">Pesan Moral</span>' +
+      '<p>"'+esc(r.pesan)+'"</p>' +
+    '</div>' +
+
+    catatan +
+
+    '<div class="counter"><span class="dot" aria-hidden="true"></span> Resep yang sudah kamu temukan: <strong>'+n+' dari '+TOTAL_RESEP+'</strong></div>' +
+
+    '<div class="btn-row" style="margin-top:20px">' +
+      '<button type="button" class="btn btn-primary" data-action="masak-lagi">🔁 Masak Lagi</button>' +
+      '<button type="button" class="btn btn-ghost" data-action="nav" data-view="beranda">🏠 Kembali ke Beranda</button>' +
+    '</div>' +
+    footer();
+  }
+
+  function viewError(pesan){
+    return '<div class="errbox">' +
+      robi('kaget', 140) +
+      '<h2 style="margin-top:12px">Ups, ROBI kebingungan!</h2>' +
+      '<p class="muted" style="margin-top:8px">'+esc(pesan||'Ada bahan yang belum dipilih.')+' Tidak apa-apa, ayo mulai lagi dari awal.</p>' +
+      '<div class="btn-row" style="margin-top:18px"><button type="button" class="btn btn-primary" data-action="masak-lagi">🔁 Mulai Ulang</button></div>' +
+    '</div>' + footer();
+  }
+
+  function viewTentang(){
+    return '' +
+    '<section class="about-head" style="margin-top:22px">' +
+      '<span class="eyebrow">📁 Portofolio Proyek Akhir</span>' +
+      '<h1 style="font-size:clamp(1.6rem,5.5vw,2.4rem);margin-top:12px">Robot Chef and the Magic Kitchen</h1>' +
+      '<p class="muted" style="margin-top:8px;max-width:60ch">Permainan cerita interaktif dengan 3 titik pilihan, 27 hasil resep, 3 ending utama, dan 1 ending rahasia.</p>' +
+      '<div class="meta">' +
+        '<div><span class="k">Tier</span><span class="v">Tier 1 – AI Buddy Basics</span></div>' +
+        '<div><span class="k">Usia</span><span class="v">6–8 tahun</span></div>' +
+        '<div><span class="k">Pembuat</span><span class="v">Siswa Future Makers</span></div>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="section panel">' +
+      '<h2>🎯 Tujuan Proyek</h2>' +
+      '<p class="muted" style="margin-top:8px">Membuat cerita interaktif yang membantu anak belajar memberikan instruksi, mengambil keputusan, mencoba berbagai kombinasi, dan menggunakan AI secara kreatif. Ceritanya menyampaikan satu pesan besar: <strong>kreativitas tumbuh ketika kita berani mencoba dan belajar dari hasil percobaan.</strong></p>' +
+      '<h3 style="margin-top:18px">🕹️ Cara Menggunakan</h3>' +
+      '<ol class="steps-num">' +
+        '<li>Buka menu <strong>Bermain</strong> atau tekan tombol Mulai Memasak.</li>' +
+        '<li>Pilih bahan utama, bahan ajaib, lalu cara memasak.</li>' +
+        '<li>Periksa ringkasan pilihan, lalu tekan Masak Sekarang.</li>' +
+        '<li>Baca hasil resep, pesan moral, dan lencananya.</li>' +
+        '<li>Tekan Masak Lagi untuk mencoba kombinasi baru.</li>' +
+      '</ol>' +
+    '</section>' +
+
+    '<section class="section two-col">' +
+      '<div class="panel">' +
+        '<h3>🧒 Yang Dikerjakan Siswa</h3>' +
+        '<ul class="tick">' +
+          '<li>Menentukan karakter Robot Chef bernama ROBI.</li>' +
+          '<li>Memilih tema dapur ajaib dan latar Kota Pelangi.</li>' +
+          '<li>Menentukan tiga bahan utama dan tiga bahan ajaib.</li>' +
+          '<li>Memilih jalur cerita dan cara memasak.</li>' +
+          '<li>Memilih nama resep serta ending yang dipakai.</li>' +
+          '<li>Menguji seluruh kombinasi permainan.</li>' +
+          '<li>Memperbaiki cerita berdasarkan hasil pengujian teman.</li>' +
+        '</ul>' +
+      '</div>' +
+      '<div class="panel">' +
+        '<h3>🤖 Yang Dibantu Claude AI</h3>' +
+        '<ul class="tick ai">' +
+          '<li>Memberikan ide nama karakter dan nama makanan.</li>' +
+          '<li>Membantu membuat daftar bahan ajaib.</li>' +
+          '<li>Membantu menulis dialog ROBI yang singkat dan lucu.</li>' +
+          '<li>Menawarkan beberapa kemungkinan ending.</li>' +
+          '<li>Membantu memperbaiki bahasa agar mudah dibaca anak.</li>' +
+          '<li>Membantu membangun permainan interaktif sesuai keputusan siswa.</li>' +
+        '</ul>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="section panel">' +
+      '<h2>💬 Contoh Prompt Siswa</h2>' +
+      '<div class="prompt-box"><span class="k">Prompt ide</span><q>Buatkan tiga ide makanan ajaib untuk pesta ulang tahun. Gunakan stroberi, cokelat, atau keju. Berikan nama yang lucu dan cocok untuk anak-anak.</q></div>' +
+      '<div class="prompt-box"><span class="k">Prompt perbaikan</span><q>Buat dialog Robot Chef menjadi lebih singkat dan lucu. Gunakan kalimat yang mudah dibaca anak usia tujuh tahun.</q></div>' +
+    '</section>' +
+
+    '<section class="section panel">' +
+      '<h2>🔧 Bukti Perbaikan</h2>' +
+      '<p class="muted small" style="margin-top:6px">Hasil pengujian bersama dua teman sekelas.</p>' +
+      '<div class="iter">' +
+        '<div class="v1"><span class="k">Versi 1</span>Dialog ROBI panjang, tiga sampai empat kalimat. Teman penguji berhenti membaca di tengah.</div>' +
+        '<div class="v2"><span class="k">Versi 2 (sekarang)</span>Dialog dipendekkan menjadi satu kalimat pendek dengan bunyi lucu seperti "Bip!".</div>' +
+        '<div class="v1"><span class="k">Versi 1</span>Hanya ada 3 hasil akhir, jadi permainan terasa cepat selesai.</div>' +
+        '<div class="v2"><span class="k">Versi 2 (sekarang)</span>Setiap kombinasi punya hasil sendiri (27 resep) plus penghitung resep yang ditemukan.</div>' +
+        '<div class="v1"><span class="k">Versi 1</span>Kombinasi yang bukan resep utama terasa seperti gagal.</div>' +
+        '<div class="v2"><span class="k">Versi 2 (sekarang)</span>Semua kombinasi menghasilkan makanan lucu, lencana, dan ajakan mencoba lagi.</div>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="section two-col">' +
+      '<div class="panel">' +
+        '<h3>⭐ Yang Dipelajari Siswa</h3>' +
+        '<ul class="tick learn">' +
+          '<li>Memberikan instruksi yang jelas kepada AI.</li>' +
+          '<li>Memilih hasil AI yang paling sesuai dengan idenya.</li>' +
+          '<li>Menyusun cerita dengan beberapa pilihan.</li>' +
+          '<li>Memahami hubungan antara pilihan dan hasil.</li>' +
+          '<li>Menguji serta memperbaiki karya sendiri.</li>' +
+          '<li>Memahami bahwa AI dapat melakukan kesalahan.</li>' +
+        '</ul>' +
+      '</div>' +
+      '<div class="panel">' +
+        '<h3>🚀 Rencana Pengembangan</h3>' +
+        '<ul class="tick">' +
+          '<li>Menambah bahan keempat, misalnya buah dari Pulau Es.</li>' +
+          '<li>Menambah suara ROBI yang direkam siswa sendiri.</li>' +
+          '<li>Membuat buku resep yang menyimpan semua hasil temuan.</li>' +
+          '<li>Menambah versi Bahasa Inggris untuk latihan kosakata.</li>' +
+          '<li>Menambah mode dua pemain untuk dimainkan bersama teman.</li>' +
+        '</ul>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="section note">' +
+      '<h3>🔒 Catatan Keamanan &amp; Keterbatasan</h3>' +
+      '<ul class="tick" style="margin-top:10px">' +
+        '<li><strong>Tidak ada data pribadi.</strong> Permainan ini tidak meminta nama, usia, sekolah, foto, atau alamat. Identitas pembuat memakai nama contoh "Siswa Future Makers".</li>' +
+        '<li><strong>Simulasi, bukan AI langsung.</strong> Dialog ROBI dan seluruh hasil resep sudah ditulis lebih dulu oleh siswa dengan bantuan Claude AI. Permainan ini <em>tidak</em> memanggil AI saat dimainkan.</li>' +
+        '<li><strong>Tidak ada API key.</strong> Tidak ada kunci rahasia apa pun di dalam halaman ini.</li>' +
+        '<li><strong>Penyimpanan lokal.</strong> Jumlah resep yang ditemukan disimpan di peramban pemain saja, dan bisa dikosongkan dari halaman Beranda.</li>' +
+        '<li><strong>Aset orisinal.</strong> Karakter ROBI digambar dengan SVG buatan sendiri. Elemen lain memakai emoji dan bentuk CSS. Tidak ada gambar, musik, atau karakter berhak cipta.</li>' +
+        '<li><strong>AI bisa salah.</strong> Semua ide dari Claude AI diperiksa dulu oleh siswa sebelum dipakai.</li>' +
+      '</ul>' +
+      '<p style="margin-top:14px;font-weight:700">"Claude AI membantu memberikan ide dan mengembangkan permainan, tetapi siswa tetap menentukan karakter, pilihan, cerita, dan hasil akhirnya. Jawaban AI harus diperiksa sebelum digunakan."</p>' +
+    '</section>' +
+
+    '<div class="btn-row" style="margin-top:22px">' +
+      '<button type="button" class="btn btn-primary" data-action="mulai">🍳 Mainkan Permainannya</button>' +
+    '</div>' +
+    footer();
+  }
+
+  function footer(){
+    return '<p class="footer">Future Makers: Belajar AI, Ciptakan Aplikasi · Tier 1 – AI Buddy Basics · Dibuat oleh Siswa Future Makers dengan bantuan Claude AI</p>';
+  }
+
+  /* =========================================================
+     MODAL: CARA BERMAIN
+     ========================================================= */
+  function bukaModal(){
+    var root = document.getElementById('modal-root');
+    root.innerHTML = '<div class="modal-back" data-action="tutup-modal-luar" role="dialog" aria-modal="true" aria-label="Cara bermain">' +
+      '<div class="modal">' +
+        '<h2 style="font-size:1.5rem">📖 Cara Bermain</h2>' +
+        '<ol class="steps-num">' +
+          '<li>Pilih bahan utama.</li>' +
+          '<li>Tambahkan bahan ajaib.</li>' +
+          '<li>Pilih cara memasak.</li>' +
+          '<li>Lihat makanan ciptaanmu.</li>' +
+          '<li>Coba kombinasi lain untuk menemukan resep rahasia.</li>' +
+        '</ol>' +
+        '<div class="hint">🔎 <strong>Petunjuk resep rahasia:</strong> pilih dua bahan yang sama-sama berwarna pelangi, lalu ajak ROBI menari!</div>' +
+        '<div class="btn-row" style="margin-top:20px">' +
+          '<button type="button" class="btn btn-primary btn-sm" data-action="tutup-modal">Siap! 👍</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    var b = root.querySelector('.btn');
+    if(b) b.focus();
+  }
+  function tutupModal(){
+    document.getElementById('modal-root').innerHTML = '';
+  }
+
+  /* =========================================================
+     RENDER
+     ========================================================= */
+  function render(){
+    var app = document.getElementById('app');
+    var html = '';
+    try{
+      if(state.view === 'beranda'){ html = viewBeranda(); }
+      else if(state.view === 'tentang'){ html = viewTentang(); }
+      else { html = viewMain(); }
+      if(!html || !html.length){ html = viewError('Halaman tidak dapat ditampilkan.'); }
+    }catch(err){
+      try{ html = viewError('Terjadi kesalahan kecil di dapur.'); }
+      catch(e2){ html = '<div class="errbox"><h2>Ups!</h2><p>Ayo mulai ulang.</p><button type="button" class="btn btn-primary" data-action="masak-lagi">Mulai Ulang</button></div>'; }
+    }
+    app.innerHTML = html;
+
+    var btns = document.querySelectorAll('#nav button');
+    for(var i=0;i<btns.length;i++){
+      if(btns[i].getAttribute('data-view') === state.view){ btns[i].setAttribute('aria-current','page'); }
+      else { btns[i].removeAttribute('aria-current'); }
+    }
+
+    if(state.view === 'main' && state.step === 5){ jalankanMasak(); }
+  }
+
+  function jalankanMasak(){
+    batalkanTimer();
+    var token = cookToken;
+    var pesan = [
+      'ROBI sedang menciptakan resep ajaib…',
+      'Mencampur bahan pilihanmu…',
+      'Menambahkan keajaiban… kelap-kelip!',
+      'Hampir siap! Wanginya enak sekali!'
+    ];
+    var idx = 0;
+    var fill = document.getElementById('cook-fill');
+    var stat = document.getElementById('cook-status');
+    if(fill){ setTimeout(function(){ if(fill) fill.style.width = '100%'; }, 60); }
+
+    for(var i=1;i<pesan.length;i++){
+      (function(k){
+        cookTimers.push(setTimeout(function(){
+          if(token !== cookToken) return;
+          var s = document.getElementById('cook-status');
+          if(s) s.textContent = pesan[k];
+          nada(440 + k*90, 0.09, 0);
+        }, k*650));
+      })(i);
+    }
+    if(stat) stat.textContent = pesan[0];
+    nada(400,0.1,0);
+
+    cookTimers.push(setTimeout(function(){
+      if(token !== cookToken) return;
+      selesaiMasak();
+    }, 2700));
+  }
+
+  function selesaiMasak(){
+    batalkanTimer();
+    if(!state.main || !state.magic || !state.method){
+      state.step = 1; render(); return;
+    }
+    var key = state.main+'-'+state.magic+'-'+state.method;
+    state.key = key;
+    if(RESEP[key] && !ditemukan[key]){ ditemukan[key] = true; simpan(); }
+    state.step = 6;
+    render();
+    sfxHore();
+    scrollAtas();
+  }
+
+  function resetPermainan(){
+    batalkanTimer();
+    state.step = 0;
+    state.main = null;
+    state.magic = null;
+    state.method = null;
+    state.key = null;
+  }
+
+  /* =========================================================
+     EVENTS
+     ========================================================= */
+  document.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('[data-action]') : null;
+    if(!el) return;
+    var act = el.getAttribute('data-action');
+
+    if(act === 'tutup-modal-luar'){
+      if(e.target === el){ tutupModal(); }
+      return;
+    }
+    if(act === 'tutup-modal'){ sfxKlik(); tutupModal(); return; }
+    if(act === 'cara'){ sfxKlik(); bukaModal(); return; }
+
+    if(act === 'sound'){
+      soundOn = !soundOn;
+      el.textContent = soundOn ? '🔊' : '🔇';
+      el.setAttribute('aria-label', soundOn ? 'Matikan suara' : 'Hidupkan suara');
+      if(soundOn) sfxPilih();
+      return;
+    }
+
+    if(act === 'nav'){
+      var v = el.getAttribute('data-view');
+      sfxKlik();
+      batalkanTimer();
+      if(v === 'main'){
+        if(state.step === 5){ state.step = 4; }
+        if(state.step === 6 && !state.key){ resetPermainan(); }
+        if(typeof state.step !== 'number' || state.step < 0 || state.step > 6){ resetPermainan(); }
+      }
+      state.view = v;
+      render();
+      scrollAtas();
+      return;
+    }
+
+    if(act === 'mulai'){
+      sfxPilih();
+      resetPermainan();
+      state.view = 'main';
+      state.step = 0;
+      render();
+      scrollAtas();
+      return;
+    }
+
+    if(act === 'ke-step'){
+      var st = parseInt(el.getAttribute('data-step'), 10);
+      if(isNaN(st)) st = 0;
+      batalkanTimer();
+      if(st === 2 && !state.main){ st = 1; }
+      if(st === 3 && !state.magic){ st = state.main ? 2 : 1; }
+      if(st === 4 && !state.method){ st = state.magic ? 3 : (state.main ? 2 : 1); }
+      state.step = st;
+      state.view = 'main';
+      sfxKlik();
+      render();
+      scrollAtas();
+      return;
+    }
+
+    if(act === 'pilih'){
+      var jenis = el.getAttribute('data-jenis');
+      var kode = el.getAttribute('data-kode');
+      sfxPilih();
+      if(jenis === 'main'){ state.main = kode; state.step = 2; }
+      else if(jenis === 'magic'){ state.magic = kode; state.step = 3; }
+      else if(jenis === 'method'){ state.method = kode; state.step = 4; }
+      render();
+      scrollAtas();
+      return;
+    }
+
+    if(act === 'masak'){
+      if(!state.main || !state.magic || !state.method){
+        state.step = state.main ? (state.magic ? 3 : 2) : 1;
+        render(); return;
+      }
+      sfxKlik();
+      state.step = 5;
+      render();
+      scrollAtas();
+      return;
+    }
+
+    if(act === 'lewati'){ selesaiMasak(); return; }
+
+    if(act === 'masak-lagi'){
+      sfxPilih();
+      resetPermainan();
+      state.view = 'main';
+      state.step = 1;
+      render();
+      scrollAtas();
+      return;
+    }
+
+    if(act === 'reset-koleksi'){
+      ditemukan = {};
+      simpan();
+      sfxKlik();
+      render();
+      return;
+    }
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ tutupModal(); }
+  });
+
+  /* =========================================================
+     START
+     ========================================================= */
+  muat();
+  render();
+})();
+</script>
+
+</body></html>

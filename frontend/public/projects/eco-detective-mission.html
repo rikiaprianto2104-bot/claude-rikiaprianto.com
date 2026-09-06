@@ -1,0 +1,1333 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Eco Detective Mission</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --kertas:#EAEEE2;
+    --kartu:#FAFAF3;
+    --kartu2:#F1F3E7;
+    --garis:#C7CEBA;
+    --garis-tebal:#A9B49B;
+    --tinta:#182219;
+    --tinta2:#4C5C4E;
+    --hutan:#14532D;
+    --lumut:#2E7D4F;
+    --kunyit:#C9770F;
+    --kunyit-lembut:#F7E6C8;
+    --stempel:#A93C29;
+    --stempel-lembut:#F4DED7;
+    --atas:#F7FAF3;
+    --bayang:0 2px 0 rgba(24,34,25,.06), 0 10px 24px -14px rgba(24,34,25,.35);
+    --r:14px;
+    --maks-lebar:920px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --kertas:#0A120E;
+      --kartu:#14201A;
+      --kartu2:#1B2A22;
+      --garis:#2C4034;
+      --garis-tebal:#3C5647;
+      --tinta:#E9EFE6;
+      --tinta2:#A0B5A5;
+      --hutan:#7FCB99;
+      --lumut:#58AC77;
+      --kunyit:#F0A93F;
+      --kunyit-lembut:#38290F;
+      --stempel:#EE8A72;
+      --stempel-lembut:#3A1E17;
+      --atas:#08120C;
+      --bayang:0 2px 0 rgba(0,0,0,.25), 0 12px 28px -16px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"]{
+    --kertas:#0A120E;
+    --kartu:#14201A;
+    --kartu2:#1B2A22;
+    --garis:#2C4034;
+    --garis-tebal:#3C5647;
+    --tinta:#E9EFE6;
+    --tinta2:#A0B5A5;
+    --hutan:#7FCB99;
+    --lumut:#58AC77;
+    --kunyit:#F0A93F;
+    --kunyit-lembut:#38290F;
+    --stempel:#EE8A72;
+    --stempel-lembut:#3A1E17;
+    --atas:#08120C;
+    --bayang:0 2px 0 rgba(0,0,0,.25), 0 12px 28px -16px rgba(0,0,0,.8);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--kertas);
+    background-image:radial-gradient(rgba(46,125,79,.10) 1px, transparent 1px);
+    background-size:22px 22px;
+    color:var(--tinta);
+    font-family:"Nunito Sans", "Segoe UI", system-ui, sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    -webkit-text-size-adjust:100%;
+  }
+  h1,h2,h3,h4{
+    font-family:"Bricolage Grotesque","Nunito Sans",system-ui,sans-serif;
+    font-weight:800;
+    line-height:1.1;
+    margin:0;
+    text-wrap:balance;
+  }
+  p{margin:0}
+  a{color:var(--lumut)}
+  .mono{font-family:"Space Mono","SFMono-Regular",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  /* ---------- kerangka ---------- */
+  .bungkus{max-width:var(--maks-lebar);margin:0 auto;padding:0 18px}
+  .layar{display:flex;flex-direction:column;gap:20px;padding:22px 0 70px}
+
+  /* ---------- kepala ---------- */
+  .kepala{
+    position:sticky;top:0;z-index:30;
+    background:color-mix(in srgb, var(--kertas) 88%, transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:2px solid var(--garis);
+  }
+  .kepala-isi{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 18px;max-width:var(--maks-lebar);margin:0 auto}
+  .merek{display:flex;align-items:center;gap:10px;margin-right:auto}
+  .merek b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.05rem;letter-spacing:-.01em;display:block;line-height:1.1}
+  .merek span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta2)}
+  .nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{
+    font:inherit;font-size:.88rem;font-weight:700;white-space:nowrap;
+    background:transparent;color:var(--tinta2);
+    border:2px solid transparent;border-radius:999px;
+    padding:8px 12px;min-height:42px;cursor:pointer;
+  }
+  .nav button:hover{color:var(--tinta);background:var(--kartu2)}
+  .nav button[aria-current="page"]{background:var(--hutan);color:var(--atas);border-color:var(--hutan)}
+  .suara{
+    font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;
+    background:var(--kartu);color:var(--tinta2);
+    border:2px solid var(--garis);border-radius:999px;padding:6px 12px;min-height:40px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .suara:hover{border-color:var(--garis-tebal);color:var(--tinta)}
+
+  /* ---------- lencana logo ---------- */
+  .logo{width:40px;height:40px;flex:0 0 auto}
+
+  /* ---------- kartu umum ---------- */
+  .panel{
+    background:var(--kartu);border:2px solid var(--garis);border-radius:var(--r);
+    box-shadow:var(--bayang);padding:22px;
+  }
+  .panel.rapat{padding:16px}
+  .label{
+    font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--tinta2);
+  }
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+    border:2px solid var(--garis);border-radius:999px;padding:4px 10px;background:var(--kartu2);color:var(--tinta2);
+  }
+  .chip.hijau{background:color-mix(in srgb, var(--lumut) 16%, transparent);border-color:var(--lumut);color:var(--hutan)}
+  .chip.kuning{background:var(--kunyit-lembut);border-color:var(--kunyit);color:var(--kunyit)}
+  .chip.merah{background:var(--stempel-lembut);border-color:var(--stempel);color:var(--stempel)}
+
+  /* ---------- tombol ---------- */
+  .tbl{
+    font:inherit;font-weight:700;cursor:pointer;text-align:center;
+    border-radius:12px;border:2px solid var(--hutan);
+    background:var(--hutan);color:var(--atas);
+    padding:14px 22px;min-height:54px;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:0 3px 0 color-mix(in srgb, var(--hutan) 70%, #000);
+  }
+  .tbl:hover{transform:translateY(-2px)}
+  .tbl:active{transform:translateY(1px);box-shadow:0 1px 0 color-mix(in srgb, var(--hutan) 70%, #000)}
+  .tbl.besar{font-size:1.12rem;padding:18px 30px;min-height:64px}
+  .tbl.kedua{background:var(--kartu);color:var(--tinta);border-color:var(--garis-tebal);box-shadow:0 3px 0 var(--garis)}
+  .tbl.kuning{background:var(--kunyit);border-color:var(--kunyit);color:var(--atas);box-shadow:0 3px 0 color-mix(in srgb, var(--kunyit) 70%, #000)}
+  .tbl:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+  .baris-tbl{display:flex;flex-wrap:wrap;gap:12px}
+  :focus-visible{outline:3px solid var(--kunyit);outline-offset:3px}
+
+  /* ---------- beranda ---------- */
+  .hero{
+    display:grid;grid-template-columns:1.25fr .9fr;gap:26px;align-items:center;
+    background:var(--kartu);border:2px solid var(--garis);border-radius:var(--r);
+    box-shadow:var(--bayang);padding:28px;position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(115deg, transparent 0 26px, color-mix(in srgb, var(--lumut) 5%, transparent) 26px 28px);
+  }
+  .hero > *{position:relative}
+  .hero h1{font-size:clamp(2.1rem,6.4vw,3.5rem);letter-spacing:-.02em}
+  .hero h1 em{font-style:normal;color:var(--lumut);display:block}
+  .hero p.utama{margin-top:14px;font-size:1.05rem;color:var(--tinta2);max-width:44ch}
+  .stempel{
+    position:absolute;top:16px;right:18px;transform:rotate(7deg);
+    font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.14em;
+    border:2px dashed var(--stempel);color:var(--stempel);border-radius:8px;padding:5px 9px;
+  }
+  .alat{display:grid;place-items:center}
+  .fakta-baris{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .fakta{background:var(--kartu2);border:2px solid var(--garis);border-radius:12px;padding:14px}
+  .fakta b{font-family:"Space Mono",monospace;font-size:1.5rem;display:block;color:var(--hutan);line-height:1.1}
+  .fakta span{font-size:.86rem;color:var(--tinta2)}
+
+  /* ---------- meter ---------- */
+  .strip{
+    position:sticky;top:calc(var(--th, 64px) + 8px);z-index:20;
+    background:var(--kartu);border:2px solid var(--garis-tebal);border-radius:var(--r);
+    padding:12px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--bayang);
+  }
+  .strip-atas{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .strip-atas strong{font-family:"Space Mono",monospace;font-size:.95rem}
+  .meter{
+    height:16px;border-radius:999px;background:var(--kartu2);
+    border:2px solid var(--garis);overflow:hidden;
+  }
+  .meter i{
+    display:block;height:100%;border-radius:999px;
+    background:linear-gradient(90deg, var(--lumut), var(--kunyit));
+    transition:width .5s cubic-bezier(.2,.7,.3,1);
+  }
+  .titik-kasus{display:flex;gap:5px;flex-wrap:wrap}
+  .titik{
+    width:22px;height:22px;border-radius:7px;border:2px solid var(--garis);
+    background:var(--kartu2);font-family:"Space Mono",monospace;font-size:.62rem;
+    display:grid;place-items:center;color:var(--tinta2);
+  }
+  .titik.selesai{background:var(--lumut);border-color:var(--lumut);color:var(--atas)}
+  .titik.kini{border-color:var(--kunyit);background:var(--kunyit-lembut);color:var(--kunyit);font-weight:700}
+
+  /* ---------- kartu kasus ---------- */
+  .berkas{position:relative;margin-top:26px}
+  .tab{
+    position:absolute;top:-24px;left:14px;
+    background:var(--kunyit);color:var(--atas);
+    font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.12em;font-weight:700;
+    padding:5px 14px;border-radius:10px 10px 0 0;border:2px solid var(--kunyit);border-bottom:none;
+  }
+  .kasus-kepala{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .ikon-kasus{
+    width:58px;height:58px;flex:0 0 auto;border-radius:14px;
+    background:var(--kartu2);border:2px solid var(--garis);
+    display:grid;place-items:center;font-size:1.7rem;
+  }
+  .kasus-kepala h2{font-size:1.5rem}
+  .situasi{
+    margin-top:16px;padding:16px 18px;border-radius:12px;
+    background:var(--kartu2);
+    background-image:repeating-linear-gradient(to bottom, transparent 0 30px, var(--garis) 30px 31px);
+    border:2px solid var(--garis);border-left:6px solid var(--lumut);
+    font-size:1.05rem;
+  }
+  .pilihan-list{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+  .pilihan{
+    display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;
+    font:inherit;color:var(--tinta);cursor:pointer;
+    background:var(--kartu);border:2px solid var(--garis);border-radius:12px;
+    padding:14px 16px;min-height:60px;
+    transition:border-color .15s ease, transform .12s ease, background .15s ease;
+  }
+  .pilihan:hover:not(:disabled){border-color:var(--lumut);transform:translateX(3px);background:color-mix(in srgb, var(--lumut) 7%, var(--kartu))}
+  .pilihan:disabled{cursor:default}
+  .pilihan .kode{
+    flex:0 0 auto;width:38px;height:38px;border-radius:50%;
+    border:2px solid var(--garis-tebal);background:var(--kartu2);
+    font-family:"Space Mono",monospace;font-weight:700;
+    display:grid;place-items:center;
+  }
+  .pilihan.dipilih{border-color:var(--kunyit);background:var(--kunyit-lembut)}
+  .pilihan.dipilih .kode{background:var(--kunyit);border-color:var(--kunyit);color:var(--atas)}
+  .pilihan.pudar{opacity:.62}
+
+  .balik{
+    margin-top:18px;padding:18px;border-radius:12px;border:2px solid var(--lumut);
+    background:color-mix(in srgb, var(--lumut) 10%, var(--kartu));
+    display:flex;flex-direction:column;gap:10px;
+    animation:masuk .35s ease both;
+  }
+  .balik.belum{border-color:var(--kunyit);background:var(--kunyit-lembut)}
+  .balik-kepala{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .poin-dapat{
+    font-family:"Space Mono",monospace;font-weight:700;font-size:1rem;
+    background:var(--kartu);border:2px solid var(--garis-tebal);border-radius:999px;padding:5px 13px;white-space:nowrap;
+  }
+  @keyframes masuk{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+
+  /* ---------- hasil ---------- */
+  .skor-kotak{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .skor-besar{font-family:"Space Mono",monospace;font-size:3rem;line-height:1;color:var(--hutan)}
+  .tingkat{
+    text-align:center;padding:26px 20px;border-radius:var(--r);
+    border:2px solid var(--hutan);background:color-mix(in srgb, var(--lumut) 12%, var(--kartu));
+  }
+  .tingkat .nama{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(1.6rem,5vw,2.4rem);color:var(--hutan)}
+  .saran{display:flex;flex-direction:column;gap:10px;counter-reset:s}
+  .saran li{
+    list-style:none;display:flex;gap:12px;align-items:flex-start;
+    background:var(--kartu2);border:2px solid var(--garis);border-radius:12px;padding:12px 14px;
+  }
+  .saran li::before{
+    counter-increment:s;content:counter(s);
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;
+    background:var(--kunyit);color:var(--atas);font-family:"Space Mono",monospace;font-weight:700;font-size:.85rem;
+    display:grid;place-items:center;
+  }
+  ul.saran{padding:0;margin:0}
+
+  /* ---------- sertifikat ---------- */
+  .sertifikat{
+    border:3px double var(--hutan);border-radius:var(--r);
+    background:var(--kartu);padding:28px 22px;text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .sertifikat::before{
+    content:"";position:absolute;inset:8px;border:1px solid var(--garis);border-radius:8px;pointer-events:none;
+  }
+  .sertifikat > *{position:relative}
+  .sertifikat h3{font-size:clamp(1.3rem,4.4vw,1.9rem);color:var(--hutan);letter-spacing:.01em}
+  .sertifikat .gelar{
+    font-family:"Space Mono",monospace;font-weight:700;font-size:1.05rem;
+    border-top:2px solid var(--garis);border-bottom:2px solid var(--garis);
+    padding:10px 0;margin:14px auto;max-width:22ch;
+  }
+  .sertifikat .lencana{width:96px;height:96px;margin:6px auto 0;display:block}
+  .sertifikat .apresiasi{max-width:46ch;margin:12px auto 0;color:var(--tinta2)}
+  .sertifikat .kaki{
+    margin-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2);
+  }
+
+  /* ---------- rekap ---------- */
+  .rekap-baris{
+    border:2px solid var(--garis);border-radius:12px;background:var(--kartu);
+    padding:16px;display:flex;flex-direction:column;gap:10px;
+  }
+  .rekap-baris.terbaik{border-left:6px solid var(--lumut)}
+  .rekap-baris.biasa{border-left:6px solid var(--kunyit)}
+  .rekap-kepala{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .rekap-kepala .no{font-family:"Space Mono",monospace;font-weight:700;color:var(--tinta2)}
+  .kotak-kecil{background:var(--kartu2);border:2px solid var(--garis);border-radius:10px;padding:10px 12px}
+  .kotak-kecil .label{display:block;margin-bottom:3px}
+
+  /* ---------- teks & tabel ---------- */
+  .isi{display:flex;flex-direction:column;gap:14px;max-width:68ch}
+  .isi h2{font-size:1.6rem}
+  .isi h3{font-size:1.15rem;color:var(--hutan);margin-top:6px}
+  .isi ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:7px}
+  .isi p{color:var(--tinta2)}
+  .kutip{
+    border-left:5px solid var(--kunyit);background:var(--kunyit-lembut);
+    border-radius:0 12px 12px 0;padding:14px 16px;font-style:italic;
+  }
+  .gulir{overflow-x:auto;border:2px solid var(--garis);border-radius:12px;background:var(--kartu)}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:.92rem}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--garis);vertical-align:top}
+  th{background:var(--kartu2);font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta2)}
+  tr:last-child td{border-bottom:none}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+
+  .catatan{
+    display:flex;gap:12px;align-items:flex-start;
+    border:2px dashed var(--garis-tebal);border-radius:12px;padding:14px;background:var(--kartu2);
+    font-size:.94rem;color:var(--tinta2);
+  }
+  .kaki-hal{text-align:center;font-size:.82rem;color:var(--tinta2);padding:10px 0 0;border-top:2px solid var(--garis)}
+  .jejak{display:flex;justify-content:center;gap:14px;opacity:.5;padding:4px 0}
+
+  @media (max-width:1140px){
+    #teksSuara{display:none}
+    .suara{padding:6px 10px}
+  }
+  @media (max-width:760px){
+    body{font-size:16px}
+    .hero{grid-template-columns:1fr;padding:22px;gap:18px}
+    .alat{order:-1}
+    .fakta-baris{grid-template-columns:1fr}
+    .strip{top:auto;position:static}
+    .baris-tbl .tbl{width:100%}
+    .tbl.besar{width:100%}
+    .stempel{position:static;transform:none;display:inline-block;margin-bottom:10px}
+    .kepala-isi{padding:8px 14px;gap:8px}
+    .merek span{display:none}
+    .panel{padding:18px}
+  }
+  @media print{
+    .kepala,.nav,.baris-tbl,.strip,.catatan,.kaki-hal,.no-cetak{display:none!important}
+    body{background:#fff;color:#000}
+    .sertifikat{border-color:#000;box-shadow:none}
+  }
+</style>
+
+<header class="kepala">
+  <div class="kepala-isi">
+    <div class="merek">
+      <svg class="logo" viewBox="0 0 48 48" role="img" aria-label="Lencana Eco Detective">
+        <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="2" opacity=".25"></circle>
+        <circle cx="21" cy="21" r="11" fill="none" stroke="var(--lumut)" stroke-width="3.4"></circle>
+        <path d="M29 29 L40 40" stroke="var(--kunyit)" stroke-width="4.6" stroke-linecap="round"></path>
+        <path d="M21 27c-5-1-7-5-6-10 5-1 9 2 9 7 2-4 6-5 9-3-1 5-5 7-9 6z" fill="var(--hutan)"></path>
+      </svg>
+      <div>
+        <b>Eco Detective Mission</b>
+        <span>Markas Investigasi Lingkungan</span>
+      </div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Menu utama">
+      <button type="button" data-aksi="nav:beranda">Beranda</button>
+      <button type="button" data-aksi="nav:bermain">Bermain</button>
+      <button type="button" data-aksi="nav:cara">Cara Bermain</button>
+      <button type="button" data-aksi="nav:tentang">Tentang Proyek</button>
+    </nav>
+    <button type="button" class="suara" id="tblSuara" data-aksi="suara" aria-pressed="true">
+      <span id="ikonSuara">🔊</span> <span id="teksSuara">Suara: Hidup</span>
+    </button>
+  </div>
+</header>
+
+<main class="bungkus" id="app" tabindex="-1"></main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =======================================================
+     DATA 9 KASUS — ditentukan siswa, diperiksa ulang faktanya
+     ======================================================= */
+  var KASUS = [
+    {
+      no:1, tema:"Sampah Plastik", tempat:"Sekolah", ikon:"🧴",
+      situasi:"Tempat sampah di kantin sekolah penuh dengan botol plastik. Setiap hari tumpukannya makin tinggi sampai petugas kebersihan kewalahan.",
+      pilihan:[
+        {kode:"A", teks:"Membuang semua botol ke tempat sampah biasa tanpa dipilah.",
+         akibat:"Botol yang sebenarnya bisa didaur ulang ikut menumpuk di TPA. Plastik bertahan sangat lama — bisa ratusan tahun — dan bisa pecah menjadi serpihan kecil yang sulit hilang.", poin:3},
+        {kode:"B", teks:"Memisahkan botol plastik ke tempat sampah daur ulang dan mengajak teman membawa botol minum isi ulang.",
+         akibat:"Sampah plastik di kantin berkurang, dan kebiasaan baik ini ikut menyebar ke teman-teman satu kelas.", poin:9, terbaik:true},
+        {kode:"C", teks:"Membakar botol plastik supaya cepat habis.",
+         akibat:"Asap pembakaran plastik mengandung zat berbahaya yang mengotori udara dan mengganggu pernapasan.", poin:1}
+      ],
+      mengapa:"Memilah membuat plastik bisa didaur ulang, dan mengajak teman membawa botol isi ulang menghentikan sampah dari sumbernya — bukan hanya memindahkannya ke tempat lain."
+    },
+    {
+      no:2, tema:"Hemat Air", tempat:"Rumah", ikon:"🚰",
+      situasi:"Setiap pagi saat menyikat gigi, keran air di kamar mandi dibiarkan menyala terus sampai selesai.",
+      pilihan:[
+        {kode:"A", teks:"Mematikan keran saat menyikat gigi dan menyalakannya hanya waktu berkumur.",
+         akibat:"Air yang terbuang jauh berkurang setiap kali menyikat gigi, dan pelan-pelan jadi kebiasaan.", poin:9, terbaik:true},
+        {kode:"B", teks:"Membiarkan keran tetap menyala karena terasa lebih praktis.",
+         akibat:"Air bersih mengalir ke saluran pembuangan tanpa dipakai sama sekali.", poin:2},
+        {kode:"C", teks:"Mematikan keran hari ini, tapi besok sering lupa lagi.",
+         akibat:"Kamu sudah tahu caranya, tapi belum jadi kebiasaan tetap sehingga hasilnya naik-turun.", poin:5}
+      ],
+      mengapa:"Mematikan keran hanya butuh satu gerakan. Karena dilakukan dua kali sehari sepanjang tahun, jumlah air bersih yang terselamatkan jadi sangat besar."
+    },
+    {
+      no:3, tema:"Hemat Listrik", tempat:"Sekolah", ikon:"💡",
+      situasi:"Bel istirahat berbunyi dan seluruh kelas keluar. Ruangan kosong, tapi lampu dan kipas angin masih menyala.",
+      pilihan:[
+        {kode:"A", teks:"Mematikan lampu dan kipas angin sebelum keluar kelas.",
+         akibat:"Listrik tidak terbuang saat ruangan kosong, dan sekolah jadi lebih hemat serta ramah lingkungan.", poin:9, terbaik:true},
+        {kode:"B", teks:"Membiarkannya menyala karena sebentar lagi akan kembali.",
+         akibat:"Listrik terus terpakai padahal tidak ada satu pun orang yang menikmatinya.", poin:3},
+        {kode:"C", teks:"Mematikan lampu saja, kipas angin dibiarkan menyala.",
+         akibat:"Sudah lumayan hemat, tapi kipas yang berputar di ruang kosong tetap membuang listrik.", poin:6}
+      ],
+      mengapa:"Mematikan semua alat listrik yang tidak dipakai adalah cara paling hemat, dan gerakan ini cukup dilakukan satu orang terakhir yang keluar kelas."
+    },
+    {
+      no:4, tema:"Daur Ulang Kertas", tempat:"Sekolah", ikon:"📄",
+      situasi:"Banyak kertas tugas yang sudah tidak terpakai menumpuk di laci meja, sebagian masih kosong di baliknya.",
+      pilihan:[
+        {kode:"A", teks:"Membuang semua kertas begitu saja ke tempat sampah.",
+         akibat:"Kertas yang sisi belakangnya masih bersih jadi terbuang percuma.", poin:3},
+        {kode:"B", teks:"Memakai sisi kertas yang masih kosong untuk mencatat, lalu mendaur ulang sisanya.",
+         akibat:"Kertas terpakai dua kali lebih lama dan sampah kertas di kelas berkurang.", poin:9, terbaik:true},
+        {kode:"C", teks:"Menyimpan semua kertas tanpa dipakai atau didaur ulang.",
+         akibat:"Kertas hanya menumpuk di laci dan tidak memberi manfaat apa pun.", poin:4}
+      ],
+      mengapa:"Memakai ulang lebih dulu, lalu mendaur ulang sisanya, memanfaatkan kertas sampai habis nilainya sebelum jadi sampah."
+    },
+    {
+      no:5, tema:"Penghijauan", tempat:"Rumah", ikon:"🌱",
+      situasi:"Halaman rumah terlihat gersang. Tidak ada satu pun tanaman, dan siang hari terasa panas sekali.",
+      pilihan:[
+        {kode:"A", teks:"Menanam beberapa tanaman kecil dan rutin menyiramnya.",
+         akibat:"Halaman jadi lebih sejuk, udara lebih segar, dan tanah tidak mudah terkikis air hujan.", poin:9, terbaik:true},
+        {kode:"B", teks:"Membiarkan halaman tetap kosong.",
+         akibat:"Halaman tetap gersang dan panas, tidak ada peneduh sama sekali.", poin:3},
+        {kode:"C", teks:"Menanam tanaman, tapi lupa merawatnya sampai layu.",
+         akibat:"Usaha sudah dimulai, tapi tanpa perawatan tanaman tidak bertahan.", poin:5}
+      ],
+      mengapa:"Menanam saja tidak cukup — merawat secara rutin yang membuat tanaman tumbuh dan benar-benar menyejukkan halaman."
+    },
+    {
+      no:6, tema:"Transportasi", tempat:"Sekitar Rumah", ikon:"🚲",
+      situasi:"Jarak rumah ke sekolah hanya 500 meter, tapi setiap hari kamu tetap diantar naik motor.",
+      pilihan:[
+        {kode:"A", teks:"Tetap naik motor karena terasa lebih cepat.",
+         akibat:"Menambah asap kendaraan untuk jarak yang sebenarnya sangat dekat.", poin:3},
+        {kode:"B", teks:"Berjalan kaki atau bersepeda bersama teman untuk jarak dekat.",
+         akibat:"Udara di sekitar sekolah lebih bersih dan badan jadi lebih sehat.", poin:9, terbaik:true},
+        {kode:"C", teks:"Tetap naik motor, tapi berangkat bersama teman supaya tidak sendiri-sendiri.",
+         akibat:"Sedikit lebih efisien daripada berangkat terpisah, tapi asapnya tetap ada.", poin:6}
+      ],
+      mengapa:"Untuk jarak sedekat 500 meter, berjalan atau bersepeda tidak menghasilkan asap sama sekali dan sekaligus membuat badan bergerak."
+    },
+    {
+      no:7, tema:"Sampah Organik", tempat:"Rumah", ikon:"🥕",
+      situasi:"Sisa kulit buah dan potongan sayur di dapur selalu dibuang bercampur dengan sampah lain.",
+      pilihan:[
+        {kode:"A", teks:"Memisahkan sampah organik untuk dijadikan kompos.",
+         akibat:"Sampah dapur yang dibuang berkurang dan tanah kebun jadi lebih subur.", poin:9, terbaik:true},
+        {kode:"B", teks:"Membuang semua sampah jadi satu tanpa dipilah.",
+         akibat:"Sampah organik dan anorganik tercampur sehingga jauh lebih sulit diolah.", poin:3},
+        {kode:"C", teks:"Memisahkan sampah organik, tapi belum tahu cara mengolahnya jadi kompos.",
+         akibat:"Langkah memilah sudah benar, tapi sampahnya belum termanfaatkan.", poin:5}
+      ],
+      mengapa:"Sampah organik yang dipisahkan dan dijadikan kompos berubah dari masalah menjadi pupuk — bukan sekadar berpindah ke tempat pembuangan."
+    },
+    {
+      no:8, tema:"Sisa Makanan", tempat:"Sekolah", ikon:"🍽️",
+      situasi:"Di kantin, banyak siswa mengambil porsi terlalu banyak lalu meninggalkan makanan di piring.",
+      pilihan:[
+        {kode:"A", teks:"Mengambil makanan secukupnya sesuai porsi yang bisa dihabiskan.",
+         akibat:"Sisa makanan yang terbuang jauh berkurang, begitu juga tenaga dan air yang dipakai untuk membuatnya.", poin:9, terbaik:true},
+        {kode:"B", teks:"Mengambil banyak makanan lalu membuang sisanya.",
+         akibat:"Banyak makanan yang sebenarnya masih layak jadi terbuang percuma.", poin:2},
+        {kode:"C", teks:"Mengambil banyak makanan tapi berbagi sisanya dengan teman.",
+         akibat:"Lebih baik daripada dibuang, tapi porsi awal yang diambil tetap tidak tepat.", poin:6}
+      ],
+      mengapa:"Mengambil porsi secukupnya mencegah sampah makanan dari awal, sehingga tidak ada yang perlu dibuang maupun dibagikan karena kelebihan."
+    },
+    {
+      no:9, tema:"Barang Sekali Pakai", tempat:"Rumah & Sekolah", ikon:"🛍️",
+      situasi:"Setiap kali membeli jajan, kamu selalu menerima kantong plastik dan sedotan plastik baru.",
+      pilihan:[
+        {kode:"A", teks:"Membawa kantong dan botol minum sendiri dari rumah.",
+         akibat:"Sampah plastik sekali pakai berkurang banyak setiap minggunya.", poin:9, terbaik:true},
+        {kode:"B", teks:"Tetap memakai plastik sekali pakai karena dirasa lebih mudah.",
+         akibat:"Tumpukan sampah plastik terus bertambah sedikit demi sedikit setiap hari.", poin:3},
+        {kode:"C", teks:"Membawa kantong sendiri, tapi masih memakai sedotan plastik.",
+         akibat:"Sudah lebih baik, meski belum sepenuhnya bebas plastik sekali pakai.", poin:6}
+      ],
+      mengapa:"Membawa perlengkapan sendiri membuat kamu tidak perlu plastik sekali pakai sama sekali, jadi sampahnya tidak pernah tercipta."
+    }
+  ];
+
+  var MAKS = KASUS.reduce(function(t,k){
+    return t + Math.max.apply(null, k.pilihan.map(function(p){ return p.poin; }));
+  }, 0); /* = 81 */
+
+  var TINGKAT = [
+    {
+      min:80, nama:"Eco Master Detective", ikon:"🏅",
+      pesan:"Luar biasa! Kamu adalah detektif lingkungan sejati!",
+      apresiasi:"Terima kasih sudah menyelidiki sembilan kasus dengan teliti dan memilih solusi yang paling menjaga bumi.",
+      saran:[
+        "Ajak satu teman ikut membawa botol minum dan kantong sendiri selama satu minggu.",
+        "Mulai satu ember kompos kecil dari kulit buah dan potongan sayur di dapur.",
+        "Buat poster kecil di kelas berisi tiga kebiasaan hemat listrik dan air."
+      ]
+    },
+    {
+      min:50, nama:"Eco Detective", ikon:"🔍",
+      pesan:"Kerja bagus! Kamu sudah cukup memahami cara menjaga lingkungan.",
+      apresiasi:"Kamu sudah bisa membaca situasi dan memilih solusi yang tepat. Teruskan sampai jadi kebiasaan harian.",
+      saran:[
+        "Siapkan dua wadah sampah di rumah: satu untuk sisa dapur, satu untuk plastik dan kertas.",
+        "Pakai sisi kertas yang masih kosong sebelum kertasnya dibuang.",
+        "Jalan kaki atau bersepeda untuk jarak dekat, misalnya ke warung atau rumah teman."
+      ]
+    },
+    {
+      min:0, nama:"Eco Trainee", ikon:"🌿",
+      pesan:"Kamu baru memulai perjalanan sebagai detektif lingkungan. Terus berlatih, ya!",
+      apresiasi:"Setiap detektif hebat mulai dari kasus pertama. Coba satu kebiasaan baru hari ini, lalu selidiki lagi.",
+      saran:[
+        "Bawa botol minum isi ulang ke sekolah setiap hari.",
+        "Matikan keran saat menyikat gigi, nyalakan lagi hanya waktu berkumur.",
+        "Matikan lampu dan kipas kalau kamu orang terakhir yang keluar ruangan."
+      ]
+    }
+  ];
+
+  var FAKTA = [
+    {
+      klaim:"Mematikan keran saat menyikat gigi menghemat air dalam jumlah besar.",
+      status:"Terverifikasi", kelas:"hijau",
+      catatan:"EPA WaterSense menyebut kebiasaan ini bisa menghemat air hingga sekitar 3.000 galon (± 11.000 liter) per tahun. Angka ini konteks Amerika Serikat, jadi di kasus kami hanya ditulis “air yang terbuang jauh berkurang”, tanpa angka.",
+      sumber:"EPA WaterSense — Bathroom Faucets", url:"https://www.epa.gov/watersense/bathroom-faucets"
+    },
+    {
+      klaim:"Membakar sampah plastik di udara terbuka berbahaya bagi kesehatan.",
+      status:"Terverifikasi", kelas:"hijau",
+      catatan:"Kajian di Annals of Global Health menyebut pembakaran terbuka sampah plastik sebagai masalah kesehatan global yang mendesak karena melepaskan zat beracun ke udara.",
+      sumber:"Annals of Global Health (2023)", url:"https://annalsofglobalhealth.org/articles/10.5334/aogh.4232"
+    },
+    {
+      klaim:"Botol plastik butuh 450 tahun untuk terurai.",
+      status:"Diperbaiki", kelas:"kuning",
+      catatan:"NOAA menegaskan angka pasti seperti ini belum bisa dipastikan: “some plastics may fragment into tinier and tinier pieces, and never fully go away.” Kalimat kasus 1 diubah menjadi “bertahan sangat lama — bisa ratusan tahun — dan bisa pecah menjadi serpihan kecil”, tanpa menyebut angka pasti.",
+      sumber:"NOAA Marine Debris Program", url:"https://blog.marinedebris.noaa.gov/mystery-how-long-until-its-gone"
+    },
+    {
+      klaim:"Sampah plastik sekali pakai jumlahnya sangat besar di dunia.",
+      status:"Terverifikasi", kelas:"hijau",
+      catatan:"UNEP: dunia memproduksi lebih dari 430 juta ton plastik per tahun dan dua per tiganya adalah produk berumur pendek yang cepat menjadi sampah. Dipakai sebagai fakta pendukung kasus 9, bukan sebagai soal berangka.",
+      sumber:"UNEP — Everything you need to know about plastic pollution", url:"https://www.unep.org/news-and-stories/story/everything-you-need-know-about-plastic-pollution"
+    },
+    {
+      klaim:"Sisa makanan rumah tangga menyumbang sampah dalam jumlah besar.",
+      status:"Terverifikasi", kelas:"hijau",
+      catatan:"UNEP Food Waste Index Report 2024: pada 2022 ada 1,05 miliar ton sampah makanan, dan sekitar 60% berasal dari rumah tangga. Angka global ini tidak dimasukkan ke soal karena kasus 8 memakai konteks kantin sekolah.",
+      sumber:"UNEP — World squanders over 1 billion meals a day", url:"https://www.unep.org/news-and-stories/press-release/world-squanders-over-1-billion-meals-day-un-report"
+    },
+    {
+      klaim:"Kompos dari sisa dapur menyuburkan tanah dan mengurangi sampah yang dibuang.",
+      status:"Terverifikasi", kelas:"hijau",
+      catatan:"EPA: kompos memperbaiki kesehatan tanah dan pertumbuhan tanaman serta mengurangi jumlah bahan yang dibuang ke tempat pembuangan akhir.",
+      sumber:"EPA — Composting at Home", url:"https://www.epa.gov/recycle/composting-home"
+    },
+    {
+      klaim:"Persentase sisa makanan dan plastik dalam komposisi sampah nasional Indonesia.",
+      status:"Perlu Pemeriksaan Lanjutan", kelas:"merah",
+      catatan:"Halaman data komposisi sampah SIPSN Kementerian Lingkungan Hidup tidak bisa dibuka saat pemeriksaan dilakukan, jadi tidak ada satu pun angka nasional yang dipakai di permainan ini. Kalau nanti datanya terbuka, angka Indonesia bisa ditambahkan ke kasus 7 dan 8.",
+      sumber:"Belum terverifikasi — tidak dipakai di soal", url:""
+    },
+    {
+      klaim:"Berjalan kaki 500 meter “menghilangkan” polusi.",
+      status:"Diperbaiki", kelas:"kuning",
+      catatan:"Berjalan kaki tidak menghilangkan polusi yang sudah ada, hanya tidak menambah asap baru. Kalimat kasus 6 diubah jadi “udara di sekitar sekolah lebih bersih”, bukan “polusi hilang”.",
+      sumber:"Perbaikan kalimat oleh siswa", url:""
+    }
+  ];
+
+  var UJI = [
+    {nama:"Detektif A (10 tahun)", masukan:"Kasus 6 terlalu panjang, susah dibaca.", perbaikan:"Kalimat situasi dipersingkat jadi satu baris."},
+    {nama:"Detektif B (9 tahun)", masukan:"Tidak tahu kapan boleh lanjut ke kasus berikutnya.", perbaikan:"Tombol “Kasus Berikutnya” disembunyikan sampai pilihan dijawab."},
+    {nama:"Detektif C (11 tahun)", masukan:"Pilihan C sering kelihatan jelas salah, jadi mudah ditebak.", perbaikan:"Setiap kasus ditulis ulang supaya tiga pilihannya masuk akal, hanya berbeda tingkat ketepatannya."},
+    {nama:"Detektif D (10 tahun)", masukan:"Ingin tahu jawaban terbaik setelah main selesai.", perbaikan:"Ditambahkan halaman Rekap Kasus di akhir permainan."}
+  ];
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+  var state = { layar:"beranda", idx:0, jawaban:[], suara:true, fokusBalik:false };
+
+  function reset(){
+    state.idx = 0;
+    state.jawaban = [];
+    for (var i=0;i<KASUS.length;i++) state.jawaban.push(null);
+  }
+  reset();
+
+  function pilihanDari(i){
+    var k = KASUS[i]; if (!k) return null;
+    var kode = state.jawaban[i]; if (!kode) return null;
+    for (var j=0;j<k.pilihan.length;j++) if (k.pilihan[j].kode === kode) return k.pilihan[j];
+    return null;
+  }
+  function skor(){
+    var t = 0;
+    for (var i=0;i<KASUS.length;i++){ var p = pilihanDari(i); if (p && typeof p.poin === "number") t += p.poin; }
+    return t;
+  }
+  function terjawab(){
+    var n = 0;
+    for (var i=0;i<KASUS.length;i++) if (state.jawaban[i]) n++;
+    return n;
+  }
+  function persen(){ return MAKS > 0 ? Math.round(skor() / MAKS * 100) : 0; }
+  function tingkat(){
+    var p = persen();
+    for (var i=0;i<TINGKAT.length;i++) if (p >= TINGKAT[i].min) return TINGKAT[i];
+    return TINGKAT[TINGKAT.length-1];
+  }
+  function kasusPertamaBelum(){
+    for (var i=0;i<KASUS.length;i++) if (!state.jawaban[i]) return i;
+    return -1;
+  }
+
+  /* =======================================================
+     SUARA (WebAudio, bisa dimatikan)
+     ======================================================= */
+  var ac = null;
+  function nada(freq, dur, jenis){
+    if (!state.suara) return;
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!ac) ac = new AC();
+      if (ac.state === "suspended" && ac.resume) ac.resume();
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = jenis || "sine";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.09, ac.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+      o.connect(g); g.connect(ac.destination);
+      o.start(); o.stop(ac.currentTime + dur + 0.02);
+    }catch(e){ /* suara diabaikan kalau tidak didukung */ }
+  }
+  function bunyiBagus(){ nada(660, .12); setTimeout(function(){ nada(990, .18); }, 110); }
+  function bunyiBiasa(){ nada(430, .16, "triangle"); }
+  function bunyiKlik(){ nada(320, .07, "square"); }
+
+  /* =======================================================
+     KOMPONEN
+     ======================================================= */
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function strip(){
+    var s = skor(), n = terjawab();
+    var lebar = MAKS ? Math.round(s / MAKS * 100) : 0;
+    var titik = "";
+    for (var i=0;i<KASUS.length;i++){
+      var cls = state.jawaban[i] ? "titik selesai" : (i === state.idx && state.layar === "kasus" ? "titik kini" : "titik");
+      titik += '<span class="'+cls+'" aria-hidden="true">'+(i+1)+'</span>';
+    }
+    return '<div class="strip">'+
+      '<div class="strip-atas">'+
+        '<span class="label">Eco Energy Meter</span>'+
+        '<strong class="mono">'+s+' / '+MAKS+' poin · '+lebar+'%</strong>'+
+      '</div>'+
+      '<div class="meter" role="progressbar" aria-label="Eco Energy" aria-valuemin="0" aria-valuemax="'+MAKS+'" aria-valuenow="'+s+'">'+
+        '<i style="width:'+lebar+'%"></i>'+
+      '</div>'+
+      '<div class="strip-atas">'+
+        '<span class="label">Kasus '+(state.layar === "kasus" ? (state.idx+1) : n)+' dari '+KASUS.length+'</span>'+
+        '<span class="titik-kasus">'+titik+'</span>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function lencanaSVG(warna){
+    return '<svg class="lencana" viewBox="0 0 100 100" role="img" aria-label="Lencana detektif lingkungan">'+
+      '<circle cx="50" cy="50" r="46" fill="none" stroke="var(--garis)" stroke-width="2"></circle>'+
+      '<circle cx="50" cy="50" r="38" fill="none" stroke="'+warna+'" stroke-width="4" stroke-dasharray="6 5"></circle>'+
+      '<circle cx="44" cy="44" r="17" fill="none" stroke="var(--lumut)" stroke-width="5"></circle>'+
+      '<path d="M56 56 L74 74" stroke="var(--kunyit)" stroke-width="7" stroke-linecap="round"></path>'+
+      '<path d="M44 52c-8-2-11-8-9-16 8-2 14 3 14 11 3-6 9-8 14-5-2 8-8 11-14 10z" fill="var(--hutan)"></path>'+
+    '</svg>';
+  }
+
+  function jejakSVG(){
+    return '<div class="jejak" aria-hidden="true">'+
+      '<svg width="18" height="26" viewBox="0 0 18 26"><ellipse cx="9" cy="14" rx="7" ry="11" fill="var(--lumut)"></ellipse><circle cx="4" cy="3" r="2.4" fill="var(--lumut)"></circle><circle cx="9" cy="2" r="2.4" fill="var(--lumut)"></circle><circle cx="14" cy="3.5" r="2.4" fill="var(--lumut)"></circle></svg>'+
+      '<svg width="18" height="26" viewBox="0 0 18 26" style="transform:translateY(10px)"><ellipse cx="9" cy="14" rx="7" ry="11" fill="var(--kunyit)"></ellipse><circle cx="4" cy="3" r="2.4" fill="var(--kunyit)"></circle><circle cx="9" cy="2" r="2.4" fill="var(--kunyit)"></circle><circle cx="14" cy="3.5" r="2.4" fill="var(--kunyit)"></circle></svg>'+
+      '<svg width="18" height="26" viewBox="0 0 18 26"><ellipse cx="9" cy="14" rx="7" ry="11" fill="var(--lumut)"></ellipse><circle cx="4" cy="3" r="2.4" fill="var(--lumut)"></circle><circle cx="9" cy="2" r="2.4" fill="var(--lumut)"></circle><circle cx="14" cy="3.5" r="2.4" fill="var(--lumut)"></circle></svg>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: BERANDA
+     ======================================================= */
+  function layarBeranda(){
+    var n = terjawab();
+    var lanjut = "";
+    if (n > 0 && n < KASUS.length){
+      lanjut = '<button type="button" class="tbl kedua" data-aksi="lanjutkan">↩︎ Lanjutkan (Kasus '+(kasusPertamaBelum()+1)+' dari '+KASUS.length+')</button>';
+    } else if (n === KASUS.length){
+      lanjut = '<button type="button" class="tbl kedua" data-aksi="nav:hasil">📋 Lihat Hasil Investigasi</button>';
+    }
+
+    return '<div class="layar">'+
+      '<section class="hero">'+
+        '<div class="stempel">Berkas Rahasia · Markas Eco</div>'+
+        '<div>'+
+          '<span class="chip hijau">🔍 Tier 2 · Usia 9–11 tahun</span>'+
+          '<h1 style="margin-top:14px">Eco Detective<em>Mission</em></h1>'+
+          '<p class="utama">Markas Investigasi Lingkungan menerima sembilan laporan hari ini. Tugasmu: selidiki setiap kasus, pilih solusi terbaik, dan kumpulkan Eco Energy sampai naik pangkat jadi detektif lingkungan sejati.</p>'+
+          '<div class="baris-tbl" style="margin-top:22px">'+
+            '<button type="button" class="tbl besar" data-aksi="briefing">🔎 Mulai Investigasi</button>'+
+            '<button type="button" class="tbl kedua" data-aksi="nav:cara">Cara Bermain</button>'+
+          '</div>'+
+          (lanjut ? '<div class="baris-tbl" style="margin-top:12px">'+lanjut+'</div>' : '')+
+        '</div>'+
+        '<div class="alat">'+lencanaSVG("var(--kunyit)")+'</div>'+
+      '</section>'+
+
+      '<div class="fakta-baris">'+
+        '<div class="fakta"><b>9</b><span>kasus lingkungan di sekolah dan rumah</span></div>'+
+        '<div class="fakta"><b>'+MAKS+'</b><span>poin Eco Energy tertinggi yang bisa dikumpulkan</span></div>'+
+        '<div class="fakta"><b>3</b><span>pangkat detektif: Trainee, Detective, Master</span></div>'+
+      '</div>'+
+
+      '<section class="panel">'+
+        '<span class="label">Peralatan detektif</span>'+
+        '<div class="grid2" style="margin-top:12px">'+
+          '<div class="kotak-kecil"><span class="label">🔎 Kaca pembesar</span>Membaca situasi kasus dengan teliti sebelum memutuskan.</div>'+
+          '<div class="kotak-kecil"><span class="label">📒 Buku catatan</span>Mencatat akibat dari setiap pilihan yang kamu ambil.</div>'+
+          '<div class="kotak-kecil"><span class="label">🏅 Lencana</span>Naik pangkat sesuai jumlah Eco Energy yang terkumpul.</div>'+
+        '</div>'+
+      '</section>'+
+
+      '<div class="catatan">'+
+        '<span aria-hidden="true">ℹ️</span>'+
+        '<div><strong>Konten statis, bukan AI live.</strong> Semua kasus, akibat pilihan, dan pesan hasil sudah ditulis dan diperiksa lebih dulu oleh siswa dengan bantuan Claude AI. Permainan ini tidak memanggil AI saat dimainkan dan tidak meminta data pribadi apa pun — kamu cukup dipanggil “Detektif”.</div>'+
+      '</div>'+
+
+      jejakSVG()+
+      '<div class="kaki-hal">Portofolio Future Makers · Tier 2 – AI Explorers · Pembuat: Siswa Future Makers</div>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: CARA BERMAIN
+     ======================================================= */
+  function layarCara(){
+    var langkah = [
+      "Baca situasi kasus dengan saksama.",
+      "Pilih solusi yang menurutmu paling tepat.",
+      "Lihat penjelasan akibat dan poin Eco Energy yang kamu dapatkan.",
+      "Lanjutkan ke kasus berikutnya.",
+      "Setelah semua kasus selesai, lihat hasil akhir dan sertifikatmu."
+    ];
+    var li = langkah.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join("");
+    return '<div class="layar">'+
+      '<section class="panel">'+
+        '<span class="label">Panduan Markas</span>'+
+        '<h2 style="margin-top:8px;font-size:1.9rem">Cara Bermain</h2>'+
+        '<ul class="saran" style="margin-top:18px">'+li+'</ul>'+
+      '</section>'+
+      '<section class="panel">'+
+        '<h3 style="color:var(--hutan)">Aturan penting</h3>'+
+        '<div class="isi" style="margin-top:10px">'+
+          '<ul>'+
+            '<li>Setiap kasus punya <strong>tiga pilihan yang semuanya masuk akal</strong>. Bedanya hanya seberapa tepat solusinya, jadi pikirkan dulu sebelum memilih.</li>'+
+            '<li>Pilihan terbaik memberi <strong>9 poin</strong>. Pilihan yang kurang tepat tetap memberi poin, tapi lebih sedikit. Poin tidak pernah dikurangi.</li>'+
+            '<li>Setelah memilih, <strong>jawaban tidak bisa diubah</strong> supaya skormu tetap adil. Semua jawabanmu bisa dilihat lagi di halaman Rekap Kasus.</li>'+
+            '<li>Kamu boleh membuka menu lain di tengah permainan. Skor dan jawabanmu tidak akan hilang.</li>'+
+            '<li>Tidak ada pertanyaan tentang nama, umur, sekolah, atau data pribadi. Di markas ini kamu cukup dipanggil <strong>Detektif</strong>.</li>'+
+          '</ul>'+
+        '</div>'+
+        '<div class="baris-tbl" style="margin-top:20px">'+
+          '<button type="button" class="tbl" data-aksi="briefing">🔎 Mulai Investigasi</button>'+
+          '<button type="button" class="tbl kedua" data-aksi="nav:beranda">← Kembali ke Beranda</button>'+
+        '</div>'+
+      '</section>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: BRIEFING
+     ======================================================= */
+  function layarBriefing(){
+    return '<div class="layar">'+
+      '<section class="panel" style="text-align:center">'+
+        '<span class="chip kuning">📁 Briefing Kasus Hari Ini</span>'+
+        '<h2 style="margin-top:16px;font-size:clamp(1.6rem,5vw,2.3rem)">Selamat datang di Markas Investigasi Lingkungan, Detektif!</h2>'+
+        '<p style="margin:14px auto 0;max-width:52ch;color:var(--tinta2)">Markas menerima banyak laporan hari ini! Sebagai Eco Detective, tugasmu adalah menyelidiki setiap kasus dan memilih solusi terbaik untuk menyelamatkan lingkungan.</p>'+
+        '<div class="grid2" style="margin-top:22px;text-align:left">'+
+          '<div class="kotak-kecil"><span class="label">Jumlah laporan</span><strong class="mono">9 kasus</strong> — dari sekolah dan rumah</div>'+
+          '<div class="kotak-kecil"><span class="label">Target</span><strong class="mono">'+MAKS+' Eco Energy</strong> — kumpulkan sebanyak mungkin</div>'+
+          '<div class="kotak-kecil"><span class="label">Bekal</span>Ketelitian membaca dan kebiasaan berpikir sebelum bertindak</div>'+
+        '</div>'+
+        '<div class="baris-tbl" style="margin-top:24px;justify-content:center">'+
+          '<button type="button" class="tbl besar" data-aksi="mulai">🚨 Mulai Penyelidikan</button>'+
+          '<button type="button" class="tbl kedua" data-aksi="nav:beranda">← Beranda</button>'+
+        '</div>'+
+        '<p style="margin-top:14px;font-size:.86rem;color:var(--tinta2)">Menekan “Mulai Penyelidikan” akan memulai investigasi baru dari kasus 1 dengan Eco Energy 0.</p>'+
+      '</section>'+
+      jejakSVG()+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: KASUS
+     ======================================================= */
+  function layarKasus(){
+    var k = KASUS[state.idx];
+    if (!k) return layarGagal();
+
+    var dipilih = state.jawaban[state.idx];
+    var pil = "";
+    for (var i=0;i<k.pilihan.length;i++){
+      var p = k.pilihan[i];
+      var aktif = dipilih === p.kode;
+      var cls = "pilihan" + (aktif ? " dipilih" : (dipilih ? " pudar" : ""));
+      pil += '<button type="button" class="'+cls+'" data-aksi="pilih:'+p.kode+'"'+(dipilih ? " disabled" : "")+'>'+
+        '<span class="kode" aria-hidden="true">'+p.kode+'</span>'+
+        '<span>'+esc(p.teks)+(aktif ? ' <strong class="mono" style="white-space:nowrap">(+'+p.poin+')</strong>' : '')+'</span>'+
+      '</button>';
+    }
+
+    var balik = "";
+    var tombol = "";
+    if (dipilih){
+      var p2 = pilihanDari(state.idx);
+      if (p2){
+        var terbaik = !!p2.terbaik;
+        balik = '<div class="balik'+(terbaik ? "" : " belum")+'" id="balik" tabindex="-1">'+
+          '<div class="balik-kepala">'+
+            '<span class="chip '+(terbaik ? "hijau" : "kuning")+'">'+(terbaik ? "✓ Pilihan Terbaik" : "◐ Bisa Lebih Baik")+'</span>'+
+            '<span class="poin-dapat">+'+p2.poin+' Eco Energy</span>'+
+          '</div>'+
+          '<div><span class="label">Akibat pilihanmu</span><p style="margin-top:4px">'+esc(p2.akibat)+'</p></div>'+
+          (terbaik ? "" :
+            '<div class="kotak-kecil"><span class="label">Catatan detektif</span>'+esc(k.mengapa)+'</div>')+
+        '</div>';
+        var akhir = state.idx >= KASUS.length - 1;
+        tombol = '<div class="baris-tbl" style="margin-top:18px">'+
+          '<button type="button" class="tbl '+(akhir ? "kuning" : "")+'" data-aksi="lanjut">'+
+            (akhir ? "📋 Lihat Hasil Investigasi" : "Kasus Berikutnya →")+
+          '</button>'+
+        '</div>';
+      }
+    } else {
+      tombol = '<p style="margin-top:16px;font-size:.9rem;color:var(--tinta2)">Pilih salah satu solusi di atas untuk melihat akibatnya dan melanjutkan ke kasus berikutnya.</p>';
+    }
+
+    return '<div class="layar">'+
+      strip()+
+      '<section class="panel berkas">'+
+        '<span class="tab">KASUS '+(k.no < 10 ? "0"+k.no : k.no)+' / 0'+KASUS.length+'</span>'+
+        '<div class="kasus-kepala">'+
+          '<div class="ikon-kasus" aria-hidden="true">'+k.ikon+'</div>'+
+          '<div style="flex:1 1 220px">'+
+            '<span class="label">Tema kasus</span>'+
+            '<h2>'+esc(k.tema)+'</h2>'+
+            '<span class="chip" style="margin-top:8px">📍 '+esc(k.tempat)+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="situasi">'+esc(k.situasi)+'</div>'+
+        '<div style="margin-top:20px"><span class="label">Pilih satu solusi</span></div>'+
+        '<div class="pilihan-list">'+pil+'</div>'+
+        balik+
+        tombol+
+      '</section>'+
+      '<div class="baris-tbl no-cetak">'+
+        '<button type="button" class="tbl kedua" data-aksi="nav:beranda">← Beranda</button>'+
+        '<button type="button" class="tbl kedua" data-aksi="nav:cara">Cara Bermain</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: HASIL
+     ======================================================= */
+  function layarHasil(){
+    var s = skor(), p = persen(), t = tingkat(), n = terjawab();
+    var saran = t.saran.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("");
+    var tgl = new Date().toLocaleDateString("id-ID", {day:"numeric", month:"long", year:"numeric"});
+
+    var belumSelesai = n < KASUS.length ?
+      '<div class="catatan"><span aria-hidden="true">⚠️</span><div>Masih ada '+(KASUS.length-n)+' kasus yang belum diselidiki. Hasil ini dihitung dari '+n+' kasus yang sudah kamu jawab.</div></div>' : "";
+
+    return '<div class="layar">'+
+      strip()+
+      belumSelesai+
+      '<section class="tingkat">'+
+        '<span class="label">Pangkat yang kamu capai</span>'+
+        '<div style="font-size:3rem;line-height:1.1" aria-hidden="true">'+t.ikon+'</div>'+
+        '<div class="nama">'+esc(t.nama)+'</div>'+
+        '<p style="margin:10px auto 0;max-width:44ch">'+esc(t.pesan)+'</p>'+
+      '</section>'+
+
+      '<div class="skor-kotak">'+
+        '<div class="panel rapat"><span class="label">Total Eco Energy</span><div class="skor-besar">'+s+'</div><span style="color:var(--tinta2)">dari '+MAKS+' poin</span></div>'+
+        '<div class="panel rapat"><span class="label">Persentase skor</span><div class="skor-besar">'+p+'%</div><span style="color:var(--tinta2)">'+s+' ÷ '+MAKS+' × 100</span></div>'+
+        '<div class="panel rapat"><span class="label">Kasus diselidiki</span><div class="skor-besar">'+n+'</div><span style="color:var(--tinta2)">dari '+KASUS.length+' laporan</span></div>'+
+      '</div>'+
+
+      '<section class="panel">'+
+        '<span class="label">Misi lanjutan untukmu</span>'+
+        '<h3 style="margin-top:6px">3 kebiasaan yang bisa langsung kamu coba</h3>'+
+        '<ul class="saran" style="margin-top:14px">'+saran+'</ul>'+
+      '</section>'+
+
+      '<section class="sertifikat">'+
+        '<span class="label">Markas Investigasi Lingkungan · Future Makers</span>'+
+        '<h3 style="margin-top:8px">Sertifikat Eco Detective</h3>'+
+        lencanaSVG("var(--kunyit)")+
+        '<p style="margin-top:12px">Diberikan kepada</p>'+
+        '<div class="gelar">Detektif Lingkungan Cilik</div>'+
+        '<p><strong>Pangkat: '+esc(t.nama)+' '+t.ikon+'</strong></p>'+
+        '<p class="apresiasi">'+esc(t.apresiasi)+'</p>'+
+        '<div class="kaki">'+
+          '<span>Eco Energy: '+s+'/'+MAKS+' · '+p+'%</span>'+
+          '<span>'+esc(tgl)+'</span>'+
+        '</div>'+
+      '</section>'+
+      '<p style="font-size:.84rem;color:var(--tinta2);text-align:center">Sertifikat ini tidak memuat nama asli, sekolah, atau data pribadi mana pun.</p>'+
+
+      '<div class="baris-tbl no-cetak">'+
+        '<button type="button" class="tbl" data-aksi="nav:rekap">📒 Lihat Rekap Kasus</button>'+
+        '<button type="button" class="tbl kuning" data-aksi="coba-lagi">🔄 Coba Lagi</button>'+
+        '<button type="button" class="tbl kedua" data-aksi="nav:beranda">🏠 Kembali ke Beranda</button>'+
+        '<button type="button" class="tbl kedua" data-aksi="cetak">🖨️ Cetak Sertifikat</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: REKAP
+     ======================================================= */
+  function layarRekap(){
+    var baris = "";
+    for (var i=0;i<KASUS.length;i++){
+      var k = KASUS[i];
+      var p = pilihanDari(i);
+      var best = null;
+      for (var j=0;j<k.pilihan.length;j++) if (k.pilihan[j].terbaik) best = k.pilihan[j];
+      var terbaik = !!(p && p.terbaik);
+
+      var isiPilihan = p ?
+        '<div class="kotak-kecil"><span class="label">Pilihanmu · '+p.kode+' · +'+p.poin+' poin</span>'+esc(p.teks)+'</div>' :
+        '<div class="kotak-kecil"><span class="label">Pilihanmu</span>Kasus ini belum kamu selidiki.</div>';
+
+      baris += '<article class="rekap-baris '+(terbaik ? "terbaik" : "biasa")+'">'+
+        '<div class="rekap-kepala">'+
+          '<span class="no">KASUS '+(k.no < 10 ? "0"+k.no : k.no)+'</span>'+
+          '<span aria-hidden="true">'+k.ikon+'</span>'+
+          '<strong>'+esc(k.tema)+'</strong>'+
+          '<span class="chip">'+esc(k.tempat)+'</span>'+
+          '<span class="chip '+(p ? (terbaik ? "hijau" : "kuning") : "merah")+'" style="margin-left:auto">'+
+            (p ? (terbaik ? "✓ Pilihan Terbaik" : "◐ Bisa Lebih Baik") : "— Belum dijawab")+
+          '</span>'+
+        '</div>'+
+        '<p style="font-size:.95rem;color:var(--tinta2)">'+esc(k.situasi)+'</p>'+
+        isiPilihan+
+        '<div class="kotak-kecil" style="border-color:var(--lumut)"><span class="label">Jawaban terbaik · '+(best ? best.kode : "-")+' · +'+(best ? best.poin : 0)+' poin</span>'+
+          esc(best ? best.teks : "")+
+          '<p style="margin-top:8px;font-size:.94rem"><strong>Mengapa paling tepat:</strong> '+esc(k.mengapa)+'</p>'+
+        '</div>'+
+      '</article>';
+    }
+
+    return '<div class="layar">'+
+      '<section class="panel">'+
+        '<span class="label">Berkas Investigasi</span>'+
+        '<h2 style="margin-top:8px;font-size:1.9rem">Rekap 9 Kasus</h2>'+
+        '<p style="margin-top:10px;color:var(--tinta2)">Semua kasus yang sudah kamu selidiki beserta jawaban terbaiknya. Baca bagian “Mengapa paling tepat” untuk belajar dari setiap kasus.</p>'+
+        '<div class="strip-atas" style="margin-top:14px"><span class="label">Total Eco Energy</span><strong class="mono">'+skor()+' / '+MAKS+' poin · '+persen()+'%</strong></div>'+
+      '</section>'+
+      '<div style="display:flex;flex-direction:column;gap:14px">'+baris+'</div>'+
+      '<div class="baris-tbl">'+
+        '<button type="button" class="tbl" data-aksi="nav:hasil">← Kembali ke Hasil</button>'+
+        '<button type="button" class="tbl kuning" data-aksi="coba-lagi">🔄 Coba Lagi</button>'+
+        '<button type="button" class="tbl kedua" data-aksi="nav:beranda">🏠 Beranda</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: TENTANG PROYEK
+     ======================================================= */
+  function layarTentang(){
+    var fakta = FAKTA.map(function(f){
+      var sum = f.url ?
+        '<a href="'+esc(f.url)+'" target="_blank" rel="noopener noreferrer">'+esc(f.sumber)+'</a>' :
+        esc(f.sumber);
+      return '<tr>'+
+        '<td>'+esc(f.klaim)+'</td>'+
+        '<td><span class="chip '+f.kelas+'">'+esc(f.status)+'</span></td>'+
+        '<td>'+esc(f.catatan)+'</td>'+
+        '<td>'+sum+'</td>'+
+      '</tr>';
+    }).join("");
+
+    var uji = UJI.map(function(u){
+      return '<tr><td>'+esc(u.nama)+'</td><td>'+esc(u.masukan)+'</td><td>'+esc(u.perbaikan)+'</td></tr>';
+    }).join("");
+
+    return '<div class="layar">'+
+      '<section class="panel">'+
+        '<span class="chip hijau">Portofolio Proyek Akhir</span>'+
+        '<h2 style="margin-top:14px;font-size:2rem">Eco Detective Mission</h2>'+
+        '<div class="grid2" style="margin-top:16px">'+
+          '<div class="kotak-kecil"><span class="label">Tier</span>Tier 2 – AI Explorers · usia 9–11 tahun</div>'+
+          '<div class="kotak-kecil"><span class="label">Jenis produk</span>Interactive Case-Based Quiz Game</div>'+
+          '<div class="kotak-kecil"><span class="label">Pembuat</span>Siswa Future Makers <em>(identitas contoh)</em></div>'+
+          '<div class="kotak-kecil"><span class="label">Bahasa</span>Bahasa Indonesia</div>'+
+        '</div>'+
+      '</section>'+
+
+      '<section class="panel"><div class="isi">'+
+        '<h3>Tujuan proyek</h3>'+
+        '<p>Membantu siswa belajar berpikir kritis tentang isu lingkungan sehari-hari: merancang kasus berbasis situasi nyata, memeriksa fakta, dan mendesain sistem penilaian sederhana dengan bantuan AI.</p>'+
+        '<h3>Masalah yang diangkat</h3>'+
+        '<p>Anak-anak sering diberi tahu “jagalah lingkungan”, tapi jarang diminta memilih di situasi nyata yang pilihannya sama-sama terlihat wajar. Permainan ini melatih kebiasaan berpikir dulu sebelum bertindak lewat 9 kasus di sekolah dan rumah.</p>'+
+        '<h3>Cara menggunakan</h3>'+
+        '<p>Buka Beranda → tekan “Mulai Investigasi” → baca briefing → selidiki 9 kasus satu per satu → lihat hasil, sertifikat, dan Rekap Kasus. Bisa dimainkan di komputer maupun ponsel, tanpa memasukkan data pribadi.</p>'+
+      '</div></section>'+
+
+      '<div class="grid2">'+
+        '<section class="panel"><div class="isi">'+
+          '<h3>Peran siswa</h3>'+
+          '<ul>'+
+            '<li>Menentukan sembilan tema kasus lingkungan.</li>'+
+            '<li>Menulis situasi masalah berdasarkan kejadian nyata di sekolah dan rumah.</li>'+
+            '<li>Menentukan tiga pilihan solusi beserta konsekuensinya.</li>'+
+            '<li>Menentukan skala poin Eco Energy untuk setiap pilihan (9 · 6 · 5 · 4 · 3 · 2 · 1).</li>'+
+            '<li>Menguji seluruh kasus ke teman dan memeriksa faktanya.</li>'+
+            '<li>Memperbaiki kasus berdasarkan hasil pengujian.</li>'+
+          '</ul>'+
+        '</div></section>'+
+        '<section class="panel"><div class="isi">'+
+          '<h3>Peran Claude AI</h3>'+
+          '<ul>'+
+            '<li>Membuat variasi skenario masalah lingkungan.</li>'+
+            '<li>Menawarkan alternatif solusi dan menjelaskan konsekuensinya.</li>'+
+            '<li>Menyesuaikan bahasa dengan usia pemain.</li>'+
+            '<li>Membantu menulis pesan hasil akhir dan kalimat sertifikat.</li>'+
+            '<li>Membangun permainan interaktif berdasarkan struktur yang ditentukan siswa.</li>'+
+          '</ul>'+
+        '</div></section>'+
+      '</div>'+
+
+      '<section class="panel"><div class="isi">'+
+        '<h3>Contoh prompt siswa (versi pertama)</h3>'+
+        '<div class="kutip">“Buatkan 9 kasus lingkungan berbasis situasi untuk anak usia 9–11 tahun. Setiap kasus punya 3 pilihan solusi, penjelasan konsekuensi, dan poin Eco Energy. Gunakan tema sampah plastik, hemat air, hemat listrik, daur ulang kertas, penghijauan, transportasi, kompos, makanan, dan barang sekali pakai.”</div>'+
+        '<h3>Contoh prompt perbaikan</h3>'+
+        '<div class="kutip">“Kasus nomor 6 tentang transportasi terlalu panjang untuk anak usia 9 tahun, tolong persingkat kalimatnya dan gunakan kata yang lebih sederhana, tapi pertahankan 3 pilihan dan poin yang sudah ada.”</div>'+
+        '<h3>Hal yang dipelajari siswa</h3>'+
+        '<ul>'+
+          '<li>Menulis prompt terstruktur: Konteks, Tugas, Batasan, Format, dan Gaya bahasa.</li>'+
+          '<li>Memeriksa fakta lingkungan ke sumber resmi sebelum dipakai di kasus.</li>'+
+          '<li>Merancang sistem poin dan tingkat hasil yang adil.</li>'+
+          '<li>Menguji karya ke teman dan memperbaikinya berdasarkan masukan.</li>'+
+          '<li>Memahami bahwa AI bisa salah, jadi jawabannya harus diperiksa ulang.</li>'+
+        '</ul>'+
+      '</div></section>'+
+
+      '<section class="panel">'+
+        '<span class="label">Pemeriksaan Fakta</span>'+
+        '<h3 style="margin-top:6px;color:var(--hutan)">Klaim yang diperiksa siswa</h3>'+
+        '<p style="margin:8px 0 14px;color:var(--tinta2);max-width:68ch">Setiap fakta lingkungan dicek ke sumber resmi. Klaim yang tidak bisa dipastikan tidak dipakai sebagai angka di dalam soal, dan ditandai di bawah ini.</p>'+
+        '<div class="gulir"><table>'+
+          '<thead><tr><th>Klaim</th><th>Status</th><th>Catatan siswa</th><th>Sumber</th></tr></thead>'+
+          '<tbody>'+fakta+'</tbody>'+
+        '</table></div>'+
+      '</section>'+
+
+      '<section class="panel">'+
+        '<span class="label">User testing · Simulasi Portofolio</span>'+
+        '<h3 style="margin-top:6px;color:var(--hutan)">Hasil uji coba ke teman</h3>'+
+        '<p style="margin:8px 0 14px;color:var(--tinta2)">Data di bawah adalah <strong>contoh simulasi</strong> untuk kebutuhan portofolio, bukan data pengujian nyata. Nama pemain memakai sebutan detektif, bukan nama asli.</p>'+
+        '<div class="gulir"><table>'+
+          '<thead><tr><th>Penguji</th><th>Masukan</th><th>Perbaikan yang dilakukan</th></tr></thead>'+
+          '<tbody>'+uji+'</tbody>'+
+        '</table></div>'+
+      '</section>'+
+
+      '<section class="panel"><div class="isi">'+
+        '<h3>Catatan keamanan dan keterbatasan</h3>'+
+        '<ul>'+
+          '<li><strong>Tidak ada AI yang dipanggil saat bermain.</strong> Seluruh isi kasus, akibat pilihan, dan pesan hasil adalah teks statis yang sudah diperiksa lebih dulu. Kalau nanti dibuat versi produksi dengan respons AI langsung, API harus dipanggil lewat backend yang aman — tidak pernah menyimpan API key di halaman depan.</li>'+
+          '<li><strong>Tidak ada data pribadi.</strong> Permainan tidak meminta nama, umur, sekolah, nomor telepon, atau foto. Sertifikat memakai sebutan “Detektif Lingkungan Cilik”.</li>'+
+          '<li><strong>Skor tidak disimpan.</strong> Jika halaman ditutup atau dimuat ulang, permainan mulai dari awal lagi.</li>'+
+          '<li><strong>Bukan sumber ilmiah.</strong> Permainan ini alat belajar. Angka dan fakta rinci tetap perlu dicek ke sumber resmi seperti EPA, UNEP, atau NOAA yang dicantumkan di tabel Pemeriksaan Fakta.</li>'+
+          '<li><strong>Ilustrasi orisinal.</strong> Semua gambar dibuat dari bentuk SVG dan CSS sederhana serta emoji standar — tidak ada karakter, foto, atau musik berhak cipta.</li>'+
+        '</ul>'+
+        '<h3>Rencana pengembangan berikutnya</h3>'+
+        '<ul>'+
+          '<li>Menambah mode “Kasus Harian” berisi satu kasus baru setiap hari.</li>'+
+          '<li>Menambahkan data komposisi sampah Indonesia kalau sumber resminya sudah bisa diakses.</li>'+
+          '<li>Menambah mode dua pemain untuk membandingkan Eco Energy bersama teman.</li>'+
+          '<li>Menyimpan progres secara lokal agar permainan bisa dilanjutkan lain hari.</li>'+
+          '<li>Menghubungkan respons AI sungguhan lewat backend aman supaya detektif bisa bertanya bebas soal kasusnya.</li>'+
+        '</ul>'+
+      '</div></section>'+
+
+      '<div class="baris-tbl">'+
+        '<button type="button" class="tbl" data-aksi="briefing">🔎 Mulai Investigasi</button>'+
+        '<button type="button" class="tbl kedua" data-aksi="nav:beranda">← Beranda</button>'+
+      '</div>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     LAYAR: GAGAL (pengaman, bukan halaman kosong)
+     ======================================================= */
+  function layarGagal(){
+    return '<div class="layar">'+
+      '<section class="panel" style="text-align:center">'+
+        '<div style="font-size:2.6rem" aria-hidden="true">🧭</div>'+
+        '<h2 style="margin-top:10px">Berkas kasus ini tidak ditemukan</h2>'+
+        '<p style="margin:12px auto 0;max-width:44ch;color:var(--tinta2)">Sepertinya ada berkas yang terselip di markas. Tidak masalah, Detektif — kita bisa memulai investigasi dari kasus pertama lagi.</p>'+
+        '<div class="baris-tbl" style="margin-top:20px;justify-content:center">'+
+          '<button type="button" class="tbl besar" data-aksi="mulai">🔄 Mulai Ulang</button>'+
+          '<button type="button" class="tbl kedua" data-aksi="nav:beranda">🏠 Beranda</button>'+
+        '</div>'+
+      '</section>'+
+    '</div>';
+  }
+
+  /* =======================================================
+     RENDER
+     ======================================================= */
+  var LAYAR = {
+    beranda: layarBeranda,
+    cara: layarCara,
+    briefing: layarBriefing,
+    kasus: layarKasus,
+    hasil: layarHasil,
+    rekap: layarRekap,
+    tentang: layarTentang,
+    gagal: layarGagal
+  };
+  var NAV_UNTUK = { beranda:"nav:beranda", kasus:"nav:bermain", briefing:"nav:bermain", hasil:"nav:bermain", rekap:"nav:bermain", cara:"nav:cara", tentang:"nav:tentang" };
+
+  function render(){
+    var app = document.getElementById("app");
+    var fn = LAYAR[state.layar] || layarGagal;
+    try{
+      app.innerHTML = fn();
+    }catch(e){
+      app.innerHTML = layarGagal();
+    }
+    /* status menu aktif */
+    var tombolNav = document.querySelectorAll("#nav button");
+    for (var i=0;i<tombolNav.length;i++){
+      var a = tombolNav[i].getAttribute("data-aksi");
+      if (a === NAV_UNTUK[state.layar]) tombolNav[i].setAttribute("aria-current","page");
+      else tombolNav[i].removeAttribute("aria-current");
+    }
+    /* fokus & posisi gulir */
+    if (state.fokusBalik){
+      state.fokusBalik = false;
+      var b = document.getElementById("balik");
+      if (b && b.scrollIntoView) b.scrollIntoView({behavior:"smooth", block:"center"});
+    } else {
+      window.scrollTo({top:0, behavior:"auto"});
+    }
+  }
+
+  function keLayar(nama){
+    state.layar = LAYAR[nama] ? nama : "gagal";
+    render();
+  }
+
+  /* =======================================================
+     AKSI
+     ======================================================= */
+  document.addEventListener("click", function(ev){
+    var el = ev.target.closest ? ev.target.closest("[data-aksi]") : null;
+    if (!el) return;
+    var aksi = el.getAttribute("data-aksi");
+
+    if (aksi === "suara"){
+      state.suara = !state.suara;
+      var tbl = document.getElementById("tblSuara");
+      document.getElementById("ikonSuara").textContent = state.suara ? "🔊" : "🔈";
+      document.getElementById("teksSuara").textContent = state.suara ? "Suara: Hidup" : "Suara: Mati";
+      tbl.setAttribute("aria-pressed", state.suara ? "true" : "false");
+      if (state.suara) bunyiKlik();
+      return;
+    }
+
+    if (aksi.indexOf("nav:") === 0){
+      var tujuan = aksi.slice(4);
+      bunyiKlik();
+      if (tujuan === "bermain"){
+        var i = kasusPertamaBelum();
+        if (i === -1){ keLayar("hasil"); }
+        else { state.idx = i; keLayar("kasus"); }
+        return;
+      }
+      if (tujuan === "hasil"){ keLayar("hasil"); return; }
+      if (tujuan === "rekap"){ keLayar("rekap"); return; }
+      keLayar(tujuan);
+      return;
+    }
+
+    if (aksi === "briefing"){ bunyiKlik(); keLayar("briefing"); return; }
+
+    if (aksi === "mulai"){
+      reset();
+      bunyiKlik();
+      keLayar("kasus");
+      return;
+    }
+
+    if (aksi === "lanjutkan"){
+      var j = kasusPertamaBelum();
+      state.idx = j === -1 ? 0 : j;
+      bunyiKlik();
+      keLayar(j === -1 ? "hasil" : "kasus");
+      return;
+    }
+
+    if (aksi.indexOf("pilih:") === 0){
+      if (state.layar !== "kasus") return;
+      var k = KASUS[state.idx];
+      if (!k) { keLayar("gagal"); return; }
+      if (state.jawaban[state.idx]) return; /* jawaban dikunci */
+      var kode = aksi.slice(6);
+      var ada = null;
+      for (var m=0;m<k.pilihan.length;m++) if (k.pilihan[m].kode === kode) ada = k.pilihan[m];
+      if (!ada) return;
+      state.jawaban[state.idx] = kode;
+      state.fokusBalik = true;
+      if (ada.terbaik) bunyiBagus(); else bunyiBiasa();
+      render();
+      return;
+    }
+
+    if (aksi === "lanjut"){
+      if (!state.jawaban[state.idx]) return;
+      bunyiKlik();
+      if (state.idx >= KASUS.length - 1){ keLayar("hasil"); }
+      else { state.idx = state.idx + 1; keLayar("kasus"); }
+      return;
+    }
+
+    if (aksi === "coba-lagi"){
+      reset();
+      bunyiKlik();
+      keLayar("kasus");
+      return;
+    }
+
+    if (aksi === "cetak"){
+      try{ window.print(); }catch(e){}
+      return;
+    }
+  });
+
+  /* alat bantu pengujian (tidak terlihat pemain) */
+  window.__eco = {
+    isi: function(kodeList){
+      reset();
+      for (var i=0;i<KASUS.length && i<kodeList.length;i++) state.jawaban[i] = kodeList[i];
+      state.idx = KASUS.length - 1;
+      keLayar("hasil");
+      return {skor:skor(), persen:persen(), tingkat:tingkat().nama};
+    },
+    state: state, KASUS: KASUS, MAKS: MAKS, skor: skor, persen: persen,
+    tingkat: function(){ return tingkat().nama; },
+    ke: keLayar,
+    setIdx: function(i){ state.idx = i; }
+  };
+
+  /* tinggi kepala dipakai agar Eco Energy Meter tidak tertutup menu */
+  function ukurKepala(){
+    try{
+      var h = document.querySelector(".kepala");
+      if (h) document.documentElement.style.setProperty("--th", h.offsetHeight + "px");
+    }catch(e){}
+  }
+  window.addEventListener("resize", ukurKepala);
+  ukurKepala();
+
+  render();
+  ukurKepala();
+})();
+</script>
+
+</body></html>

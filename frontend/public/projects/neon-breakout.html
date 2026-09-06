@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Neon Breakout</title>
+<style>
+  :root{
+    --bg:#070b17;
+    --panel:#101a30;
+    --line:#1e2b4a;
+    --text:#e8eefc;
+    --muted:#8fa2c7;
+    --cyan:#5eead4;
+    --accent:#38bdf8;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:radial-gradient(1100px 700px at 50% -10%, #16224a 0%, var(--bg) 60%);
+    color:var(--text);
+    font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    -webkit-user-select:none; user-select:none;
+    touch-action:manipulation;
+  }
+  .wrap{ width:min(480px, 94vw, 57vh); display:flex; flex-direction:column; gap:10px; }
+
+  /* ---------- HUD ---------- */
+  .hud{
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;
+    background:linear-gradient(180deg,#14203c,#0d1528);
+    border:1px solid var(--line); border-radius:14px; padding:8px 12px;
+  }
+  .hud .cell{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .hud .cell.mid{align-items:center;}
+  .hud .cell.right{align-items:flex-end;}
+  .label{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+  .value{font-size:20px; font-weight:bold; line-height:1; font-variant-numeric:tabular-nums;}
+  .lives{font-size:16px; letter-spacing:2px; color:#ff6b81;}
+  .lives .off{color:#33405e;}
+
+  /* ---------- Arena ---------- */
+  .stage{
+    position:relative; width:100%; aspect-ratio:3/4;
+    border-radius:18px; overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow:0 18px 50px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.03);
+    background:#080d1c;
+  }
+  canvas{display:block; width:100%; height:100%; touch-action:none;}
+
+  /* ---------- Overlay layar (menu / game over / menang) ---------- */
+  .overlay{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px; text-align:center;
+    padding:24px; background:rgba(6,10,22,.88); backdrop-filter:blur(3px);
+  }
+  .overlay[hidden]{display:none;}
+  .overlay h1{margin:0; font-size:clamp(22px,6.5vw,32px); line-height:1.15;
+    background:linear-gradient(90deg,#5eead4,#38bdf8,#c084fc);
+    -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .overlay h2{margin:0; font-size:clamp(18px,5.5vw,26px);}
+  .overlay p{margin:0; color:var(--muted); font-size:14px; line-height:1.55; max-width:34ch;}
+  .big{font-size:34px; font-weight:bold; color:var(--cyan); line-height:1;}
+  .keys{display:flex; flex-wrap:wrap; gap:6px; justify-content:center;}
+  .key{border:1px solid var(--line); background:#0f1a31; color:var(--muted);
+    padding:4px 9px; border-radius:8px; font-size:12px;}
+  button.btn{
+    font:inherit; font-weight:bold; font-size:16px; cursor:pointer;
+    padding:12px 26px; border-radius:999px; border:none; color:#04121b;
+    background:linear-gradient(180deg,#7ef0dc,#2dd4bf);
+    box-shadow:0 8px 22px rgba(45,212,191,.35);
+    transition:transform .12s ease, filter .12s ease;
+  }
+  button.btn:hover{filter:brightness(1.07);}
+  button.btn:active{transform:translateY(2px);}
+  button.ghost{background:transparent; color:var(--muted); border:1px solid var(--line);
+    box-shadow:none; font-size:13px; padding:8px 16px;}
+
+  /* ---------- Baris status power-up ---------- */
+  .fx{display:flex; gap:6px; justify-content:center; min-height:26px; flex-wrap:wrap;}
+  .chip{display:flex; align-items:center; gap:6px; font-size:11px; font-weight:bold;
+    padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:#0f1a31;}
+  .dot{width:8px; height:8px; border-radius:50%;}
+  .foot{display:flex; justify-content:space-between; align-items:center; gap:8px;
+    color:var(--muted); font-size:11.5px; line-height:1.4;}
+  .foot button{font:inherit; cursor:pointer; background:#0f1a31; color:var(--muted);
+    border:1px solid var(--line); border-radius:8px; padding:5px 10px;}
+  @media (max-height:620px){ .foot{display:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HUD: skor, level, nyawa -->
+  <div class="hud">
+    <div class="cell">
+      <span class="label">Skor</span>
+      <span class="value" id="uiScore">0</span>
+    </div>
+    <div class="cell mid">
+      <span class="label">Level</span>
+      <span class="value" id="uiLevel">1</span>
+    </div>
+    <div class="cell right">
+      <span class="label">Nyawa</span>
+      <span class="lives" id="uiLives">●●●</span>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="game"></canvas>
+    <div class="overlay" id="overlay"></div>
+  </div>
+
+  <div class="fx" id="uiFx"></div>
+
+  <div class="foot">
+    <span>← → atau A/D untuk gerak · Spasi luncurkan bola · P jeda</span>
+    <button id="btnSound" type="button">🔊 Suara</button>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* =========================================================
+   1. KONSTANTA & UTILITAS
+   ========================================================= */
+const W = 480, H = 640;                 // ukuran logika kanvas (koordinat game)
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+const PADDLE_W = 92, PADDLE_W_WIDE = 148, PADDLE_H = 14;
+const PADDLE_Y = H - 46;
+const PADDLE_SPEED = 520;               // px per detik saat pakai keyboard
+const BALL_R = 7;
+const MAX_BOUNCE_ANGLE = Math.PI / 3;   // 60° = sudut pantul maksimum dari paddle
+const POWER_DURATION = 10000;           // 10 detik untuk power-up bersifat sementara
+const POWER_CHANCE = 0.20;              // 20% peluang power-up jatuh dari blok
+const POWER_FALL = 145;                 // kecepatan jatuh kapsul power-up
+const SLOW_FACTOR = 0.65;               // pengali kecepatan bola saat power-up "S"
+const MAX_BALLS = 6;
+
+const COLS = 8, SIDE = 24, BRICK_TOP = 78, BRICK_GAP = 6, BRICK_H = 22;
+const BRICK_W = (W - SIDE * 2 - BRICK_GAP * (COLS - 1)) / COLS;
+
+// Warna per baris (baris atas = merah, makin ke bawah makin "dingin")
+const ROW_COLORS = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7'];
+// Nilai skor per baris — baris paling atas paling mahal
+const ROW_POINTS  = [60, 50, 40, 30, 20, 10];
+
+const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
+const rand  = (a, b) => a + Math.random() * (b - a);
+
+/* Denah tiap level. '#' = blok biasa, '=' = blok kuat (2 pukulan), '.' = kosong */
+const LEVELS = [
+  ['########',
+   '########',
+   '########',
+   '########',
+   '########'],
+
+  ['..####..',
+   '.######.',
+   '########',
+   '.######.',
+   '..####..'],
+
+  ['#..##..#',
+   '##.##.##',
+   '########',
+   '.######.',
+   '..####..'],
+
+  ['==####==',
+   '#.####.#',
+   '########',
+   '#.#..#.#',
+   '########',
+   '..####..'],
+
+  ['========',
+   '##====##',
+   '########',
+   '#.####.#',
+   '##.##.##',
+   '..####..']
+];
+
+/* Definisi power-up: label singkat + warna kapsul */
+const POWERS = {
+  wide:  { label: 'W',  color: '#38bdf8', name: 'Paddle Lebar' },
+  multi: { label: '2X', color: '#f472b6', name: 'Bola Ganda' },
+  slow:  { label: 'S',  color: '#a3e635', name: 'Bola Lambat' },
+  life:  { label: '+1', color: '#f87171', name: 'Nyawa Ekstra' }
+};
+const POWER_KEYS = ['wide', 'multi', 'slow', 'wide', 'multi', 'slow', 'life']; // 'life' lebih jarang
+
+/* =========================================================
+   2. STATE GAME
+   ========================================================= */
+let state = 'menu';   // menu | serve | play | pause | levelclear | gameover | win
+let score = 0, lives = 3, levelIndex = 0;
+let paddle, balls, bricks, powerups, particles, stars;
+let fx = { wide: 0, slow: 0 };          // sisa waktu (ms) tiap efek sementara
+let bricksLeft = 0;
+let shake = 0;                          // getaran layar kecil saat blok pecah
+const keys = Object.create(null);
+
+/* =========================================================
+   3. SETUP KANVAS RESPONSIF
+   ========================================================= */
+function resizeCanvas() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const rect = canvas.getBoundingClientRect();
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  // Skala agar semua kode gambar tetap memakai koordinat 480x640
+  ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+  void rect;
+}
+window.addEventListener('resize', resizeCanvas);
+
+/* =========================================================
+   4. PEMBUATAN OBJEK
+   ========================================================= */
+function makePaddle() {
+  return { x: (W - PADDLE_W) / 2, y: PADDLE_Y, w: PADDLE_W, h: PADDLE_H };
+}
+
+function baseSpeed() {
+  return 300 + levelIndex * 26;         // tiap level bola sedikit lebih cepat
+}
+
+function makeBall(x, y, vx, vy) {
+  return { x, y, vx, vy, r: BALL_R, stuck: false, trail: [] };
+}
+
+/* Bola menempel di paddle, menunggu diluncurkan */
+function attachBall() {
+  balls = [makeBall(paddle.x + paddle.w / 2, paddle.y - BALL_R - 1, 0, 0)];
+  balls[0].stuck = true;
+}
+
+function launchBall() {
+  const s = baseSpeed() * (fx.slow > 0 ? SLOW_FACTOR : 1);
+  const a = rand(-0.5, 0.5);            // sudut awal sedikit acak
+  balls.forEach(b => {
+    if (b.stuck) { b.stuck = false; b.vx = Math.sin(a) * s; b.vy = -Math.cos(a) * s; }
+  });
+  state = 'play';
+  beep(660, 0.06);
+}
+
+/* Susun grid blok dari denah level */
+function buildLevel(idx) {
+  const plan = LEVELS[idx];
+  bricks = [];
+  bricksLeft = 0;
+  for (let r = 0; r < plan.length; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const ch = plan[r][c];
+      if (ch === '.') continue;
+      const strong = (ch === '=');
+      bricks.push({
+        x: SIDE + c * (BRICK_W + BRICK_GAP),
+        y: BRICK_TOP + r * (BRICK_H + BRICK_GAP),
+        w: BRICK_W, h: BRICK_H,
+        row: r,
+        hp: strong ? 2 : 1,
+        maxHp: strong ? 2 : 1,
+        alive: true
+      });
+      bricksLeft++;
+    }
+  }
+}
+
+function makeStars() {
+  stars = [];
+  for (let i = 0; i < 46; i++) {
+    stars.push({ x: rand(0, W), y: rand(0, H), r: rand(0.5, 1.6), a: rand(0.15, 0.6) });
+  }
+}
+
+/* =========================================================
+   5. ALUR PERMAINAN (mulai, level, nyawa, akhir)
+   ========================================================= */
+function startGame() {
+  score = 0; lives = 3; levelIndex = 0;
+  startLevel();
+}
+
+function startLevel() {
+  paddle = makePaddle();
+  powerups = []; particles = [];
+  fx.wide = 0; fx.slow = 0;
+  buildLevel(levelIndex);
+  attachBall();
+  state = 'serve';
+  hideOverlay();
+  syncHud();
+}
+
+function loseLife() {
+  lives--;
+  fx.wide = 0; fx.slow = 0;             // efek sementara hilang saat kehilangan nyawa
+  powerups = [];
+  paddle.w = PADDLE_W;
+  syncHud();
+  beep(150, 0.25, 'sawtooth');
+  if (lives <= 0) {
+    state = 'gameover';
+    showOverlay('gameover');
+  } else {
+    attachBall();
+    state = 'serve';
+  }
+}
+
+function nextLevel() {
+  if (levelIndex >= LEVELS.length - 1) {
+    state = 'win';
+    showOverlay('win');
+  } else {
+    state = 'levelclear';
+    showOverlay('levelclear');
+  }
+}
+
+/* =========================================================
+   6. INPUT (keyboard, mouse, sentuh)
+   ========================================================= */
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (['arrowleft', 'arrowright', ' ', 'arrowup', 'arrowdown'].includes(k)) e.preventDefault();
+  keys[k] = true;
+
+  if (k === ' ' || k === 'enter') {
+    if (state === 'menu') startGame();
+    else if (state === 'serve') launchBall();
+    else if (state === 'levelclear') { levelIndex++; startLevel(); }
+    else if (state === 'gameover' || state === 'win') startGame();
+    else if (state === 'pause') { state = 'play'; hideOverlay(); }
+  }
+  if (k === 'p' || k === 'escape') togglePause();
+});
+document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+function togglePause() {
+  if (state === 'play') { state = 'pause'; showOverlay('pause'); }
+  else if (state === 'pause') { state = 'play'; hideOverlay(); }
+}
+
+/* Kontrol mouse/sentuh: paddle mengikuti pointer (opsional, keyboard tetap utama) */
+const stage = document.getElementById('stage');
+function pointerToGameX(clientX) {
+  const r = canvas.getBoundingClientRect();
+  return (clientX - r.left) / r.width * W;
+}
+stage.addEventListener('pointermove', e => {
+  if (state !== 'play' && state !== 'serve') return;
+  if (e.pointerType === 'mouse' && e.buttons === 0 && !mouseInside) return;
+  const x = pointerToGameX(e.clientX);
+  paddle.x = clamp(x - paddle.w / 2, 0, W - paddle.w);
+});
+let mouseInside = false;
+stage.addEventListener('pointerenter', () => { mouseInside = true; });
+stage.addEventListener('pointerleave', () => { mouseInside = false; });
+stage.addEventListener('pointerdown', e => {
+  if (e.target.tagName === 'BUTTON') return;
+  if (state === 'serve') launchBall();
+  else if (state === 'menu') startGame();
+});
+
+/* =========================================================
+   7. LOGIKA UPDATE
+   ========================================================= */
+function update(dt) {
+  if (state !== 'play' && state !== 'serve') return;
+
+  // --- gerak paddle dengan keyboard ---
+  let dir = 0;
+  if (keys['arrowleft'] || keys['a']) dir -= 1;
+  if (keys['arrowright'] || keys['d']) dir += 1;
+  paddle.x = clamp(paddle.x + dir * PADDLE_SPEED * dt, 0, W - paddle.w);
+
+  // --- hitung mundur durasi power-up sementara ---
+  if (fx.wide > 0) {
+    fx.wide -= dt * 1000;
+    if (fx.wide <= 0) { fx.wide = 0; setPaddleWidth(PADDLE_W); }
+  }
+  if (fx.slow > 0) {
+    fx.slow -= dt * 1000;
+    if (fx.slow <= 0) { fx.slow = 0; scaleBallSpeed(1 / SLOW_FACTOR); }
+  }
+
+  // --- bola yang masih menempel ikut paddle ---
+  if (state === 'serve') {
+    const b = balls[0];
+    b.x = clamp(paddle.x + paddle.w / 2, b.r, W - b.r);
+    b.y = paddle.y - b.r - 1;
+  }
+
+  // --- gerak & tabrakan bola (dengan sub-langkah agar tidak menembus blok) ---
+  for (let i = balls.length - 1; i >= 0; i--) {
+    const b = balls[i];
+    if (b.stuck) continue;
+
+    const dist = Math.hypot(b.vx, b.vy) * dt;
+    const steps = Math.max(1, Math.ceil(dist / (b.r * 0.8)));
+    let dead = false;
+    for (let s = 0; s < steps && !dead; s++) {
+      b.x += (b.vx * dt) / steps;
+      b.y += (b.vy * dt) / steps;
+      dead = collideBall(b);
+    }
+
+    // jejak ekor bola (hanya efek visual)
+    b.trail.push({ x: b.x, y: b.y });
+    if (b.trail.length > 8) b.trail.shift();
+
+    if (dead) balls.splice(i, 1);
+  }
+
+  // Nyawa berkurang hanya bila SEMUA bola sudah jatuh (penting untuk mode bola ganda)
+  if (state === 'play' && balls.length === 0) loseLife();
+
+  // --- power-up jatuh & ditangkap paddle ---
+  for (let i = powerups.length - 1; i >= 0; i--) {
+    const p = powerups[i];
+    p.y += POWER_FALL * dt;
+    p.spin += dt * 4;
+    const caught = p.y + 10 >= paddle.y && p.y - 10 <= paddle.y + paddle.h &&
+                   p.x + 16 >= paddle.x && p.x - 16 <= paddle.x + paddle.w;
+    if (caught) { applyPower(p.type); powerups.splice(i, 1); }
+    else if (p.y - 12 > H) powerups.splice(i, 1);
+  }
+
+  // --- partikel pecahan blok ---
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const q = particles[i];
+    q.vy += 620 * dt;
+    q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt;
+    if (q.life <= 0) particles.splice(i, 1);
+  }
+
+  if (shake > 0) shake = Math.max(0, shake - dt * 22);
+
+  // --- semua blok habis? lanjut level ---
+  if (state === 'play' && bricksLeft === 0) nextLevel();
+}
+
+/* Tabrakan satu bola dengan dinding, paddle, dan blok.
+   Mengembalikan true bila bola keluar lewat bawah layar. */
+function collideBall(b) {
+  // Dinding kiri / kanan / atas
+  if (b.x - b.r < 0)      { b.x = b.r;      b.vx =  Math.abs(b.vx); beep(520, .03); }
+  if (b.x + b.r > W)      { b.x = W - b.r;  b.vx = -Math.abs(b.vx); beep(520, .03); }
+  if (b.y - b.r < 0)      { b.y = b.r;      b.vy =  Math.abs(b.vy); beep(520, .03); }
+
+  // Jatuh melewati paddle
+  if (b.y - b.r > H) return true;
+
+  // --- Tabrakan dengan PADDLE ---
+  // Sudut pantul ditentukan oleh titik kena: tengah = lurus, ujung = miring (maks 60°)
+  if (b.vy > 0 &&
+      b.y + b.r >= paddle.y && b.y - b.r <= paddle.y + paddle.h &&
+      b.x + b.r >= paddle.x && b.x - b.r <= paddle.x + paddle.w) {
+    const hit = clamp((b.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2), -1, 1);
+    const angle = hit * MAX_BOUNCE_ANGLE;
+    const speed = Math.max(Math.hypot(b.vx, b.vy), 200);
+    b.vx = Math.sin(angle) * speed;
+    b.vy = -Math.cos(angle) * speed;
+    b.y = paddle.y - b.r - 0.5;
+    beep(300 + Math.abs(hit) * 260, .05);
+  }
+
+  // --- Tabrakan dengan BLOK (lingkaran vs persegi) ---
+  for (const br of bricks) {
+    if (!br.alive) continue;
+    // Lewati cepat blok yang jelas jauh
+    if (b.x + b.r < br.x || b.x - b.r > br.x + br.w ||
+        b.y + b.r < br.y || b.y - b.r > br.y + br.h) continue;
+
+    const cx = clamp(b.x, br.x, br.x + br.w);
+    const cy = clamp(b.y, br.y, br.y + br.h);
+    const dx = b.x - cx, dy = b.y - cy;
+    if (dx * dx + dy * dy > b.r * b.r) continue;   // belum benar-benar menyentuh
+
+    // Pilih sumbu pantul: yang tembusnya paling dangkal
+    const penX = (br.w / 2 + b.r) - Math.abs(b.x - (br.x + br.w / 2));
+    const penY = (br.h / 2 + b.r) - Math.abs(b.y - (br.y + br.h / 2));
+    if (penX < penY) {
+      b.vx = -b.vx;
+      b.x += b.vx > 0 ? penX : -penX;
+    } else {
+      b.vy = -b.vy;
+      b.y += b.vy > 0 ? penY : -penY;
+    }
+
+    hitBrick(br);
+    break;                                          // satu blok per sub-langkah
+  }
+
+  // Jaga agar bola tidak bergerak nyaris mendatar (bisa membuat game macet)
+  const sp = Math.hypot(b.vx, b.vy);
+  if (Math.abs(b.vy) < sp * 0.22) {
+    b.vy = Math.sign(b.vy || -1) * sp * 0.22;
+    b.vx = Math.sign(b.vx || 1) * Math.sqrt(Math.max(sp * sp - b.vy * b.vy, 1));
+  }
+  return false;
+}
+
+function hitBrick(br) {
+  br.hp--;
+  shake = 3;
+  if (br.hp > 0) {                    // blok kuat: retak dulu, belum hancur
+    score += 5;
+    spawnParticles(br, 5);
+    beep(420, .04);
+  } else {
+    br.alive = false;
+    bricksLeft--;
+    score += ROW_POINTS[br.row] * (br.maxHp === 2 ? 2 : 1);
+    spawnParticles(br, 12);
+    beep(720, .05);
+    // Peluang menjatuhkan power-up
+    if (Math.random() < POWER_CHANCE) {
+      const type = POWER_KEYS[(Math.random() * POWER_KEYS.length) | 0];
+      powerups.push({ x: br.x + br.w / 2, y: br.y + br.h / 2, type, spin: 0 });
+    }
+  }
+  syncHud();
+}
+
+function spawnParticles(br, n) {
+  const color = ROW_COLORS[br.row % ROW_COLORS.length];
+  for (let i = 0; i < n; i++) {
+    particles.push({
+      x: br.x + rand(4, br.w - 4), y: br.y + rand(4, br.h - 4),
+      vx: rand(-90, 90), vy: rand(-170, -20),
+      life: rand(.3, .65), color, size: rand(2, 4)
+    });
+  }
+}
+
+/* =========================================================
+   8. SISTEM POWER-UP
+   ========================================================= */
+function setPaddleWidth(w) {
+  const center = paddle.x + paddle.w / 2;
+  paddle.w = w;
+  paddle.x = clamp(center - w / 2, 0, W - w);
+}
+function scaleBallSpeed(mult) {
+  balls.forEach(b => { b.vx *= mult; b.vy *= mult; });
+}
+
+function applyPower(type) {
+  beep(880, .12, 'triangle');
+  switch (type) {
+    case 'wide':                       // paddle melebar selama 10 detik
+      setPaddleWidth(PADDLE_W_WIDE);
+      fx.wide = POWER_DURATION;
+      break;
+    case 'multi': {                    // tiap bola dipecah jadi dua arah berbeda
+      const extra = [];
+      balls.forEach(b => {
+        if (balls.length + extra.length >= MAX_BALLS) return;
+        const sp = Math.hypot(b.vx, b.vy) || baseSpeed();
+        const a = Math.atan2(b.vy, b.vx) + 0.5;
+        let nvx = Math.cos(a) * sp, nvy = Math.sin(a) * sp;
+        // Bola baru wajib searah vertikal dengan induknya supaya tidak langsung jatuh
+        if (b.vy !== 0 && Math.sign(nvy) !== Math.sign(b.vy)) nvy = -nvy;
+        extra.push(makeBall(b.x, b.y, nvx, nvy));
+      });
+      balls.push(...extra);
+      if (state === 'serve') launchBall();
+      break;
+    }
+    case 'slow':                       // bola melambat selama 10 detik
+      if (fx.slow <= 0) scaleBallSpeed(SLOW_FACTOR);
+      fx.slow = POWER_DURATION;
+      break;
+    case 'life':                       // nyawa ekstra bersifat permanen
+      lives = Math.min(lives + 1, 6);
+      break;
+  }
+  syncHud();
+}
+
+/* =========================================================
+   9. MENGGAMBAR
+   ========================================================= */
+function draw() {
+  ctx.save();
+  if (shake > 0) ctx.translate(rand(-shake, shake), rand(-shake, shake));
+
+  // Latar gelap + bintang
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#0d1730'); g.addColorStop(1, '#060a16');
+  ctx.fillStyle = g; ctx.fillRect(-10, -10, W + 20, H + 20);
+  ctx.fillStyle = '#ffffff';
+  stars.forEach(s => { ctx.globalAlpha = s.a; ctx.fillRect(s.x, s.y, s.r, s.r); });
+  ctx.globalAlpha = 1;
+
+  // Blok
+  bricks.forEach(br => { if (br.alive) drawBrick(br); });
+
+  // Power-up yang sedang jatuh
+  powerups.forEach(drawPower);
+
+  // Partikel
+  particles.forEach(q => {
+    ctx.globalAlpha = clamp(q.life * 2, 0, 1);
+    ctx.fillStyle = q.color;
+    ctx.fillRect(q.x, q.y, q.size, q.size);
+  });
+  ctx.globalAlpha = 1;
+
+  // Paddle
+  drawPaddle();
+
+  // Bola
+  balls.forEach(drawBall);
+
+  // Petunjuk saat menunggu peluncuran
+  if (state === 'serve') {
+    ctx.fillStyle = 'rgba(232,238,252,.75)';
+    ctx.font = 'bold 15px "Trebuchet MS", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Tekan SPASI atau klik untuk mulai', W / 2, H - 88);
+  }
+  ctx.restore();
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function drawBrick(br) {
+  const base = ROW_COLORS[br.row % ROW_COLORS.length];
+  const cracked = br.maxHp === 2 && br.hp === 1;
+  ctx.save();
+  ctx.shadowColor = base; ctx.shadowBlur = cracked ? 4 : 10;
+  ctx.fillStyle = base;
+  ctx.globalAlpha = cracked ? 0.55 : 1;
+  roundRect(br.x, br.y, br.w, br.h, 5); ctx.fill();
+  ctx.restore();
+
+  // kilau tipis di bagian atas blok
+  ctx.fillStyle = 'rgba(255,255,255,.28)';
+  roundRect(br.x + 3, br.y + 3, br.w - 6, 4, 2); ctx.fill();
+
+  if (br.maxHp === 2) {                       // penanda blok kuat
+    ctx.strokeStyle = 'rgba(255,255,255,.75)';
+    ctx.lineWidth = 1.5;
+    roundRect(br.x + 1.5, br.y + 1.5, br.w - 3, br.h - 3, 4); ctx.stroke();
+  }
+}
+
+function drawPaddle() {
+  ctx.save();
+  ctx.shadowColor = '#5eead4'; ctx.shadowBlur = 16;
+  const g = ctx.createLinearGradient(0, paddle.y, 0, paddle.y + paddle.h);
+  g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#22d3ee');
+  ctx.fillStyle = g;
+  roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 7); ctx.fill();
+  ctx.restore();
+}
+
+function drawBall(b) {
+  // ekor
+  b.trail.forEach((t, i) => {
+    ctx.globalAlpha = (i / b.trail.length) * 0.35;
+    ctx.fillStyle = '#5eead4';
+    ctx.beginPath(); ctx.arc(t.x, t.y, b.r * 0.75, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  ctx.save();
+  ctx.shadowColor = '#a5f3fc'; ctx.shadowBlur = 14;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawPower(p) {
+  const def = POWERS[p.type];
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.scale(1, Math.max(0.55, Math.abs(Math.cos(p.spin))));  // efek kapsul berputar
+  ctx.shadowColor = def.color; ctx.shadowBlur = 12;
+  ctx.fillStyle = def.color;
+  roundRect(-17, -10, 34, 20, 10); ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle = '#07121f';
+  ctx.font = 'bold 12px "Trebuchet MS", sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(def.label, p.x, p.y + 1);
+  ctx.textBaseline = 'alphabetic';
+}
+
+/* =========================================================
+   10. HUD & OVERLAY (HTML)
+   ========================================================= */
+const uiScore = document.getElementById('uiScore');
+const uiLevel = document.getElementById('uiLevel');
+const uiLives = document.getElementById('uiLives');
+const uiFx    = document.getElementById('uiFx');
+const overlay = document.getElementById('overlay');
+
+function syncHud() {
+  uiScore.textContent = score;
+  uiLevel.textContent = (levelIndex + 1) + '/' + LEVELS.length;
+  const maxDots = Math.max(3, lives);
+  let html = '';
+  for (let i = 0; i < maxDots; i++) html += i < lives ? '●' : '<span class="off">●</span>';
+  uiLives.innerHTML = html;
+}
+
+function syncFx() {
+  let html = '';
+  if (fx.wide > 0) html += chip('#38bdf8', 'Paddle Lebar', fx.wide);
+  if (fx.slow > 0) html += chip('#a3e635', 'Bola Lambat', fx.slow);
+  if (balls && balls.length > 1) html += chip('#f472b6', balls.length + ' Bola Aktif', 0);
+  uiFx.innerHTML = html;
+}
+function chip(color, text, ms) {
+  const t = ms > 0 ? ' ' + Math.ceil(ms / 1000) + 's' : '';
+  return `<span class="chip"><span class="dot" style="background:${color}"></span>${text}${t}</span>`;
+}
+
+function hideOverlay() { overlay.hidden = true; overlay.innerHTML = ''; }
+
+function showOverlay(kind) {
+  let html = '';
+  if (kind === 'menu') {
+    html = `
+      <h1>NEON BREAKOUT</h1>
+      <p>Pantulkan bola dengan paddle, hancurkan semua blok, dan taklukkan ${LEVELS.length} level.</p>
+      <div class="keys">
+        <span class="key">← →  atau  A / D</span>
+        <span class="key">Spasi = luncurkan</span>
+        <span class="key">P = jeda</span>
+      </div>
+      <p style="font-size:12.5px">Tangkap kapsul: <b style="color:#38bdf8">W</b> paddle lebar ·
+      <b style="color:#f472b6">2X</b> bola ganda · <b style="color:#a3e635">S</b> bola lambat ·
+      <b style="color:#f87171">+1</b> nyawa</p>
+      <button class="btn" data-action="start">Mulai Main</button>`;
+  } else if (kind === 'pause') {
+    html = `<h2>⏸ Jeda</h2>
+      <button class="btn" data-action="resume">Lanjutkan</button>
+      <button class="btn ghost" data-action="restart">Mulai Ulang</button>`;
+  } else if (kind === 'levelclear') {
+    html = `<h2>Level ${levelIndex + 1} selesai! 🎉</h2>
+      <p>Skor saat ini</p><div class="big">${score}</div>
+      <p>Level berikutnya sedikit lebih cepat. Siap?</p>
+      <button class="btn" data-action="next">Lanjut ke Level ${levelIndex + 2}</button>`;
+  } else if (kind === 'gameover') {
+    html = `<h2>Game Over 💥</h2>
+      <p>Skor akhir</p><div class="big">${score}</div>
+      <p>Kamu sampai di level ${levelIndex + 1} dari ${LEVELS.length}.</p>
+      <button class="btn" data-action="restart">Main Lagi</button>`;
+  } else if (kind === 'win') {
+    html = `<h1>MENANG! 🏆</h1>
+      <p>Semua ${LEVELS.length} level berhasil kamu selesaikan.</p>
+      <p>Skor akhir</p><div class="big">${score}</div>
+      <button class="btn" data-action="restart">Main Lagi</button>`;
+  }
+  overlay.innerHTML = html;
+  overlay.hidden = false;
+}
+
+overlay.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const a = btn.dataset.action;
+  if (a === 'start' || a === 'restart') startGame();
+  else if (a === 'resume') { state = 'play'; hideOverlay(); }
+  else if (a === 'next') { levelIndex++; startLevel(); }
+});
+
+/* =========================================================
+   11. SUARA SEDERHANA (WebAudio, tanpa file eksternal)
+   ========================================================= */
+let audioCtx = null, soundOn = true;
+const btnSound = document.getElementById('btnSound');
+btnSound.addEventListener('click', () => {
+  soundOn = !soundOn;
+  btnSound.textContent = soundOn ? '🔊 Suara' : '🔇 Senyap';
+});
+function beep(freq, dur, type = 'square') {
+  if (!soundOn) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  } catch (err) { /* abaikan bila audio tidak tersedia */ }
+}
+
+/* =========================================================
+   12. LOOP UTAMA
+   ========================================================= */
+let last = performance.now(), fxTick = 0;
+function loop(now) {
+  let dt = (now - last) / 1000;
+  last = now;
+  dt = Math.min(dt, 0.033);            // batasi dt agar fisika tetap stabil
+  update(dt);
+  draw();
+  fxTick += dt;
+  if (fxTick > 0.2) { fxTick = 0; syncFx(); }   // perbarui chip power-up tiap 200ms
+  requestAnimationFrame(loop);
+}
+
+/* Inisialisasi */
+resizeCanvas();
+makeStars();
+paddle = makePaddle();
+balls = []; bricks = []; powerups = []; particles = [];
+buildLevel(0);
+attachBall();
+syncHud();
+showOverlay('menu');
+requestAnimationFrame(loop);
+
+// Hook kecil untuk pengujian otomatis (tidak dipakai saat bermain normal)
+window.__game = {
+  get state(){ return state; }, get score(){ return score; },
+  get lives(){ return lives; }, get level(){ return levelIndex; },
+  get bricksLeft(){ return bricksLeft; }, get balls(){ return balls; },
+  clearBricks(){ bricks.forEach(b => b.alive = false); bricksLeft = 0; },
+  killBalls(){ balls.length = 0; },
+  drop(type){ powerups.push({x: paddle.x + paddle.w/2, y: paddle.y - 30, type, spin:0}); }
+};
+})();
+</script>
+
+</body>
+</html>

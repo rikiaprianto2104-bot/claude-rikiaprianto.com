@@ -1,0 +1,1355 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Facebook Ads Performance Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#ffffff;
+  --surface:#f4f7fc;
+  --surface-2:#eaf0fa;
+  --line:#dbe4f2;
+  --line-soft:#e9eff8;
+  --ink:#0b1b33;
+  --ink-2:#3d4f6b;
+  --ink-3:#6b7c96;
+  --accent:#1b4fd6;
+  --accent-hover:#1740b0;
+  --accent-soft:#e6ecfd;
+  --ok:#0d7a52;      --ok-soft:#e0f2ea;
+  --warn:#8f5b06;    --warn-soft:#fbeed7;
+  --bad:#b32833;     --bad-soft:#fbe4e6;
+  --neutral:#5a6b85; --neutral-soft:#e8edf5;
+  --shadow:0 1px 2px rgba(11,27,51,.05), 0 10px 30px rgba(11,27,51,.06);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#08131f; --surface:#0f1e30; --surface-2:#16273c;
+    --line:#22364f; --line-soft:#1a2c42;
+    --ink:#e9f0fa; --ink-2:#b3c3d8; --ink-3:#8497b0;
+    --accent:#7ea6ff; --accent-hover:#9dbaff; --accent-soft:#15294a;
+    --ok:#5ad6a3; --ok-soft:#0f2f26;
+    --warn:#e6b45e; --warn-soft:#33260f;
+    --bad:#ff8e97; --bad-soft:#361a20;
+    --neutral:#9fb1c8; --neutral-soft:#182a40;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#08131f; --surface:#0f1e30; --surface-2:#16273c;
+  --line:#22364f; --line-soft:#1a2c42;
+  --ink:#e9f0fa; --ink-2:#b3c3d8; --ink-3:#8497b0;
+  --accent:#7ea6ff; --accent-hover:#9dbaff; --accent-soft:#15294a;
+  --ok:#5ad6a3; --ok-soft:#0f2f26;
+  --warn:#e6b45e; --warn-soft:#33260f;
+  --bad:#ff8e97; --bad-soft:#361a20;
+  --neutral:#9fb1c8; --neutral-soft:#182a40;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:Inter,"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Plus Jakarta Sans",Inter,sans-serif;margin:0;line-height:1.2;text-wrap:balance;letter-spacing:-.015em}
+p{margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.num,.tnum{font-variant-numeric:tabular-nums}
+
+/* hero */
+.hero{background:var(--surface);border-bottom:1px solid var(--line)}
+.hero-in{max-width:1120px;margin:0 auto;padding:44px 20px 40px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.hero h1{font-size:clamp(28px,4.4vw,44px);font-weight:800;margin-top:12px;max-width:18ch}
+.hero p.lede{margin-top:14px;max-width:60ch;color:var(--ink-2);font-size:clamp(15.5px,1.6vw,18px)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.value-props{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:28px}
+.vp{background:var(--ground);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.vp b{display:block;font-size:14px;font-family:"Plus Jakarta Sans",sans-serif}
+.vp span{font-size:13.5px;color:var(--ink-3);line-height:1.5;display:block;margin-top:2px}
+
+/* buttons */
+button{font-family:inherit;font-size:15px;cursor:pointer;border-radius:10px;border:1px solid transparent;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn-primary{background:var(--accent);color:#fff;font-weight:600;padding:0 22px;height:48px}
+.btn-primary:hover{background:var(--accent-hover)}
+:root[data-theme="dark"] .btn-primary,:root:not([data-theme="light"]) .btn-primary{color:#06121f}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .btn-primary{color:#fff}}
+.btn-ghost{background:var(--ground);border-color:var(--line);color:var(--ink);font-weight:500;padding:0 18px;height:48px}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-sm{height:38px;font-size:14px;padding:0 14px}
+.btn-icon{background:transparent;border:1px solid var(--line);color:var(--ink-3);width:34px;height:34px;line-height:1;font-size:16px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px}
+.btn-icon:hover{color:var(--bad);border-color:var(--bad)}
+
+/* sections */
+section{padding:40px 0}
+.step-head{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
+.step-badge{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:6px;white-space:nowrap}
+h2{font-size:clamp(21px,2.6vw,27px);font-weight:700}
+.step-sub{color:var(--ink-3);font-size:14.5px;margin-top:4px;max-width:70ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.panel{background:var(--ground);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+
+/* forms */
+.field-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-size:13.5px;font-weight:600;color:var(--ink)}
+.field .hint{font-size:12.5px;color:var(--ink-3);line-height:1.45}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--ink);background:var(--ground);border:1px solid var(--line);border-radius:10px;height:44px;padding:0 12px;width:100%;min-width:0}
+textarea{height:auto;padding:10px 12px;line-height:1.5;font-size:14px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 18px) 20px,calc(100% - 13px) 20px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:36px}
+input::placeholder,textarea::placeholder{color:var(--ink-3);opacity:.75}
+input.err,td.err input{border-color:var(--bad);background:var(--bad-soft)}
+
+/* input table */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--ground);margin-top:18px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+thead th{background:var(--surface);font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;white-space:nowrap;position:relative}
+tbody tr:last-child td{border-bottom:0}
+#inputTable{min-width:920px}
+#inputTable input{height:38px;font-size:14px}
+#inputTable td{padding:8px 10px}
+.col-name{min-width:180px}
+.col-num{min-width:120px}
+.th-help{cursor:help;border-bottom:1px dotted var(--ink-3)}
+.tbl-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.paste-box{margin-top:14px}
+details.paste summary{cursor:pointer;font-size:14px;color:var(--accent);font-weight:500;list-style:none}
+details.paste summary::-webkit-details-marker{display:none}
+details.paste summary::before{content:"+ ";font-weight:700}
+details.paste[open] summary::before{content:"− "}
+
+/* validation */
+.msg-list{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.msg{display:flex;gap:10px;align-items:flex-start;border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.5}
+.msg b{font-weight:600}
+.msg-err{background:var(--bad-soft);color:var(--bad)}
+.msg-warn{background:var(--warn-soft);color:var(--warn)}
+.msg-info{background:var(--accent-soft);color:var(--accent)}
+
+/* action bar */
+.actionbar{position:sticky;bottom:0;z-index:20;background:var(--ground);border-top:1px solid var(--line);padding:12px 0;margin-top:8px}
+.actionbar .wrap{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.actionbar .note{font-size:13px;color:var(--ink-3)}
+
+/* results */
+#hasil[hidden]{display:none}
+.score-panel{display:grid;grid-template-columns:230px minmax(0,1fr);gap:26px;align-items:center}
+.gauge{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge svg{display:block}
+.gauge .g-val{position:absolute;top:60%;left:0;right:0;text-align:center;transform:translateY(-50%)}
+.gauge .g-num{font-family:"Plus Jakarta Sans",sans-serif;font-size:42px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.gauge .g-cap{font-size:12px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.summary h3{font-size:20px;font-weight:700;margin-bottom:6px}
+.summary p{color:var(--ink-2);font-size:15.5px;max-width:66ch}
+.summary p + p{margin-top:10px}
+
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;line-height:1.6}
+.b-ok{background:var(--ok-soft);color:var(--ok)}
+.b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-bad{background:var(--bad-soft);color:var(--bad)}
+.b-neutral{background:var(--neutral-soft);color:var(--neutral)}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.tile{background:var(--ground);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tile .t-lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.tile .t-val{font-family:"Plus Jakarta Sans",sans-serif;font-size:26px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;line-height:1.15}
+.tile .t-cmp{font-size:13px;color:var(--ink-3);margin-top:6px;line-height:1.45}
+.tile .t-delta{font-weight:600;font-variant-numeric:tabular-nums}
+.d-ok{color:var(--ok)} .d-bad{color:var(--bad)} .d-mut{color:var(--ink-3)}
+
+.result-block{margin-top:30px}
+.result-block > h3{font-size:18px;font-weight:700;margin-bottom:4px}
+.result-block > .rb-sub{font-size:13.5px;color:var(--ink-3);margin-bottom:12px;max-width:70ch}
+
+#adsetTable th,#adsetTable td{padding:10px 9px}
+#adsetTable td:last-child{min-width:190px;max-width:230px}
+#adsetTable td:last-child .badge{white-space:normal;text-align:left}
+#adsetTable td:last-child div{max-width:100%!important}
+#scoreTable td:last-child{max-width:280px}
+.share-bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden;min-width:70px;margin-top:5px}
+.share-bar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+
+.finding{border:1px solid var(--line);border-left:3px solid var(--neutral);border-radius:10px;padding:14px 16px;background:var(--ground);margin-bottom:10px}
+.finding.p-tinggi{border-left-color:var(--bad)}
+.finding.p-sedang{border-left-color:var(--warn)}
+.finding.p-rendah{border-left-color:var(--ok)}
+.finding h4{font-size:15px;font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.finding p{font-size:14px;color:var(--ink-2);margin-top:6px}
+.finding p b{color:var(--ink);font-weight:600}
+.f-code{font-size:11.5px;color:var(--ink-3);font-weight:600;letter-spacing:.06em}
+
+.disclaimer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:26px;font-size:13.5px;color:var(--ink-2);line-height:1.6}
+.disclaimer b{color:var(--ink)}
+
+/* benchmark & faq */
+.bm-note{font-size:13.5px;color:var(--ink-3);margin-top:12px;line-height:1.6;max-width:80ch}
+details.faq{border-bottom:1px solid var(--line-soft);padding:14px 0}
+details.faq summary{cursor:pointer;font-weight:600;font-size:15.5px;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{content:"+";color:var(--accent);font-size:19px;font-weight:700}
+details.faq[open] summary::after{content:"−"}
+details.faq p{margin-top:10px;font-size:14.5px;color:var(--ink-2);max-width:75ch}
+
+footer{background:var(--surface);border-top:1px solid var(--line);margin-top:40px}
+.foot-in{max-width:1120px;margin:0 auto;padding:26px 20px 40px;font-size:13.5px;color:var(--ink-3);line-height:1.6}
+footer b{color:var(--ink)}
+footer a{color:var(--accent)}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:11px 20px;border-radius:999px;font-size:14px;z-index:60;box-shadow:var(--shadow);max-width:90vw;text-align:center}
+.toast[hidden]{display:none}
+
+@media (max-width:900px){
+  .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .score-panel{grid-template-columns:1fr;gap:18px;justify-items:center;text-align:center}
+  .summary p{text-align:left}
+  .value-props{grid-template-columns:1fr}
+}
+@media (max-width:680px){
+  .field-grid{grid-template-columns:1fr}
+  .tiles{grid-template-columns:1fr}
+  section{padding:30px 0}
+  .hero-in{padding:32px 20px}
+  .btn-primary,.btn-ghost{width:100%;justify-content:center}
+  .hero-actions{flex-direction:column}
+  /* stacked cards for result tables */
+  table.stack, table.stack tbody, table.stack tr, table.stack td{display:block;width:100%}
+  table.stack thead{display:none}
+  table.stack tr{border:1px solid var(--line);border-radius:12px;margin:10px;padding:6px 4px}
+  table.stack td{border:0;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;padding:6px 12px;text-align:right}
+  table.stack td::before{content:attr(data-label);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600;text-align:left;flex:0 0 auto}
+  table.stack td > div{flex:1 0 100%;text-align:right;max-width:100%}
+  table.stack td .badge{white-space:normal;text-align:left;min-width:0}
+  table.stack td > div[style*="max-width"]{text-align:left!important;max-width:100%!important}
+  .table-scroll.stackwrap{border:0;background:transparent;overflow:visible}
+  #inputTable{min-width:760px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+@media print{
+  .hero,.actionbar,#konteks,#data,#benchmark,#faq,.no-print,.toast{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt}
+  section{padding:0}
+  .panel,.card,.tile,.finding,.table-scroll{box-shadow:none;border-color:#bbb;break-inside:avoid}
+  .badge{border:1px solid #999}
+  table.stack tr{page-break-inside:avoid}
+}
+</style>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="eyebrow">Riki MarkeThink · Advertising &amp; Analytics</div>
+    <h1>Facebook Ads Performance Analyzer</h1>
+    <p class="lede">Masukkan data iklan Facebook &amp; Instagram Ads Anda secara manual, lalu dapatkan skor performa, diagnosis masalah, dan rekomendasi optimasi — tanpa login dan tanpa menghubungkan akun iklan.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" id="btnMulai" type="button">Mulai Analisis</button>
+      <button class="btn-ghost" id="btnContoh" type="button">Coba Data Contoh</button>
+    </div>
+    <div class="value-props">
+      <div class="vp"><b>Aman &amp; privat</b><span>Semua perhitungan berjalan di browser Anda. Data tidak dikirim ke server mana pun.</span></div>
+      <div class="vp"><b>Transparan</b><span>Setiap skor menampilkan metrik, pembanding, dan bobot yang dipakai.</span></div>
+      <div class="vp"><b>Bisa ditindaklanjuti</b><span>Hasil berupa diagnosis dan rekomendasi aksi, bukan sekadar tumpukan angka.</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- LANGKAH 1 -->
+  <section id="konteks">
+    <div class="step-head"><span class="step-badge">Langkah 1</span><h2>Konteks Kampanye</h2></div>
+    <p class="step-sub">Konteks menentukan metrik mana yang dinilai dan seberapa besar bobotnya.</p>
+
+    <div class="card">
+      <div class="field-grid">
+        <div class="field">
+          <label for="objective">Tujuan kampanye</label>
+          <select id="objective">
+            <option value="penjualan">Penjualan / Konversi</option>
+            <option value="leads">Leads (WhatsApp / Formulir)</option>
+            <option value="traffic">Traffic ke Website</option>
+            <option value="awareness">Awareness / Jangkauan</option>
+          </select>
+          <span class="hint" id="objHint">Menentukan metrik utama dan bobot penilaian.</span>
+        </div>
+        <div class="field">
+          <label for="kategori">Kategori bisnis</label>
+          <select id="kategori">
+            <option>Fashion &amp; Aksesoris</option>
+            <option>Food &amp; Beverage</option>
+            <option>Kesehatan &amp; Kecantikan</option>
+            <option>Jasa &amp; Agency</option>
+            <option>Edukasi &amp; Kursus</option>
+            <option>Properti &amp; Otomotif</option>
+            <option>Lainnya</option>
+          </select>
+          <span class="hint">Dicatat sebagai konteks laporan. Benchmark khusus per kategori masuk pengembangan v2.</span>
+        </div>
+        <div class="field">
+          <label for="currency">Mata uang</label>
+          <select id="currency">
+            <option value="IDR">Rupiah (IDR)</option>
+            <option value="USD">Dolar AS (USD)</option>
+          </select>
+          <span class="hint" id="curHint">Benchmark biaya bawaan disusun dalam Rupiah.</span>
+        </div>
+        <div class="field">
+          <label for="periode">Periode data (hari)</label>
+          <input id="periode" type="number" min="1" max="365" step="1" value="7" inputmode="numeric">
+          <span class="hint">Dipakai untuk menilai kewajaran frekuensi. Acuan frekuensi mengasumsikan rentang 7 hari.</span>
+        </div>
+        <div class="field" id="marginField">
+          <label for="margin">Margin kotor produk (%)</label>
+          <input id="margin" type="text" inputmode="decimal" placeholder="Contoh: 40">
+          <span class="hint">Dipakai untuk menghitung break-even ROAS dan estimasi laba kotor. Tanpa margin, laba/rugi tidak disimpulkan.</span>
+        </div>
+        <div class="field" id="t1Field">
+          <label for="target1" id="t1Label">Target ROAS</label>
+          <input id="target1" type="text" inputmode="decimal" placeholder="Contoh: 3">
+          <span class="hint">Kosongkan bila belum tahu — tool akan memakai benchmark bawaan.</span>
+        </div>
+        <div class="field" id="t2Field">
+          <label for="target2" id="t2Label">Target CPA (biaya per pembelian)</label>
+          <input id="target2" type="text" inputmode="decimal" placeholder="Contoh: 80.000">
+          <span class="hint">Kosongkan bila belum tahu — tool akan memakai benchmark bawaan.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LANGKAH 2 -->
+  <section id="data">
+    <div class="step-head"><span class="step-badge">Langkah 2</span><h2>Data Ad Set</h2></div>
+    <p class="step-sub">Ambil angka dari Ads Manager pada level ad set. Satu baris untuk satu ad set. Kolom yang tidak wajib boleh dikosongkan.</p>
+
+    <div class="table-scroll">
+      <table id="inputTable">
+        <thead>
+          <tr>
+            <th class="col-name">Nama ad set</th>
+            <th class="col-num"><span class="th-help" title="Amount spent">Belanja iklan *</span></th>
+            <th class="col-num"><span class="th-help" title="Impressions">Impresi *</span></th>
+            <th class="col-num"><span class="th-help" title="Reach">Jangkauan</span></th>
+            <th class="col-num"><span class="th-help" title="Link clicks">Klik tautan *</span></th>
+            <th class="col-num" id="thResult"><span class="th-help" title="Results">Hasil *</span></th>
+            <th class="col-num" id="thValue"><span class="th-help" title="Purchase conversion value">Nilai konversi *</span></th>
+            <th aria-label="Aksi"></th>
+          </tr>
+        </thead>
+        <tbody id="inputBody"></tbody>
+      </table>
+    </div>
+
+    <div class="tbl-actions">
+      <button class="btn-ghost btn-sm" id="btnAddRow" type="button">+ Tambah ad set</button>
+      <button class="btn-ghost btn-sm" id="btnClear" type="button">Kosongkan tabel</button>
+      <button class="btn-ghost btn-sm" id="btnContoh2" type="button">Isi data contoh</button>
+      <span class="hint" style="color:var(--ink-3);font-size:13px">* wajib diisi</span>
+    </div>
+
+    <details class="paste">
+      <summary>Tempel data dari Excel atau Google Sheets</summary>
+      <div class="paste-box">
+        <p class="hint" style="margin-bottom:8px">Salin baris dari spreadsheet lalu tempel di kotak ini. Urutan kolom: Nama, Belanja, Impresi, Jangkauan, Klik, Hasil, Nilai konversi. Baris berisi judul kolom akan dilewati otomatis.</p>
+        <textarea id="pasteArea" rows="4" placeholder="Retargeting 30D&#9;3000000&#9;90000&#9;30000&#9;2700&#9;54&#9;12960000"></textarea>
+        <button class="btn-ghost btn-sm" id="btnParsePaste" type="button" style="margin-top:10px">Proses data tempelan</button>
+      </div>
+    </details>
+
+    <div class="msg-list" id="msgList"></div>
+  </section>
+
+  <div class="actionbar no-print">
+    <div class="wrap">
+      <span class="note" id="actionNote">Isi minimal satu ad set untuk mulai menganalisis.</span>
+      <button class="btn-primary" id="btnAnalisis" type="button">Analisis Performa</button>
+    </div>
+  </div>
+
+  <!-- HASIL -->
+  <section id="hasil" hidden aria-live="polite">
+    <div class="step-head"><span class="step-badge">Langkah 3</span><h2>Hasil Analisis</h2></div>
+    <p class="step-sub" id="hasilMeta"></p>
+
+    <div class="panel" style="margin-top:18px">
+      <div class="score-panel">
+        <div class="gauge" id="gauge"></div>
+        <div class="summary">
+          <h3 id="statusLabel"></h3>
+          <div id="summaryText"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-block" id="blockProfit" hidden>
+      <h3>Penilaian Utama Penjualan</h3>
+      <p class="rb-sub">Untuk tujuan penjualan, kesehatan iklan diukur dari kemampuannya menutup biaya — bukan hanya dari skor performa.</p>
+      <div class="tiles" id="profitTiles"></div>
+    </div>
+
+    <div class="result-block">
+      <h3>Metrik Utama</h3>
+      <p class="rb-sub" id="tilesSub"></p>
+      <div class="tiles" id="metricTiles"></div>
+    </div>
+
+    <div class="result-block">
+      <h3>Transparansi Skor</h3>
+      <p class="rb-sub">Metrik yang dipakai untuk menghitung skor, beserta pembanding, bobot, dan kontribusinya.</p>
+      <div class="table-scroll stackwrap"><table class="stack" id="scoreTable"></table></div>
+      <div id="scoreNotes"></div>
+    </div>
+
+    <div class="result-block">
+      <h3>Performa per Ad Set</h3>
+      <p class="rb-sub">Verdict dihitung dari skor ad set, kecukupan data, dan aturan pengaman untuk tujuan penjualan.</p>
+      <div class="table-scroll stackwrap"><table class="stack" id="adsetTable"></table></div>
+    </div>
+
+    <div class="result-block">
+      <h3>Diagnosis Masalah</h3>
+      <p class="rb-sub">Temuan diurutkan berdasarkan dampaknya terhadap hasil kampanye.</p>
+      <div id="diagnosisList"></div>
+    </div>
+
+    <div class="result-block">
+      <h3>Rekomendasi Aksi</h3>
+      <p class="rb-sub">Format Apa – Kenapa – Cara, diurutkan berdasarkan prioritas.</p>
+      <div id="recoList"></div>
+    </div>
+
+    <div class="result-block" id="blockSim" hidden>
+      <h3>Simulasi &amp; Realokasi Budget</h3>
+      <p class="rb-sub">Perhitungan lurus berbasis angka Anda saat ini. Bukan prediksi, bukan jaminan hasil.</p>
+      <div id="simList"></div>
+    </div>
+
+    <div class="disclaimer">
+      <b>Disclaimer.</b> Tool ini adalah alat analisis dan rekomendasi awal, <b>bukan pengganti evaluasi bisnis maupun data Meta Ads Manager</b>. Seluruh angka dihitung dari data yang Anda masukkan menggunakan logika rule-based dan bersifat estimasi. Benchmark bawaan bukan standar resmi Meta dan bukan jaminan performa — nilainya perlu disesuaikan dengan industri, harga produk, margin, target audiens, dan periode kampanye Anda. Keputusan menaikkan, menurunkan, atau menghentikan budget tetap berada di tangan Anda.
+    </div>
+
+    <div class="tbl-actions no-print" style="margin-top:20px">
+      <button class="btn-ghost btn-sm" id="btnPrint" type="button">Cetak / Simpan PDF</button>
+      <button class="btn-ghost btn-sm" id="btnCopy" type="button">Salin Ringkasan</button>
+    </div>
+    <textarea id="copyFallback" class="sr-only" aria-hidden="true" tabindex="-1"></textarea>
+  </section>
+
+  <!-- BENCHMARK -->
+  <section id="benchmark">
+    <div class="step-head"><span class="step-badge">Referensi</span><h2>Benchmark Bawaan</h2></div>
+    <p class="step-sub">Dipakai hanya bila Anda tidak mengisi target sendiri. Selalu dapat Anda lihat dan periksa.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Tujuan</th><th>CTR link</th><th>CPM</th><th>CVR</th><th>Biaya per hasil</th><th>Frekuensi (7 hari)</th></tr></thead>
+        <tbody>
+          <tr><td><b>Penjualan</b></td><td class="num">1,0 – 1,8%</td><td class="num">Rp25.000 – 60.000</td><td class="num">1,5 – 3,0%</td><td class="num">ROAS 2,0 – 3,0</td><td class="num">≤ 2,5</td></tr>
+          <tr><td><b>Leads</b></td><td class="num">1,2 – 2,0%</td><td class="num">Rp20.000 – 50.000</td><td class="num">5 – 12%</td><td class="num">CPL Rp15.000 – 50.000</td><td class="num">≤ 2,5</td></tr>
+          <tr><td><b>Traffic</b></td><td class="num">1,5 – 3,0%</td><td class="num">Rp15.000 – 40.000</td><td class="num">—</td><td class="num">CPC Rp500 – 1.500</td><td class="num">≤ 3,0</td></tr>
+          <tr><td><b>Awareness</b></td><td class="num">0,5 – 1,2%</td><td class="num">Rp10.000 – 35.000</td><td class="num">—</td><td class="num">Frekuensi 1,5 – 2,5</td><td class="num">≤ 2,5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="bm-note"><b>Cara pemakaian:</b> untuk metrik yang makin besar makin baik (CTR, CVR, ROAS) tool memakai <b>batas bawah</b> rentang sebagai standar minimal; untuk metrik biaya yang makin kecil makin baik (CPM, CPC, CPA/CPL) tool memakai <b>batas atas</b> rentang sebagai batas wajar.</p>
+    <p class="bm-note"><b>Disclaimer benchmark.</b> Angka di atas adalah <b>estimasi internal Riki MarkeThink</b> berbasis pola umum pasar Indonesia untuk keperluan MVP. Ini <b>bukan standar resmi Meta</b> dan <b>bukan jaminan performa</b>. Nilainya sangat dipengaruhi industri, harga produk, margin, target audiens, kualitas kreatif, dan periode kampanye. Bila Anda sudah memiliki data historis sendiri, isi kolom target agar penilaian jauh lebih akurat.</p>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="step-head"><span class="step-badge">Panduan</span><h2>Cara Pakai &amp; Pertanyaan Umum</h2></div>
+    <details class="faq"><summary>Dari mana saya mengambil angka-angka ini?</summary><p>Buka Ads Manager, pilih tab <b>Ad Sets</b>, atur rentang tanggal, lalu tampilkan kolom: Amount spent (Belanja), Impressions (Impresi), Reach (Jangkauan), Link clicks (Klik tautan), Results (Hasil), dan Purchase conversion value (Nilai konversi). Salin angkanya ke tabel di atas, atau tempel langsung lewat kotak “Tempel data dari Excel”.</p></details>
+    <details class="faq"><summary>Apakah data saya aman?</summary><p>Ya. Seluruh perhitungan dijalankan di dalam browser Anda. Tidak ada data yang dikirim ke server, tidak ada login, dan tidak ada akses ke akun iklan Anda.</p></details>
+    <details class="faq"><summary>Seberapa akurat hasilnya?</summary><p>Perhitungan metrik bersifat pasti karena memakai rumus standar. Yang bersifat estimasi adalah <b>penilaiannya</b>: skor dan rekomendasi dibandingkan terhadap target Anda, atau benchmark bawaan bila target kosong. Karena itu hasil tool ini adalah analisis awal, bukan pengganti evaluasi bisnis Anda.</p></details>
+    <details class="faq"><summary>Bagaimana menentukan target yang realistis?</summary><p>Mulai dari margin. Bila margin kotor Anda 40%, maka break-even ROAS adalah 1 ÷ 0,4 = 2,5 — di bawah angka itu iklan Anda merugi. Target ROAS yang sehat biasanya diletakkan di atas break-even, misalnya 3,0. Untuk lead, hitung dari nilai rata-rata satu pelanggan dikalikan tingkat closing Anda.</p></details>
+    <details class="faq"><summary>Kenapa ad set saya diberi label “Data Belum Cukup”?</summary><p>Karena belum mencapai ambang minimal <b>50 klik atau 5 hasil</b>. Di bawah ambang itu, angka seperti CVR dan CPA masih sangat fluktuatif, sehingga tool sengaja tidak memberi rekomendasi Scale maupun Hentikan agar Anda tidak salah mengambil keputusan.</p></details>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-in">
+    <b>Facebook Ads Performance Analyzer</b> — bagian dari Digital Marketing Tools Lab oleh <b>Riki MarkeThink</b>, AI Marketing Strategist.<br>
+    Tool ini tidak berafiliasi dengan Meta Platforms, Inc. Nama Facebook, Instagram, dan Meta adalah merek dagang pemiliknya masing-masing.<br>
+    Analisis bersifat estimasi berbasis data yang Anda masukkan. Selalu verifikasi dengan data resmi di Ads Manager sebelum mengambil keputusan budget.<br>
+    <a href="https://rikiaprianto.com" target="_blank" rel="noopener">rikiaprianto.com</a> · © <span id="yearNow">2026</span> Riki Aprianto
+  </div>
+</footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ KONFIGURASI ============ */
+  var OBJ = {
+    penjualan:{
+      label:"Penjualan / Konversi", resultLabel:"Pembelian", needValue:true, needResult:true,
+      weights:{roas:.40, cpa:.25, cvr:.15, ctr:.10, freq:.10},
+      bm:{ctr:[1.0,1.8], cpm:[25000,60000], cvr:[1.5,3.0], roas:[2.0,3.0], freqIdeal:2.5},
+      targets:[{id:"roas",label:"Target ROAS",ph:"Contoh: 3"},{id:"cpa",label:"Target CPA (biaya per pembelian)",ph:"Contoh: 80.000"}]
+    },
+    leads:{
+      label:"Leads", resultLabel:"Lead", needValue:false, needResult:true,
+      weights:{cpa:.40, cvr:.20, ctr:.20, cpm:.10, freq:.10},
+      bm:{ctr:[1.2,2.0], cpm:[20000,50000], cvr:[5,12], cpa:[15000,50000], freqIdeal:2.5},
+      targets:[{id:"cpa",label:"Target CPL (biaya per lead)",ph:"Contoh: 25.000"},{id:"cvr",label:"Target CVR klik → lead (%)",ph:"Contoh: 8"}]
+    },
+    traffic:{
+      label:"Traffic ke Website", resultLabel:"Konversi lanjutan", needValue:false, needResult:false,
+      weights:{ctr:.35, cpc:.35, cpm:.20, freq:.10},
+      bm:{ctr:[1.5,3.0], cpm:[15000,40000], cpc:[500,1500], freqIdeal:3.0},
+      targets:[{id:"cpc",label:"Target CPC (biaya per klik)",ph:"Contoh: 1.000"},{id:"ctr",label:"Target CTR (%)",ph:"Contoh: 2"}]
+    },
+    awareness:{
+      label:"Awareness / Jangkauan", resultLabel:"Hasil", needValue:false, needResult:false,
+      weights:{cpm:.40, ctr:.30, freq:.30},
+      bm:{ctr:[0.5,1.2], cpm:[10000,35000], freqIdeal:2.5},
+      targets:[{id:"cpm",label:"Target CPM",ph:"Contoh: 20.000"},{id:"ctr",label:"Target CTR (%)",ph:"Contoh: 1"}]
+    }
+  };
+
+  var METRIC = {
+    roas:{label:"ROAS", dir:"up", money:false, fmt:"x"},
+    cpa:{label:"CPA / CPL", dir:"down", money:true, fmt:"money"},
+    cpc:{label:"CPC", dir:"down", money:true, fmt:"money"},
+    cpm:{label:"CPM", dir:"down", money:true, fmt:"money"},
+    ctr:{label:"CTR (link)", dir:"up", money:false, fmt:"pct"},
+    cvr:{label:"CVR", dir:"up", money:false, fmt:"pct"},
+    freq:{label:"Frekuensi", dir:"band", money:false, fmt:"dec"}
+  };
+
+  var MIN_CLICKS = 50, MIN_RESULTS = 5;
+
+  var CONTOH = [
+    ["Retargeting 30D","3000000","90000","30000","2700","54","12960000"],
+    ["Lookalike 1% Pembeli","4000000","210000","95000","2520","48","10560000"],
+    ["Broad 18-45 Minat Luas","5000000","400000","220000","3200","20","3800000"],
+    ["Interest Skincare (baru)","400000","9000","5000","38","2","420000"]
+  ];
+
+  /* ============ UTIL ============ */
+  var $ = function(id){ return document.getElementById(id); };
+  var state = { currency:"IDR", result:null };
+
+  function parseNum(raw){
+    if(raw === null || raw === undefined) return NaN;
+    var s = String(raw).trim();
+    if(!s) return NaN;
+    s = s.replace(/[^\d.,\-]/g,"");
+    if(!s || s === "-") return NaN;
+    var hasDot = s.indexOf(".") > -1, hasComma = s.indexOf(",") > -1;
+    if(hasDot && hasComma){
+      if(s.lastIndexOf(",") > s.lastIndexOf(".")) s = s.replace(/\./g,"").replace(",",".");
+      else s = s.replace(/,/g,"");
+    } else if(hasComma){
+      var pc = s.split(",");
+      if(pc.length > 2) s = s.replace(/,/g,"");
+      else if(pc[1] && pc[1].length === 3 && pc[0].length <= 3) s = s.replace(/,/g,"");
+      else s = s.replace(",",".");
+    } else if(hasDot){
+      var pd = s.split(".");
+      if(pd.length > 2 || (pd.length === 2 && pd[1].length === 3)) s = s.replace(/\./g,"");
+    }
+    var n = parseFloat(s);
+    return isFinite(n) ? n : NaN;
+  }
+  function nf(n, dec){
+    if(n === null || n === undefined || !isFinite(n)) return "—";
+    return new Intl.NumberFormat("id-ID",{minimumFractionDigits:dec||0, maximumFractionDigits:dec||0}).format(n);
+  }
+  function money(n){
+    if(n === null || n === undefined || !isFinite(n)) return "—";
+    if(state.currency === "USD") return "$" + nf(n,2);
+    return "Rp" + nf(Math.round(n),0);
+  }
+  function pct(n,d){ return (n===null||n===undefined||!isFinite(n)) ? "—" : nf(n, d===undefined?2:d) + "%"; }
+  function fmtMetric(key, v){
+    if(v === null || v === undefined || !isFinite(v)) return "—";
+    var m = METRIC[key];
+    if(m.fmt === "money") return money(v);
+    if(m.fmt === "pct") return pct(v);
+    if(m.fmt === "x") return nf(v,2) + "×";
+    return nf(v,2);
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function toast(msg){
+    var t = $("toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(t._tm); t._tm = setTimeout(function(){ t.hidden = true; }, 2600);
+  }
+
+  /* ============ TABEL INPUT ============ */
+  var FIELDS = ["name","spend","imp","reach","clicks","results","value"];
+  var PLACEH = {name:"Nama ad set", spend:"0", imp:"0", reach:"0", clicks:"0", results:"0", value:"0"};
+
+  function addRow(vals){
+    var tb = $("inputBody");
+    var tr = document.createElement("tr");
+    var html = "";
+    for(var i=0;i<FIELDS.length;i++){
+      var f = FIELDS[i];
+      var v = vals && vals[i] !== undefined ? esc(vals[i]) : "";
+      var cls = f === "name" ? "col-name" : "col-num";
+      var mode = f === "name" ? "text" : "numeric";
+      html += '<td class="'+cls+'" data-f="'+f+'"><input type="text" inputmode="'+mode+'" value="'+v+'" placeholder="'+PLACEH[f]+'" aria-label="'+f+'"></td>';
+    }
+    html += '<td><button class="btn-icon" type="button" title="Hapus baris" aria-label="Hapus baris">×</button></td>';
+    tr.innerHTML = html;
+    tr.querySelector(".btn-icon").addEventListener("click", function(){
+      tr.remove();
+      if(!$("inputBody").children.length) addRow();
+      updateNote();
+    });
+    var ins = tr.querySelectorAll("input");
+    for(var k=0;k<ins.length;k++) ins[k].addEventListener("input", function(){ updateNote(); });
+    tb.appendChild(tr);
+    return tr;
+  }
+
+  function readRows(){
+    var out = [], trs = $("inputBody").children;
+    for(var i=0;i<trs.length;i++){
+      var tds = trs[i].querySelectorAll("td[data-f]");
+      var o = {el:trs[i], idx:i};
+      var empty = true;
+      for(var j=0;j<tds.length;j++){
+        var f = tds[j].getAttribute("data-f");
+        var raw = tds[j].querySelector("input").value.trim();
+        tds[j].classList.remove("err");
+        if(raw) empty = false;
+        o[f] = f === "name" ? raw : parseNum(raw);
+        o[f+"_raw"] = raw;
+      }
+      if(empty) continue;
+      if(!o.name) o.name = "Ad Set " + (i+1);
+      out.push(o);
+    }
+    return out;
+  }
+  function markErr(row, field){
+    var td = row.el.querySelector('td[data-f="'+field+'"]');
+    if(td) td.classList.add("err");
+  }
+  function updateNote(){
+    var n = readRows().length;
+    $("actionNote").textContent = n ? (n + " ad set siap dianalisis.") : "Isi minimal satu ad set untuk mulai menganalisis.";
+  }
+
+  /* ============ VALIDASI ============ */
+  function validate(rows, conf){
+    var errs = [], warns = [];
+    if(!rows.length) errs.push("Belum ada data ad set yang diisi. Tambahkan minimal satu baris, atau klik “Isi data contoh”.");
+    for(var i=0;i<rows.length;i++){
+      var r = rows[i], nm = r.name;
+      function bad(f, msg){ markErr(r, f); errs.push("<b>" + esc(nm) + "</b> — " + msg); }
+      if(!isFinite(r.spend) || r.spend <= 0) bad("spend","belanja iklan wajib diisi dan harus lebih besar dari 0.");
+      if(!isFinite(r.imp) || r.imp <= 0) bad("imp","impresi wajib diisi dan harus lebih besar dari 0.");
+      if(!isFinite(r.clicks) || r.clicks < 0) bad("clicks","klik tautan wajib diisi (boleh 0).");
+      if(conf.needResult && (!isFinite(r.results) || r.results < 0)) bad("results","hasil wajib diisi untuk tujuan " + conf.label + " (boleh 0).");
+      if(conf.needValue && (!isFinite(r.value) || r.value < 0)) bad("value","nilai konversi wajib diisi untuk tujuan Penjualan — tanpa angka ini ROAS tidak bisa dihitung.");
+      if(isFinite(r.reach) && isFinite(r.imp) && r.reach > r.imp) bad("reach","jangkauan tidak boleh lebih besar dari impresi. Periksa kembali kolom Reach.");
+      if(isFinite(r.clicks) && isFinite(r.imp) && r.clicks > r.imp) bad("clicks","klik tautan tidak boleh lebih besar dari impresi.");
+      if(isFinite(r.results) && isFinite(r.clicks) && r.results > r.clicks && r.clicks > 0)
+        warns.push("<b>" + esc(nm) + "</b> — hasil lebih banyak dari klik tautan. Ini mungkin terjadi karena konversi view-through, tetapi periksa kembali angkanya.");
+    }
+    return {errs:errs, warns:warns};
+  }
+
+  /* ============ PERHITUNGAN ============ */
+  function calc(r, conf){
+    var m = {};
+    m.spend = r.spend; m.imp = r.imp;
+    m.reach = isFinite(r.reach) && r.reach > 0 ? r.reach : null;
+    m.clicks = isFinite(r.clicks) ? r.clicks : 0;
+    m.results = isFinite(r.results) ? r.results : null;
+    m.value = (conf.needValue && isFinite(r.value)) ? r.value : null;
+    m.ctr = m.imp > 0 ? m.clicks / m.imp * 100 : null;
+    m.cpc = m.clicks > 0 ? m.spend / m.clicks : Infinity;
+    m.cpm = m.imp > 0 ? m.spend / m.imp * 1000 : null;
+    m.freq = m.reach ? m.imp / m.reach : null;
+    m.cvr = (m.clicks > 0 && m.results !== null) ? m.results / m.clicks * 100 : null;
+    m.cpa = (m.results !== null) ? (m.results > 0 ? m.spend / m.results : Infinity) : null;
+    m.roas = (m.value !== null && m.spend > 0) ? m.value / m.spend : null;
+    m.aov = (m.value !== null && m.results) ? m.value / m.results : null;
+    return m;
+  }
+  function aggregate(rows, conf){
+    var t = {spend:0, imp:0, reach:0, clicks:0, results:0, value:0, hasReach:true, hasResults:conf.needResult, hasValue:conf.needValue};
+    for(var i=0;i<rows.length;i++){
+      var r = rows[i];
+      t.spend += r.spend; t.imp += r.imp; t.clicks += isFinite(r.clicks) ? r.clicks : 0;
+      if(isFinite(r.reach) && r.reach > 0) t.reach += r.reach; else t.hasReach = false;
+      if(isFinite(r.results)) t.results += r.results;
+      if(isFinite(r.value)) t.value += r.value;
+    }
+    return calc({spend:t.spend, imp:t.imp, reach:t.hasReach ? t.reach : NaN, clicks:t.clicks,
+                 results:conf.needResult || t.results > 0 ? t.results : NaN,
+                 value:t.value > 0 ? t.value : NaN}, conf);
+  }
+
+  function scoreFromRatio(r){
+    if(!isFinite(r) || r < 0) r = 0;
+    if(r >= 1.5) return 100;
+    if(r >= 1.0) return 80 + 40*(r-1);
+    if(r >= 0.7) return 50 + 100*(r-0.7);
+    if(r >= 0.4) return 20 + 100*(r-0.4);
+    return 50*r;
+  }
+  function scoreFreq(f, ideal){
+    if(f <= ideal) return 100;
+    if(f <= ideal + 1) return 100 - 40*(f-ideal);
+    return Math.max(0, 60 - 20*(f - (ideal+1)));
+  }
+
+  /* pembanding: target pengguna > benchmark bawaan */
+  function comparators(conf, targets){
+    var out = {}, bm = conf.bm;
+    var keys = Object.keys(conf.weights);
+    for(var i=0;i<keys.length;i++){
+      var k = keys[i], val = null, src = null;
+      if(targets[k] !== null && targets[k] !== undefined && isFinite(targets[k]) && targets[k] > 0){
+        val = targets[k]; src = "target";
+      } else if(k === "freq"){
+        val = bm.freqIdeal; src = "benchmark";
+      } else if(bm[k]){
+        var money = METRIC[k].money;
+        if(money && state.currency === "USD"){ val = null; src = "none"; }
+        else { val = METRIC[k].dir === "up" ? bm[k][0] : bm[k][1]; src = "benchmark"; }
+      } else { val = null; src = "none"; }
+      out[k] = {value:val, source:src};
+    }
+    return out;
+  }
+
+  function scoreSet(m, conf, cmp){
+    var rowsOut = [], notes = [], totalW = 0;
+    var keys = Object.keys(conf.weights);
+    for(var i=0;i<keys.length;i++){
+      var k = keys[i], w = conf.weights[k], c = cmp[k], v = m[k], sc = null, ratio = null, reason = "";
+      if(!c || c.value === null){
+        reason = state.currency === "USD" && METRIC[k].money
+          ? "Tidak dinilai — benchmark biaya hanya tersedia dalam Rupiah. Isi target Anda untuk menilai metrik ini."
+          : "Tidak dinilai — pembanding tidak tersedia.";
+      } else if(v === null || v === undefined){
+        reason = k === "freq" ? "Tidak dinilai — kolom jangkauan kosong." : "Tidak dinilai — data pendukung belum lengkap.";
+      } else if(k === "freq"){
+        sc = scoreFreq(v, c.value);
+      } else if(METRIC[k].dir === "up"){
+        ratio = v / c.value; sc = scoreFromRatio(ratio);
+      } else {
+        ratio = isFinite(v) && v > 0 ? c.value / v : 0; sc = scoreFromRatio(ratio);
+      }
+      if(sc !== null) totalW += w;
+      rowsOut.push({key:k, label:METRIC[k].label, value:v, cmp:c, weight:w, score:sc, ratio:ratio, reason:reason});
+    }
+    var total = 0;
+    for(var j=0;j<rowsOut.length;j++){
+      var ro = rowsOut[j];
+      ro.normWeight = ro.score === null ? 0 : (totalW > 0 ? ro.weight/totalW : 0);
+      ro.contribution = ro.score === null ? 0 : ro.score * ro.normWeight;
+      total += ro.contribution;
+    }
+    if(totalW === 0) notes.push("Tidak ada metrik yang bisa dinilai dengan data dan pembanding saat ini.");
+    else if(totalW < 0.999) notes.push("Sebagian metrik tidak dapat dinilai, sehingga bobotnya dibagi ulang secara proporsional ke metrik yang tersedia.");
+    return {rows:rowsOut, total:totalW > 0 ? total : null, notes:notes, coverage:totalW};
+  }
+
+  function statusOf(s){
+    if(s === null) return {label:"Belum Dapat Dinilai", cls:"b-neutral", tone:"neutral"};
+    if(s >= 80) return {label:"Sangat Baik", cls:"b-ok", tone:"ok"};
+    if(s >= 65) return {label:"Baik", cls:"b-ok", tone:"ok"};
+    if(s >= 50) return {label:"Perlu Optimasi", cls:"b-warn", tone:"warn"};
+    if(s >= 30) return {label:"Bermasalah", cls:"b-bad", tone:"bad"};
+    return {label:"Kritis", cls:"b-bad", tone:"bad"};
+  }
+  function toneColor(tone){
+    return tone === "ok" ? "var(--ok)" : tone === "warn" ? "var(--warn)" : tone === "bad" ? "var(--bad)" : "var(--neutral)";
+  }
+  function sufficient(m){
+    return (m.clicks >= MIN_CLICKS) || (m.results !== null && m.results >= MIN_RESULTS);
+  }
+
+  /* ============ ANALISIS ============ */
+  function analyze(){
+    var objKey = $("objective").value, conf = OBJ[objKey];
+    state.currency = $("currency").value;
+    var rows = readRows();
+    var v = validate(rows, conf);
+    renderMsgs(v.errs, v.warns);
+    if(v.errs.length){
+      $("hasil").hidden = true;
+      document.getElementById("data").scrollIntoView({behavior:"smooth", block:"start"});
+      return;
+    }
+
+    var margin = parseNum($("margin").value);
+    var hasMargin = isFinite(margin) && margin > 0 && margin <= 100;
+    var beRoas = hasMargin ? 1/(margin/100) : null;
+
+    var targets = {};
+    for(var i=0;i<conf.targets.length;i++){
+      var t = conf.targets[i], val = parseNum($(i === 0 ? "target1" : "target2").value);
+      targets[t.id] = isFinite(val) && val > 0 ? val : null;
+    }
+    var cmp = comparators(conf, targets);
+
+    var acc = aggregate(rows, conf);
+    var accScore = scoreSet(acc, conf, cmp);
+    if(!sufficient(acc)) accScore.notes.unshift("Total data akun masih di bawah ambang " + MIN_CLICKS + " klik atau " + MIN_RESULTS +
+      " hasil. Perlakukan skor ini sebagai indikasi awal, bukan kesimpulan final.");
+
+    var items = [];
+    for(var j=0;j<rows.length;j++){
+      var m = calc(rows[j], conf);
+      var s = scoreSet(m, conf, cmp);
+      var it = {name:rows[j].name, m:m, score:s.total, detail:s, share:acc.spend > 0 ? rows[j].spend/acc.spend*100 : 0};
+      it.enough = sufficient(m);
+      items.push(it);
+    }
+    // verdict
+    for(var k=0;k<items.length;k++) items[k].verdict = verdictOf(items[k], conf, beRoas, cmp, targets);
+
+    var profit = null;
+    if(objKey === "penjualan" && hasMargin && acc.value !== null){
+      profit = acc.value*(margin/100) - acc.spend;
+    }
+
+    state.result = {
+      objKey:objKey, conf:conf, acc:acc, accScore:accScore, items:items, cmp:cmp, targets:targets,
+      margin:hasMargin ? margin : null, beRoas:beRoas, profit:profit,
+      kategori:$("kategori").value, periode:parseNum($("periode").value) || 7
+    };
+    state.result.diag = diagnose(state.result);
+    render(state.result);
+    $("hasil").hidden = false;
+    $("hasil").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  function verdictOf(it, conf, beRoas, cmp, targets){
+    var m = it.m;
+    if(!it.enough){
+      return {label:"Data Belum Cukup", cls:"b-neutral",
+        why:"Baru " + nf(m.clicks) + " klik" + (m.results !== null ? " dan " + nf(m.results) + " hasil" : "") +
+            ". Ambang minimal " + MIN_CLICKS + " klik atau " + MIN_RESULTS + " hasil belum terpenuhi, jadi belum ada rekomendasi Scale maupun Hentikan."};
+    }
+    var tCpa = targets.cpa || (conf.bm.cpa ? conf.bm.cpa[1] : null);
+    if(m.results === 0 && tCpa && m.spend > 3*tCpa){
+      return {label:"Pertimbangkan Hentikan / Evaluasi Lanjutan", cls:"b-bad",
+        why:"Belanja sudah " + money(m.spend) + " tanpa satu pun hasil, melebihi 3× acuan biaya per hasil (" + money(tCpa) + ")."};
+    }
+    var s = it.score;
+    if(s === null) return {label:"Belum Dapat Dinilai", cls:"b-neutral", why:"Pembanding untuk metrik utama belum tersedia."};
+    if(s >= 75){
+      if(conf.needValue && beRoas !== null && m.roas !== null && m.roas < beRoas){
+        return {label:"Optimasi", cls:"b-warn",
+          why:"Skor " + nf(s) + " tergolong tinggi, tetapi ROAS " + nf(m.roas,2) + "× masih di bawah break-even " + nf(beRoas,2) + "×. Scale ditahan sampai ROAS menutup biaya."};
+      }
+      var note = (conf.needValue && beRoas === null) ? " Catatan: break-even belum diketahui karena margin kotor belum diisi." : "";
+      return {label:"Scale", cls:"b-ok", why:"Skor " + nf(s) + " dengan data yang sudah memadai — termasuk ad set paling efisien di akun ini." + note};
+    }
+    if(s >= 50) return {label:"Optimasi", cls:"b-warn", why:"Skor " + nf(s) + ". Ada metrik yang belum memenuhi pembanding — perbaiki sebelum menambah budget."};
+    return {label:"Pertimbangkan Hentikan / Evaluasi Lanjutan", cls:"b-bad",
+      why:"Skor " + nf(s) + ". Performa jauh di bawah pembanding. Evaluasi kreatif, audiens, dan penawaran sebelum melanjutkan belanja."};
+  }
+
+  /* ============ DIAGNOSIS ============ */
+  function diagnose(R){
+    var d = [], m = R.acc, c = R.cmp, conf = R.conf;
+    function cv(k){ return c[k] && c[k].value !== null ? c[k].value : null; }
+    var ctrC = cv("ctr"), cvrC = cv("cvr"), cpmC = cv("cpm");
+
+    if(ctrC && m.ctr !== null && m.ctr < 0.6*ctrC && (!cpmC || m.cpm <= 1.2*cpmC)){
+      d.push({code:"D1", prio:"Tinggi", title:"Kreatif atau audiens belum menarik perhatian",
+        why:"CTR akun " + pct(m.ctr) + ", jauh di bawah pembanding " + pct(ctrC) + ", sementara CPM masih wajar. Artinya iklan Anda tampil normal tetapi tidak diklik.",
+        how:"Uji 3 hook baru pada 3 detik pertama, ganti visual utama, dan pertajam relevansi audiens dengan produk."});
+    }
+    if(ctrC && cvrC && m.ctr !== null && m.cvr !== null && m.ctr >= 0.9*ctrC && m.cvr < 0.6*cvrC){
+      d.push({code:"D2", prio:"Tinggi", title:"Kebocoran di halaman tujuan atau penawaran",
+        why:"CTR sudah baik (" + pct(m.ctr) + ") tetapi CVR hanya " + pct(m.cvr) + " dari pembanding " + pct(cvrC) + ". Orang tertarik mengklik, lalu berhenti setelah sampai.",
+        how:"Periksa kecepatan halaman, samakan pesan iklan dengan halaman tujuan, perjelas CTA, dan tambahkan bukti sosial atau garansi."});
+    }
+    if(m.freq !== null && m.freq > 3.5 && cpmC && m.cpm > cpmC){
+      d.push({code:"D3", prio:"Sedang", title:"Audiens mulai jenuh",
+        why:"Frekuensi " + nf(m.freq,2) + " disertai CPM " + money(m.cpm) + " di atas pembanding " + money(cpmC) + ". Iklan yang sama terlalu sering menerpa orang yang sama.",
+        how:"Rotasi kreatif, perluas audiens, dan kecualikan pembeli 30 hari terakhir dari penargetan."});
+    }
+    if(cpmC && m.cpm > 1.5*cpmC && (m.freq === null || m.freq <= 3)){
+      d.push({code:"D4", prio:"Sedang", title:"Biaya tayang mahal sejak awal lelang",
+        why:"CPM " + money(m.cpm) + " lebih dari 1,5× pembanding " + money(cpmC) + " padahal frekuensi masih wajar. Umumnya karena persaingan lelang atau relevansi kreatif yang rendah.",
+        how:"Uji format lain seperti video pendek atau konten gaya UGC, tinjau ulang penempatan iklan, dan pertimbangkan memperluas audiens."});
+    }
+    if(R.objKey === "penjualan"){
+      if(R.beRoas !== null && m.roas !== null && m.roas < R.beRoas){
+        d.push({code:"D5", prio:"Tinggi", title:"ROAS masih di bawah titik impas",
+          why:"ROAS akun " + nf(m.roas,2) + "× sedangkan break-even ROAS Anda " + nf(R.beRoas,2) + "× (dari margin " + nf(R.margin,0) + "%). Dengan pola ini, setiap rupiah iklan belum tertutup oleh laba kotor.",
+          how:"Naikkan AOV lewat bundling atau upsell, kurangi kedalaman diskon, atau perbaiki konversi halaman sebelum menambah budget."});
+      } else if(R.beRoas === null){
+        d.push({code:"D5", prio:"Sedang", title:"Laba belum dapat disimpulkan",
+          why:"Margin kotor belum diisi, sehingga break-even ROAS dan estimasi laba tidak dihitung. ROAS " + (m.roas !== null ? nf(m.roas,2) + "×" : "—") + " belum bisa dinyatakan untung atau rugi.",
+          how:"Isi kolom margin kotor produk di Langkah 1 agar tool dapat menghitung titik impas dan estimasi laba kotor."});
+      }
+    }
+    var best = null, worst = null;
+    for(var i=0;i<R.items.length;i++){
+      var it = R.items[i];
+      if(!it.enough || it.score === null) continue;
+      if(!best || it.score > best.score) best = it;
+      if(!worst || it.score < worst.score) worst = it;
+    }
+    if(best && best.verdict.label === "Scale" && best.share < 20){
+      d.push({code:"D6", prio:"Sedang", title:"Peluang scaling belum dimanfaatkan",
+        why:"“" + best.name + "” mendapat skor " + nf(best.score) + " tetapi hanya menyerap " + pct(best.share,1) + " dari total belanja.",
+        how:"Naikkan budget ad set ini 20–30% setiap 3 hari sambil memantau CPA agar tidak lompat setelah keluar dari fase belajar."});
+    }
+    for(var j=0;j<R.items.length;j++){
+      var x = R.items[j];
+      if(x.verdict.label.indexOf("Hentikan") === 0 || x.verdict.label.indexOf("Pertimbangkan") === 0){
+        d.push({code:"D7", prio:"Tinggi", title:"Budget terserap ad set berperforma rendah: " + x.name,
+          why:x.verdict.why + " Ad set ini menyerap " + pct(x.share,1) + " dari total belanja.",
+          how:"Hentikan sementara atau kecilkan budgetnya, lalu alihkan ke ad set dengan verdict Scale. Lakukan evaluasi lanjutan sebelum menghentikan permanen."});
+      }
+    }
+    var kurang = [];
+    for(var q=0;q<R.items.length;q++) if(!R.items[q].enough) kurang.push(R.items[q].name);
+    if(kurang.length){
+      d.push({code:"D8", prio:"Rendah", title:"Sebagian ad set belum cukup data",
+        why:"Ad set berikut belum mencapai ambang " + MIN_CLICKS + " klik atau " + MIN_RESULTS + " hasil: " + kurang.join(", ") + ".",
+        how:"Biarkan berjalan sampai ambang terpenuhi sebelum mengambil keputusan. Menilai terlalu dini berisiko mematikan ad set yang sebenarnya berpotensi."});
+    }
+    if(!d.length){
+      d.push({code:"—", prio:"Rendah", title:"Tidak ditemukan masalah besar",
+        why:"Seluruh metrik utama berada pada atau di atas pembanding yang dipakai.",
+        how:"Pertahankan struktur saat ini, siapkan kreatif cadangan untuk mengantisipasi kejenuhan audiens, dan naikkan budget bertahap."});
+    }
+    var order = {Tinggi:0, Sedang:1, Rendah:2};
+    d.sort(function(a,b){ return order[a.prio] - order[b.prio]; });
+    return d;
+  }
+
+  /* ============ RENDER ============ */
+  function renderMsgs(errs, warns){
+    var el = $("msgList"), h = "";
+    for(var i=0;i<errs.length;i++) h += '<div class="msg msg-err"><span>⚠</span><span>' + errs[i] + '</span></div>';
+    for(var j=0;j<warns.length;j++) h += '<div class="msg msg-warn"><span>!</span><span>' + warns[j] + '</span></div>';
+    el.innerHTML = h;
+  }
+
+  function gauge(score, tone){
+    var pctv = score === null ? 0 : Math.max(0, Math.min(100, score))/100;
+    var R = 78, C = Math.PI*R, off = C*(1-pctv);
+    var col = toneColor(tone);
+    return '<svg width="200" height="120" viewBox="0 0 200 120" role="img" aria-label="Skor performa ' + (score===null?"belum tersedia":nf(score)) + ' dari 100">' +
+      '<path d="M 22 108 A 78 78 0 0 1 178 108" fill="none" stroke="var(--surface-2)" stroke-width="14" stroke-linecap="round"></path>' +
+      '<path d="M 22 108 A 78 78 0 0 1 178 108" fill="none" stroke="' + col + '" stroke-width="14" stroke-linecap="round" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"></path>' +
+      '</svg>' +
+      '<div class="g-val"><div class="g-num" style="color:' + col + '">' + (score === null ? "—" : nf(score)) + '</div><div class="g-cap">Skor / 100</div></div>';
+  }
+
+  function tile(label, value, cmpHtml){
+    return '<div class="tile"><div class="t-lbl">' + esc(label) + '</div><div class="t-val">' + value + '</div><div class="t-cmp">' + (cmpHtml || "") + '</div></div>';
+  }
+
+  function deltaHtml(key, val, c, supporting){
+    if(!c || c.value === null){
+      if(supporting) return '<span class="d-mut">Metrik pendukung — tidak masuk perhitungan skor untuk tujuan ini.</span>';
+      return '<span class="d-mut">Tidak dinilai — pembanding belum tersedia.</span>';
+    }
+    if(val === null || val === undefined) return '<span class="d-mut">Data belum lengkap</span>';
+    var src = c.source === "target" ? "target Anda" : "benchmark bawaan";
+    var good, txt;
+    if(key === "freq"){
+      good = val <= c.value;
+      txt = (good ? "Dalam batas wajar " : "Di atas batas ") + nf(c.value,1) + " (" + src + ")";
+      return '<span class="' + (good ? "d-ok" : "d-bad") + '">' + txt + '</span>';
+    }
+    if(!isFinite(val)) return '<span class="d-bad">Belum ada hasil — dinilai 0</span>';
+    if(METRIC[key].dir === "up"){
+      var d1 = val/c.value - 1;
+      good = d1 >= 0;
+      txt = (good ? "+" : "−") + nf(Math.abs(d1*100),0) + "% " + (good ? "di atas" : "di bawah") + " " + fmtMetric(key, c.value) + " (" + src + ")";
+    } else {
+      var d2 = val/c.value - 1;
+      good = d2 <= 0;
+      txt = nf(Math.abs(d2*100),0) + "% " + (good ? "lebih hemat dari" : "lebih mahal dari") + " " + fmtMetric(key, c.value) + " (" + src + ")";
+    }
+    return '<span class="t-delta ' + (good ? "d-ok" : "d-bad") + '">' + txt + '</span>';
+  }
+
+  function render(R){
+    var conf = R.conf, acc = R.acc, sc = R.accScore;
+    var st = statusOf(sc.total);
+
+    $("hasilMeta").textContent = "Tujuan " + conf.label + " · " + R.kategori + " · " + R.items.length +
+      " ad set · periode " + nf(R.periode) + " hari · total belanja " + money(acc.spend) + ".";
+
+    $("gauge").innerHTML = gauge(sc.total, st.tone);
+    $("statusLabel").innerHTML = 'Status akun: <span class="badge ' + st.cls + '"><span class="dot"></span>' + st.label + '</span>';
+    $("summaryText").innerHTML = summary(R, st);
+
+    // panel penjualan
+    if(R.objKey === "penjualan"){
+      $("blockProfit").hidden = false;
+      var h = "";
+      h += tile("ROAS akun", fmtMetric("roas", acc.roas), deltaHtml("roas", acc.roas, R.cmp.roas));
+      if(R.beRoas !== null){
+        var okBe = acc.roas !== null && acc.roas >= R.beRoas;
+        h += tile("Break-even ROAS", nf(R.beRoas,2) + "×",
+          '<span class="' + (okBe ? "d-ok" : "d-bad") + '">' + (okBe ? "ROAS sudah menutup biaya" : "ROAS masih di bawah titik impas") +
+          '</span> · dari margin ' + nf(R.margin,0) + '%');
+        var pr = R.profit;
+        h += tile("Estimasi laba kotor", (pr >= 0 ? "" : "−") + money(Math.abs(pr)),
+          '<span class="' + (pr >= 0 ? "d-ok" : "d-bad") + '">' + (pr >= 0 ? "Estimasi surplus" : "Estimasi defisit") +
+          '</span> · (omzet × margin) − belanja. Belum menghitung biaya operasional lain.');
+      } else {
+        h += tile("Break-even ROAS", "Butuh margin",
+          '<span class="d-mut">Isi margin kotor produk di Langkah 1 agar titik impas dapat dihitung.</span>');
+        h += tile("Estimasi laba kotor", "Butuh margin",
+          '<span class="d-mut">Tanpa margin kotor, tool tidak menyimpulkan untung atau rugi.</span>');
+      }
+      $("profitTiles").innerHTML = h;
+    } else {
+      $("blockProfit").hidden = true;
+    }
+
+    // metrik utama
+    var order = Object.keys(conf.weights);
+    var extra = ["ctr","cpc","cpm","freq","cvr","cpa"];
+    var shown = [], seen = {};
+    for(var i=0;i<order.length;i++){ if(!seen[order[i]]){ shown.push(order[i]); seen[order[i]] = true; } }
+    for(var j=0;j<extra.length;j++){ if(!seen[extra[j]] && acc[extra[j]] !== null && acc[extra[j]] !== undefined){ shown.push(extra[j]); seen[extra[j]] = true; } }
+    var th = "";
+    for(var k=0;k<shown.length;k++){
+      var key = shown[k];
+      if(key === "roas" && R.objKey === "penjualan") continue;
+      var isSupport = !conf.weights[key];
+      th += tile(METRIC[key].label + (isSupport ? " (pendukung)" : ""), fmtMetric(key, acc[key]), deltaHtml(key, acc[key], R.cmp[key], isSupport));
+    }
+    th += tile("Total belanja", money(acc.spend), nf(acc.clicks) + " klik · " + nf(acc.imp) + " impresi" + (acc.results !== null ? " · " + nf(acc.results) + " hasil" : ""));
+    $("metricTiles").innerHTML = th;
+    $("tilesSub").textContent = "Angka gabungan seluruh ad set, dibandingkan dengan target Anda bila diisi, atau benchmark bawaan bila kosong." +
+      (acc.freq !== null ? " Frekuensi gabungan bersifat indikatif karena jangkauan antar ad set bisa saling tumpang tindih." : "");
+
+    // transparansi skor
+    var sh = '<thead><tr><th>Metrik</th><th>Nilai akun</th><th>Pembanding</th><th>Sumber</th><th>Bobot dipakai</th><th>Skor metrik</th><th>Kontribusi</th></tr></thead><tbody>';
+    for(var s=0;s<sc.rows.length;s++){
+      var ro = sc.rows[s];
+      var src = ro.score === null ? "—" : (ro.cmp.source === "target" ? "Target Anda" : "Benchmark bawaan");
+      sh += '<tr>' +
+        '<td data-label="Metrik"><b>' + ro.label + '</b></td>' +
+        '<td data-label="Nilai akun" class="num">' + (ro.score === null ? "—" : fmtMetric(ro.key, ro.value)) + '</td>' +
+        '<td data-label="Pembanding" class="num">' + (ro.cmp.value !== null ? fmtMetric(ro.key, ro.cmp.value) : "—") + '</td>' +
+        '<td data-label="Sumber">' + src + '</td>' +
+        '<td data-label="Bobot dipakai" class="num">' + (ro.score === null ? '<span class="badge b-neutral">Tidak dipakai</span>' : nf(ro.normWeight*100,0) + "%") + '</td>' +
+        '<td data-label="Skor metrik" class="num">' + (ro.score === null ? "—" : nf(ro.score)) + '</td>' +
+        '<td data-label="Kontribusi" class="num">' + (ro.score === null ? '<span style="color:var(--ink-3)">' + esc(ro.reason) + '</span>' : nf(ro.contribution,1)) + '</td>' +
+      '</tr>';
+    }
+    sh += '<tr><td data-label="Metrik"><b>Skor total</b></td><td data-label="Nilai akun"></td><td data-label="Pembanding"></td><td data-label="Sumber"></td><td data-label="Bobot dipakai" class="num"><b>100%</b></td><td data-label="Skor metrik"></td><td data-label="Kontribusi" class="num"><b>' + (sc.total === null ? "—" : nf(sc.total,1)) + '</b></td></tr>';
+    sh += '</tbody>';
+    $("scoreTable").innerHTML = sh;
+    var nh = "";
+    for(var n=0;n<sc.notes.length;n++) nh += '<div class="msg msg-info" style="margin-top:10px">' + esc(sc.notes[n]) + '</div>';
+    $("scoreNotes").innerHTML = nh;
+
+    // tabel ad set
+    var needV = conf.needValue;
+    var ah = '<thead><tr><th>Ad set</th><th>Belanja</th><th>Share</th><th>CTR</th><th>CPC</th><th>CPM</th><th>Frek.</th><th>CVR</th><th>' +
+      (needV ? "CPA" : "Biaya/hasil") + '</th>' + (needV ? '<th>ROAS</th>' : '') + '<th>Skor</th><th>Verdict</th></tr></thead><tbody>';
+    var sorted = R.items.slice().sort(function(a,b){
+      var as = a.score === null ? -1 : a.score, bs = b.score === null ? -1 : b.score; return bs - as;
+    });
+    for(var t=0;t<sorted.length;t++){
+      var it = sorted[t], m = it.m;
+      ah += '<tr>' +
+        '<td data-label="Ad set"><b>' + esc(it.name) + '</b></td>' +
+        '<td data-label="Belanja" class="num">' + money(m.spend) + '</td>' +
+        '<td data-label="Share" class="num">' + pct(it.share,1) + '<div class="share-bar"><i style="width:' + Math.max(2, Math.min(100, it.share)).toFixed(1) + '%"></i></div></td>' +
+        '<td data-label="CTR" class="num">' + fmtMetric("ctr", m.ctr) + '</td>' +
+        '<td data-label="CPC" class="num">' + (isFinite(m.cpc) ? money(m.cpc) : "—") + '</td>' +
+        '<td data-label="CPM" class="num">' + money(m.cpm) + '</td>' +
+        '<td data-label="Frekuensi" class="num">' + (m.freq !== null ? nf(m.freq,2) : "—") + '</td>' +
+        '<td data-label="CVR" class="num">' + fmtMetric("cvr", m.cvr) + '</td>' +
+        '<td data-label="Biaya per hasil" class="num">' + (m.cpa === null ? "—" : (isFinite(m.cpa) ? money(m.cpa) : "Tanpa hasil")) + '</td>' +
+        (needV ? '<td data-label="ROAS" class="num">' + fmtMetric("roas", m.roas) + '</td>' : '') +
+        '<td data-label="Skor" class="num"><b>' + (it.score === null ? "—" : nf(it.score)) + '</b></td>' +
+        '<td data-label="Verdict"><span class="badge ' + it.verdict.cls + '"><span class="dot"></span>' + it.verdict.label + '</span>' +
+          '<div style="font-size:12.5px;color:var(--ink-3);margin-top:5px;max-width:34ch;text-align:left">' + esc(it.verdict.why) + '</div></td>' +
+      '</tr>';
+    }
+    ah += '</tbody>';
+    $("adsetTable").innerHTML = ah;
+
+    // diagnosis (3 utama + lainnya)
+    var dl = "", d = R.diag;
+    for(var q=0;q<Math.min(3, d.length);q++) dl += findingHtml(d[q], true);
+    if(d.length > 3){
+      dl += '<details class="paste" style="margin-top:6px"><summary>Lihat ' + (d.length-3) + ' temuan lainnya</summary><div style="margin-top:12px">';
+      for(var w=3;w<d.length;w++) dl += findingHtml(d[w], true);
+      dl += '</div></details>';
+    }
+    $("diagnosisList").innerHTML = dl;
+
+    // rekomendasi
+    var rl = "";
+    for(var r2=0;r2<d.length;r2++){
+      var x = d[r2];
+      rl += '<div class="finding p-' + x.prio.toLowerCase() + '">' +
+        '<h4><span class="badge ' + (x.prio === "Tinggi" ? "b-bad" : x.prio === "Sedang" ? "b-warn" : "b-ok") + '"><span class="dot"></span>Prioritas ' + x.prio + '</span> ' + esc(x.title) + '</h4>' +
+        '<p><b>Kenapa:</b> ' + x.why + '</p><p><b>Cara:</b> ' + x.how + '</p></div>';
+    }
+    $("recoList").innerHTML = rl;
+
+    // simulasi & realokasi
+    renderSim(R);
+  }
+
+  function findingHtml(x, withHow){
+    return '<div class="finding p-' + x.prio.toLowerCase() + '">' +
+      '<h4><span class="f-code">' + x.code + '</span> ' + esc(x.title) + ' <span class="badge ' + (x.prio === "Tinggi" ? "b-bad" : x.prio === "Sedang" ? "b-warn" : "b-ok") + '"><span class="dot"></span>' + x.prio + '</span></h4>' +
+      '<p>' + x.why + '</p>' + (withHow ? '' : '') + '</div>';
+  }
+
+  function renderSim(R){
+    var out = "", acc = R.acc, c = R.cmp;
+    if(c.cvr && c.cvr.value !== null && acc.cvr !== null && acc.cvr < c.cvr.value && acc.clicks > 0){
+      var newRes = acc.clicks * (c.cvr.value/100);
+      var newCpa = newRes > 0 ? acc.spend/newRes : null;
+      var txt = "Dengan jumlah klik yang sama (" + nf(acc.clicks) + ") dan CVR naik dari " + pct(acc.cvr) + " ke pembanding " + pct(c.cvr.value) +
+        ", hasil berpotensi menjadi " + nf(newRes,0) + " (kini " + nf(acc.results) + ") dan biaya per hasil turun ke sekitar " + money(newCpa) + ".";
+      if(R.objKey === "penjualan" && acc.aov){
+        var newVal = newRes * acc.aov;
+        txt += " Dengan AOV saat ini " + money(acc.aov) + ", ROAS berpotensi menjadi " + nf(newVal/acc.spend,2) + "×.";
+      }
+      out += '<div class="finding p-sedang"><h4>Simulasi perbaikan konversi</h4><p>' + txt + '</p>' +
+        '<p style="color:var(--ink-3)">Perhitungan lurus, mengasumsikan kualitas trafik tidak berubah. Bukan prediksi.</p></div>';
+    }
+    var best = null, worst = null;
+    for(var i=0;i<R.items.length;i++){
+      var it = R.items[i];
+      if(!it.enough || it.score === null) continue;
+      if(!best || it.score > best.score) best = it;
+      if(!worst || it.score < worst.score) worst = it;
+    }
+    if(best && worst && best !== worst && worst.score < 50 && best.score >= 65){
+      var geser = worst.score < 30 ? 50 : 30;
+      var nominal = worst.m.spend * (geser/100);
+      out += '<div class="finding p-tinggi"><h4>Saran realokasi budget</h4>' +
+        '<p>Pertimbangkan menggeser sekitar <b>' + geser + '%</b> belanja dari <b>' + esc(worst.name) + '</b> (skor ' + nf(worst.score) + ') ke <b>' + esc(best.name) + '</b> (skor ' + nf(best.score) + ') — setara ' + money(nominal) + ' pada periode yang sama.</p>' +
+        '<p style="color:var(--ink-3)">Simulasi, bukan jaminan. Lakukan bertahap dan pantau CPA selama 3 hari setelah perubahan agar ad set penerima tidak keluar dari fase stabil.</p></div>';
+    }
+    if(out){ $("blockSim").hidden = false; $("simList").innerHTML = out; }
+    else { $("blockSim").hidden = true; $("simList").innerHTML = ""; }
+  }
+
+  function summary(R, st){
+    var acc = R.acc, conf = R.conf, s = R.accScore.total, p = [];
+    var head = "Dari " + R.items.length + " ad set dengan total belanja " + money(acc.spend) + ", skor performa akun Anda " +
+      (s === null ? "belum dapat dihitung karena pembanding belum tersedia." : nf(s) + " dari 100 (" + st.label.toLowerCase() + ").");
+    p.push(head);
+
+    if(R.objKey === "penjualan"){
+      if(acc.roas !== null){
+        if(R.beRoas !== null){
+          if(acc.roas < R.beRoas){
+            p.push("ROAS akun <b>" + nf(acc.roas,2) + "×</b> masih di bawah break-even <b>" + nf(R.beRoas,2) + "×</b>. Dengan margin " + nf(R.margin,0) +
+              "%, estimasi laba kotornya <b>−" + money(Math.abs(R.profit)) + "</b> — artinya kampanye ini terlihat berjalan, tetapi belum menutup biayanya. Perbaikan paling berdampak ada di nilai transaksi dan konversi, bukan sekadar menambah budget.");
+          } else {
+            p.push("ROAS akun <b>" + nf(acc.roas,2) + "×</b> sudah melewati break-even <b>" + nf(R.beRoas,2) + "×</b>, dengan estimasi laba kotor <b>" + money(R.profit) +
+              "</b>. Fokus berikutnya adalah menambah budget secara bertahap pada ad set terbaik tanpa merusak efisiensi.");
+          }
+        } else {
+          p.push("ROAS akun <b>" + nf(acc.roas,2) + "×</b>. Karena margin kotor belum diisi, tool tidak menyimpulkan untung atau rugi — <b>isi margin di Langkah 1</b> agar break-even ROAS dan estimasi laba kotor dapat dihitung.");
+        }
+      }
+    } else if(conf.needResult && acc.cpa !== null){
+      p.push("Biaya per hasil akun " + (isFinite(acc.cpa) ? "<b>" + money(acc.cpa) + "</b>" : "belum terbentuk karena belum ada hasil") +
+        " dari " + nf(acc.results) + " hasil dan " + nf(acc.clicks) + " klik.");
+    } else {
+      p.push("CTR akun <b>" + pct(acc.ctr) + "</b> dengan CPM <b>" + money(acc.cpm) + "</b> dari " + nf(acc.imp) + " impresi.");
+    }
+
+    var top = R.diag && R.diag.length ? R.diag[0] : null;
+    if(top && top.code !== "—") p.push("Temuan utama — <b>" + esc(top.title) + ".</b> " + top.why);
+
+    var nScale = 0, nStop = 0, nCukup = 0;
+    for(var i=0;i<R.items.length;i++){
+      var v = R.items[i].verdict.label;
+      if(v === "Scale") nScale++;
+      else if(v.indexOf("Pertimbangkan") === 0) nStop++;
+      else if(v === "Data Belum Cukup") nCukup++;
+    }
+    var vs = [];
+    if(nScale) vs.push("<b>" + nScale + "</b> ad set layak ditambah budget");
+    if(nStop) vs.push("<b>" + nStop + "</b> perlu dievaluasi lanjutan");
+    if(nCukup) vs.push("<b>" + nCukup + "</b> belum cukup data untuk disimpulkan");
+    if(vs.length) p.push("Ringkasan verdict: " + vs.join(", ") + ".");
+
+    var html = "";
+    for(var j=0;j<p.length;j++) html += "<p>" + p[j] + "</p>";
+    return html;
+  }
+
+  /* ============ EKSPOR ============ */
+  function plainSummary(){
+    var R = state.result;
+    if(!R) return "";
+    var L = [];
+    L.push("RINGKASAN ANALISIS IKLAN — Facebook Ads Performance Analyzer");
+    L.push("Tujuan: " + R.conf.label + " | Kategori: " + R.kategori + " | Periode: " + nf(R.periode) + " hari");
+    L.push("");
+    L.push("SKOR PERFORMA: " + (R.accScore.total === null ? "—" : nf(R.accScore.total) + "/100") + " (" + statusOf(R.accScore.total).label + ")");
+    L.push("Total belanja: " + money(R.acc.spend) + " | Klik: " + nf(R.acc.clicks) + (R.acc.results !== null ? " | Hasil: " + nf(R.acc.results) : ""));
+    var keys = Object.keys(R.conf.weights);
+    var mline = [];
+    for(var i=0;i<keys.length;i++) mline.push(METRIC[keys[i]].label + " " + fmtMetric(keys[i], R.acc[keys[i]]));
+    L.push("Metrik utama: " + mline.join(" | "));
+    if(R.objKey === "penjualan"){
+      if(R.beRoas !== null) L.push("Break-even ROAS: " + nf(R.beRoas,2) + "x | Estimasi laba kotor: " + (R.profit >= 0 ? "" : "-") + money(Math.abs(R.profit)));
+      else L.push("Break-even ROAS & laba: belum dihitung karena margin kotor belum diisi.");
+    }
+    L.push("");
+    L.push("PERFORMA PER AD SET");
+    for(var j=0;j<R.items.length;j++){
+      var it = R.items[j];
+      L.push("- " + it.name + " | belanja " + money(it.m.spend) + " (" + pct(it.share,1) + ") | skor " +
+        (it.score === null ? "—" : nf(it.score)) + " | " + it.verdict.label);
+    }
+    L.push("");
+    L.push("DIAGNOSIS & REKOMENDASI");
+    for(var k=0;k<R.diag.length;k++){
+      var d = R.diag[k];
+      L.push((k+1) + ". [" + d.prio + "] " + d.title);
+      L.push("   Kenapa: " + d.why.replace(/<[^>]+>/g,""));
+      L.push("   Cara: " + d.how.replace(/<[^>]+>/g,""));
+    }
+    L.push("");
+    L.push("Catatan: analisis ini alat bantu awal, bukan pengganti evaluasi bisnis maupun data Meta Ads Manager. Benchmark bawaan bukan standar resmi Meta dan bukan jaminan performa.");
+    L.push("Dibuat dengan Facebook Ads Performance Analyzer — Riki MarkeThink.");
+    return L.join("\n");
+  }
+
+  function copySummary(){
+    var txt = plainSummary();
+    if(!txt){ toast("Jalankan analisis terlebih dahulu."); return; }
+    var done = function(){ toast("Ringkasan disalin ke clipboard."); };
+    var fail = function(){
+      var ta = $("copyFallback");
+      ta.classList.remove("sr-only"); ta.style.height = "160px"; ta.value = txt;
+      ta.removeAttribute("aria-hidden"); ta.focus(); ta.select();
+      toast("Salin manual: teks sudah dipilih, tekan Ctrl/Cmd + C.");
+    };
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(done, fail);
+      } else fail();
+    } catch(e){ fail(); }
+  }
+
+  /* ============ OBJECTIVE SWITCH ============ */
+  function applyObjective(){
+    var conf = OBJ[$("objective").value];
+    $("thResult").innerHTML = '<span class="th-help" title="Results">' + conf.resultLabel + (conf.needResult ? " *" : "") + '</span>';
+    $("thValue").style.display = conf.needValue ? "" : "none";
+    var trs = $("inputBody").children;
+    for(var i=0;i<trs.length;i++){
+      var td = trs[i].querySelector('td[data-f="value"]');
+      if(td) td.style.display = conf.needValue ? "" : "none";
+    }
+    $("marginField").style.display = conf.needValue ? "" : "none";
+    for(var t=0;t<2;t++){
+      var f = $(t === 0 ? "t1Field" : "t2Field");
+      var lab = $(t === 0 ? "t1Label" : "t2Label");
+      var inp = $(t === 0 ? "target1" : "target2");
+      if(conf.targets[t]){
+        f.style.display = "";
+        lab.textContent = conf.targets[t].label;
+        inp.placeholder = conf.targets[t].ph;
+      } else f.style.display = "none";
+    }
+    var wk = Object.keys(conf.weights), ws = [];
+    for(var w=0;w<wk.length;w++) ws.push(METRIC[wk[w]].label + " " + Math.round(conf.weights[wk[w]]*100) + "%");
+    $("objHint").textContent = "Bobot skor: " + ws.join(" · ");
+    $("curHint").textContent = state.currency === "USD"
+      ? "Benchmark biaya bawaan hanya tersedia dalam Rupiah. Isi target Anda agar metrik biaya tetap dinilai."
+      : "Benchmark biaya bawaan disusun dalam Rupiah.";
+  }
+
+  /* ============ EVENTS ============ */
+  function fillContoh(){
+    $("objective").value = "penjualan";
+    $("margin").value = "40";
+    $("target1").value = "3";
+    $("target2").value = "80.000";
+    $("periode").value = "7";
+    applyObjective();
+    $("inputBody").innerHTML = "";
+    for(var i=0;i<CONTOH.length;i++) addRow(CONTOH[i]);
+    applyObjective();
+    updateNote();
+    renderMsgs([], []);
+    toast("Data contoh dimuat. Klik “Analisis Performa”.");
+    document.getElementById("data").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  function parsePaste(){
+    var raw = $("pasteArea").value;
+    if(!raw.trim()){ toast("Kotak tempelan masih kosong."); return; }
+    var lines = raw.split(/\r?\n/), added = 0;
+    for(var i=0;i<lines.length;i++){
+      var line = lines[i].trim();
+      if(!line) continue;
+      var cells = line.split(/\t|;|\s{2,}|,(?=\s)/);
+      if(cells.length < 3) continue;
+      var probe = cells.join(" ").toLowerCase();
+      if(/nama|ad ?set|belanja|impres|amount|impression/.test(probe) && !/\d{3,}/.test(probe)) continue;
+      var vals = [];
+      for(var c=0;c<7;c++) vals.push(cells[c] !== undefined ? String(cells[c]).trim() : "");
+      addRow(vals); added++;
+    }
+    if(added){
+      $("pasteArea").value = "";
+      applyObjective(); updateNote();
+      toast(added + " baris ditambahkan dari tempelan.");
+    } else toast("Tidak ada baris yang bisa dibaca. Pastikan kolom dipisahkan tab.");
+  }
+
+  function init(){
+    var yr = $("yearNow"); if(yr) yr.textContent = new Date().getFullYear();
+    for(var i=0;i<3;i++) addRow();
+    applyObjective();
+    updateNote();
+
+    $("objective").addEventListener("change", function(){
+      $("target1").value = ""; $("target2").value = "";
+      applyObjective();
+      toast("Tujuan diganti — kolom target dikosongkan karena metriknya berbeda.");
+    });
+    $("currency").addEventListener("change", function(){ state.currency = $("currency").value; applyObjective(); });
+    $("btnAddRow").addEventListener("click", function(){ addRow(); applyObjective(); updateNote(); });
+    $("btnClear").addEventListener("click", function(){
+      $("inputBody").innerHTML = ""; addRow(); addRow(); addRow();
+      applyObjective(); updateNote(); renderMsgs([], []);
+      $("hasil").hidden = true;
+    });
+    $("btnContoh").addEventListener("click", fillContoh);
+    $("btnContoh2").addEventListener("click", fillContoh);
+    $("btnParsePaste").addEventListener("click", parsePaste);
+    $("btnAnalisis").addEventListener("click", analyze);
+    $("btnMulai").addEventListener("click", function(){
+      document.getElementById("konteks").scrollIntoView({behavior:"smooth", block:"start"});
+    });
+    $("btnPrint").addEventListener("click", function(){ window.print(); });
+    $("btnCopy").addEventListener("click", copySummary);
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+
+</body></html>

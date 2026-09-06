@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino's Lost World Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #ECF0F1;
+            --success: #95E1D3;
+            --danger: #FF8B8B;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: white;
+            color: var(--dark);
+            border: 2px solid var(--primary);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px 30px;
+            min-height: 500px;
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Start Screen */
+        #start-screen .dino {
+            font-size: 100px;
+            text-align: center;
+            margin: 30px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        #start-screen .instruction {
+            background: var(--accent);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+
+        .start-btn {
+            display: block;
+            margin: 30px auto;
+            padding: 20px 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Story Screen */
+        .progress-bar {
+            background: #e9ecef;
+            height: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .story-section {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            min-height: 200px;
+        }
+
+        .scene-emoji {
+            font-size: 60px;
+            text-align: center;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .story-text {
+            font-size: 1.3em;
+            color: var(--dark);
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .choice-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .choice-buttons {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        .choice-btn {
+            padding: 20px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--dark);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .choice-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .choice-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Ending Screen */
+        .ending-container {
+            text-align: center;
+        }
+
+        .ending-emoji {
+            font-size: 80px;
+            margin: 20px 0;
+            animation: celebrate 0.6s ease-out;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(0) rotateZ(-20deg); }
+            100% { transform: scale(1) rotateZ(0); }
+        }
+
+        .ending-title {
+            font-size: 2em;
+            color: var(--primary);
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .ending-story {
+            background: var(--accent);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin: 20px 0;
+            color: var(--dark);
+        }
+
+        .moral {
+            background: linear-gradient(135deg, var(--secondary), #a8e6cf);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, var(--secondary), #4ECDC4);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* About Project */
+        .about-content {
+            color: var(--dark);
+        }
+
+        .about-section {
+            margin-bottom: 25px;
+        }
+
+        .about-section h3 {
+            font-size: 1.3em;
+            color: var(--primary);
+            margin-bottom: 10px;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .about-section p, .about-section li {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: var(--dark);
+        }
+
+        .about-section ul {
+            margin-left: 25px;
+        }
+
+        .about-section li {
+            margin-bottom: 10px;
+        }
+
+        .prompt-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid var(--secondary);
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.95em;
+            font-style: italic;
+            color: #555;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ff9800;
+            border-radius: 5px;
+            margin: 10px 0;
+            color: #856404;
+            font-size: 0.95em;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header p {
+                font-size: 0.9em;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .story-section {
+                padding: 20px;
+            }
+
+            .scene-emoji {
+                font-size: 50px;
+            }
+
+            .story-text {
+                font-size: 1.1em;
+            }
+
+            .choice-btn {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦕 Dino's Lost World Adventure</h1>
+            <p>Membantu Dino Pulang ke Rumah</p>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showScreen('start')">🏠 Beranda</button>
+            <button class="nav-btn" onclick="showScreen('story')">🎮 Bermain</button>
+            <button class="nav-btn" onclick="showScreen('about')">ℹ️ Tentang Proyek</button>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="content active">
+            <div class="dino">🦕</div>
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">Selamat Datang!</h2>
+
+            <div class="instruction">
+                <strong>Cerita Petualangan:</strong><br>
+                Dino adalah dinosaurus kecil yang lucu dan pemberani. Suatu hari, Dino tersesat di Dunia Hilang yang penuh warna-warni!
+                <br><br>
+                <strong>Tugasmu:</strong><br>
+                Bantu Dino mengambil keputusan yang tepat. Setiap pilihan yang kamu buat akan mengubah cerita!
+                Akan kah Dino bisa sampai pulang? Mari kita lihat!
+            </div>
+
+            <div style="text-align: center; background: var(--light); padding: 20px; border-radius: 15px; margin: 20px 0;">
+                <p style="margin-bottom: 10px;"><strong>💡 Tips:</strong></p>
+                <p>Dengarkan hati nuranumu dan pilih dengan baik!</p>
+            </div>
+
+            <button class="start-btn" onclick="showScreen('story'); startStory()">🎬 Mulai Petualangan</button>
+        </div>
+
+        <!-- Story Screen -->
+        <div id="story-screen" class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress">0%</div>
+            </div>
+
+            <div id="story-content"></div>
+        </div>
+
+        <!-- About Project Screen -->
+        <div id="about-screen" class="content">
+            <div class="about-content">
+                <h2 style="color: var(--primary); margin-bottom: 20px;">📚 Tentang Proyek Ini</h2>
+
+                <div class="about-section">
+                    <h3>🎯 Tujuan Proyek</h3>
+                    <p>
+                        Membuat permainan cerita interaktif yang menghibur anak-anak usia 6-8 tahun sambil mengajarkan
+                        nilai-nilai positif seperti keberanian, kesabaran, persahabatan, dan berpikir cepat.
+                    </p>
+                </div>
+
+                <div class="about-section">
+                    <h3>👩‍💻 Apa yang Dibuat Siswa</h3>
+                    <p>
+                        Siswa Future Makers membuat:
+                    </p>
+                    <ul>
+                        <li>Skenario cerita dengan berbagai pilihan dan ending yang berbeda</li>
+                        <li>Desain interface yang menarik dan ramah anak</li>
+                        <li>Sistem pemilihan yang mengubah alur cerita</li>
+                        <li>Pesan moral untuk setiap ending</li>
+                        <li>Animasi dan visual yang menyenangkan</li>
+                    </ul>
+                </div>
+
+                <div class="about-section">
+                    <h3>🤖 Bagaimana Claude AI Membantu</h3>
+                    <p>
+                        Claude AI membantu siswa dalam proses kreativitas:
+                    </p>
+                    <ul>
+                        <li><strong>Brainstorming cerita:</strong> Mengembangkan ide-ide cerita yang menarik</li>
+                        <li><strong>Penulisan dialog:</strong> Menulis dialog karakter yang natural dan sesuai usia</li>
+                        <li><strong>Desain alur cerita:</strong> Merancang pilihan-pilihan yang berpengaruh pada cerita</li>
+                        <li><strong>Pesan moral:</strong> Memastikan setiap ending memiliki pembelajaran positif</li>
+                        <li><strong>Koding HTML/CSS:</strong> Membantu membuat interface yang interaktif</li>
+                    </ul>
+                </div>
+
+                <div class="about-section">
+                    <h3>💬 Contoh Prompt yang Digunakan</h3>
+                    <div class="prompt-box">
+                        "Buatkan cerita interaktif tentang dinosaurus kecil bernama Dino yang tersesat dan harus pulang.
+                        Cerita harus punya 3 ending berbeda dengan pesan moral berbeda untuk anak usia 6-8 tahun.
+                        Setiap ending harus mengajarkan nilai positif."
+                    </div>
+                    <div class="prompt-box">
+                        "Tuliskan pilihan cerita yang menarik untuk anak kecil. Setiap pilihan harus mengubah
+                        kelanjutan cerita dengan cara yang signifikan dan menyenangkan."
+                    </div>
+                    <div class="prompt-box">
+                        "Buatkan pesan moral untuk ending di mana Dino pulang karena keberanian. Pesan harus sederhana,
+                        positif, dan mudah diingat anak usia 6-8 tahun."
+                    </div>
+                </div>
+
+                <div class="about-section">
+                    <h3>📖 Hal yang Dipelajari Siswa</h3>
+                    <ul>
+                        <li><strong>Creative Writing:</strong> Menuliskan cerita dengan alur yang menarik</li>
+                        <li><strong>Story Branching:</strong> Memahami bagaimana pilihan mempengaruhi cerita</li>
+                        <li><strong>Character Development:</strong> Membuat karakter yang relatable untuk anak-anak</li>
+                        <li><strong>UI/UX Thinking:</strong> Merancang interface yang user-friendly untuk usia target</li>
+                        <li><strong>Basic Web Development:</strong> HTML, CSS, dan JavaScript dasar</li>
+                        <li><strong>Prompt Engineering:</strong> Cara berkomunikasi efektif dengan AI</li>
+                        <li><strong>Design Thinking:</strong> Proses dari ide hingga produk final</li>
+                    </ul>
+                </div>
+
+                <div class="about-section">
+                    <h3>⚠️ Catatan Penting tentang AI</h3>
+                    <div class="warning-box">
+                        <strong>AI Dapat Melakukan Kesalahan:</strong>
+                        <p style="margin-top: 10px;">
+                            Claude AI sangat membantu, tetapi perlu diingat bahwa AI bisa membuat kesalahan.
+                            Oleh karena itu, penting bagi siswa untuk:
+                        </p>
+                        <ul style="margin-top: 10px;">
+                            <li>✓ Selalu memeriksa hasil kerja AI</li>
+                            <li>✓ Mengedit dan memperbaiki jika diperlukan</li>
+                            <li>✓ Tidak percaya 100% tanpa verifikasi</li>
+                            <li>✓ Memahami bahwa AI adalah alat bantu, bukan pengganti kreativitas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="about-section">
+                    <h3>🎓 Identitas Pembuat</h3>
+                    <p>
+                        <strong>Nama:</strong> Siswa Future Makers<br>
+                        <strong>Program:</strong> Future Makers: Belajar AI, Ciptakan Aplikasi<br>
+                        <strong>Tier:</strong> Tier 1 - AI Buddy Basics<br>
+                        <strong>Kelompok Usia:</strong> 6-8 tahun
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let gameStarted = false;
+        let currentScene = 0;
+        let storyStates = {
+            brave: false,
+            independent: false,
+            patient: false,
+            ending: null
+        };
+
+        const story = {
+            scenes: [
+                {
+                    id: 0,
+                    emoji: '🦕',
+                    title: 'Dunia Hilang',
+                    text: `Dino tersesat di Dunia Hilang yang penuh warna-warni!
+                    Pohon biru, bunga merah, langit oranye - semuanya sangat indah tetapi Dino tidak tahu jalan pulang ke Mama dan Papa.
+                    <br><br>
+                    Tiba-tiba, Dino melihat tiga arah berbeda di depannya. Apa yang harus Dino lakukan?`,
+                    choices: [
+                        { text: '🦅 Ikuti Burung Emas yang Cantik', next: 1, state: 'brave' },
+                        { text: '🚶 Jalan Sendiri Mencari Jalan', next: 2, state: 'independent' },
+                        { text: '😢 Tunggu di Tempat Sambil Menangis', next: 3, state: 'patient' }
+                    ]
+                },
+                {
+                    id: 1,
+                    emoji: '🦅✨',
+                    title: 'Mengikuti Burung Emas',
+                    text: `Dino memilih untuk mengikuti Burung Emas yang cantik!
+                    Burung itu terbang tinggi, membuat Dino harus berlari cepat.
+                    Tapi Dino tidak takut - malah ini petualangan yang seru!
+                    <br><br>
+                    Burung terbang semakin tinggi. Apakah Dino akan terus mengikuti dengan percaya penuh?`,
+                    choices: [
+                        { text: '💪 Percaya Penuh dan Terus Mengikuti', next: 10, ending: 'brave' },
+                        { text: '😰 Ragu dan Mengikuti Lebih Lambat', next: 11, ending: 'friend' }
+                    ]
+                },
+                {
+                    id: 2,
+                    emoji: '🦕🗺️',
+                    title: 'Petualangan Mandiri',
+                    text: `Dino memutuskan untuk berjalan sendiri dan mencari jalan pulang!
+                    Dino adalah dinosaurus yang pemberani dan mandiri. Dino mulai menjelajahi hutan yang indah.
+                    <br><br>
+                    Sebentar lagi, Dino menemukan dua tempat menarik. Ke mana Dino akan pergi?`,
+                    choices: [
+                        { text: '🕳️ Gua Gelap Misterius', next: 4, ending: 'discovery' },
+                        { text: '🌸 Padang Bunga yang Indah', next: 5, ending: 'lazy' }
+                    ]
+                },
+                {
+                    id: 3,
+                    emoji: '😢🌳',
+                    title: 'Menunggu Bantuan',
+                    text: `Dino memutuskan untuk duduk dan menunggu. Mungkin seseorang akan datang membantu.
+                    Dino merasa sedih, tetapi mencoba untuk tetap tenang dan tidak panik.
+                    Langit mulai berubah warna - matahari terbenam dengan indah.
+                    <br><br>
+                    Dino terus menunggu dengan sabar. Apakah seseorang akan datang?`,
+                    choices: [
+                        { text: '🤐 Tetap Tenang dan Sabar Menunggu', next: 12, ending: 'patience' },
+                        { text: '📣 Berteriak Minta Bantuan', next: 13, ending: 'help' }
+                    ]
+                },
+
+                // Discovery Cave Path
+                {
+                    id: 4,
+                    emoji: '🕳️🦕',
+                    title: 'Gua Misterius',
+                    text: `Dino masuk ke gua gelap yang misterius. Jantung Dino berdebar kencang,
+                    tetapi Dino tetap berani melangkah maju.
+                    <br><br>
+                    Tiba-tiba, Dino mendengar suara! Ada dinosaurus lain di sana!
+                    Dinosaurus itu sangat baik dan tahu jalan pulang!`,
+                    choices: [
+                        { text: '✅ Selesai - Pulang Bersama Teman Baru', next: 20, ending: 'discovery' }
+                    ]
+                },
+
+                // Lazy Flower Field Path
+                {
+                    id: 5,
+                    emoji: '🌸😴',
+                    title: 'Padang Bunga Indah',
+                    text: `Dino sampai di padang bunga yang sangat indah dan wangi.
+                    Bunga-bunga berwarna-warni membuat Dino merasa sangat senang dan... sangat lelah.
+                    <br><br>
+                    Dino berbaring di antara bunga-bunga yang lembut. Mata Dino semakin berat...`,
+                    choices: [
+                        { text: '💤 Tidur di Padang Bunga', next: 21, ending: 'lazy' }
+                    ]
+                },
+
+                // Ending Scenes
+                {
+                    id: 10,
+                    emoji: '🦕🦅🏠',
+                    title: 'Ending 1: Keberanian Membawa Pulang',
+                    text: `Dino terus mengikuti Burung Emas dengan percaya penuh.
+                    Dan tiba-tiba... Dino melihat rumahnya! Rumah yang indah di depan mata!
+                    <br><br>
+                    Burung Emas terbang meninggalkan Dino, tersenyum karena telah membantu teman baru.
+                    Mama dan Papa Dino berlari keluar dan memeluk Dino yang akhirnya pulang!`,
+                    moral: '✨ MORAL: Keberanian dan kepercayaan membawa kesuksesan! Jika kita percaya dan berani, semua menjadi mungkin! ✨'
+                },
+                {
+                    id: 11,
+                    emoji: '🦕👨‍👩‍👦',
+                    title: 'Ending 2: Bantuan yang Tiba',
+                    text: `Dino mengikuti Burung, meski agak ragu dan lambat.
+                    Tiba-tiba, suara yang dikenal! "Dino! Dino, di mana kamu?"
+                    <br><br>
+                    Mama Dino datang! Mama telah mencari Dino di seluruh hutan.
+                    Dino tidak perlu melakukan segalanya sendiri - Mama di sini untuk membantu!`,
+                    moral: '✨ MORAL: Tidak apa-apa meminta bantuan! Orang tua dan teman selalu siap membantu kita! ✨'
+                },
+                {
+                    id: 12,
+                    emoji: '🦕🌙✨',
+                    title: 'Ending 3: Kesabaran Itu Indah',
+                    text: `Dino menunggu dengan tenang dan sabar sambil melihat matahari terbenam yang indah.
+                    Tiba-tiba, bulan dan bintang mulai bersinar. Dan... Dino mendengar bunyi langkah!
+                    <br><br>
+                    Mama dan Papa Dino datang! Mereka mencari Dino di malam hari dan akhirnya menemukannya!
+                    Keluarga bersatu kembali!`,
+                    moral: '✨ MORAL: Kesabaran membawa hasil yang indah! Jika kita tetap tenang, bantuan akan datang! ✨'
+                },
+                {
+                    id: 13,
+                    emoji: '🦕📣🏠',
+                    title: 'Ending 4: Meminta Bantuan',
+                    text: `Dino berteriak keras: "Tolong! Saya Dino, aku tersesat!"
+                    Suara Dino bergema di seluruh hutan.
+                    <br><br>
+                    Mama dan Papa Dino mendengar suara Dino! Mereka berlari secepat kilat dan menemukan Dino!
+                    Dino tidak perlu ragu untuk meminta bantuan - dan itu sangat membantu!`,
+                    moral: '✨ MORAL: Penting untuk meminta bantuan ketika kita butuh! Tidak ada yang salah dengan itu! ✨'
+                },
+                {
+                    id: 20,
+                    emoji: '🦕🦕🏠',
+                    title: 'Ending 5: Teman Baru',
+                    text: `Dinosaurus di gua tahu jalan pulang! Dia mengajak Dino keluar dari gua dan membimbing jalannya.
+                    Mereka berjalan bersama sambil bercerita tentang petualangan mereka.
+                    <br><br>
+                    Akhirnya Dino sampai rumah! Dan Dino membuat teman baru di Dunia Hilang!
+                    Sekarang Dino punya teman untuk bermain kapan saja!`,
+                    moral: '✨ MORAL: Eksplorasi dan bersahabat membuka pintu kesuksesan! Teman baru adalah hadiah terbaik! ✨'
+                },
+                {
+                    id: 21,
+                    emoji: '🦕😴☀️',
+                    title: 'Ending 6: Terlena Keindahan',
+                    text: `Dino tidur nyenyak di antara bunga-bunga yang indah. Dino bermimpi indah tentang petualangan.
+                    Tetapi... Dino tidak mencari jalan pulang! Dino lupa tujuannya!
+                    <br><br>
+                    Saat Dino bangun, matahari sudah tinggi. Dino masih tersesat dan kehilangan waktu berharga.
+                    Kadang, kita harus tetap fokus pada tujuan kita!`,
+                    moral: '⚠️ MORAL: Jangan terlena dengan keindahan! Tetap fokus pada tujuan mu dan jangan lupa yang penting! ⚠️'
+                }
+            ]
+        };
+
+        function showScreen(screen) {
+            // Hide all screens
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('story-screen').classList.remove('active');
+            document.getElementById('about-screen').classList.remove('active');
+
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected screen
+            if (screen === 'start') {
+                document.getElementById('start-screen').classList.add('active');
+                document.querySelectorAll('.nav-btn')[0].classList.add('active');
+                gameStarted = false; // Reset state ketika kembali ke awal
+            } else if (screen === 'story') {
+                document.getElementById('story-screen').classList.add('active');
+                document.querySelectorAll('.nav-btn')[1].classList.add('active');
+                // Auto-start story jika belum dimulai
+                if (!gameStarted) {
+                    startStory();
+                }
+            } else if (screen === 'about') {
+                document.getElementById('about-screen').classList.add('active');
+                document.querySelectorAll('.nav-btn')[2].classList.add('active');
+            }
+        }
+
+        function startStory() {
+            console.log('🎮 startStory() dipanggil');
+            gameStarted = true;
+            currentScene = 0;
+            storyStates = { brave: false, independent: false, patient: false, ending: null };
+
+            // Validate container exists
+            const container = document.getElementById('story-content');
+            if (!container) {
+                console.error('❌ story-content container tidak ditemukan!');
+                return;
+            }
+            console.log('✓ story-content container ditemukan');
+
+            // Validate scene 0 exists
+            const firstScene = story.scenes.find(s => s.id === 0);
+            if (!firstScene) {
+                console.error('❌ Scene awal (id: 0) tidak ditemukan!');
+                return;
+            }
+            console.log('✓ Scene awal ditemukan:', firstScene);
+
+            displayScene(0);
+        }
+
+        function displayScene(sceneId) {
+            console.log('📖 displayScene(' + sceneId + ') dipanggil');
+            currentScene = sceneId;
+
+            // Get container
+            const container = document.getElementById('story-content');
+            if (!container) {
+                console.error('❌ Container story-content tidak ditemukan!');
+                return;
+            }
+
+            // Find scene by id property, not array index
+            const scene = story.scenes.find(s => s.id === sceneId);
+            console.log('🔍 Mencari scene dengan id:', sceneId);
+            console.log('📊 Total scenes tersedia:', story.scenes.length);
+            console.log('✓ Scene ditemukan:', scene);
+
+            // Fallback jika scene tidak ditemukan
+            if (!scene) {
+                console.error('❌ Scene dengan id', sceneId, 'tidak ditemukan!');
+                container.innerHTML = `
+                    <div class="ending-container">
+                        <div style="font-size: 50px; margin: 20px 0;">⚠️</div>
+                        <h2 style="color: var(--primary);">Adegan Tidak Ditemukan</h2>
+                        <p style="margin: 20px 0; font-size: 1.1em;">Maaf, sepertinya ada yang salah dengan cerita ini. (Scene ID: ${sceneId} tidak ada)</p>
+                        <button class="restart-btn" onclick="startStory()">🎮 Mulai Ulang</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Update progress
+            const totalRegularScenes = story.scenes.filter(s => s.choices && s.choices.length > 0).length;
+            const scenesWithChoices = story.scenes.filter(s => s.choices && s.choices.length > 0);
+            const currentIndex = scenesWithChoices.findIndex(s => s.id === sceneId);
+            const progress = currentIndex >= 0 ? Math.min(((currentIndex + 1) / totalRegularScenes) * 100, 95) : 95;
+
+            const progressBar = document.getElementById('progress');
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = Math.round(progress) + '%';
+            }
+
+            if (!scene.choices || scene.choices.length === 0) {
+                // Ending Scene
+                console.log('🎬 Menampilkan ENDING scene:', scene.title);
+                container.innerHTML = `
+                    <div class="ending-container">
+                        <div class="ending-emoji">${scene.emoji}</div>
+                        <h2 class="ending-title">${scene.title}</h2>
+                        <div class="ending-story">${scene.text}</div>
+                        <div class="moral">${scene.moral}</div>
+                        <button class="restart-btn" onclick="startStory()">🎮 Bermain Lagi</button>
+                        <button class="restart-btn" style="background: linear-gradient(135deg, var(--primary), var(--secondary));" onclick="showScreen('start')">🏠 Kembali ke Awal</button>
+                    </div>
+                `;
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
+                }
+            } else {
+                // Regular Scene
+                console.log('📝 Menampilkan REGULAR scene:', scene.title, 'dengan', scene.choices.length, 'pilihan');
+                let choicesHTML = '<div class="choice-buttons">';
+                scene.choices.forEach((choice, index) => {
+                    choicesHTML += `<button class="choice-btn" onclick="makeChoice(${choice.next})">${choice.text}</button>`;
+                    console.log(`  Pilihan ${index + 1}: "${choice.text}" → Scene ${choice.next}`);
+                });
+                choicesHTML += '</div>';
+
+                const html = `
+                    <div class="story-section">
+                        <div class="scene-emoji">${scene.emoji}</div>
+                        <h2 style="text-align: center; color: var(--dark); margin-bottom: 20px;">${scene.title}</h2>
+                        <div class="story-text">${scene.text}</div>
+                        ${choicesHTML}
+                    </div>
+                `;
+
+                container.innerHTML = html;
+                console.log('✅ Scene berhasil dirender ke container');
+
+                // Verify container has content
+                if (!container.innerHTML || container.innerHTML.trim() === '') {
+                    console.error('❌ Container masih kosong setelah render!');
+                } else {
+                    console.log('✓ Container memiliki konten, panjang:', container.innerHTML.length, 'karakter');
+                }
+            }
+        }
+
+        function makeChoice(nextScene) {
+            console.log('👆 User memilih untuk pergi ke scene:', nextScene);
+            displayScene(nextScene);
+        }
+
+        // Initialize on page load
+        console.log('🚀 Aplikasi dimulai - menampilkan halaman Beranda');
+        showScreen('start');
+    </script>
+</body>
+</html>

@@ -1,0 +1,1272 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Smart School Project Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#F3F4FB;
+    --surface:#FFFFFF;
+    --surface-2:#EEF0FA;
+    --ink:#161A38;
+    --ink-2:#4B5175;
+    --ink-3:#767CA0;
+    --line:#DBDEEF;
+    --line-strong:#C3C8E4;
+    --indigo:#3B45C9;
+    --indigo-soft:#E5E7FA;
+    --indigo-ink:#2B33A0;
+    --green:#0E7A52;
+    --green-soft:#DDF2E8;
+    --amber:#9E5A05;
+    --amber-soft:#FBEBD4;
+    --shadow:0 1px 2px rgba(22,26,56,.06), 0 8px 24px -16px rgba(22,26,56,.35);
+    --radius:14px;
+    --maxw:1060px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0C0F26;
+      --surface:#161A34;
+      --surface-2:#1E2342;
+      --ink:#E9EBFA;
+      --ink-2:#B0B6D8;
+      --ink-3:#878DB4;
+      --line:#2A3055;
+      --line-strong:#3A4170;
+      --indigo:#8E98FF;
+      --indigo-soft:#232A57;
+      --indigo-ink:#B7BEFF;
+      --green:#4FCB92;
+      --green-soft:#133A2C;
+      --amber:#F2AE55;
+      --amber-soft:#3B2A11;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0C0F26;
+    --surface:#161A34;
+    --surface-2:#1E2342;
+    --ink:#E9EBFA;
+    --ink-2:#B0B6D8;
+    --ink-3:#878DB4;
+    --line:#2A3055;
+    --line-strong:#3A4170;
+    --indigo:#8E98FF;
+    --indigo-soft:#232A57;
+    --indigo-ink:#B7BEFF;
+    --green:#4FCB92;
+    --green-soft:#133A2C;
+    --amber:#F2AE55;
+    --amber-soft:#3B2A11;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.9);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Public Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:"Archivo","Public Sans",system-ui,sans-serif;margin:0;line-height:1.18;text-wrap:balance;letter-spacing:-.015em}
+  h1{font-size:clamp(1.9rem,1.3rem + 2.4vw,2.9rem);font-weight:700}
+  h2{font-size:clamp(1.35rem,1.15rem + .8vw,1.75rem);font-weight:700}
+  h3{font-size:1.08rem;font-weight:600}
+  p{margin:0}
+  a{color:var(--indigo-ink)}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  .stack{display:flex;flex-direction:column}
+  .gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}.gap-20{gap:20px}.gap-28{gap:28px}
+  .muted{color:var(--ink-2)}
+  .small{font-size:.875rem}
+  .tiny{font-size:.8rem}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    background:color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{max-width:var(--maxw);margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;font-family:"Archivo",sans-serif;font-weight:700;letter-spacing:-.02em;font-size:1.02rem;color:var(--ink)}
+  .brand-mark{
+    width:32px;height:32px;border-radius:9px;background:var(--indigo);flex:0 0 auto;
+    display:grid;place-items:center;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;
+    box-shadow:inset 0 -10px 0 rgba(255,255,255,.08);
+  }
+  .brand-mark span{display:block;transform:translateY(1px)}
+  nav.mainnav{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto}
+  nav.mainnav button{
+    font:inherit;font-size:.9rem;color:var(--ink-2);background:none;border:0;cursor:pointer;
+    padding:8px 12px;border-radius:8px;
+  }
+  nav.mainnav button:hover{background:var(--surface-2);color:var(--ink)}
+  nav.mainnav button[aria-current="page"]{background:var(--indigo-soft);color:var(--indigo-ink);font-weight:600}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    font:inherit;font-weight:600;cursor:pointer;border-radius:10px;border:1px solid transparent;
+    padding:12px 18px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    transition:transform .12s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--indigo);color:#fff;box-shadow:0 6px 18px -10px var(--indigo)}
+  .btn-primary:hover{background:var(--indigo-ink)}
+  :root[data-theme="dark"] .btn-primary, :root:not([data-theme="light"]) .btn-primary{color:#0C0F26}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .btn-primary{color:#fff}}
+  .btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
+  .btn-ghost:hover{background:var(--surface-2)}
+  .btn-small{min-height:40px;padding:8px 14px;font-size:.9rem}
+  .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .btn:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, .choice:focus-visible{
+    outline:3px solid var(--indigo);outline-offset:2px;
+  }
+
+  /* ---------- cards ---------- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .card-flat{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  main{padding:28px 0 64px}
+
+  /* ---------- landing ---------- */
+  .hero{display:grid;gap:26px;grid-template-columns:1fr;align-items:center}
+  @media (min-width:880px){.hero{grid-template-columns:1.05fr .95fr;gap:40px}}
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--indigo-ink);
+  }
+  .tagline{font-size:1.12rem;color:var(--ink-2);max-width:52ch}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .hero-panel{
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .hero-panel::before{
+    content:"";position:absolute;left:0;right:0;top:0;height:5px;pointer-events:none;
+    background:linear-gradient(to right, var(--indigo) 0 42%, var(--green) 42% 70%, var(--amber) 70% 100%);
+  }
+  .hero-panel > *{position:relative}
+  .mini-step{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .mini-step:last-child{border-bottom:0}
+  .tick{
+    width:20px;height:20px;border-radius:6px;border:2px solid var(--line-strong);flex:0 0 auto;display:grid;place-items:center;
+    font-size:.72rem;color:transparent;
+  }
+  .tick.on{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+  .feature-grid{display:grid;gap:14px;grid-template-columns:1fr}
+  @media (min-width:700px){.feature-grid{grid-template-columns:repeat(3,1fr)}}
+  .feature h3{margin-bottom:4px}
+  .feature-ico{font-size:1.4rem;line-height:1}
+
+  /* ---------- form ---------- */
+  .form-grid{display:grid;gap:18px;grid-template-columns:1fr}
+  @media (min-width:720px){.form-grid.two{grid-template-columns:1fr 1fr}}
+  label.field{display:flex;flex-direction:column;gap:7px}
+  .field-label{font-weight:600;font-size:.95rem}
+  .field-hint{font-size:.82rem;color:var(--ink-3)}
+  input[type="text"],input[type="date"],input[type="number"],select,textarea{
+    font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);
+    border-radius:10px;padding:12px 13px;min-height:48px;width:100%;
+  }
+  input::placeholder{color:var(--ink-3)}
+  .choice-row{display:grid;gap:10px;grid-template-columns:repeat(3,1fr)}
+  .choice{
+    font:inherit;cursor:pointer;text-align:left;background:var(--surface);border:1px solid var(--line-strong);
+    border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px;min-height:78px;color:var(--ink);
+  }
+  .choice .c-t{font-weight:600}
+  .choice .c-d{font-size:.78rem;color:var(--ink-3);line-height:1.35}
+  .choice[aria-pressed="true"]{border-color:var(--indigo);background:var(--indigo-soft);box-shadow:inset 0 0 0 1px var(--indigo)}
+  .choice[aria-pressed="true"] .c-d{color:var(--indigo-ink)}
+  .err{color:var(--amber);font-size:.85rem;font-weight:600}
+
+  /* ---------- plan ---------- */
+  .plan-head{display:flex;flex-direction:column;gap:12px}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:.8rem;font-weight:600;
+    background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line);
+  }
+  .chip.indigo{background:var(--indigo-soft);color:var(--indigo-ink);border-color:transparent}
+  .chip.amber{background:var(--amber-soft);color:var(--amber);border-color:transparent}
+  .chip.green{background:var(--green-soft);color:var(--green);border-color:transparent}
+  .plan-grid{display:grid;gap:20px;grid-template-columns:1fr;align-items:start}
+  @media (min-width:920px){
+    .plan-grid{grid-template-columns:minmax(0,1.6fr) minmax(270px,1fr)}
+    .plan-aside{position:sticky;top:76px}
+  }
+  .plan-aside{order:-1;display:flex;flex-direction:column;gap:16px}
+  @media (min-width:920px){.plan-aside{order:0}}
+
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .step{display:grid;grid-template-columns:80px minmax(0,1fr);gap:14px;position:relative;padding-bottom:18px}
+  .step:last-child{padding-bottom:0}
+  .rail{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .day-chip{
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;font-weight:600;letter-spacing:-.02em;
+    background:var(--surface);border:1px solid var(--line-strong);color:var(--ink-2);
+    border-radius:8px;padding:5px 4px;width:100%;text-align:center;white-space:nowrap;
+  }
+  .step.done .day-chip{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+  .rail-line{flex:1;width:2px;background:var(--line);border-radius:2px;min-height:14px}
+  .step.done .rail-line{background:var(--green)}
+  .step:last-child .rail-line{display:none}
+  .step-body{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+    display:flex;flex-direction:column;gap:8px;min-width:0;
+  }
+  .step.done .step-body{background:var(--green-soft);border-color:color-mix(in srgb, var(--green) 40%, transparent)}
+  .step-top{display:flex;gap:10px;align-items:flex-start}
+  .step-title{font-family:"Archivo",sans-serif;font-weight:600;font-size:1rem;line-height:1.3;overflow-wrap:anywhere}
+  .step.done .step-title{text-decoration:line-through;text-decoration-color:color-mix(in srgb, var(--green) 60%, transparent)}
+  .checkbox{
+    appearance:none;-webkit-appearance:none;flex:0 0 auto;margin:1px 0 0;
+    width:26px;height:26px;border-radius:8px;border:2px solid var(--line-strong);background:var(--surface);cursor:pointer;
+    display:grid;place-items:center;
+  }
+  .checkbox:checked{background:var(--green);border-color:var(--green)}
+  .checkbox:checked::after{content:"✓";color:var(--surface);font-size:.9rem;font-weight:700;line-height:1}
+  .step-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .divider-note{
+    display:flex;align-items:center;gap:10px;margin:6px 0 16px;color:var(--indigo-ink);font-size:.82rem;font-weight:600;
+    font-family:"IBM Plex Mono",monospace;
+  }
+  .divider-note::before,.divider-note::after{content:"";height:1px;background:var(--line-strong);flex:1}
+
+  .progress-bar{height:12px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+  .progress-fill{height:100%;background:var(--green);border-radius:999px;transition:width .35s ease}
+  .pct{font-family:"IBM Plex Mono",monospace;font-size:1.7rem;font-weight:600;letter-spacing:-.03em}
+  .warn-box{
+    background:var(--amber-soft);border:1px solid color-mix(in srgb, var(--amber) 35%, transparent);
+    border-radius:12px;padding:13px 14px;color:var(--amber);font-size:.88rem;font-weight:600;line-height:1.45;
+  }
+  .motivation{
+    border-left:4px solid var(--indigo);background:var(--indigo-soft);color:var(--indigo-ink);
+    border-radius:0 12px 12px 0;padding:13px 15px;font-size:.95rem;
+  }
+
+  /* ---------- ask ai ---------- */
+  .ask-log{display:flex;flex-direction:column;gap:12px;max-height:340px;overflow-y:auto;padding-right:4px}
+  .bubble{border-radius:12px;padding:11px 14px;max-width:min(92%,60ch);font-size:.94rem;line-height:1.5}
+  .bubble.user{align-self:flex-end;background:var(--indigo);color:#fff;border-bottom-right-radius:4px}
+  :root[data-theme="dark"] .bubble.user{color:#0C0F26}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bubble.user{color:#0C0F26}}
+  .bubble.ai{align-self:flex-start;background:var(--surface-2);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .bubble.ai.refuse{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 35%,transparent)}
+  .bubble-tag{
+    display:block;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-3);margin-top:7px;
+  }
+  .ask-form{display:flex;gap:8px;flex-wrap:wrap}
+  .ask-form input{flex:1 1 220px}
+
+  /* ---------- task list ---------- */
+  .task-grid{display:grid;gap:14px;grid-template-columns:1fr}
+  @media (min-width:760px){.task-grid{grid-template-columns:1fr 1fr}}
+  .task-card{
+    text-align:left;font:inherit;color:var(--ink);cursor:pointer;background:var(--surface);
+    border:1px solid var(--line);border-left:5px solid var(--line-strong);border-radius:12px;padding:16px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .task-card:hover{border-color:var(--line-strong);box-shadow:var(--shadow)}
+  .task-card.p-tinggi{border-left-color:var(--amber)}
+  .task-card.p-sedang{border-left-color:var(--indigo)}
+  .task-card.p-rendah{border-left-color:var(--line-strong)}
+
+  /* ---------- content pages ---------- */
+  .prose{max-width:68ch;display:flex;flex-direction:column;gap:14px}
+  .prose h2{margin-top:14px}
+  .prose ul,.prose ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:7px}
+  .steps-how{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;counter-reset:how}
+  .steps-how li{display:grid;grid-template-columns:34px 1fr;gap:14px;align-items:start}
+  .steps-how li::before{
+    counter-increment:how;content:counter(how);
+    font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:.85rem;
+    width:34px;height:34px;border-radius:10px;background:var(--indigo-soft);color:var(--indigo-ink);display:grid;place-items:center;
+  }
+  .quote{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:16px;
+    font-family:"IBM Plex Mono",monospace;font-size:.85rem;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;
+  }
+  .kv{display:grid;grid-template-columns:1fr;gap:4px;padding:12px 0;border-bottom:1px solid var(--line)}
+  @media (min-width:640px){.kv{grid-template-columns:190px 1fr;gap:16px;align-items:start}}
+  .kv .k{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
+  .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem}
+  th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  tr:last-child td{border-bottom:0}
+
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(10,12,30,.55);z-index:60;display:grid;place-items:center;padding:18px;
+  }
+  .modal{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:440px;width:100%;
+    display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 60px -24px rgba(0,0,0,.6)}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  footer.site{border-top:1px solid var(--line);padding:22px 0;color:var(--ink-3);font-size:.82rem}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-mark"><span>SP</span></span> Smart School Project Planner</div>
+    <nav class="mainnav" id="nav" aria-label="Navigasi utama"></nav>
+  </div>
+</div>
+<main id="app"><div class="wrap">Memuat…</div></main>
+<footer class="site"><div class="wrap">Smart School Project Planner · Future Makers – Tier 3 AI Lab · Dibuat oleh Siswa Future Makers · Demo AI (simulasi, tanpa koneksi API)</div></footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ KONSTANTA & DATA ============ */
+  var HARI = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+  var BULAN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  var MAPEL = ["Matematika","IPA","IPS","Bahasa Indonesia","Bahasa Inggris","Lainnya"];
+  var WAKTU = [
+    {v:30, t:"30 menit"},
+    {v:60, t:"1 jam"},
+    {v:90, t:"1,5 jam"},
+    {v:120, t:"2 jam atau lebih"}
+  ];
+  var KESULITAN = [
+    {v:"Mudah", d:"Materi sudah cukup kupahami"},
+    {v:"Sedang", d:"Ada bagian yang perlu dipelajari lagi"},
+    {v:"Sulit", d:"Banyak bagian baru atau tugasnya besar"}
+  ];
+
+  /* 6 fase tetap. Label b & c sengaja singkat agar cocok dengan contoh uji wajib. */
+  var FASE = [
+    {key:"a", label:"Memahami instruksi tugas", prio:"Tinggi"},
+    {key:"b", label:"Mencari sumber",           prio:"Sedang"},
+    {key:"c", label:"Membuat outline",          prio:"Tinggi"},
+    {key:"d", label:"Mengerjakan bagian inti tugas", prio:null},
+    {key:"e", label:"Meninjau ulang hasil kerja", prio:"Sedang"},
+    {key:"f", label:"Pemeriksaan akhir",        prio:"Tinggi"}
+  ];
+
+  var JENIS_TUGAS = [
+    {kata:["presentasi","pidato"], d:"Membuat slide/materi presentasi", e:"Latihan presentasi", nama:"Presentasi / pidato"},
+    {kata:["esai","karangan","cerpen"], d:"Menulis draf esai", e:"Membaca ulang dan menyunting", nama:"Esai / karangan"},
+    {kata:["makalah","laporan"], d:"Menulis isi makalah", e:"Meninjau struktur dan referensi", nama:"Makalah / laporan"},
+    {kata:["poster","infografis"], d:"Mendesain poster/infografis", e:"Meminta masukan teman/keluarga", nama:"Poster / infografis"}
+  ];
+
+  var TIPS = {
+    a:["Tulis ulang instruksi tugas dengan kalimatmu sendiri. Bagian yang sulit kamu tulis ulang itulah yang perlu kamu tanyakan ke guru.",
+       "Garis bawahi kata perintahnya (jelaskan, bandingkan, buat, analisis). Kata itu menentukan bentuk hasil yang diminta.",
+       "Catat dulu hal teknisnya: berapa halaman atau slide, format pengumpulan, dan kriteria penilaiannya."],
+    b:["Pakai minimal tiga sumber berbeda lalu bandingkan. Kalau ketiganya sepakat, informasinya lebih bisa dipercaya.",
+       "Catat judul, penulis, dan tautan setiap sumber saat itu juga. Mencarinya lagi nanti jauh lebih repot.",
+       "Utamakan buku pelajaran, situs lembaga resmi (.go.id), atau ensiklopedia sekolah dibanding forum acak."],
+    c:["Mulai dari tiga bagian besar: pembuka, isi, penutup. Baru pecah tiap bagian jadi dua sampai tiga poin.",
+       "Tulis satu kalimat inti untuk seluruh tugas. Kalau ada poin yang tidak mendukung kalimat itu, keluarkan saja.",
+       "Beri perkiraan jumlah kata atau slide per bagian supaya porsinya seimbang sejak awal."],
+    d:["Coba pola 25 menit fokus, 5 menit istirahat. Satu sesi biasanya cukup untuk satu poin outline.",
+       "Kerjakan bagian yang paling kamu kuasai lebih dulu supaya dapat momentum. Bagian sulit terasa lebih ringan setelahnya.",
+       "Jangan menyunting sambil menulis. Selesaikan draf kasarnya dulu, rapikan pada fase berikutnya."],
+    e:["Baca hasil kerjamu dengan suara keras. Kalimat yang berbelit akan langsung terasa aneh di telinga.",
+       "Kalau ini presentasi, berlatih sambil menghitung waktu. Tiga kali latihan biasanya cukup untuk hafal alurnya.",
+       "Minta satu orang membaca atau menonton, lalu tanyakan: bagian mana yang membingungkan?"],
+    f:["Buat checklist singkat: judul benar, format file sesuai, sumber tercantum, tidak ada bagian kosong.",
+       "Periksa ejaan di judul dan subjudul lebih dulu. Kesalahan di situ paling mudah terlihat guru.",
+       "Simpan salinan cadangan dan kumpulkan lebih awal dari batas waktu, jangan di menit terakhir."]
+  };
+
+  /* Pola permintaan "kerjakan tugasku" -> AI harus menolak dengan sopan */
+  var POLA_TOLAK = [
+    /\btuliskan\b/, /\btulisin\b/, /\btulis\s+(semua|semuanya|kan)?\s*(esai|makalah|jawaban|jawabannya|laporan|cerpen)\b/,
+    /\btulis\s+semua\b/,
+    /\bbuatkan\s+(jawaban|jawabannya|esai|esainya|karangan|makalah|makalahnya|slide|slidenya|laporan|laporannya|cerpen|tugas|tugasnya|pr|prnya|contoh jawaban)\b/,
+    /\bbuatin\b/, /\bbikinin\b/, /\bbikinkan\b/, /\bkerjain\b/,
+    /\bkerjakan\b/, /\bselesaikan\s+(tugas|untukku|untuk aku|buat aku|ini|semua|semuanya)\b/,
+    /\bkasih\s+(jawaban|jawabannya|contoh jawaban)\b/, /\bkasi\s+jawaban\b/, /\bberi\s+jawabannya\b/,
+    /\bjawaban(nya)?\s+(soal|nomor|tugas|apa|dong)\b/, /\bapa\s+jawabannya\b/,
+    /\bisikan\b/, /\bbuatkan\s+.{0,20}\s*(untukku|untuk aku|buat aku)\b/
+  ];
+  var TOLAK_TEKS = [
+    "Aku nggak bisa mengerjakan tugas ini untukmu, tapi aku bisa bantu kamu memecahnya jadi langkah-langkah kecil dan kasih tips cara mengerjakannya sendiri. Coba lihat langkah yang sedang aktif di jadwalmu, ya!",
+    "Maaf ya, bagian mengerjakannya tetap milikmu — di situ letak belajarnya. Yang bisa kubantu adalah menyusun urutan langkah dan memberi strategi. Kita mulai dari langkah aktifmu sekarang?",
+    "Aku nggak akan menuliskan isi tugasmu. Tapi tenang, aku nggak menghakimi kalau kamu merasa buntu — itu wajar. Aku bantu pecah langkahnya supaya lebih ringan, ya."
+  ];
+
+  /* ============ STATE ============ */
+  var state = {
+    page: "beranda",
+    plans: [],
+    activeId: null,
+    form: {nama:"", mapel:"", tanggal:"", kesulitan:"", menit:""},
+    formTouched: false,
+    tipsIndex: {a:0,b:0,c:0,d:0,e:0,f:0},
+    tolakIndex: 0,
+    demoId: null,
+    showReset: false,
+    resetDraft: {hari:"", menit:""},
+    resetError: "",
+    askDraft: ""
+  };
+  var idSeq = 1;
+
+  /* ============ UTIL TANGGAL ============ */
+  function today(){ var d = new Date(); d.setHours(0,0,0,0); return d; }
+  function parseDate(str){
+    if(!str) return null;
+    var p = String(str).split("-");
+    if(p.length !== 3) return null;
+    var d = new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
+    if(isNaN(d.getTime())) return null;
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function toISO(d){
+    var m = String(d.getMonth()+1); if(m.length<2) m = "0"+m;
+    var day = String(d.getDate()); if(day.length<2) day = "0"+day;
+    return d.getFullYear()+"-"+m+"-"+day;
+  }
+  function addDays(d, n){ var x = new Date(d.getTime()); x.setDate(x.getDate()+n); x.setHours(0,0,0,0); return x; }
+  function diffDays(a, b){ return Math.round((b.getTime()-a.getTime())/86400000); }
+  function fmtTanggal(d){ return HARI[d.getDay()]+" "+d.getDate()+" "+BULAN[d.getMonth()]; }
+  function fmtMenit(m){
+    if(!m || m<1) return "-";
+    var j = Math.floor(m/60), s = m%60, out = "";
+    if(j>0) out += j+" jam";
+    if(s>0) out += (out?" ":"")+s+" menit";
+    return out;
+  }
+  function esc(s){
+    return String(s === undefined || s === null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+
+  /* ============ MESIN PERENCANA (simulasi berbasis algoritma) ============ */
+  function deteksiJenis(namaTugas){
+    var n = String(namaTugas||"").toLowerCase();
+    for(var i=0;i<JENIS_TUGAS.length;i++){
+      for(var k=0;k<JENIS_TUGAS[i].kata.length;k++){
+        if(n.indexOf(JENIS_TUGAS[i].kata[k]) !== -1) return JENIS_TUGAS[i];
+      }
+    }
+    return {kata:[], d:"Mengerjakan bagian inti tugas", e:"Meninjau ulang hasil kerja", nama:"Tugas umum"};
+  }
+  function labelFase(key, jenis){
+    if(key === "d") return jenis.d;
+    if(key === "e") return jenis.e;
+    for(var i=0;i<FASE.length;i++){ if(FASE[i].key === key) return FASE[i].label; }
+    return "Langkah tugas";
+  }
+  function prioFase(key, hariD){
+    if(key === "d") return hariD <= 1 ? "Tinggi" : "Sedang";
+    for(var i=0;i<FASE.length;i++){ if(FASE[i].key === key) return FASE[i].prio || "Sedang"; }
+    return "Sedang";
+  }
+  var RANK_PRIO = {Tinggi:3, Sedang:2, Rendah:1};
+  function prioGabungan(keys, hariD){
+    var best = "Rendah";
+    for(var i=0;i<keys.length;i++){
+      var p = prioFase(keys[i], hariD);
+      if(RANK_PRIO[p] > RANK_PRIO[best]) best = p;
+    }
+    return best;
+  }
+
+  /* Judul langkah, termasuk penggabungan fase */
+  function judulLangkah(keys, jenis, varian){
+    var k = keys.join("");
+    if(varian === "kilat1") return "Pahami instruksi, cari sumber, buat outline, dan mulai " + jenis.d.toLowerCase();
+    if(varian === "kilat2") return "Selesaikan " + jenis.d.toLowerCase() + ", tinjau ulang, dan pemeriksaan akhir";
+    if(k === "ab") return "Memahami instruksi dan mencari sumber";
+    if(k === "abc") return "Memahami instruksi, mencari sumber, dan membuat outline";
+    if(k === "ef") return labelFase("e", jenis) + " dan pemeriksaan akhir";
+    if(k === "de") return labelFase("d", jenis) + " lalu " + labelFase("e", jenis).toLowerCase();
+    if(k === "def") return labelFase("d", jenis) + ", tinjau ulang, dan pemeriksaan akhir";
+    if(keys.length === 1) return labelFase(keys[0], jenis);
+    var parts = [];
+    for(var i=0;i<keys.length;i++) parts.push(i===0 ? labelFase(keys[i],jenis) : labelFase(keys[i],jenis).toLowerCase());
+    return parts.join(" + ");
+  }
+
+  /* Grup awal — mengikuti algoritma yang ditetapkan siswa persis */
+  function grupAwal(totalHari){
+    if(totalHari >= 6){
+      return [
+        {keys:["a"],hari:1},{keys:["b"],hari:1},{keys:["c"],hari:1},
+        {keys:["d"],hari:1 + (totalHari-6)},
+        {keys:["e"],hari:1},{keys:["f"],hari:1}
+      ];
+    }
+    if(totalHari >= 4){ /* 4–5 hari */
+      return [
+        {keys:["a","b"],hari:1},{keys:["c"],hari:1},
+        {keys:["d"],hari:totalHari-3},
+        {keys:["e","f"],hari:1}
+      ];
+    }
+    if(totalHari === 3){ /* fase c ikut hari pertama agar fase inti tetap dapat 1 hari penuh */
+      return [{keys:["a","b","c"],hari:1},{keys:["d"],hari:1},{keys:["e","f"],hari:1}];
+    }
+    if(totalHari === 2){
+      return [{keys:["a","b","c"],hari:1,varian:"kilat1"},{keys:["d","e","f"],hari:1,varian:"kilat2"}];
+    }
+    /* 1 hari: dua langkah dalam hari yang sama */
+    return [
+      {keys:["a","b","c"],hari:1,varian:"kilat1",bagiWaktu:2,hariTetap:1},
+      {keys:["d","e","f"],hari:1,varian:"kilat2",bagiWaktu:2,hariTetap:1}
+    ];
+  }
+
+  /* Grup umum untuk penyusunan ulang (fase tersisa saja) */
+  function grupUlang(keys, totalHari){
+    var n = keys.length, i;
+    if(n === 0) return [];
+    if(totalHari >= n){
+      var g = [];
+      for(i=0;i<n;i++) g.push({keys:[keys[i]],hari:1});
+      var sisa = totalHari - n;
+      if(sisa > 0){
+        var target = -1;
+        for(i=0;i<g.length;i++){ if(g[i].keys[0] === "d") target = i; }
+        if(target === -1) target = g.length-1;
+        g[target].hari += sisa;
+      }
+      return g;
+    }
+    var jml = Math.max(1, totalHari), dasar = Math.floor(n/jml), rem = n%jml, out = [], idx = 0;
+    for(i=0;i<jml;i++){
+      var size = dasar + (i < rem ? 1 : 0);
+      if(size <= 0) continue;
+      out.push({keys:keys.slice(idx, idx+size), hari:1});
+      idx += size;
+    }
+    return out;
+  }
+
+  function grupKeLangkah(grup, jenis, menitPerHari, hariMulai){
+    var langkah = [], hariKursor = hariMulai || 1;
+    for(var i=0;i<grup.length;i++){
+      var g = grup[i];
+      var mulai = g.hariTetap ? (hariMulai||1) : hariKursor;
+      var akhir = mulai + g.hari - 1;
+      var menit = Math.round((menitPerHari * g.hari) / (g.bagiWaktu || 1));
+      langkah.push({
+        id: "s"+(idSeq++),
+        keys: g.keys.slice(),
+        judul: judulLangkah(g.keys, jenis, g.varian),
+        hariMulai: mulai,
+        hariAkhir: akhir,
+        menit: menit,
+        prioritas: prioGabungan(g.keys, (g.keys.indexOf("d") !== -1 ? g.hari : 99)),
+        selesai: false,
+        baru: false
+      });
+      if(!g.hariTetap) hariKursor = akhir + 1;
+    }
+    return langkah;
+  }
+
+  function buatRencana(input){
+    var t = today();
+    var dl = parseDate(input.tanggal);
+    var totalHari = dl ? Math.max(1, diffDays(t, dl)) : 1;
+    var jenis = deteksiJenis(input.nama);
+    var langkah = grupKeLangkah(grupAwal(totalHari), jenis, input.menit, 1);
+    return {
+      id: "p"+(idSeq++),
+      nama: input.nama,
+      mapel: input.mapel,
+      deadline: toISO(dl || addDays(t,1)),
+      mulai: toISO(t),
+      kesulitan: input.kesulitan,
+      menit: input.menit,
+      totalHari: totalHari,
+      jenis: jenis,
+      langkah: langkah,
+      chat: [],
+      disusunUlang: false,
+      contoh: !!input.contoh
+    };
+  }
+
+  function susunUlang(plan, hariBaru, menitBaru){
+    var selesai = [], sisaKeys = [], i;
+    for(i=0;i<plan.langkah.length;i++){
+      if(plan.langkah[i].selesai){ selesai.push(plan.langkah[i]); }
+      else {
+        for(var k=0;k<plan.langkah[i].keys.length;k++){
+          if(sisaKeys.indexOf(plan.langkah[i].keys[k]) === -1) sisaKeys.push(plan.langkah[i].keys[k]);
+        }
+      }
+    }
+    /* urutkan kembali sesuai urutan fase a..f */
+    var urut = ["a","b","c","d","e","f"], rapi = [];
+    for(i=0;i<urut.length;i++){ if(sisaKeys.indexOf(urut[i]) !== -1) rapi.push(urut[i]); }
+    var baru = grupKeLangkah(grupUlang(rapi, hariBaru), plan.jenis, menitBaru, 1);
+    for(i=0;i<baru.length;i++) baru[i].baru = true;
+    plan.langkah = selesai.concat(baru);
+    plan.menit = menitBaru;
+    plan.totalHari = hariBaru;
+    plan.mulai = toISO(today());
+    plan.deadline = toISO(addDays(today(), hariBaru));
+    plan.disusunUlang = true;
+  }
+
+  /* ============ TURUNAN ============ */
+  function sisaHari(plan){
+    var dl = parseDate(plan.deadline);
+    if(!dl) return 1;
+    return Math.max(0, diffDays(today(), dl));
+  }
+  function progres(plan){
+    var total = plan.langkah.length;
+    if(!total) return 0;
+    var done = 0;
+    for(var i=0;i<total;i++){ if(plan.langkah[i].selesai) done++; }
+    var p = Math.round((done/total)*100);
+    return isFinite(p) ? p : 0;
+  }
+  function pesanMotivasi(plan){
+    var p = progres(plan), s = sisaHari(plan), utama;
+    if(p === 0) utama = "Yuk, mulai dari langkah pertama! Langkah kecil hari ini adalah kemajuan besar untuk besok.";
+    else if(p < 50) utama = "Kamu sudah mulai bergerak! Terus lanjutkan sedikit demi sedikit.";
+    else if(p < 100) utama = "Sudah lebih dari separuh jalan! Kamu pasti bisa menyelesaikannya.";
+    else utama = "Semua langkah selesai! Kamu sudah bekerja keras, saatnya kumpulkan tugasmu dengan percaya diri.";
+    var tambahan = "";
+    if(p < 50 && s <= 2 && p < 100) tambahan = "Waktu semakin dekat, yuk fokus selesaikan langkah berikutnya sekarang!";
+    return {utama:utama, tambahan:tambahan};
+  }
+  function faseAktif(plan){
+    for(var i=0;i<plan.langkah.length;i++){
+      if(!plan.langkah[i].selesai) return plan.langkah[i];
+    }
+    return plan.langkah.length ? plan.langkah[plan.langkah.length-1] : null;
+  }
+  function prioritasRencana(plan){
+    var s = sisaHari(plan);
+    if(s < 3 || plan.kesulitan === "Sulit") return "Tinggi";
+    if(s <= 7) return "Sedang";
+    return "Rendah";
+  }
+  function urutRencana(){
+    return state.plans.slice().sort(function(a,b){
+      var d = RANK_PRIO[prioritasRencana(b)] - RANK_PRIO[prioritasRencana(a)];
+      if(d !== 0) return d;
+      return sisaHari(a) - sisaHari(b);
+    });
+  }
+  function planAktif(){
+    for(var i=0;i<state.plans.length;i++){ if(state.plans[i].id === state.activeId) return state.plans[i]; }
+    return null;
+  }
+
+  /* ============ TANYA AI (simulasi) ============ */
+  function jawabAI(teks, plan){
+    var t = String(teks||"").toLowerCase().replace(/\s+/g," ").trim();
+    if(!t) return null;
+    for(var i=0;i<POLA_TOLAK.length;i++){
+      if(POLA_TOLAK[i].test(t)){
+        var pesan = TOLAK_TEKS[state.tolakIndex % TOLAK_TEKS.length];
+        state.tolakIndex++;
+        return {tipe:"tolak", teks:pesan};
+      }
+    }
+    var aktif = faseAktif(plan);
+    var key = aktif && aktif.keys.length ? aktif.keys[aktif.keys.length-1] : "a";
+    if(aktif && aktif.keys.length > 1){
+      for(var j=0;j<aktif.keys.length;j++){ if(!plan.langkah.some(function(l){return l.selesai && l.keys.indexOf(aktif.keys[j])!==-1;})){ key = aktif.keys[j]; break; } }
+    }
+    if(!TIPS[key]) key = "a";
+    var arr = TIPS[key];
+    var tip = arr[state.tipsIndex[key] % arr.length];
+    state.tipsIndex[key]++;
+    var nama = aktif ? aktif.judul : "langkah pertamamu";
+    return {tipe:"tips", teks:"Langkah aktifmu sekarang: “"+nama+"”.\n\n"+tip+"\n\nAku bantu strateginya, tapi bagian mengerjakannya tetap kamu, ya."};
+  }
+
+  /* ============ RENDER: KOMPONEN ============ */
+  function chipPrio(p){
+    var cls = p === "Tinggi" ? "chip amber" : (p === "Sedang" ? "chip indigo" : "chip");
+    var ikon = p === "Tinggi" ? "▲" : (p === "Sedang" ? "●" : "○");
+    return '<span class="'+cls+'">'+ikon+' Prioritas '+esc(p)+'</span>';
+  }
+  function labelHari(plan, l){
+    var mulai = parseDate(plan.mulai) || today();
+    var d1 = addDays(mulai, l.hariMulai-1), d2 = addDays(mulai, l.hariAkhir-1);
+    var teksHari = l.hariMulai === l.hariAkhir ? ("Hari "+l.hariMulai) : ("Hari "+l.hariMulai+"–"+l.hariAkhir);
+    var teksTgl = l.hariMulai === l.hariAkhir ? fmtTanggal(d1) : (fmtTanggal(d1)+" – "+fmtTanggal(d2));
+    return {hari:teksHari, tanggal:teksTgl};
+  }
+
+  /* ============ RENDER: HALAMAN ============ */
+  function viewBeranda(){
+    var contoh = null, ci;
+    for(ci=0;ci<state.plans.length;ci++){ if(state.plans[ci].id === state.demoId) contoh = state.plans[ci]; }
+    if(!contoh && state.plans.length) contoh = urutRencana()[0];
+    var miniHtml = "";
+    if(contoh){
+      for(var i=0;i<contoh.langkah.length;i++){
+        var l = contoh.langkah[i], lh = labelHari(contoh, l);
+        miniHtml += '<div class="mini-step">'+
+          '<span class="tick '+(l.selesai?"on":"")+'">✓</span>'+
+          '<span class="mono tiny" style="color:var(--ink-3);min-width:64px">'+esc(lh.hari)+'</span>'+
+          '<span class="small" style="min-width:0;overflow-wrap:anywhere">'+esc(l.judul)+'</span>'+
+        '</div>';
+      }
+    }
+    return '<div class="wrap stack gap-28">'+
+      '<section class="hero">'+
+        '<div class="stack gap-16">'+
+          '<span class="eyebrow">Tier 3 · AI Lab · usia 12+</span>'+
+          '<h1>Bingung mulai tugas dari mana? Yuk, susun rencana bareng AI!</h1>'+
+          '<p class="tagline">Smart School Project Planner memecah satu tugas besar menjadi langkah-langkah kecil harian, lengkap dengan estimasi waktu, prioritas, dan pengingat yang tidak menghakimi. AI di sini merencanakan — bukan mengerjakan tugasmu.</p>'+
+          '<div class="hero-actions">'+
+            '<button class="btn btn-primary" data-go="buat">➕ Buat Rencana Baru</button>'+
+            '<button class="btn btn-ghost" data-go="cara">Lihat cara kerjanya</button>'+
+          '</div>'+
+          '<p class="tiny" style="color:var(--ink-3)">🔒 Tanpa login, tanpa API key, tanpa data pribadi. Semua rencana hanya tersimpan selama tab ini terbuka.</p>'+
+        '</div>'+
+        '<div class="hero-panel">'+
+          '<div class="stack gap-8" style="margin-bottom:10px">'+
+            '<span class="chip indigo" style="align-self:flex-start">Contoh rencana</span>'+
+            '<h3 style="margin-top:2px">'+(contoh?esc(contoh.nama):"Belum ada rencana")+'</h3>'+
+            (contoh?'<span class="mono tiny" style="color:var(--ink-3)">'+esc(contoh.mapel)+' · '+sisaHari(contoh)+' hari lagi · '+esc(contoh.kesulitan)+'</span>':"")+
+          '</div>'+
+          (miniHtml || '<p class="small muted">Klik “Buat Rencana Baru” untuk mulai.</p>')+
+        '</div>'+
+      '</section>'+
+      '<section class="feature-grid">'+
+        '<div class="card feature stack gap-8"><span class="feature-ico">📅</span><h3>Jadwal harian otomatis</h3><p class="small muted">Enam fase pengerjaan dibagi ke sisa harimu, dengan estimasi waktu sesuai jam belajar yang kamu punya.</p></div>'+
+        '<div class="card feature stack gap-8"><span class="feature-ico">✅</span><h3>Progress yang terlihat</h3><p class="small muted">Centang tiap langkah selesai. Progress bar dan pesan motivasi ikut berubah mengikuti kemajuanmu.</p></div>'+
+        '<div class="card feature stack gap-8"><span class="feature-ico">🛡️</span><h3>AI yang tahu batasnya</h3><p class="small muted">Minta strategi belajar? Dijawab. Minta dibuatkan esainya? Ditolak dengan sopan — itu memang aturannya.</p></div>'+
+      '</section>'+
+      '<section class="card-flat stack gap-8">'+
+        '<span class="eyebrow">Demo AI · Simulasi Respons AI</span>'+
+        '<p class="small">Aplikasi ini adalah <strong>simulasi</strong>. Rencana dan jawaban disusun oleh algoritma dan template yang dirancang siswa di dalam browser, bukan oleh model AI sungguhan. Tidak ada kolom API key dan tidak ada panggilan ke server mana pun. Penjelasan lengkapnya ada di halaman <button class="btn btn-ghost btn-small" data-go="tentang" style="margin-left:4px">Tentang Proyek</button></p>'+
+      '</section>'+
+    '</div>';
+  }
+
+  function viewBuat(){
+    var f = state.form;
+    var t = today();
+    var dl = parseDate(f.tanggal);
+    var errTanggal = "";
+    if(f.tanggal && (!dl || diffDays(t, dl) <= 0)) errTanggal = "Tanggalnya sudah lewat atau hari ini. Pilih tanggal setelah hari ini, ya — supaya jadwalmu punya ruang untuk dikerjakan.";
+    var valid = f.nama.trim().length > 0 && f.mapel && f.kesulitan && f.menit && dl && diffDays(t, dl) > 0;
+    var totalHari = (dl && diffDays(t,dl) > 0) ? diffDays(t,dl) : 0;
+
+    var optMapel = '<option value="">Pilih mata pelajaran…</option>';
+    for(var i=0;i<MAPEL.length;i++) optMapel += '<option value="'+esc(MAPEL[i])+'"'+(f.mapel===MAPEL[i]?" selected":"")+'>'+esc(MAPEL[i])+'</option>';
+    var optWaktu = '<option value="">Pilih durasi…</option>';
+    for(var j=0;j<WAKTU.length;j++) optWaktu += '<option value="'+WAKTU[j].v+'"'+(String(f.menit)===String(WAKTU[j].v)?" selected":"")+'>'+esc(WAKTU[j].t)+'</option>';
+    var kartu = "";
+    for(var k=0;k<KESULITAN.length;k++){
+      kartu += '<button type="button" class="choice" data-kesulitan="'+esc(KESULITAN[k].v)+'" aria-pressed="'+(f.kesulitan===KESULITAN[k].v?"true":"false")+'">'+
+        '<span class="c-t">'+esc(KESULITAN[k].v)+'</span><span class="c-d">'+esc(KESULITAN[k].d)+'</span></button>';
+    }
+
+    return '<div class="wrap stack gap-20">'+
+      '<div class="stack gap-8">'+
+        '<span class="eyebrow">Langkah 1 dari 2 · Isi data tugas</span>'+
+        '<h1>Ceritakan tugasmu</h1>'+
+        '<p class="tagline">Lima isian ini dipakai algoritma perencana untuk menyusun jadwal. Tidak ada pertanyaan tentang nama lengkap, sekolah, atau alamat.</p>'+
+      '</div>'+
+      '<form class="card stack gap-20" id="form-tugas" novalidate>'+
+        '<label class="field"><span class="field-label">Nama tugas</span>'+
+          '<input type="text" id="in-nama" value="'+esc(f.nama)+'" placeholder="Contoh: Presentasi IPA tentang Tata Surya" autocomplete="off" maxlength="80">'+
+          '<span class="field-hint">Tulis jenis tugasnya (presentasi, esai, makalah, poster) supaya langkahnya lebih pas.</span>'+
+        '</label>'+
+        '<div class="form-grid two">'+
+          '<label class="field"><span class="field-label">Mata pelajaran</span><select id="in-mapel">'+optMapel+'</select></label>'+
+          '<label class="field"><span class="field-label">Batas waktu</span>'+
+            '<input type="date" id="in-tanggal" value="'+esc(f.tanggal)+'" min="'+esc(toISO(addDays(t,1)))+'">'+
+            (errTanggal ? '<span class="err">'+esc(errTanggal)+'</span>' :
+              (totalHari ? '<span class="field-hint">Kamu punya <strong>'+totalHari+' hari</strong> sampai batas waktu.</span>' : '<span class="field-hint">Pilih tanggal setelah hari ini.</span>'))+
+          '</label>'+
+        '</div>'+
+        '<div class="field"><span class="field-label">Tingkat kesulitan</span><div class="choice-row">'+kartu+'</div></div>'+
+        '<label class="field"><span class="field-label">Waktu belajar yang tersedia per hari</span><select id="in-menit">'+optWaktu+'</select>'+
+          '<span class="field-hint">Dipakai untuk menghitung estimasi waktu tiap langkah.</span></label>'+
+        (state.formTouched && !valid ? '<p class="err">Lengkapi semua kolom di atas dulu supaya rencananya bisa disusun.</p>' : '')+
+        '<div class="hero-actions">'+
+          '<button type="submit" class="btn btn-primary" id="btn-buat"'+(valid?"":" disabled")+'>📅 Buatkan Rencana</button>'+
+          '<button type="button" class="btn btn-ghost" data-go="beranda">Batal</button>'+
+        '</div>'+
+      '</form>'+
+    '</div>';
+  }
+
+  function viewRencana(){
+    var plan = planAktif();
+    if(!plan){
+      return '<div class="wrap stack gap-16"><h1>Rencana tidak ditemukan</h1>'+
+        '<p class="muted">Rencananya mungkin belum dibuat di sesi ini.</p>'+
+        '<div class="hero-actions"><button class="btn btn-primary" data-go="buat">Buat Rencana Baru</button>'+
+        '<button class="btn btn-ghost" data-go="tugas">Lihat Tugas Saya</button></div></div>';
+    }
+    var s = sisaHari(plan), p = progres(plan), m = pesanMotivasi(plan);
+    var dl = parseDate(plan.deadline);
+    var doneCount = 0, i;
+    for(i=0;i<plan.langkah.length;i++){ if(plan.langkah[i].selesai) doneCount++; }
+
+    var stepsHtml = "", sudahDivider = false;
+    for(i=0;i<plan.langkah.length;i++){
+      var l = plan.langkah[i], lh = labelHari(plan, l);
+      if(l.baru && !sudahDivider){
+        stepsHtml += '<li><div class="divider-note">jadwal baru · mulai hari ini</div></li>';
+        sudahDivider = true;
+      }
+      stepsHtml += '<li class="step '+(l.selesai?"done":"")+'">'+
+        '<div class="rail"><span class="day-chip">'+esc(lh.hari)+'</span><span class="rail-line"></span></div>'+
+        '<div class="step-body">'+
+          '<div class="step-top">'+
+            '<input type="checkbox" class="checkbox" data-check="'+esc(l.id)+'" '+(l.selesai?"checked":"")+' aria-label="Tandai selesai: '+esc(l.judul)+'">'+
+            '<span class="step-title">'+esc(l.judul)+'</span>'+
+          '</div>'+
+          '<div class="step-meta">'+
+            '<span class="chip"><span aria-hidden="true">📆</span> '+esc(lh.tanggal)+'</span>'+
+            '<span class="chip"><span aria-hidden="true">⏱️</span> '+esc(fmtMenit(l.menit))+
+              (l.hariAkhir > l.hariMulai ? ' <span style="font-weight:400;opacity:.75">('+esc(fmtMenit(plan.menit))+'/hari)</span>' : '')+'</span>'+
+            chipPrio(l.prioritas)+
+            (l.selesai ? '<span class="chip green">✓ Selesai</span>' : '')+
+          '</div>'+
+        '</div>'+
+      '</li>';
+    }
+
+    var catatanKilat = plan.totalHari <= 2 ?
+      '<div class="warn-box" style="background:var(--indigo-soft);border-color:transparent;color:var(--indigo-ink)">⏳ Waktumu cukup singkat! Fokus ke langkah paling penting dulu, dan pertimbangkan minta perpanjangan waktu kalau memungkinkan.</div>' : '';
+    var catatanSulit = plan.kesulitan === "Sulit" ?
+      '<p class="tiny muted">Tugas ini kamu tandai <strong>Sulit</strong>, jadi rencananya masuk Prioritas Tinggi di halaman Tugas Saya. Sisihkan waktu ekstra untuk fase intinya.</p>' : '';
+
+    var chatHtml = "";
+    if(!plan.chat.length){
+      chatHtml = '<p class="small muted">Belum ada pertanyaan. Coba tanya hal seperti “gimana cara cari sumber yang bagus?” atau “tips biar nggak nunda?”</p>';
+    } else {
+      for(i=0;i<plan.chat.length;i++){
+        var c = plan.chat[i];
+        if(c.dari === "siswa"){
+          chatHtml += '<div class="bubble user">'+esc(c.teks)+'</div>';
+        } else {
+          chatHtml += '<div class="bubble ai '+(c.tipe==="tolak"?"refuse":"")+'">'+esc(c.teks).replace(/\n/g,"<br>")+
+            '<span class="bubble-tag">Simulasi Respons AI · '+(c.tipe==="tolak"?"penolakan sopan":"tips strategi belajar")+'</span></div>';
+        }
+      }
+    }
+
+    var resetModal = "";
+    if(state.showReset){
+      var optW = "";
+      for(i=0;i<WAKTU.length;i++) optW += '<option value="'+WAKTU[i].v+'"'+(String(state.resetDraft.menit)===String(WAKTU[i].v)?" selected":"")+'>'+esc(WAKTU[i].t)+'</option>';
+      resetModal = '<div class="modal-backdrop" id="reset-backdrop"><div class="modal" role="dialog" aria-modal="true" aria-label="Atur ulang jadwal">'+
+        '<div class="stack gap-8"><h3>Atur ulang jadwal</h3>'+
+        '<p class="small muted">Langkah yang sudah kamu centang tetap tersimpan dan tidak akan berubah. Hanya langkah yang belum selesai yang disusun ulang, mulai hari ini.</p></div>'+
+        '<label class="field"><span class="field-label">Sisa hari sampai batas waktu</span>'+
+          '<input type="number" id="reset-hari" min="1" max="120" value="'+esc(state.resetDraft.hari)+'"></label>'+
+        '<label class="field"><span class="field-label">Waktu belajar per hari</span><select id="reset-menit">'+optW+'</select></label>'+
+        (state.resetError ? '<span class="err">'+esc(state.resetError)+'</span>' : '')+
+        '<div class="hero-actions"><button class="btn btn-primary" id="reset-simpan">Susun Ulang</button>'+
+        '<button class="btn btn-ghost" id="reset-batal">Batal</button></div></div></div>';
+    }
+
+    return '<div class="wrap stack gap-20">'+
+      '<div class="plan-head">'+
+        '<button class="btn btn-ghost btn-small" data-go="tugas" style="align-self:flex-start">← Semua tugas</button>'+
+        '<h1>'+esc(plan.nama)+'</h1>'+
+        '<div class="meta-row">'+
+          '<span class="chip indigo">📚 '+esc(plan.mapel)+'</span>'+
+          '<span class="chip '+(s<3?"amber":"")+'">⏳ '+(s===0?"Batas waktu hari ini":(s+" hari lagi"))+'</span>'+
+          '<span class="chip">🎯 '+esc(plan.kesulitan)+'</span>'+
+          '<span class="chip">📅 '+(dl?esc(fmtTanggal(dl)):"-")+'</span>'+
+          '<span class="chip">🧩 '+esc(plan.jenis.nama)+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="plan-grid">'+
+        '<section class="stack gap-16">'+
+          '<div class="motivation"><strong>Kata perencanamu:</strong> '+esc(m.utama)+
+            (m.tambahan?'<br><span class="small">'+esc(m.tambahan)+'</span>':'')+'</div>'+
+          catatanKilat+
+          '<div class="stack gap-12">'+
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">'+
+              '<h2>Jadwal langkah demi langkah</h2>'+
+              '<button class="btn btn-ghost btn-small" id="btn-reset">🔁 Atur Ulang Jadwal</button>'+
+            '</div>'+
+            '<ul class="steps">'+stepsHtml+'</ul>'+
+            catatanSulit+
+          '</div>'+
+        '</section>'+
+        '<aside class="plan-aside">'+
+          '<div class="card stack gap-12">'+
+            '<div style="display:flex;justify-content:space-between;align-items:baseline">'+
+              '<span class="eyebrow">Progress</span>'+
+              '<span class="pct">'+p+'%</span>'+
+            '</div>'+
+            '<div class="progress-bar"><div class="progress-fill" style="width:'+p+'%"></div></div>'+
+            '<p class="small muted mono">'+doneCount+' dari '+plan.langkah.length+' langkah selesai</p>'+
+          '</div>'+
+          '<div class="warn-box">⚠️ AI ini membantu merencanakan, bukan mengerjakan tugasmu. Kamu tetap yang mengerjakan setiap langkahnya!</div>'+
+          '<div class="card-flat stack gap-8">'+
+            '<span class="eyebrow">Aturan AI</span>'+
+            '<p class="tiny muted">Perencana ini hanya boleh memecah tugas, menyusun jadwal, dan memberi motivasi. Kalau diminta menuliskan isi tugas, ia akan menolak dengan sopan.</p>'+
+            '<button class="btn btn-ghost btn-small" data-go="tentang">Baca system prompt-nya</button>'+
+          '</div>'+
+        '</aside>'+
+      '</div>'+
+      '<section class="card stack gap-12">'+
+        '<div class="stack gap-8">'+
+          '<h2>Tanya strategi belajar ke AI</h2>'+
+          '<p class="small muted">Tanyakan cara mengerjakan, bukan minta dikerjakan. Jawaban menyesuaikan langkah yang sedang aktif di jadwalmu.</p>'+
+        '</div>'+
+        '<div class="ask-log" id="ask-log">'+chatHtml+'</div>'+
+        '<form class="ask-form" id="ask-form">'+
+          '<label class="sr-only" for="ask-input">Pertanyaan strategi belajar</label>'+
+          '<input type="text" id="ask-input" placeholder="Contoh: gimana cara bikin outline yang rapi?" value="'+esc(state.askDraft)+'" maxlength="200" autocomplete="off">'+
+          '<button class="btn btn-primary" type="submit">Kirim</button>'+
+        '</form>'+
+        '<p class="tiny" style="color:var(--ink-3)">Demo AI · jawaban berasal dari kumpulan tips yang disiapkan siswa, bukan model AI sungguhan.</p>'+
+      '</section>'+
+      resetModal+
+    '</div>';
+  }
+
+  function viewTugas(){
+    var list = urutRencana();
+    if(!list.length){
+      return '<div class="wrap stack gap-16"><h1>Tugas Saya</h1>'+
+        '<div class="card stack gap-12" style="text-align:center;padding:40px 20px">'+
+        '<span style="font-size:2.2rem">🗓️</span>'+
+        '<h3>Belum ada rencana di sesi ini</h3>'+
+        '<p class="small muted">Setiap rencana yang kamu buat akan muncul di sini selama tab browser ini terbuka.</p>'+
+        '<div style="display:flex;justify-content:center"><button class="btn btn-primary" data-go="buat">Buat Rencana Baru</button></div>'+
+        '</div></div>';
+    }
+    var cards = "";
+    for(var i=0;i<list.length;i++){
+      var pl = list[i], pr = prioritasRencana(pl), pg = progres(pl), s = sisaHari(pl);
+      cards += '<button class="task-card p-'+pr.toLowerCase()+'" data-open="'+esc(pl.id)+'">'+
+        '<div class="meta-row">'+chipPrio(pr)+(pl.contoh?'<span class="chip indigo">Contoh</span>':'')+'</div>'+
+        '<h3 style="overflow-wrap:anywhere">'+esc(pl.nama)+'</h3>'+
+        '<span class="small muted">'+esc(pl.mapel)+' · '+esc(pl.kesulitan)+' · '+(s===0?"batas waktu hari ini":(s+" hari lagi"))+'</span>'+
+        '<div class="progress-bar"><div class="progress-fill" style="width:'+pg+'%"></div></div>'+
+        '<span class="mono tiny" style="color:var(--ink-3)">'+pg+'% selesai · '+pl.langkah.length+' langkah</span>'+
+      '</button>';
+    }
+    return '<div class="wrap stack gap-20">'+
+      '<div class="stack gap-8">'+
+        '<h1>Tugas Saya</h1>'+
+        '<p class="tagline">Diurutkan dari prioritas tertinggi. Prioritas Tinggi berlaku kalau sisa hari kurang dari 3 <em>atau</em> tingkat kesulitannya Sulit.</p>'+
+      '</div>'+
+      '<div class="task-grid">'+cards+'</div>'+
+      '<div><button class="btn btn-primary" data-go="buat">➕ Buat Rencana Baru</button></div>'+
+      '<p class="tiny" style="color:var(--ink-3)">Daftar ini hanya tersimpan selama sesi browser berlangsung. Menutup tab akan menghapusnya — tidak ada data yang dikirim ke mana pun.</p>'+
+    '</div>';
+  }
+
+  function viewCara(){
+    return '<div class="wrap stack gap-20"><div class="stack gap-8">'+
+      '<span class="eyebrow">Panduan singkat</span><h1>Cara kerja</h1>'+
+      '<p class="tagline">Lima langkah dari tugas yang bikin bingung sampai jadwal yang tinggal dikerjakan.</p></div>'+
+      '<ol class="steps-how card">'+
+        '<li><div><h3>Isi form tugasmu</h3><p class="small muted">Nama tugas, mata pelajaran, batas waktu, tingkat kesulitan, dan waktu belajar yang tersedia per hari.</p></div></li>'+
+        '<li><div><h3>Klik “Buatkan Rencana”</h3><p class="small muted">Perencana membagi tugasmu ke enam fase, lalu menyesuaikan pembagian harinya dengan sisa waktu yang kamu punya.</p></div></li>'+
+        '<li><div><h3>Kerjakan langkah demi langkah</h3><p class="small muted">Centang setiap langkah yang selesai. Progress bar dan pesan motivasinya ikut bergerak.</p></div></li>'+
+        '<li><div><h3>Tanya strategi kalau buntu</h3><p class="small muted">Gunakan kolom “Tanya strategi belajar ke AI” untuk minta cara mengerjakan — bukan minta dikerjakan, ya!</p></div></li>'+
+        '<li><div><h3>Atur ulang kalau tertinggal</h3><p class="small muted">Klik “Atur Ulang Jadwal” untuk mengubah sisa hari atau waktu belajar. Langkah yang sudah selesai tetap aman.</p></div></li>'+
+      '</ol>'+
+      '<h2>Bagaimana jadwalnya dihitung</h2>'+
+      '<div class="table-scroll"><table>'+
+        '<thead><tr><th>Sisa hari</th><th>Pembagian fase</th></tr></thead><tbody>'+
+        '<tr><td class="mono">6 hari atau lebih</td><td>Enam fase masing-masing 1 hari. Semua hari sisa ditambahkan ke fase mengerjakan bagian inti, karena fase itu biasanya paling memakan waktu.</td></tr>'+
+        '<tr><td class="mono">4–5 hari</td><td>Fase 1 & 2 digabung jadi hari pertama, outline 1 hari, sisanya untuk fase inti, lalu tinjau ulang + pemeriksaan akhir jadi hari terakhir.</td></tr>'+
+        '<tr><td class="mono">3 hari</td><td>Pahami instruksi + cari sumber + outline pada hari pertama, fase inti 1 hari penuh, tinjau ulang + pemeriksaan akhir di hari terakhir.</td></tr>'+
+        '<tr><td class="mono">1–2 hari</td><td>Semua fase dipadatkan jadi maksimal dua langkah, plus catatan untuk fokus ke hal terpenting dan mempertimbangkan minta perpanjangan waktu.</td></tr>'+
+      '</tbody></table></div>'+
+      '<h2>Label langkah menyesuaikan jenis tugas</h2>'+
+      '<div class="table-scroll"><table>'+
+        '<thead><tr><th>Kata kunci di nama tugas</th><th>Fase inti</th><th>Fase tinjau ulang</th></tr></thead><tbody>'+
+        '<tr><td class="mono">presentasi, pidato</td><td>Membuat slide/materi presentasi</td><td>Latihan presentasi</td></tr>'+
+        '<tr><td class="mono">esai, karangan, cerpen</td><td>Menulis draf esai</td><td>Membaca ulang dan menyunting</td></tr>'+
+        '<tr><td class="mono">makalah, laporan</td><td>Menulis isi makalah</td><td>Meninjau struktur dan referensi</td></tr>'+
+        '<tr><td class="mono">poster, infografis</td><td>Mendesain poster/infografis</td><td>Meminta masukan teman/keluarga</td></tr>'+
+        '<tr><td class="mono">tidak ada yang cocok</td><td>Mengerjakan bagian inti tugas</td><td>Meninjau ulang hasil kerja</td></tr>'+
+      '</tbody></table></div>'+
+      '<div class="warn-box">⚠️ AI ini membantu merencanakan, bukan mengerjakan tugasmu. Kamu tetap yang mengerjakan setiap langkahnya!</div>'+
+      '<div><button class="btn btn-primary" data-go="buat">Coba sekarang</button></div>'+
+    '</div>';
+  }
+
+  function viewTentang(){
+    var sp = "Kamu adalah asisten perencana tugas untuk siswa SMP/SMA. Tugasmu HANYA membantu memecah tugas menjadi langkah-langkah kecil, menyusun jadwal, dan memberi motivasi. Kamu TIDAK BOLEH mengerjakan tugas itu sendiri (menulis esai, jawaban soal, slide, atau konten tugas lainnya). Jika siswa meminta kamu mengerjakan tugasnya secara langsung, tolak dengan sopan dan arahkan kembali ke proses perencanaan. Gunakan bahasa yang memotivasi dan tidak menghakimi siswa yang menunda tugas.";
+    function kv(k,v){ return '<div class="kv"><div class="k">'+esc(k)+'</div><div>'+v+'</div></div>'; }
+    return '<div class="wrap stack gap-20">'+
+      '<div class="stack gap-8"><span class="eyebrow">Portofolio proyek akhir</span>'+
+      '<h1>Tentang proyek</h1>'+
+      '<p class="tagline">Halaman ini menjelaskan siapa yang membuat apa, bagian mana yang dibantu AI, dan bagian mana yang masih berupa simulasi.</p></div>'+
+
+      '<section class="card">'+
+        kv("Judul proyek","Smart School Project Planner")+
+        kv("Tier","Tier 3 – AI Lab, usia 12 tahun ke atas")+
+        kv("Jenis produk","AI-Powered Web App (simulasi asisten perencana tugas)")+
+        kv("Pembuat","Siswa Future Makers <span class=\"tiny\" style=\"color:var(--ink-3)\">(identitas contoh, bukan nama asli)</span>")+
+        kv("Masalah yang diselesaikan","Siswa sering menunda tugas karena tidak tahu harus mulai dari mana.")+
+        kv("Tujuan proyek","Merancang aplikasi perencana tugas yang membantu siswa memecah pekerjaan besar menjadi langkah-langkah kecil yang mudah dikerjakan, sekaligus menjadi contoh nyata penerapan AI yang bertanggung jawab — membantu proses belajar, bukan menggantikannya.")+
+      '</section>'+
+
+      '<section class="stack gap-12"><h2>Cara menggunakan</h2>'+
+      '<ol class="prose"><li>Isi form: nama tugas, mata pelajaran, batas waktu, tingkat kesulitan, dan waktu belajar yang tersedia.</li>'+
+      '<li>Klik “Buatkan Rencana” dan lihat jadwal langkah-langkah yang disusun AI.</li>'+
+      '<li>Kerjakan langkah demi langkah sesuai jadwal, centang setiap kali selesai.</li>'+
+      '<li>Kalau butuh strategi mengerjakan, tanya AI di kolom yang tersedia (bukan minta dikerjakan, ya!).</li>'+
+      '<li>Klik “Atur Ulang Jadwal” kalau ada perubahan waktu atau kamu tertinggal jadwal.</li></ol></section>'+
+
+      '<section class="stack gap-12"><h2>System prompt yang digunakan</h2>'+
+      '<div class="quote">'+esc(sp)+'</div>'+
+      '<p class="small muted">Karena artifact ini berjalan tanpa backend, system prompt di atas belum dikirim ke model AI sungguhan. Ia berfungsi sebagai <em>aturan perilaku</em> yang diterjemahkan siswa menjadi kode: pembagian fase, pesan motivasi, dan mekanisme penolakan di kolom Tanya AI.</p></section>'+
+
+      '<section class="stack gap-12"><h2>Apa yang dibuat siswa</h2>'+
+      '<ul class="prose">'+
+      '<li>Merancang system prompt yang membatasi AI hanya boleh merencanakan, bukan mengerjakan tugas</li>'+
+      '<li>Menentukan lima input yang dibutuhkan untuk membuat rencana</li>'+
+      '<li>Merancang algoritma pembagian jadwal berdasarkan sisa hari dan tingkat kesulitan</li>'+
+      '<li>Menyusun pesan motivasi untuk setiap tahap progress</li>'+
+      '<li>Merancang mekanisme penolakan sopan saat AI diminta mengerjakan tugas secara langsung</li>'+
+      '<li>Menguji berbagai kombinasi input dan memperbaiki algoritma berdasarkan hasil pengujian</li>'+
+      '</ul></section>'+
+
+      '<section class="stack gap-12"><h2>Bagaimana AI membantu</h2>'+
+      '<ul class="prose">'+
+      '<li>Menyusun draf system prompt berdasarkan batasan etika yang ditentukan siswa</li>'+
+      '<li>Membantu merancang algoritma pembagian jadwal</li>'+
+      '<li>Menghasilkan variasi pesan motivasi dan tips strategi belajar</li>'+
+      '<li>Membantu menulis pesan penolakan yang sopan namun tegas</li>'+
+      '<li>Membantu membangun aplikasi interaktif berdasarkan struktur yang ditentukan siswa</li>'+
+      '</ul></section>'+
+
+      '<section class="stack gap-12"><h2>Contoh prompt yang digunakan siswa</h2>'+
+      '<div class="stack gap-8"><span class="eyebrow">Prompt 1 · merancang system prompt</span>'+
+      '<div class="quote">Bantu saya membuat system prompt untuk AI asisten perencana tugas sekolah. AI ini hanya boleh membantu memecah tugas jadi langkah-langkah dan menyusun jadwal, TIDAK BOLEH menuliskan jawaban atau konten tugas apa pun untuk siswa. Kalau diminta mengerjakan langsung, AI harus menolak dengan sopan dan mengarahkan kembali ke proses perencanaan.</div></div>'+
+      '<div class="stack gap-8"><span class="eyebrow">Prompt 2 · perbaikan nada bicara</span>'+
+      '<div class="quote">Tolong revisi system prompt di atas supaya nada bicaranya lebih memotivasi dan tidak terkesan menghakimi siswa yang sering menunda tugas — AI harus tetap suportif walau menolak permintaan mengerjakan tugas.</div></div></section>'+
+
+      '<section class="stack gap-12"><h2>Hal yang dipelajari siswa</h2>'+
+      '<ul class="prose">'+
+      '<li>Merancang system prompt yang membatasi kemampuan AI secara jelas demi alasan etika</li>'+
+      '<li>Memecah masalah besar (menunda tugas) menjadi solusi bertahap (algoritma penjadwalan)</li>'+
+      '<li>Merancang mekanisme penolakan yang sopan dan tetap suportif</li>'+
+      '<li>Menguji algoritma dengan berbagai kombinasi input dan memperbaikinya</li>'+
+      '<li>Memahami bahwa AI yang bertanggung jawab kadang berarti AI yang menolak membantu dengan cara tertentu, demi kebaikan penggunanya</li>'+
+      '</ul></section>'+
+
+      '<section class="card-flat stack gap-12"><h2>Catatan penggunaan AI, keamanan, dan keterbatasan</h2>'+
+      '<p class="small">“AI membantu merancang algoritma pembagian jadwal, variasi pesan motivasi, dan mekanisme penolakan, tetapi siswa yang menentukan batasan etika, lima input yang dibutuhkan, dan aturan prioritas. Karena artifact ini adalah simulasi (tanpa koneksi API sungguhan), AI di dalam aplikasi menyusun jadwal berdasarkan algoritma tetap yang sudah dirancang — system prompt di atas menunjukkan bagaimana AI sungguhan akan diarahkan apabila API asli dihubungkan di masa depan.”</p>'+
+      '<ul class="prose">'+
+      '<li><strong>Status simulasi.</strong> Tidak ada panggilan API, tidak ada kolom API key, dan tidak ada kunci rahasia di dalam halaman ini. Semua respons berasal dari algoritma dan template di sisi browser, dan diberi label “Demo AI · Simulasi Respons AI”.</li>'+
+      '<li><strong>Privasi.</strong> Aplikasi tidak meminta nama lengkap, alamat, nama sekolah, nomor telepon, atau foto. Data rencana hanya berada di memori tab browser dan hilang saat tab ditutup.</li>'+
+      '<li><strong>Keterbatasan.</strong> Perencana belum mengenali hari libur, jadwal ekstrakurikuler, atau tugas yang saling bertabrakan. Deteksi jenis tugas hanya berdasarkan kata kunci, jadi nama tugas yang tidak biasa akan memakai label default.</li>'+
+      '<li><strong>Bukan pengganti guru.</strong> Estimasi waktu adalah perkiraan kasar. Kalau tugasnya terasa tidak mungkin selesai, bicarakan dengan guru atau orang tua.</li>'+
+      '</ul></section>'+
+
+      '<section class="stack gap-12"><h2>Rencana pengembangan berikutnya</h2>'+
+      '<ul class="prose">'+
+      '<li>Menghubungkan system prompt ke API AI sungguhan lewat backend yang aman (API key disimpan di server, tidak pernah di frontend)</li>'+
+      '<li>Menyimpan rencana secara permanen dan sinkron antar perangkat</li>'+
+      '<li>Pengingat harian dan penyesuaian otomatis kalau siswa tertinggal jadwal</li>'+
+      '<li>Mode kolaborasi untuk tugas kelompok, lengkap dengan pembagian peran</li>'+
+      '<li>Menghitung hari libur dan jadwal kegiatan lain saat membagi jadwal</li>'+
+      '<li>Ekspor jadwal ke kalender ponsel</li>'+
+      '</ul></section>'+
+
+      '<div><button class="btn btn-primary" data-go="buat">Buat Rencana Baru</button></div>'+
+    '</div>';
+  }
+
+  /* ============ RENDER UTAMA ============ */
+  var NAV = [
+    {id:"beranda", label:"Beranda"},
+    {id:"tugas", label:"Tugas Saya"},
+    {id:"cara", label:"Cara Kerja"},
+    {id:"tentang", label:"Tentang Proyek"}
+  ];
+
+  function renderNav(){
+    var html = "";
+    for(var i=0;i<NAV.length;i++){
+      var aktif = (state.page === NAV[i].id) || (state.page === "rencana" && NAV[i].id === "tugas") || (state.page === "buat" && NAV[i].id === "beranda");
+      html += '<button data-go="'+NAV[i].id+'"'+(aktif?' aria-current="page"':'')+'>'+esc(NAV[i].label)+'</button>';
+    }
+    document.getElementById("nav").innerHTML = html;
+  }
+
+  function render(){
+    var app = document.getElementById("app");
+    try{
+      renderNav();
+      var html;
+      if(state.page === "buat") html = viewBuat();
+      else if(state.page === "rencana") html = viewRencana();
+      else if(state.page === "tugas") html = viewTugas();
+      else if(state.page === "cara") html = viewCara();
+      else if(state.page === "tentang") html = viewTentang();
+      else html = viewBeranda();
+      app.innerHTML = html;
+      var log = document.getElementById("ask-log");
+      if(log) log.scrollTop = log.scrollHeight;
+    }catch(e){
+      app.innerHTML = '<div class="wrap stack gap-16"><h1>Ups, ada yang tidak beres</h1>'+
+        '<p class="muted">Halaman gagal ditampilkan. Datamu di sesi ini masih aman — coba kembali ke beranda.</p>'+
+        '<div><button class="btn btn-primary" data-go="beranda">Kembali ke Beranda</button></div></div>';
+      if(window.console && console.error) console.error(e);
+    }
+  }
+  function go(page){
+    state.page = page;
+    state.showReset = false;
+    state.resetError = "";
+    if(page !== "rencana") state.askDraft = "";
+    render();
+    window.scrollTo(0,0);
+  }
+
+  /* ============ EVENT ============ */
+  document.addEventListener("click", function(ev){
+    var t = ev.target;
+    var goBtn = t.closest ? t.closest("[data-go]") : null;
+    if(goBtn){ ev.preventDefault(); go(goBtn.getAttribute("data-go")); return; }
+
+    var openBtn = t.closest ? t.closest("[data-open]") : null;
+    if(openBtn){ state.activeId = openBtn.getAttribute("data-open"); go("rencana"); return; }
+
+    var kes = t.closest ? t.closest("[data-kesulitan]") : null;
+    if(kes){ state.form.kesulitan = kes.getAttribute("data-kesulitan"); render(); return; }
+
+    if(t.id === "btn-reset"){
+      var plan = planAktif();
+      if(plan){
+        state.resetDraft = {hari:String(Math.max(1, sisaHari(plan))), menit:String(plan.menit)};
+        state.resetError = "";
+        state.showReset = true;
+        render();
+      }
+      return;
+    }
+    if(t.id === "reset-batal" || t.id === "reset-backdrop"){ state.showReset = false; state.resetError=""; render(); return; }
+    if(t.id === "reset-simpan"){
+      var p2 = planAktif();
+      var hEl = document.getElementById("reset-hari"), mEl = document.getElementById("reset-menit");
+      var h = hEl ? parseInt(hEl.value,10) : NaN;
+      var mm = mEl ? parseInt(mEl.value,10) : NaN;
+      if(!p2 || !isFinite(h) || h < 1 || h > 120 || !isFinite(mm)){
+        state.resetError = "Isi sisa hari antara 1 sampai 120, dan pilih waktu belajarnya.";
+        state.resetDraft = {hari: hEl?hEl.value:"", menit: mEl?mEl.value:""};
+        render();
+        return;
+      }
+      susunUlang(p2, h, mm);
+      state.showReset = false;
+      state.resetError = "";
+      render();
+      return;
+    }
+  });
+
+  document.addEventListener("change", function(ev){
+    var t = ev.target;
+    if(t.id === "in-mapel"){ state.form.mapel = t.value; render(); return; }
+    if(t.id === "in-menit"){ state.form.menit = t.value; render(); return; }
+    if(t.id === "in-tanggal"){ state.form.tanggal = t.value; render(); return; }
+    if(t.getAttribute && t.getAttribute("data-check")){
+      var plan = planAktif();
+      if(!plan) return;
+      var id = t.getAttribute("data-check");
+      for(var i=0;i<plan.langkah.length;i++){
+        if(plan.langkah[i].id === id) plan.langkah[i].selesai = !!t.checked;
+      }
+      render();
+      return;
+    }
+  });
+
+  document.addEventListener("input", function(ev){
+    var t = ev.target;
+    if(t.id === "in-nama"){
+      state.form.nama = t.value;
+      var btn = document.getElementById("btn-buat");
+      var f = state.form, dl = parseDate(f.tanggal);
+      var valid = f.nama.trim().length > 0 && f.mapel && f.kesulitan && f.menit && dl && diffDays(today(), dl) > 0;
+      if(btn) btn.disabled = !valid;
+      return;
+    }
+    if(t.id === "ask-input"){ state.askDraft = t.value; return; }
+    if(t.id === "reset-hari"){ state.resetDraft.hari = t.value; return; }
+  });
+
+  document.addEventListener("submit", function(ev){
+    var t = ev.target;
+    if(t.id === "form-tugas"){
+      ev.preventDefault();
+      state.formTouched = true;
+      var f = state.form, dl = parseDate(f.tanggal);
+      var valid = f.nama.trim().length > 0 && f.mapel && f.kesulitan && f.menit && dl && diffDays(today(), dl) > 0;
+      if(!valid){ render(); return; }
+      var plan = buatRencana({nama:f.nama.trim(), mapel:f.mapel, tanggal:f.tanggal, kesulitan:f.kesulitan, menit:parseInt(f.menit,10)});
+      state.plans.push(plan);
+      state.activeId = plan.id;
+      state.form = {nama:"", mapel:"", tanggal:"", kesulitan:"", menit:""};
+      state.formTouched = false;
+      go("rencana");
+      return;
+    }
+    if(t.id === "ask-form"){
+      ev.preventDefault();
+      var plan2 = planAktif();
+      var inp = document.getElementById("ask-input");
+      var teks = inp ? inp.value.trim() : "";
+      if(!plan2 || !teks) return;
+      var jawab = jawabAI(teks, plan2);
+      plan2.chat.push({dari:"siswa", teks:teks});
+      if(jawab) plan2.chat.push({dari:"ai", teks:jawab.teks, tipe:jawab.tipe});
+      else plan2.chat.push({dari:"ai", teks:"Coba tulis pertanyaanmu sedikit lebih panjang, ya. Aku bantu strategi belajarnya.", tipe:"tips"});
+      state.askDraft = "";
+      render();
+      var i2 = document.getElementById("ask-input");
+      if(i2) i2.focus();
+      return;
+    }
+  });
+
+  /* ============ CONTOH AWAL (agar halaman tidak kosong) ============ */
+  (function seed(){
+    var contoh = buatRencana({
+      nama:"Presentasi IPA tentang Tata Surya",
+      mapel:"IPA",
+      tanggal: toISO(addDays(today(),7)),
+      kesulitan:"Sedang",
+      menit:60,
+      contoh:true
+    });
+    contoh.langkah[0].selesai = true;
+    state.plans.push(contoh);
+    state.activeId = contoh.id;
+    state.demoId = contoh.id;
+
+    var contoh2 = buatRencana({
+      nama:"Esai Bahasa Indonesia: Pahlawan di Sekitarku",
+      mapel:"Bahasa Indonesia",
+      tanggal: toISO(addDays(today(),2)),
+      kesulitan:"Sulit",
+      menit:90,
+      contoh:true
+    });
+    state.plans.push(contoh2);
+  })();
+
+  render();
+})();
+</script>
+
+</body></html>

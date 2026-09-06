@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Klasik</title>
+<style>
+  /* ============ TEMA & DASAR ============ */
+  :root{
+    --bg:#070b18;
+    --panel:#101a30;
+    --panel-2:#16233f;
+    --board:#0a1020;
+    --line:#14203a;
+    --border:#1e2c4a;
+    --text:#e6edf7;
+    --muted:#8ea3c4;
+    --green:#22c55e;
+    --green-light:#86efac;
+    --food:#f97316;
+    --food-2:#ef4444;
+    --accent:#38bdf8;
+  }
+  *{ box-sizing:border-box; }
+
+  html,body{ height:100%; }
+
+  body{
+    margin:0;
+    padding:24px 16px 32px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:18px;
+    background:
+      radial-gradient(900px 500px at 50% -10%, #16233f 0%, transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  .app{ width:100%; max-width:520px; }
+
+  /* ============ HEADER ============ */
+  .title{
+    margin:0 0 4px;
+    text-align:center;
+    font-size:clamp(26px, 6vw, 36px);
+    font-weight:800;
+    letter-spacing:.5px;
+    background:linear-gradient(90deg, var(--green-light), var(--accent));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .subtitle{
+    margin:0 0 16px;
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  /* ============ PANEL SKOR ============ */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .stat{
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:10px 8px;
+    text-align:center;
+  }
+  .stat .label{
+    display:block;
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .stat .value{
+    display:block;
+    font-size:24px;
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
+  }
+  #highScore{ color:var(--accent); }
+  #level{ color:var(--food); }
+
+  /* ============ PAPAN PERMAINAN ============ */
+  .board-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:1 / 1;
+    border-radius:20px;
+    overflow:hidden;
+    border:2px solid var(--border);
+    background:var(--board);
+    box-shadow:0 18px 45px rgba(0,0,0,.55), inset 0 0 60px rgba(56,189,248,.05);
+    touch-action:none;         /* supaya swipe tidak menggeser halaman */
+  }
+  canvas{ display:block; width:100%; height:100%; }
+
+  /* ============ OVERLAY (mulai / jeda / game over) ============ */
+  .overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    padding:24px;
+    text-align:center;
+    background:rgba(7,11,24,.86);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    transition:opacity .18s ease;
+  }
+  .overlay.hidden{ opacity:0; pointer-events:none; }
+  .overlay .emoji{ font-size:44px; line-height:1; }
+  .overlay h2{
+    margin:0;
+    font-size:clamp(22px, 5.5vw, 30px);
+    font-weight:800;
+  }
+  .overlay p{
+    margin:0;
+    max-width:340px;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.55;
+  }
+  .final-score{
+    font-size:15px;
+    color:var(--text);
+    background:rgba(56,189,248,.10);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:8px 14px;
+    font-variant-numeric:tabular-nums;
+  }
+  .final-score.hidden{ display:none; }
+
+  .btn{
+    margin-top:4px;
+    padding:13px 30px;
+    border:none;
+    border-radius:999px;
+    font-size:16px;
+    font-weight:700;
+    font-family:inherit;
+    color:#05210f;
+    background:linear-gradient(180deg, var(--green-light), var(--green));
+    box-shadow:0 8px 20px rgba(34,197,94,.32);
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(34,197,94,.42); }
+  .btn:active{ transform:translateY(0); filter:brightness(.95); }
+  .btn:focus-visible{ outline:3px solid var(--accent); outline-offset:3px; }
+
+  /* ============ BANTUAN KONTROL ============ */
+  .hints{
+    margin-top:14px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .hints span{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:6px 12px;
+  }
+  kbd{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-bottom-width:2px;
+    border-radius:6px;
+    padding:1px 6px;
+    font-family:inherit;
+    font-size:12px;
+    color:var(--text);
+  }
+
+  /* ============ D-PAD SENTUH (hanya layar sentuh) ============ */
+  .dpad{
+    display:none;
+    grid-template-columns:repeat(3, 62px);
+    grid-template-rows:repeat(2, 62px);
+    gap:8px;
+    justify-content:center;
+    margin-top:16px;
+  }
+  .dpad button{
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--border);
+    border-radius:14px;
+    color:var(--text);
+    font-size:22px;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .dpad button:active{ background:var(--accent); color:#04121f; }
+  .dpad .up{ grid-column:2; grid-row:1; }
+  .dpad .left{ grid-column:1; grid-row:2; }
+  .dpad .down{ grid-column:2; grid-row:2; }
+  .dpad .right{ grid-column:3; grid-row:2; }
+  @media (hover:none) and (pointer:coarse){
+    .dpad{ display:grid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1 class="title">🐍 Snake Klasik</h1>
+  <p class="subtitle">Kumpulkan makanan, jangan menabrak dinding atau badanmu sendiri!</p>
+
+  <!-- Panel skor -->
+  <div class="stats">
+    <div class="stat"><span class="label">Skor</span><span class="value" id="score">0</span></div>
+    <div class="stat"><span class="label">Rekor</span><span class="value" id="highScore">0</span></div>
+    <div class="stat"><span class="label">Level</span><span class="value" id="level">1</span></div>
+  </div>
+
+  <!-- Papan permainan + overlay -->
+  <div class="board-wrap" id="boardWrap">
+    <canvas id="game"></canvas>
+    <div class="overlay" id="overlay">
+      <div class="emoji" id="ovEmoji">🎮</div>
+      <h2 id="ovTitle">Siap Bermain?</h2>
+      <p id="ovText">Gunakan tombol panah atau W A S D untuk menggerakkan ular.</p>
+      <div class="final-score hidden" id="ovScore"></div>
+      <button class="btn" id="ovBtn">Mulai Main</button>
+    </div>
+  </div>
+
+  <!-- Petunjuk kontrol -->
+  <div class="hints">
+    <span><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> atau <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> — gerak</span>
+    <span><kbd>Spasi</kbd> — jeda / lanjut</span>
+    <span><kbd>R</kbd> — ulang</span>
+  </div>
+
+  <!-- Kontrol sentuh untuk ponsel -->
+  <div class="dpad" id="dpad">
+    <button class="up"    data-dir="up"    aria-label="Atas">▲</button>
+    <button class="left"  data-dir="left"  aria-label="Kiri">◀</button>
+    <button class="down"  data-dir="down"  aria-label="Bawah">▼</button>
+    <button class="right" data-dir="right" aria-label="Kanan">▶</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     1. KONFIGURASI DASAR
+     ========================================================= */
+  const GRID        = 20;    // papan 20 x 20 kotak
+  const BASE_SPEED  = 150;   // milidetik per langkah pada level 1
+  const SPEED_STEP  = 10;    // percepatan tiap naik level
+  const MIN_SPEED   = 65;    // batas tercepat agar tetap bisa dimainkan
+  const LEVEL_EVERY = 5;     // naik level tiap 5 poin
+
+  const canvas = document.getElementById('game');
+  const ctx    = canvas.getContext('2d');
+
+  const elScore   = document.getElementById('score');
+  const elHigh    = document.getElementById('highScore');
+  const elLevel   = document.getElementById('level');
+  const overlay   = document.getElementById('overlay');
+  const ovEmoji   = document.getElementById('ovEmoji');
+  const ovTitle   = document.getElementById('ovTitle');
+  const ovText    = document.getElementById('ovText');
+  const ovScore   = document.getElementById('ovScore');
+  const ovBtn     = document.getElementById('ovBtn');
+  const boardWrap = document.getElementById('boardWrap');
+
+  /* Vektor arah gerak (dalam satuan kotak) */
+  const DIRS = {
+    up:    { x: 0,  y: -1 },
+    down:  { x: 0,  y:  1 },
+    left:  { x: -1, y:  0 },
+    right: { x: 1,  y:  0 }
+  };
+
+  /* =========================================================
+     2. STATE PERMAINAN
+     ========================================================= */
+  let cell = 20;                 // ukuran 1 kotak dalam piksel CSS (dihitung saat resize)
+  let snake = [];                // snake[0] = kepala
+  let dir = 'right';             // arah yang sedang dipakai
+  let dirQueue = [];             // antrean arah dari input pemain
+  let food = { x: 0, y: 0 };
+  let score = 0;
+  let highScore = 0;             // rekor selama sesi bermain (tidak disimpan permanen)
+  let state = 'ready';           // ready | playing | paused | over | win
+  let stepMs = BASE_SPEED;
+  let acc = 0, lastTime = 0;     // akumulator waktu untuk loop
+  let foodPulse = 0;             // animasi denyut makanan
+
+  /* =========================================================
+     3. UKURAN CANVAS RESPONSIF
+        Canvas digambar mengikuti lebar wadah, lalu diskalakan
+        sesuai devicePixelRatio supaya tetap tajam.
+     ========================================================= */
+  function resizeCanvas() {
+    const rect = boardWrap.getBoundingClientRect();
+    const size = Math.max(200, Math.floor(rect.width));
+    const dpr  = window.devicePixelRatio || 1;
+
+    canvas.width  = Math.floor(size * dpr);
+    canvas.height = Math.floor(size * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    cell = size / GRID;
+    draw();
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  /* =========================================================
+     4. UTILITAS GAMBAR
+     ========================================================= */
+  /* Kotak dengan sudut membulat (tanpa bergantung pada ctx.roundRect) */
+  function roundRect(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function drawBoard(size) {
+    ctx.fillStyle = '#0a1020';
+    ctx.fillRect(0, 0, size, size);
+
+    // pola kotak-kotak halus agar grid terbaca tanpa mengganggu
+    ctx.fillStyle = 'rgba(255,255,255,0.022)';
+    for (let y = 0; y < GRID; y++) {
+      for (let x = 0; x < GRID; x++) {
+        if ((x + y) % 2 === 0) ctx.fillRect(x * cell, y * cell, cell, cell);
+      }
+    }
+  }
+
+  function drawFood(size) {
+    const pad = cell * 0.16;
+    const s   = cell - pad * 2;
+    const px  = food.x * cell + pad;
+    const py  = food.y * cell + pad;
+    const pulse = 1 + Math.sin(foodPulse) * 0.06;   // denyut halus
+
+    ctx.save();
+    ctx.translate(px + s / 2, py + s / 2);
+    ctx.scale(pulse, pulse);
+    ctx.translate(-s / 2, -s / 2);
+
+    ctx.shadowColor = 'rgba(249,115,22,.75)';
+    ctx.shadowBlur  = cell * 0.7;
+    const g = ctx.createLinearGradient(0, 0, s, s);
+    g.addColorStop(0, '#fb923c');
+    g.addColorStop(1, '#ef4444');
+    ctx.fillStyle = g;
+    roundRect(0, 0, s, s, s * 0.35);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawSnake() {
+    for (let i = snake.length - 1; i >= 0; i--) {
+      const seg    = snake[i];
+      const isHead = i === 0;
+      const pad    = isHead ? cell * 0.06 : cell * 0.12;
+      const s      = cell - pad * 2;
+      const x      = seg.x * cell + pad;
+      const y      = seg.y * cell + pad;
+
+      // badan makin gelap ke arah ekor
+      const t = snake.length > 1 ? i / snake.length : 0;
+      ctx.fillStyle = isHead
+        ? '#86efac'
+        : `rgb(${Math.round(34 - 12 * t)}, ${Math.round(197 - 70 * t)}, ${Math.round(94 - 30 * t)})`;
+
+      if (isHead) {
+        ctx.shadowColor = 'rgba(134,239,172,.85)';
+        ctx.shadowBlur  = cell * 0.6;
+      }
+      roundRect(x, y, s, s, s * (isHead ? 0.34 : 0.30));
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // mata pada kepala, menghadap arah gerak
+      if (isHead) {
+        const d  = DIRS[dir];
+        const cx = x + s / 2, cy = y + s / 2;
+        const off = s * 0.20;
+        const eye = Math.max(1.5, s * 0.095);
+        // dua mata sejajar tegak lurus arah gerak
+        const ex = cx + d.x * off, ey = cy + d.y * off;
+        const px = -d.y * off, py = d.x * off;
+        ctx.fillStyle = '#06281a';
+        ctx.beginPath(); ctx.arc(ex + px, ey + py, eye, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex - px, ey - py, eye, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  function draw() {
+    const size = GRID * cell;
+    drawBoard(size);
+    drawFood(size);
+    drawSnake();
+  }
+
+  /* =========================================================
+     5. LOGIKA PERMAINAN
+     ========================================================= */
+
+  /* Menaruh makanan di kotak acak yang TIDAK ditempati badan ular */
+  function placeFood() {
+    const occupied = new Set(snake.map(s => s.y * GRID + s.x));
+    const free = [];
+    for (let i = 0; i < GRID * GRID; i++) {
+      if (!occupied.has(i)) free.push(i);
+    }
+    if (free.length === 0) return false;          // papan penuh -> menang
+    const idx = free[Math.floor(Math.random() * free.length)];
+    food = { x: idx % GRID, y: Math.floor(idx / GRID) };
+    return true;
+  }
+
+  /* Kecepatan naik tiap kelipatan LEVEL_EVERY poin */
+  function currentLevel() { return Math.floor(score / LEVEL_EVERY) + 1; }
+
+  function updateSpeed() {
+    stepMs = Math.max(MIN_SPEED, BASE_SPEED - (currentLevel() - 1) * SPEED_STEP);
+    elLevel.textContent = currentLevel();
+  }
+
+  /* Satu langkah permainan */
+  function step() {
+    // ambil arah berikutnya dari antrean (mencegah dua belokan dalam 1 langkah)
+    if (dirQueue.length) dir = dirQueue.shift();
+
+    const d = DIRS[dir];
+    const head = { x: snake[0].x + d.x, y: snake[0].y + d.y };
+
+    // KALAH 1: menabrak dinding / batas grid
+    if (head.x < 0 || head.y < 0 || head.x >= GRID || head.y >= GRID) {
+      return gameOver('Kepala ular menabrak dinding.');
+    }
+
+    // apakah langkah ini memakan makanan?
+    const eating = (head.x === food.x && head.y === food.y);
+
+    // KALAH 2: menabrak badan sendiri.
+    // Ekor terakhir boleh ditempati bila ular TIDAK sedang tumbuh,
+    // karena kotak itu akan kosong pada langkah yang sama.
+    const limit = eating ? snake.length : snake.length - 1;
+    for (let i = 0; i < limit; i++) {
+      if (snake[i].x === head.x && snake[i].y === head.y) {
+        return gameOver('Kepala ular menabrak badannya sendiri.');
+      }
+    }
+
+    snake.unshift(head);
+
+    if (eating) {
+      score += 1;                                  // skor bertambah
+      elScore.textContent = score;
+      if (score > highScore) {                     // perbarui rekor sesi
+        highScore = score;
+        elHigh.textContent = highScore;
+      }
+      updateSpeed();                               // makin cepat tiap 5 poin
+      if (!placeFood()) return win();              // papan penuh = menang
+    } else {
+      snake.pop();                                 // tidak makan -> ekor bergerak maju
+    }
+  }
+
+  /* Loop utama: akumulator waktu supaya kecepatan konsisten di semua layar */
+  function loop(t) {
+    requestAnimationFrame(loop);
+
+    if (state !== 'playing') { lastTime = t; return; }
+    if (!lastTime) lastTime = t;
+
+    const dt = t - lastTime;
+    lastTime = t;
+    acc += dt;
+    foodPulse += dt / 160;
+
+    // batasi agar tidak "melompat" jauh setelah tab tidak aktif
+    if (acc > 1000) acc = stepMs;
+
+    while (acc >= stepMs && state === 'playing') {
+      acc -= stepMs;
+      step();
+    }
+    draw();
+  }
+
+  /* =========================================================
+     6. PERPINDAHAN STATE & OVERLAY
+     ========================================================= */
+  function showOverlay(emoji, title, text, btnLabel, scoreLine) {
+    ovEmoji.textContent = emoji;
+    ovTitle.textContent = title;
+    ovText.textContent  = text;
+    ovBtn.textContent   = btnLabel;
+    if (scoreLine) {
+      ovScore.textContent = scoreLine;
+      ovScore.classList.remove('hidden');
+    } else {
+      ovScore.classList.add('hidden');
+    }
+    overlay.classList.remove('hidden');
+  }
+
+  function hideOverlay() { overlay.classList.add('hidden'); }
+
+  function gameOver(reason) {
+    state = 'over';
+    const rekor = (score > 0 && score === highScore) ? ' 🏆 Rekor baru!' : '';
+    showOverlay('💥', 'Game Over', reason, 'Main Lagi',
+                `Skor akhir: ${score}  •  Rekor: ${highScore}${rekor}`);
+    draw();
+  }
+
+  function win() {
+    state = 'win';
+    showOverlay('🏆', 'Luar Biasa!', 'Kamu memenuhi seluruh papan permainan!', 'Main Lagi',
+                `Skor akhir: ${score}  •  Rekor: ${highScore}`);
+    draw();
+  }
+
+  function togglePause() {
+    if (state === 'playing') {
+      state = 'paused';
+      showOverlay('⏸️', 'Jeda', 'Tekan Spasi atau tombol di bawah untuk melanjutkan.', 'Lanjutkan');
+    } else if (state === 'paused') {
+      state = 'playing';
+      lastTime = 0; acc = 0;
+      hideOverlay();
+    }
+  }
+
+  /* Mulai / ulang permainan tanpa memuat ulang halaman */
+  function startGame() {
+    const mid = Math.floor(GRID / 2);
+    snake = [
+      { x: mid,     y: mid },
+      { x: mid - 1, y: mid },
+      { x: mid - 2, y: mid }
+    ];
+    dir = 'right';
+    dirQueue = [];
+    score = 0;
+    elScore.textContent = '0';
+    elHigh.textContent  = highScore;
+    updateSpeed();
+    placeFood();
+    acc = 0; lastTime = 0;
+    state = 'playing';
+    hideOverlay();
+    draw();
+  }
+
+  /* =========================================================
+     7. INPUT PEMAIN
+     ========================================================= */
+  const KEY_TO_DIR = {
+    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+    w: 'up', s: 'down', a: 'left', d: 'right'
+  };
+
+  /* Ular tidak boleh berbalik 180°. Dicek terhadap arah terakhir
+     yang sudah diantrekan, bukan hanya arah yang sedang berjalan. */
+  function isOpposite(a, b) {
+    return DIRS[a].x + DIRS[b].x === 0 && DIRS[a].y + DIRS[b].y === 0;
+  }
+
+  function queueDir(next) {
+    if (state !== 'playing') return;
+    const last = dirQueue.length ? dirQueue[dirQueue.length - 1] : dir;
+    if (next === last || isOpposite(next, last)) return;   // abaikan balik 180° & arah sama
+    if (dirQueue.length < 2) dirQueue.push(next);          // antrean maksimal 2 belokan
+  }
+
+  document.addEventListener('keydown', function (e) {
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+    // cegah halaman ikut menggulir saat bermain
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+
+    if (key === ' ') {
+      if (state === 'playing' || state === 'paused') togglePause();
+      else startGame();                       // spasi juga bisa memulai / mengulang
+      return;
+    }
+    if (key === 'r') { startGame(); return; }
+    if (key === 'Enter' && state !== 'playing') { startGame(); return; }
+
+    const nd = KEY_TO_DIR[key];
+    if (!nd) return;
+    if (state === 'ready' || state === 'over' || state === 'win') {
+      startGame();                            // tombol arah langsung memulai permainan
+      queueDir(nd);
+    } else {
+      queueDir(nd);
+    }
+  });
+
+  // Tombol pada overlay: mulai / lanjut / main lagi
+  ovBtn.addEventListener('click', function () {
+    if (state === 'paused') togglePause();
+    else startGame();
+    ovBtn.blur();
+  });
+
+  // D-pad untuk layar sentuh
+  document.getElementById('dpad').addEventListener('click', function (e) {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (state !== 'playing') startGame();
+    queueDir(btn.dataset.dir);
+  });
+
+  // Geser jari (swipe) di atas papan
+  let touchStart = null;
+  boardWrap.addEventListener('touchstart', function (e) {
+    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, { passive: true });
+
+  boardWrap.addEventListener('touchend', function (e) {
+    if (!touchStart) return;
+    const dx = e.changedTouches[0].clientX - touchStart.x;
+    const dy = e.changedTouches[0].clientY - touchStart.y;
+    touchStart = null;
+    if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;   // ambang minimal geseran
+    queueDir(Math.abs(dx) > Math.abs(dy)
+      ? (dx > 0 ? 'right' : 'left')
+      : (dy > 0 ? 'down' : 'up'));
+  }, { passive: true });
+
+  // Jeda otomatis saat tab ditinggalkan
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && state === 'playing') togglePause();
+  });
+
+  /* =========================================================
+     8. INISIALISASI
+     ========================================================= */
+  const mid = Math.floor(GRID / 2);
+  snake = [{ x: mid, y: mid }, { x: mid - 1, y: mid }, { x: mid - 2, y: mid }];
+  placeFood();
+  resizeCanvas();
+  requestAnimationFrame(loop);
+
+  // dibuka untuk keperluan pengujian otomatis
+  window.__snake = {
+    getState: () => ({ state, score, highScore, len: snake.length, stepMs, food, head: snake[0] }),
+    start: startGame,
+    setDir: queueDir,
+    tick: step
+  };
+})();
+</script>
+</body>
+</html>

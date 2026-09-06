@@ -1,0 +1,1711 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>English Speaking Partner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f2f6f5; --surface:#ffffff; --surface-2:#e8f0ee; --surface-3:#dceae7;
+  --ink:#0e2523; --ink-soft:#56706d; --line:#d6e3e0;
+  --teal-900:#06302f; --teal-700:#0c5f59; --teal-500:#0f8a80; --teal-300:#6cc4b8;
+  --accent:#0f8a80; --accent-ink:#ffffff; --accent-wash:#e2f2ef;
+  --gold:#c98510; --gold-wash:#fbf1dc;
+  --amber-bg:#fff6e9; --amber-line:#eec48a; --amber-ink:#8a5714;
+  --me-bg:#0f8a80; --me-ink:#ffffff;
+  --shadow:0 1px 2px rgba(6,48,47,.06), 0 8px 24px -12px rgba(6,48,47,.18);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#08201f; --surface:#0f2b29; --surface-2:#143430; --surface-3:#1b423d;
+    --ink:#e6f3f0; --ink-soft:#9ebab5; --line:#23433f;
+    --accent:#39b8a9; --accent-ink:#04211f; --accent-wash:#12332f;
+    --gold:#e5b455; --gold-wash:#2c2412;
+    --amber-bg:#33280f; --amber-line:#7d6127; --amber-ink:#f2d09a;
+    --me-bg:#177f76; --me-ink:#f2fffd;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#08201f; --surface:#0f2b29; --surface-2:#143430; --surface-3:#1b423d;
+  --ink:#e6f3f0; --ink-soft:#9ebab5; --line:#23433f;
+  --accent:#39b8a9; --accent-ink:#04211f; --accent-wash:#12332f;
+  --gold:#e5b455; --gold-wash:#2c2412;
+  --amber-bg:#33280f; --amber-line:#7d6127; --amber-ink:#f2d09a;
+  --me-bg:#177f76; --me-ink:#f2fffd;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"Fraunces","Iowan Old Style",Georgia,serif; font-weight:600; line-height:1.15; text-wrap:balance; margin:0}
+p{margin:0}
+button{font:inherit; cursor:pointer; border:0; background:none; color:inherit}
+:focus-visible{outline:3px solid var(--gold); outline-offset:2px; border-radius:6px}
+
+/* ---------- layout ---------- */
+.wrap{width:min(1080px,100%); margin:0 auto; padding:0 18px}
+.topbar{position:sticky; top:0; z-index:40; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+.topbar-in{display:flex; align-items:center; gap:14px; min-height:62px; flex-wrap:wrap; padding:8px 0}
+.brand{display:flex; align-items:center; gap:9px; font-family:"Fraunces",Georgia,serif; font-weight:700; font-size:1.06rem; letter-spacing:-.01em}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(150deg,var(--teal-500),var(--teal-700));display:grid;place-items:center;color:#fff;font-size:.95rem;flex:none}
+nav{display:flex; gap:4px; margin-left:auto; flex-wrap:wrap}
+nav button{padding:8px 13px; border-radius:999px; font-size:.9rem; font-weight:600; color:var(--ink-soft)}
+nav button:hover{background:var(--surface-2); color:var(--ink)}
+nav button[aria-current="page"]{background:var(--accent); color:var(--accent-ink)}
+main{padding:26px 0 60px}
+.stack{display:flex; flex-direction:column; gap:22px}
+
+/* ---------- generic bits ---------- */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px}
+.eyebrow{font-size:.72rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent)}
+.muted{color:var(--ink-soft)}
+.small{font-size:.9rem}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 22px; border-radius:12px; font-weight:700; background:var(--accent); color:var(--accent-ink); border:1px solid transparent; transition:transform .12s ease, filter .12s ease}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:var(--surface); color:var(--ink); border-color:var(--line)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.gold{background:var(--gold); color:#231802}
+.btn[disabled]{opacity:.5; cursor:not-allowed}
+.btn.big{padding:16px 30px; font-size:1.05rem; border-radius:14px}
+.row{display:flex; gap:10px; flex-wrap:wrap}
+.pill{display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); font-size:.8rem; font-weight:600; color:var(--ink-soft)}
+.pill.sim{background:var(--gold-wash); border-color:var(--gold); color:var(--gold)}
+.divider{height:1px; background:var(--line); border:0; margin:0}
+
+/* ---------- hero ---------- */
+.hero{background:var(--surface); border:1px solid var(--line); border-radius:22px; padding:34px; display:grid; grid-template-columns:1.15fr .85fr; gap:30px; align-items:center; box-shadow:var(--shadow)}
+.hero h1{font-size:clamp(2rem,5.2vw,3.05rem); letter-spacing:-.02em}
+.hero .tag{font-size:1.06rem; color:var(--ink-soft); margin-top:12px; max-width:46ch}
+.hero-actions{margin-top:22px; display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+.hero-meta{margin-top:18px; display:flex; gap:8px; flex-wrap:wrap}
+.demo-chat{background:var(--surface-2); border:1px solid var(--line); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:10px}
+.demo-chat .b{max-width:88%; padding:10px 14px; border-radius:16px; font-size:.9rem; line-height:1.5}
+.demo-chat .b.ai{background:var(--surface); border:1px solid var(--line); border-bottom-left-radius:5px}
+.demo-chat .b.me{background:var(--me-bg); color:var(--me-ink); align-self:flex-end; border-bottom-right-radius:5px}
+.demo-chat .b.fix{background:var(--amber-bg); border:1px solid var(--amber-line); color:var(--amber-ink); font-size:.83rem}
+
+/* ---------- steps / how to ---------- */
+.howto{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+.step{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px; display:flex; gap:12px}
+.step .n{flex:none; width:26px; height:26px; border-radius:8px; background:var(--accent-wash); color:var(--accent); font-weight:700; font-size:.85rem; display:grid; place-items:center; font-variant-numeric:tabular-nums}
+.step p{font-size:.92rem; color:var(--ink-soft)}
+
+/* ---------- selection cards ---------- */
+.grid-lvl{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+.grid-sit{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:14px}
+.pick{text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px; display:flex; flex-direction:column; gap:6px; transition:border-color .15s, transform .12s, background .15s; width:100%}
+.pick:hover{border-color:var(--teal-300); transform:translateY(-2px)}
+.pick[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-wash); box-shadow:inset 0 0 0 1px var(--accent)}
+.pick .em{font-size:1.5rem; line-height:1}
+.pick .t{font-weight:700; font-size:1rem}
+.pick .d{font-size:.87rem; color:var(--ink-soft)}
+.pick .lvl-bars{display:flex; gap:3px; margin-top:2px}
+.pick .lvl-bars i{width:16px;height:5px;border-radius:3px;background:var(--surface-3)}
+.pick .lvl-bars i.on{background:var(--accent)}
+.preview{border:1px dashed var(--teal-300); background:var(--accent-wash); border-radius:var(--r); padding:18px; display:flex; flex-direction:column; gap:12px}
+.vocab-chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:7px 11px; font-size:.86rem}
+.chip b{font-weight:700}
+.chip span{color:var(--ink-soft)}
+
+/* ---------- chat ---------- */
+.chat-shell{width:min(780px,100%); margin:0 auto; display:flex; flex-direction:column; gap:12px}
+.chat-head{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px; display:flex; flex-direction:column; gap:11px}
+.chat-head .line1{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.chat-head h2{font-size:1.08rem}
+.progress{height:8px; border-radius:99px; background:var(--surface-3); overflow:hidden}
+.progress i{display:block; height:100%; background:linear-gradient(90deg,var(--teal-500),var(--teal-300)); border-radius:99px; transition:width .4s ease}
+.vocab-panel{border:1px solid var(--line); background:var(--surface-2); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px}
+.vocab-panel[hidden]{display:none!important}
+.vocab-list{display:flex; flex-direction:column; gap:6px}
+.vocab-item{display:flex; gap:8px; align-items:baseline; font-size:.88rem}
+.vocab-item .mark{flex:none; width:18px; color:var(--ink-soft)}
+.vocab-item.used .mark{color:var(--accent); font-weight:700}
+.vocab-item.used b{color:var(--accent)}
+.msgs{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px; display:flex; flex-direction:column; gap:12px; min-height:320px; max-height:min(58vh,560px); overflow-y:auto; scroll-behavior:smooth}
+.msg{display:flex; flex-direction:column; gap:6px; max-width:86%}
+.msg.ai{align-self:flex-start; align-items:flex-start}
+.msg.me{align-self:flex-end; align-items:flex-end}
+.msg .who{font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft)}
+.bubble{padding:11px 15px; border-radius:18px; line-height:1.55; white-space:pre-line}
+.msg.ai .bubble{background:var(--surface-2); border:1px solid var(--line); border-bottom-left-radius:6px}
+.msg.me .bubble{background:var(--me-bg); color:var(--me-ink); border-bottom-right-radius:6px}
+.fixcard{align-self:stretch; max-width:100%; background:var(--amber-bg); border:1px solid var(--amber-line); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:9px}
+.fixcard .hd{font-weight:700; font-size:.88rem; color:var(--amber-ink); display:flex; align-items:center; gap:7px}
+.fixcard .rowline{font-size:.9rem; display:flex; gap:8px; align-items:flex-start}
+.fixcard .rowline{display:grid; grid-template-columns:96px 1fr; gap:10px; align-items:start}
+.fixcard .lbl{font-size:.72rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber-ink); padding-top:3px}
+.fixcard .val{color:var(--ink)}
+.fixcard .val.strike{text-decoration:line-through; text-decoration-color:var(--amber-line); color:var(--ink-soft)}
+.fixcard .val.good{font-weight:700}
+.fixcard .tip{font-size:.85rem; color:var(--amber-ink)}
+.btn-fix{align-self:flex-start; background:var(--surface); border:1px solid var(--amber-line); color:var(--amber-ink); padding:8px 13px; border-radius:10px; font-size:.85rem; font-weight:700}
+.btn-fix:hover{background:var(--gold-wash)}
+.better{background:var(--surface); border:1px solid var(--amber-line); border-radius:10px; padding:10px 12px; font-size:.9rem}
+.better b{display:block; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--amber-ink); margin-bottom:3px}
+.typing{display:flex; gap:4px; padding:14px 16px; background:var(--surface-2); border:1px solid var(--line); border-radius:18px; border-bottom-left-radius:6px; width:fit-content}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--ink-soft);animation:bounce 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s} .typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+.composer{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:12px; display:flex; flex-direction:column; gap:10px}
+.composer .in{display:flex; gap:10px; align-items:flex-end}
+textarea, input[type=text]{font:inherit; width:100%; resize:none; background:var(--surface-2); color:var(--ink); border:1px solid var(--line); border-radius:12px; padding:12px 14px; line-height:1.5}
+textarea::placeholder{color:var(--ink-soft)}
+.sysnote{background:var(--surface-2); border:1px dashed var(--line); border-radius:12px; padding:10px 13px; font-size:.85rem; color:var(--ink-soft); align-self:center; max-width:100%; text-align:center}
+/* ---------- mode suara ---------- */
+.speak-btn{font-size:.76rem; font-weight:700; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line); border-radius:99px; padding:3px 10px}
+.speak-btn:hover{border-color:var(--teal-300); color:var(--accent)}
+.speak-btn.mini{padding:1px 7px; font-size:.72rem; line-height:1.5}
+.in-btns{display:flex; gap:8px; flex:none}
+.btn.mic{background:var(--surface); border:1px solid var(--line); color:var(--ink); padding:13px 16px}
+.btn.mic:hover{border-color:var(--accent); color:var(--accent)}
+.btn.mic[aria-pressed="true"]{background:var(--gold); color:#231802; border-color:var(--gold); animation:pulse 1.3s ease-in-out infinite}
+.btn.mic[disabled]{opacity:.45}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,133,16,.45)}50%{box-shadow:0 0 0 8px rgba(201,133,16,0)}}
+.voice-note{font-size:.82rem; color:var(--ink-soft); display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.voice-note.warn-line{color:var(--amber-ink)}
+
+/* ---------- summary ---------- */
+.score-wrap{display:grid; grid-template-columns:auto 1fr; gap:26px; align-items:center}
+.ring{--p:0; width:150px; height:150px; border-radius:50%; background:conic-gradient(var(--gold) calc(var(--p)*1%), var(--surface-3) 0); display:grid; place-items:center; flex:none}
+.ring .in{width:118px;height:118px;border-radius:50%;background:var(--surface);display:grid;place-items:center;text-align:center}
+.ring .num{font-family:"Fraunces",Georgia,serif; font-size:2.5rem; font-weight:700; line-height:1; font-variant-numeric:tabular-nums}
+.ring .of{font-size:.75rem; color:var(--ink-soft); letter-spacing:.08em}
+.breakdown{display:flex; flex-direction:column; gap:10px}
+.bd-row{display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:center; font-size:.92rem}
+.bd-bar{grid-column:1/-1; height:7px; background:var(--surface-3); border-radius:99px; overflow:hidden}
+.bd-bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bd-row .v{font-weight:700; font-variant-numeric:tabular-nums}
+.hist{display:flex; flex-direction:column; gap:10px}
+.hist-item{display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:13px 16px}
+.hist-item .em{font-size:1.4rem}
+.hist-item .sc{font-family:"Fraunces",Georgia,serif; font-size:1.4rem; font-weight:700; color:var(--gold); font-variant-numeric:tabular-nums}
+
+/* ---------- about ---------- */
+.about-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px}
+.kv{display:grid; grid-template-columns:150px 1fr; gap:8px 16px; font-size:.95rem}
+.kv dt{font-weight:700; color:var(--ink-soft)}
+.kv dd{margin:0}
+ul.clean{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px; font-size:.95rem}
+.quote{background:var(--accent-wash); border-left:4px solid var(--accent); border-radius:0 12px 12px 0; padding:14px 16px; font-size:.94rem; font-style:italic}
+.flow{display:flex; align-items:stretch; gap:8px; flex-wrap:wrap; overflow-x:auto; padding-bottom:4px}
+.flow .node{background:var(--surface-2); border:1px solid var(--teal-300); border-radius:12px; padding:11px 14px; font-size:.86rem; font-weight:600; min-width:132px; text-align:center; display:grid; place-items:center}
+.flow .arr{display:grid; place-items:center; color:var(--accent); font-weight:700}
+.check{display:flex; flex-direction:column; gap:8px}
+.check label{display:flex; gap:10px; align-items:flex-start; font-size:.93rem; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
+.check input{margin-top:4px; accent-color:var(--accent); width:16px; height:16px}
+.warn{background:var(--amber-bg); border:1px solid var(--amber-line); color:var(--amber-ink); border-radius:12px; padding:14px 16px; font-size:.92rem}
+footer{border-top:1px solid var(--line); padding:20px 0 34px; font-size:.85rem; color:var(--ink-soft); text-align:center}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr; padding:24px}
+  .howto{grid-template-columns:1fr}
+  .grid-lvl{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr; gap:2px 0}
+  .kv dd{margin-bottom:8px}
+}
+@media (max-width:620px){
+  body{font-size:15px}
+  .topbar-in{min-height:54px}
+  nav{width:100%; margin-left:0; justify-content:space-between; gap:2px}
+  nav button{padding:7px 6px; font-size:.73rem; flex:1; white-space:nowrap}
+  .msg{max-width:94%}
+  .msgs{max-height:none; min-height:46vh; padding:12px}
+  .score-wrap{grid-template-columns:1fr; justify-items:center; text-align:center}
+  .breakdown{width:100%}
+  .fixcard .rowline{grid-template-columns:1fr; gap:2px}
+  .card{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important; scroll-behavior:auto!important}}
+</style>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand"><span class="logo">💬</span> English Speaking Partner</div>
+    <nav id="nav"></nav>
+  </div>
+</div>
+<main><div class="wrap" id="app"></div></main>
+<footer class="wrap">
+  Future Makers · Tier 3 – AI Lab · Dibuat oleh <b>Siswa Future Makers</b> · Respons AI di aplikasi ini adalah simulasi
+</footer>
+
+<script>
+"use strict";
+/* =========================================================
+   English Speaking Partner — simulasi teman latihan bicara
+   Semua "AI" di sini adalah simulasi berbasis pengenalan
+   kata kunci & pola kalimat di sisi browser. Tidak ada API
+   key, tidak ada panggilan endpoint AI sungguhan.
+   ========================================================= */
+
+/* ---------- util ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const words = s => String(s || "").trim().split(/\s+/).filter(Boolean).length;
+const cap = s => { s = String(s || "").trim(); return s ? s[0].toUpperCase() + s.slice(1) : s; };
+const clean = s => String(s || "").trim().replace(/[.!?,;:]+$/, "");
+const norm = s => " " + String(s || "").toLowerCase().replace(/[^a-z0-9' ]/g, " ").replace(/\s+/g, " ").trim() + " ";
+
+function gerund(v){
+  const irr = { run:"running", swim:"swimming", ride:"riding", dance:"dancing", write:"writing",
+    sing:"singing", shop:"shopping", travel:"traveling", cook:"cooking", jog:"jogging", sit:"sitting" };
+  if (irr[v]) return irr[v];
+  if (/e$/.test(v)) return v.slice(0, -1) + "ing";
+  return v + "ing";
+}
+
+/* ---------- mode suara (Web Speech API bawaan browser) ----------
+   Text-to-speech: AI membacakan kalimatnya dalam bahasa Inggris.
+   Speech-to-text: siswa menjawab dengan mikrofon (Chrome/Edge).
+   Keduanya memakai mesin bawaan browser — bukan model AI, tanpa API key. */
+const TTS_OK = typeof window.speechSynthesis !== "undefined" && typeof window.SpeechSynthesisUtterance !== "undefined";
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const ASR_OK = !!SR;
+const IN_FRAME = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+let rec = null, heard = "";
+
+/* Izin mikrofon diminta lewat getUserMedia dulu supaya pesan errornya akurat:
+   di dalam bingkai pratinjau (iframe) browser memblokir mikrofon walaupun
+   izin di sistem operasi sudah diberikan. */
+async function askMicPermission(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return { ok:false, why:"nodevice" };
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    stream.getTracks().forEach(t => t.stop());
+    return { ok:true };
+  } catch (e) {
+    return { ok:false, why:(e && e.name) ? e.name : "UnknownError" };
+  }
+}
+async function micPermState(){
+  try {
+    if (navigator.permissions && navigator.permissions.query){
+      const p = await navigator.permissions.query({ name:"microphone" });
+      return p.state;
+    }
+  } catch (e) {}
+  return "tidak diketahui";
+}
+
+function speak(text, force, slow){
+  if (!TTS_OK) return;
+  if (!force && !state.voice.ttsOn) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(text).replace(/\s+/g, " ").trim());
+    u.lang = "en-US"; u.rate = slow ? 0.6 : 0.92; u.pitch = 1;
+    const v = (window.speechSynthesis.getVoices() || []).find(x => /^en([-_]|$)/i.test(x.lang));
+    if (v) u.voice = v;
+    window.speechSynthesis.speak(u);
+  } catch (e) { /* browser menolak — abaikan, teks tetap terbaca */ }
+}
+function hush(){ if (TTS_OK) { try { window.speechSynthesis.cancel(); } catch (e) {} } }
+
+function ensureRec(){
+  if (rec) return rec;
+  rec = new SR();
+  rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  rec.onresult = e => {
+    let fin = "", int = "";
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      const r = e.results[i];
+      if (r.isFinal) fin += r[0].transcript; else int += r[0].transcript;
+    }
+    if (fin) heard = (heard ? heard + " " : "") + fin.trim();
+    const ta = $("#answer");
+    if (ta) ta.value = (heard + (int ? " " + int.trim() : "")).trim();
+  };
+  rec.onerror = e => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed") state.voice.needTab = IN_FRAME;
+    const map = {
+      "not-allowed": IN_FRAME
+        ? "Mesin pengenalan suara diblokir di dalam bingkai pratinjau. Buka aplikasi di tab penuh, lalu tekan 🎤 lagi."
+        : "Akses mikrofon belum diizinkan untuk halaman ini. Klik ikon gembok di sebelah alamat web → Microphone → Allow, lalu muat ulang.",
+      "service-not-allowed": IN_FRAME
+        ? "Layanan pengenalan suara tidak diizinkan di bingkai pratinjau. Buka aplikasi di tab penuh, atau ketik jawabanmu."
+        : "Layanan pengenalan suara tidak tersedia di browser ini. Coba Chrome atau Edge, atau ketik jawabanmu.",
+      "no-speech": "Belum ada suara yang terdengar. Tekan 🎤 lagi lalu bicara sedikit lebih dekat ke mikrofon.",
+      "audio-capture": "Mikrofon tidak ditemukan di perangkat ini. Kamu tetap bisa mengetik jawabanmu.",
+      "aborted": ""
+    };
+    state.voice.msg = map[e.error] !== undefined ? map[e.error] : "Mikrofon bermasalah (" + e.error + "). Kamu tetap bisa mengetik jawabanmu.";
+  };
+  rec.onend = () => { state.voice.listening = false; renderChat(true); };
+  return rec;
+}
+
+async function micToggle(){
+  if (!ASR_OK){
+    state.voice.msg = "Browser ini belum mendukung input suara. Coba Chrome atau Edge — atau ketik jawabanmu seperti biasa.";
+    state.voice.needTab = false;
+    return renderChat();
+  }
+  if (state.voice.listening){ try { rec.stop(); } catch (e) { state.voice.listening = false; renderChat(); } return; }
+
+  hush();
+  state.voice.needTab = false;
+  state.voice.msg = "Meminta izin mikrofon…";
+  renderChat();
+
+  const izin = await askMicPermission();
+  if (!izin.ok){
+    const perm = await micPermState();
+    if (izin.why === "NotAllowedError" || izin.why === "SecurityError"){
+      if (IN_FRAME){
+        state.voice.needTab = false;
+        state.voice.blocked = true;
+        state.voice.msg = "Mikrofon tidak bisa dipakai di tampilan ini. Aplikasi berjalan di dalam kotak aman (sandbox) yang memblokir mikrofon — bukan kesalahan laptop, HP, atau izin yang kamu berikan. Latihan tetap jalan penuh dengan mengetik, dan semua tombol 🔊 tetap bisa dipakai untuk mendengar pelafalan.";
+      } else {
+        state.voice.msg = "Izin mikrofon ditolak untuk halaman ini. Klik ikon gembok/⚙️ di sebelah alamat web → Site settings → Microphone → Allow, lalu muat ulang halaman. (Status izin: " + perm + ")";
+      }
+    } else if (izin.why === "NotFoundError" || izin.why === "nodevice"){
+      state.voice.msg = "Tidak ada mikrofon yang terdeteksi di perangkat ini. Cek pengaturan suara laptopmu, atau ketik jawabanmu.";
+    } else if (izin.why === "NotReadableError" || izin.why === "AbortError"){
+      state.voice.msg = "Mikrofon sedang dipakai aplikasi lain (misalnya Zoom, Meet, atau perekam suara). Tutup aplikasi itu dulu, lalu tekan 🎤 lagi.";
+    } else {
+      state.voice.blocked = IN_FRAME;
+      state.voice.msg = "Mikrofon tidak bisa dibuka (" + izin.why + "). Status izin: " + perm + ". Kamu tetap bisa mengetik jawabanmu.";
+    }
+    return renderChat();
+  }
+
+  ensureRec();
+  const ta = $("#answer");
+  heard = ta ? ta.value.trim() : "";
+  state.voice.msg = "";
+  try {
+    rec.start();
+    state.voice.listening = true;
+    renderChat();
+  } catch (e) {
+    state.voice.listening = false;
+    state.voice.msg = "Mikrofon belum siap. Tunggu sebentar lalu tekan 🎤 lagi.";
+    renderChat();
+  }
+}
+
+/* ---------- mesin koreksi (pola kesalahan umum) ---------- */
+const BASE_VERBS = "play|read|watch|sing|draw|swim|cook|dance|run|study|listen|write|eat|travel|sleep|ride|paint|jog|shop";
+const PLACES = "museum|station|hospital|library|market|bank|park|mall|beach|airport|school|hotel|stadium|post office";
+
+const RULES = {
+  missingMy: {
+    test: t => /\bname is\b/.test(t) && !/\bmy name is\b/.test(t),
+    sugg: "Try saying 'My name is Budi' — don't forget 'My' before 'name'!",
+    tip: "Perkenalan diri dalam bahasa Inggris dimulai dengan 'My name is ...'.",
+    fix: raw => cap(raw.replace(/\bname is\b/i, "my name is"))
+  },
+  missingAmFrom: {
+    test: t => /\bi (from|come from)\b/.test(t),
+    sugg: "Good try! Remember to add 'am': 'I am from Jakarta.'",
+    tip: "Setelah 'I', gunakan 'am' sebelum kata 'from'.",
+    fix: raw => cap(raw.replace(/\bi come from\b/i, "I am from").replace(/\bi from\b/i, "I am from"))
+  },
+  likeBaseVerb: {
+    test: t => new RegExp("\\bi (like|love|enjoy) (" + BASE_VERBS + ")\\b").test(t),
+    sugg: "Almost! Try: 'I like playing football' or 'I like to play football.'",
+    tip: "Setelah 'I like', kata kerja memakai bentuk -ing atau didahului 'to'.",
+    fix: raw => {
+      const m = raw.match(new RegExp("\\bi (like|love|enjoy) (" + BASE_VERBS + ")\\b", "i"));
+      if (!m) return null;
+      return cap(raw.replace(m[0], "I " + m[1].toLowerCase() + " " + gerund(m[2].toLowerCase())));
+    }
+  },
+  noBecause: {
+    test: t => !/\b(because|since|so that|that is why|thats why)\b/.test(t) && words(t) >= 1,
+    sugg: "Try: 'I like it because it's fun.'",
+    tip: "Gunakan 'because' untuk menjelaskan alasanmu — jawabanmu jadi lebih kuat.",
+    fix: raw => cap(clean(raw)) + " because it makes me happy."
+  },
+  noExample: {
+    test: t => !/\b(for example|such as|for instance|like when)\b/.test(t),
+    sugg: "Try adding an example: 'For example, I practice every weekend.'",
+    tip: "Menambahkan 'For example' membuat penjelasanmu lebih meyakinkan.",
+    fix: raw => cap(clean(raw)) + ". For example, I do it every weekend."
+  },
+  tooShort: {
+    test: () => false,
+    sugg: "Nice start! Try answering with a full sentence — a few more words help a lot.",
+    tip: "Jawaban satu-dua kata masih terlalu singkat. Coba kalimat lengkap.",
+    fix: raw => cap(clean(raw)) + ", and I would like to tell you more about it."
+  },
+  shortYes: {
+    test: (t, raw) => /^(yes|yeah|yep|ok|okay|sure|yes i do|i do)$/.test(raw),
+    sugg: "Try a full sentence: 'Yes, thank you so much!'",
+    tip: "Jawaban 'yes' saja terdengar singkat. Tambahkan ucapan terima kasih atau alasan.",
+    fix: () => "Yes, I understand. Thank you so much!"
+  },
+  shortNo: {
+    test: (t, raw) => /^(no|nope|no thanks|nothing)$/.test(raw),
+    sugg: "Try asking one question: 'Yes, could you tell me more about the schedule?'",
+    tip: "Dalam wawancara, bertanya balik menunjukkan kamu tertarik.",
+    fix: () => "Yes, could you tell me more about the working schedule?"
+  },
+  iWant: {
+    test: t => /\bi want\b/.test(t),
+    sugg: "A little more polite: 'I would like a pizza, please.'",
+    tip: "'I want' terdengar terlalu langsung. 'I would like ... , please' lebih sopan.",
+    fix: raw => {
+      let s = raw.replace(/\bi want\b/i, "I would like");
+      if (!/please/i.test(s)) s = clean(s) + ", please";
+      return cap(s) + ".";
+    }
+  },
+  noPlease: {
+    test: t => !/\b(please|thank you|thanks)\b/.test(t),
+    sugg: "Add 'please' to sound friendly: 'Can I have an orange juice, please?'",
+    tip: "Di restoran, 'please' membuat permintaanmu terdengar sopan.",
+    fix: raw => cap(clean(raw)) + ", please."
+  },
+  commandForm: {
+    test: (t, raw) => /^(give me|make it|bring me|i need)\b/.test(raw),
+    sugg: "Softer version: 'Could you make it less spicy, please?'",
+    tip: "Awali permintaan dengan 'Could you ...' agar tidak terdengar memerintah.",
+    fix: raw => {
+      const rest = clean(raw).replace(/^(give me|make it|bring me|i need)\s*/i, "").trim() || "it";
+      return /^make it/i.test(clean(raw))
+        ? "Could you make it " + rest.toLowerCase() + ", please?"
+        : "Could I have " + rest.toLowerCase() + ", please?";
+    }
+  },
+  missingThe: {
+    test: t => new RegExp("\\b(where is|how do i get to|how to get to|where's) (" + PLACES + ")\\b").test(t),
+    sugg: "Add 'the': 'Where is the museum?'",
+    tip: "Tempat umum tertentu memakai 'the' — 'the museum', 'the station'.",
+    fix: raw => cap(raw.replace(new RegExp("\\b(where is|how do i get to|how to get to|where's) (" + PLACES + ")\\b", "i"), (m, a, b) => a + " the " + b))
+  },
+  missingPolite: {
+    test: t => !/\b(excuse me|could you|can you|would you|may i|sorry)\b/.test(t),
+    sugg: "Try a polite opener: 'Excuse me, could you tell me how to get to the museum?'",
+    tip: "Saat bertanya arah, awali dengan 'Excuse me' atau 'Could you ...'.",
+    fix: raw => {
+      const place = (clean(raw).toLowerCase().replace(/^(where is|where's|how do i get to|i want to go to|go to)\s*/i, "").trim() || "the museum");
+      return "Excuse me, could you tell me how to get to " + (/^the\b/.test(place) ? place : "the " + place) + ", please?";
+    }
+  },
+  missingWill: {
+    test: t => /\b(today|now) i (talk|tell|explain|present) about\b/.test(t) || /\bi talk about\b/.test(t),
+    sugg: "Try: 'Today I will talk about my hobby.'",
+    tip: "Presentasi yang baru akan dimulai memakai 'will' — 'Today I will talk about ...'.",
+    fix: raw => cap(raw.replace(/\bi (talk|tell|explain|present)\b/i, (m, v) => "I will " + v.toLowerCase()))
+  },
+  missingFirst: {
+    test: t => !/\b(first|firstly|to begin|to start)\b/.test(t),
+    sugg: "Signal your structure: 'First, I will explain why I started this hobby.'",
+    tip: "Kata penanda seperti 'First' membantu pendengar mengikuti alur presentasimu.",
+    fix: raw => "First, " + clean(raw).replace(/^./, c => c.toLowerCase()) + "."
+  },
+  missingNext: {
+    test: t => !/\b(next|then|second|secondly|after that|another)\b/.test(t),
+    sugg: "Link your points: 'Next, I want to show how I practice at home.'",
+    tip: "Gunakan 'Next' atau 'Then' untuk menyambung poin berikutnya.",
+    fix: raw => "Next, " + clean(raw).replace(/^./, c => c.toLowerCase()) + "."
+  },
+  missingConclusion: {
+    test: t => !/\b(in conclusion|to conclude|to sum up|that is all|thats all|thank you for listening)\b/.test(t),
+    sugg: "Close it strongly: 'In conclusion, that is my hobby. Thank you for listening!'",
+    tip: "Penutup presentasi memakai 'In conclusion ...' lalu ucapan terima kasih.",
+    fix: raw => "In conclusion, " + clean(raw).replace(/^./, c => c.toLowerCase()) + ". Thank you for listening!"
+  },
+  strengthAgree: {
+    test: t => /\bmy strength are\b/.test(t) || /\bmy strengths is\b/.test(t) || /\bmy strength is are\b/.test(t),
+    sugg: "Use 'My strengths are ...' for more than one, or 'My strength is ...' for just one.",
+    tip: "Subjek jamak ('strengths') dipasangkan dengan 'are'; tunggal ('strength') dengan 'is'.",
+    fix: raw => cap(raw.replace(/\bmy strength are\b/i, "My strengths are").replace(/\bmy strengths is\b/i, "My strengths are"))
+  },
+  missingAmAvail: {
+    test: t => /\bi available\b/.test(t) || /\bi ready\b/.test(t),
+    sugg: "Add 'am': 'I am available on weekends.'",
+    tip: "Kata sifat setelah 'I' butuh 'am' — 'I am available'.",
+    fix: raw => cap(raw.replace(/\bi (available|ready)\b/i, (m, w) => "I am " + w.toLowerCase()))
+  },
+  doubleModal: {
+    test: t => /\bwill to \w+/.test(t) || /\b(hope|want|plan) to will\b/.test(t) || /\bi will can\b/.test(t),
+    sugg: "Try: 'I hope to improve' or 'I will improve' — no need to combine both.",
+    tip: "'will' dan 'to' tidak dipakai bersamaan sebelum kata kerja.",
+    fix: raw => cap(raw
+      .replace(/\bi (hope|think|know|believe) i will to\b/i, (m, v) => "I " + v.toLowerCase() + " to")
+      .replace(/\bwill to\b/i, "will")
+      .replace(/\b(hope|want|plan) to will\b/i, (m, v) => v.toLowerCase() + " to")
+      .replace(/\bi will can\b/i, "I can"))
+  },
+  pastWork: {
+    test: t => /\bi (work|join|help|make|do) (with|in|on|at|a|my|the)\b/.test(t),
+    sugg: "Use past tense: 'I worked with my classmates on a school project.'",
+    tip: "Menceritakan pengalaman yang sudah lewat memakai bentuk lampau: work → worked.",
+    fix: raw => cap(raw.replace(/\bi work\b/i, "I worked").replace(/\bi join\b/i, "I joined").replace(/\bi help\b/i, "I helped").replace(/\bi make\b/i, "I made").replace(/\bi do\b/i, "I did"))
+  },
+  pastWas: {
+    test: t => /\b(it is|it's|the food is|everything is) (good|nice|great|delicious|okay|ok)\b/.test(t),
+    sugg: "Talking about last time? Use 'It was really good, thank you.'",
+    tip: "Pengalaman di masa lalu memakai 'was', bukan 'is'.",
+    fix: raw => cap(raw.replace(/\bit is\b/i, "It was").replace(/\bit's\b/i, "It was").replace(/\bthe food is\b/i, "The food was").replace(/\beverything is\b/i, "Everything was"))
+  },
+  missingWould: {
+    test: t => /\bi say\b/.test(t) && !/\bi would say\b/.test(t),
+    sugg: "Try: 'I would say hello and ask for their name.'",
+    tip: "Untuk situasi pengandaian, gunakan 'I would ...'.",
+    fix: raw => cap(raw.replace(/\bi say\b/i, "I would say"))
+  },
+  noFuturePlan: {
+    test: t => !/\b(hope|will|plan|want|would like|going to|dream)\b/.test(t),
+    sugg: "Try a future sentence: 'In five years, I hope to study abroad.'",
+    tip: "Rencana masa depan memakai 'hope to', 'plan to', atau 'will'.",
+    fix: raw => "In five years, I hope to " + clean(raw).replace(/^./, c => c.toLowerCase()) + "."
+  },
+  needFullOrder: {
+    test: t => !/\b(i would like|can i have|could i have|i'll have|may i have)\b/.test(t),
+    sugg: "Use an ordering phrase: 'Can I have a bowl of soup, please?'",
+    tip: "Frasa 'I would like' atau 'Can I have' adalah cara standar memesan makanan.",
+    fix: raw => "I would like " + clean(raw).replace(/^./, c => c.toLowerCase()) + ", please."
+  }
+};
+
+/* ---------- pujian & dorongan ---------- */
+const PRAISE = [
+  "Nice one! That sentence sounds natural.",
+  "Great job — I understood you perfectly.",
+  "Well said! Your sentence is clear.",
+  "That's a good answer. Keep going!",
+  "Excellent! You used the phrase very well."
+];
+
+/* ---------- data skenario ---------- */
+const LEVELS = [
+  { id:"beginner", name:"Beginner", desc:"Kalimat pendek dan sederhana", bars:1 },
+  { id:"intermediate", name:"Intermediate", desc:"Kalimat lebih panjang dengan alasan", bars:2 },
+  { id:"advanced", name:"Advanced", desc:"Percakapan alami dan lebih terbuka", bars:3 }
+];
+const LEVEL_NAME = { beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced" };
+
+const SCENARIOS = [
+{
+  id:"intro", emoji:"👋", title:"Introducing Yourself",
+  short:"Berkenalan dengan teman baru di acara sekolah.",
+  context:"Kamu baru bertemu teman baru di acara sekolah. Perkenalkan dirimu!",
+  vocab:[
+    { en:"Hello", id:"Halo" },
+    { en:"My name is", id:"Nama saya ..." },
+    { en:"I am from", id:"Saya berasal dari ...", alt:["i'm from"] },
+    { en:"I like", id:"Saya suka ..." },
+    { en:"Nice to meet you", id:"Senang bertemu denganmu" }
+  ],
+  levels:{
+    beginner:{ closing:"That's great! It was so nice meeting you today!", steps:[
+      { ai:"Hi there! I'm your English Speaking Partner today. Let's practice introducing yourself. Can you tell me your name?",
+        expect:["my name is","i am","i'm","hello","hi"],
+        errors:[{ r:"missingMy" }],
+        fallback:"No worries — you can start with 'My name is ...'. Let's keep going!" },
+      { ai:"Nice to meet you! Where are you from?",
+        expect:["i am from","i'm from","from"],
+        errors:[{ r:"missingAmFrom" }],
+        fallback:"Thanks for sharing! You can also say 'I am from Bandung.'" },
+      { ai:"Cool! What do you like to do in your free time?",
+        expect:["i like","i love","i enjoy"],
+        errors:[{ r:"likeBaseVerb" }],
+        fallback:"That sounds interesting! You can start with 'I like ...' next time." }
+    ]},
+    intermediate:{ closing:"You explained yourself really well. Keep talking like this and your English will grow fast!", steps:[
+      { ai:"Hi! Great to meet you at the school event. Could you introduce yourself and tell me a little about your school?",
+        expect:["my name is","i am","i study","i go to"],
+        errors:[{ r:"missingMy" }, { r:"tooShort", n:6 }],
+        fallback:"Thanks! Try adding one more detail about your school next time." },
+      { ai:"Nice! What do you usually do after school?",
+        expect:["i like","i usually","i play","i study","i go"],
+        errors:[{ r:"likeBaseVerb" }],
+        fallback:"Sounds like a full day! Tell me more with 'I usually ...'." },
+      { ai:"That's interesting! Why do you like it?",
+        expect:["because"],
+        errors:[{ r:"noBecause" }],
+        fallback:"Good! Adding a reason with 'because' makes your answer stronger." },
+      { ai:"Awesome. If you met a new student tomorrow, what would you say to them?",
+        expect:["i would say","i would","hello","nice to meet you"],
+        errors:[{ r:"missingWould" }, { r:"tooShort", n:4 }],
+        fallback:"Nice thinking! You can start with 'I would say ...'." }
+    ]},
+    advanced:{ closing:"That was a really natural conversation. You speak with confidence — keep it up!", steps:[
+      { ai:"Hey! Nice to meet you. Tell me about yourself — what makes you, you?",
+        expect:["i am","i'm","my name is","i love","i enjoy"],
+        errors:[{ r:"tooShort", n:8 }],
+        fallback:"Thanks for sharing that. Feel free to add more detail — I'm listening." },
+      { ai:"I like that. What are you hoping to achieve this year?",
+        expect:["i hope","i want","i plan","i will"],
+        errors:[{ r:"doubleModal" }, { r:"noFuturePlan" }],
+        fallback:"Great goal! You can phrase it as 'This year I hope to ...'." },
+      { ai:"Sounds ambitious. What is one challenge you might face, and how will you handle it?",
+        expect:["because","so","but","although"],
+        errors:[{ r:"noBecause", sugg:"Link your ideas: 'It might be hard because I get nervous, so I will practice every day.'" }],
+        fallback:"That's honest — try connecting the problem and your plan in one sentence." },
+      { ai:"Great mindset. Where do you see yourself in five years?",
+        expect:["i hope","i will","i plan","i would like"],
+        errors:[{ r:"noFuturePlan" }],
+        fallback:"Interesting! You can start with 'In five years, I hope to ...'." }
+    ]}
+  }
+},
+{
+  id:"food", emoji:"🍜", title:"Ordering Food",
+  short:"Memesan makanan di restoran dengan sopan.",
+  context:"Kamu sedang di restoran dan ingin memesan makanan.",
+  vocab:[
+    { en:"I would like", id:"Saya ingin ..." },
+    { en:"Can I have", id:"Bolehkah saya minta ..." },
+    { en:"How much is", id:"Berapa harga ..." },
+    { en:"No onions please", id:"Tanpa bawang, ya", alt:["no onion"] },
+    { en:"Thank you", id:"Terima kasih" }
+  ],
+  levels:{
+    beginner:{ closing:"Your order will be ready soon. Enjoy your meal!", steps:[
+      { ai:"Welcome to our restaurant! What would you like to order today?",
+        expect:["i would like","can i have","i'll have"],
+        errors:[{ r:"iWant" }, { r:"needFullOrder" }],
+        fallback:"Got it! You can also say 'I would like fried rice, please.'" },
+      { ai:"Great choice! Anything to drink?",
+        expect:["please","i would like","can i have"],
+        errors:[{ r:"iWant" }, { r:"noPlease" }],
+        fallback:"Sure thing! Adding 'please' always sounds friendly." },
+      { ai:"Of course. Would you like anything else?",
+        expect:["how much","no thank you","that's all","thank you"],
+        errors:[{ r:"shortNo", sugg:"Try a full sentence: 'No, thank you. How much is it?'", tip:"Jawaban 'no' saja terdengar dingin. Tambahkan 'thank you'." }, { r:"noPlease" }],
+        fallback:"Alright! You can also ask 'How much is it?' before finishing." }
+    ]},
+    intermediate:{ closing:"Thank you for your order. Enjoy your meal!", steps:[
+      { ai:"Good evening! Here is the menu. What would you like to order tonight?",
+        expect:["i would like","can i have","i'll have"],
+        errors:[{ r:"iWant" }, { r:"needFullOrder" }],
+        fallback:"Sounds tasty! 'I would like ... , please' is a great pattern here." },
+      { ai:"Nice pick. Do you have any special requests for your dish?",
+        expect:["no onions","without","could you","less","please"],
+        errors:[{ r:"commandForm" }, { r:"noPlease" }],
+        fallback:"Noted! You can request politely with 'No onions, please.'" },
+      { ai:"Noted! Why did you choose that dish?",
+        expect:["because"],
+        errors:[{ r:"noBecause", sugg:"Try: 'I chose it because I love spicy food.'" }],
+        fallback:"Good choice! Telling me why makes the conversation richer." },
+      { ai:"Makes sense. And how would you like to pay?",
+        expect:["i would like to pay","by cash","by card","can i pay"],
+        errors:[{ r:"iWant" }, { r:"noPlease" }],
+        fallback:"No problem! 'I would like to pay by cash, please' works well." }
+    ]},
+    advanced:{ closing:"Thank you so much. I'll bring your order shortly!", steps:[
+      { ai:"Good evening, welcome. Our special tonight is grilled fish with lemon sauce. What can I get for you?",
+        expect:["i would like","can i have","i'll have","could i"],
+        errors:[{ r:"iWant" }, { r:"needFullOrder" }],
+        fallback:"Excellent taste! A polite order starts with 'I would like ...'." },
+      { ai:"Excellent. The kitchen is quite busy tonight — would you mind waiting about twenty minutes?",
+        expect:["that's fine","i don't mind","no problem","sure","of course"],
+        errors:[{ r:"shortYes", sugg:"Try: 'That's fine, I don't mind waiting.'" }, { r:"tooShort", n:4 }],
+        fallback:"Thank you for your patience — that's very kind of you." },
+      { ai:"Thank you for understanding. Is there anything you would like us to change about the dish?",
+        expect:["could you","would it be possible","less","without","please"],
+        errors:[{ r:"commandForm" }, { r:"noPlease" }],
+        fallback:"Understood! 'Could you make it less spicy, please?' is a smooth way to ask." },
+      { ai:"Of course. By the way, how was your experience with us last time?",
+        expect:["it was","the food was","i enjoyed","last time"],
+        errors:[{ r:"pastWas" }, { r:"tooShort", n:4 }],
+        fallback:"Thanks for the feedback! Past experiences use 'was' — 'It was lovely.'" }
+    ]}
+  }
+},
+{
+  id:"directions", emoji:"🗺️", title:"Asking for Directions",
+  short:"Bertanya arah saat tersesat di kota baru.",
+  context:"Kamu tersesat di kota baru dan bertanya arah kepada orang di jalan.",
+  vocab:[
+    { en:"Excuse me", id:"Permisi" },
+    { en:"Could you tell me", id:"Bisakah Anda memberi tahu saya" },
+    { en:"How do I get to", id:"Bagaimana cara saya ke ..." },
+    { en:"Turn left", id:"Belok kiri", alt:["turn right"] },
+    { en:"Thank you so much", id:"Terima kasih banyak" }
+  ],
+  levels:{
+    beginner:{ closing:"You're welcome! Good luck finding it!", steps:[
+      { ai:"Hi! You look a bit lost. Do you need help finding something?",
+        expect:["where is the","excuse me","could you","how do i get to"],
+        errors:[{ r:"missingThe" }, { r:"tooShort", n:3 }],
+        fallback:"Sure, I can help! You can ask 'Where is the museum?'" },
+      { ai:"Sure! Go straight ahead and turn left at the traffic light. Do you understand?",
+        expect:["yes thank you","thank you","i understand"],
+        errors:[{ r:"shortYes" }],
+        fallback:"Great! A full answer like 'Yes, thank you so much!' sounds very natural." },
+      { ai:"You're welcome! Is there anything else you are looking for?",
+        expect:["where is the","how do i get to","no thank you","thank you"],
+        errors:[{ r:"missingThe" }, { r:"shortNo", sugg:"Try: 'No, thank you so much for your help!'" }],
+        fallback:"Alright! Remember 'Thank you so much' is a warm way to finish." }
+    ]},
+    intermediate:{ closing:"Happy to help. Have a great day in our city!", steps:[
+      { ai:"Hello! You seem to be looking for something. Can I help you?",
+        expect:["excuse me","could you","how do i get to","where is the"],
+        errors:[{ r:"missingThe" }, { r:"missingPolite" }],
+        fallback:"Of course! 'Excuse me, could you tell me how to get to the station?' works nicely." },
+      { ai:"Of course. Walk two blocks, then turn right at the bank. Does that make sense?",
+        expect:["yes","i understand","thank you","so i"],
+        errors:[{ r:"shortYes" }],
+        fallback:"Good! You can repeat the steps back to make sure you got them." },
+      { ai:"Great. Would it be easier for you to walk there or take a bus?",
+        expect:["because"],
+        errors:[{ r:"noBecause", sugg:"Try: 'I prefer walking because I want to see the city.'" }],
+        fallback:"Either works! Telling me why helps me give better advice." },
+      { ai:"Good decision. Would you like me to tell you how long it takes?",
+        expect:["yes please","that would be","thank you","how long"],
+        errors:[{ r:"shortYes", sugg:"Try: 'Yes, please. That would be very helpful.'" }, { r:"noPlease" }],
+        fallback:"Sure! It takes about fifteen minutes from here." }
+    ]},
+    advanced:{ closing:"You handled that like a local. Safe travels!", steps:[
+      { ai:"Hi there! You look like you're searching for something — how can I help you today?",
+        expect:["excuse me","could you","i'm looking for","how do i get to"],
+        errors:[{ r:"missingPolite" }, { r:"missingThe" }],
+        fallback:"No problem at all. 'Excuse me, could you tell me where the old market is?' sounds great." },
+      { ai:"I see. Take the third street on your left, pass the old market, and it will be on your right. Could you repeat that back to me?",
+        expect:["so i","third street","turn left","pass the"],
+        errors:[{ r:"tooShort", n:6, sugg:"Try repeating the steps: 'So I take the third street on the left, pass the market, and it's on my right.'" }],
+        fallback:"Close enough! Repeating directions out loud really helps you remember them." },
+      { ai:"Exactly right! Would you rather walk there or take public transport?",
+        expect:["because"],
+        errors:[{ r:"noBecause", sugg:"Try: 'I would rather walk because the weather is nice today.'" }],
+        fallback:"Both are fine — a short reason makes your answer sound natural." },
+      { ai:"Makes sense. If you get lost again later, what would you say to someone?",
+        expect:["i would say","excuse me","could you"],
+        errors:[{ r:"doubleModal" }, { r:"missingWould" }],
+        fallback:"Exactly the spirit! 'Excuse me, could you help me, please?' always works." }
+    ]}
+  }
+},
+{
+  id:"presentation", emoji:"🎤", title:"School Presentation",
+  short:"Membuka dan membawakan presentasi di depan kelas.",
+  context:"Kamu akan memulai presentasi tentang hobi favoritmu di depan kelas.",
+  vocab:[
+    { en:"Good morning everyone", id:"Selamat pagi semuanya" },
+    { en:"Today I will talk about", id:"Hari ini saya akan membahas ..." },
+    { en:"First", id:"Pertama" },
+    { en:"Next", id:"Selanjutnya" },
+    { en:"In conclusion", id:"Kesimpulannya" }
+  ],
+  levels:{
+    beginner:{ closing:"Great presentation! Thank you!", steps:[
+      { ai:"The class is ready. Please begin your presentation!",
+        expect:["good morning","today i will talk about","hello everyone"],
+        errors:[{ r:"missingWill" }, { r:"tooShort", n:4 }],
+        fallback:"Nice start! You can open with 'Good morning everyone. Today I will talk about ...'." },
+      { ai:"That's interesting! Can you tell us more about it?",
+        expect:["for example","because","first"],
+        errors:[{ r:"noExample" }],
+        fallback:"Thanks for explaining! An example always helps the class understand." },
+      { ai:"Thank you. How would you like to end your presentation?",
+        expect:["in conclusion","thank you for listening","that is all"],
+        errors:[{ r:"missingConclusion" }],
+        fallback:"Nice closing! 'In conclusion ... Thank you for listening!' is a strong ending." }
+    ]},
+    intermediate:{ closing:"Well structured and clear. Great job — thank you!", steps:[
+      { ai:"Good morning! The class is listening. Please start your presentation.",
+        expect:["good morning","today i will talk about"],
+        errors:[{ r:"missingWill" }, { r:"tooShort", n:5 }],
+        fallback:"Good opening! Greeting the audience first makes you sound confident." },
+      { ai:"Nice opening. What is your first point?",
+        expect:["first","to begin"],
+        errors:[{ r:"missingFirst" }],
+        fallback:"Good point! Marking it with 'First, ...' helps the class follow you." },
+      { ai:"Got it. And what is your next point?",
+        expect:["next","then","second","after that"],
+        errors:[{ r:"missingNext" }],
+        fallback:"Nice! 'Next, ...' keeps your presentation organised." },
+      { ai:"Thank you. Please close your presentation now.",
+        expect:["in conclusion","thank you for listening"],
+        errors:[{ r:"missingConclusion" }],
+        fallback:"Good ending! Try finishing with 'In conclusion ... Thank you!'" }
+    ]},
+    advanced:{ closing:"Confident delivery and a clear structure. Excellent presentation!", steps:[
+      { ai:"The class is ready. Please open your presentation and tell us why this topic matters to you.",
+        expect:["good morning","today i will talk about","because"],
+        errors:[{ r:"missingWill" }, { r:"tooShort", n:8 }],
+        fallback:"Strong opening! Telling the class why it matters grabs their attention." },
+      { ai:"Good hook. Can you support that with an example or some data?",
+        expect:["for example","such as","for instance"],
+        errors:[{ r:"noExample" }],
+        fallback:"Interesting! Evidence like 'For example, last month ...' makes it convincing." },
+      { ai:"Thank you. A classmate asks: why should we care about this topic?",
+        expect:["because"],
+        errors:[{ r:"noBecause", sugg:"Try: 'You should care because it can help you save money every week.'" }],
+        fallback:"Good answer! Connecting it to your classmates' lives makes it powerful." },
+      { ai:"Great answer. Now please close your presentation with a strong conclusion.",
+        expect:["in conclusion","to sum up","thank you for listening"],
+        errors:[{ r:"missingConclusion" }],
+        fallback:"Nice finish! A clear conclusion helps the class remember your message." }
+    ]}
+  }
+},
+{
+  id:"interview", emoji:"💼", title:"Job Interview",
+  short:"Wawancara kerja paruh waktu pertamamu.",
+  context:"Kamu sedang wawancara kerja paruh waktu pertamamu.",
+  vocab:[
+    { en:"I am applying for", id:"Saya melamar untuk ...", alt:["i'm applying for"] },
+    { en:"My strengths are", id:"Kelebihan saya adalah ...", alt:["my strength is"] },
+    { en:"I am available", id:"Saya tersedia ...", alt:["i'm available"] },
+    { en:"Thank you for the opportunity", id:"Terima kasih atas kesempatannya" }
+  ],
+  levels:{
+    beginner:{ closing:"Thank you for your time. We'll be in touch!", steps:[
+      { ai:"Thank you for coming today. Can you tell me about yourself?",
+        expect:["my name is","i am","i'm","i study"],
+        errors:[{ r:"tooShort", n:6 }],
+        fallback:"Thank you! You can mention your name, your school, and one thing you enjoy." },
+      { ai:"Thank you. What are your strengths?",
+        expect:["my strengths are","my strength is","i am good at"],
+        errors:[{ r:"strengthAgree" }],
+        fallback:"That's a good quality! Start with 'My strengths are ...' to sound clear." },
+      { ai:"Good to know. When are you available to work?",
+        expect:["i am available","i'm available","on weekends","after school"],
+        errors:[{ r:"missingAmAvail" }],
+        fallback:"Perfect. 'I am available on weekends' tells us exactly what we need." }
+    ]},
+    intermediate:{ closing:"Thank you for your time. You explained yourself very clearly!", steps:[
+      { ai:"Thanks for coming in. Tell me about yourself and why you are applying for this job.",
+        expect:["i am applying for","my name is","because"],
+        errors:[{ r:"tooShort", n:8 }],
+        fallback:"Thank you! Adding why you applied makes your answer complete." },
+      { ai:"Thank you. What are your strengths?",
+        expect:["my strengths are","my strength is"],
+        errors:[{ r:"strengthAgree" }],
+        fallback:"Great quality! 'My strengths are patience and teamwork' is a clear way to say it." },
+      { ai:"Nice. Can you tell me about a time you worked in a team?",
+        expect:["i worked","we worked","last year","in a team"],
+        errors:[{ r:"pastWork" }, { r:"tooShort", n:6 }],
+        fallback:"Good example! Stories from school projects work perfectly here." },
+      { ai:"Great example. When are you available to start?",
+        expect:["i am available","i'm available","next week","after school"],
+        errors:[{ r:"missingAmAvail" }],
+        fallback:"Understood. 'I am available from next Monday' is very clear." }
+    ]},
+    advanced:{ closing:"Thank you for your time. We'll be in touch soon!", steps:[
+      { ai:"Thank you for coming. Walk me through your background and what brings you here today.",
+        expect:["i am applying for","my name is","i study","because"],
+        errors:[{ r:"tooShort", n:10 }],
+        fallback:"Thank you for sharing. Feel free to add more about your experience." },
+      { ai:"Interesting. What are your strengths, and how would they help this team?",
+        expect:["my strengths are","my strength is","because","help"],
+        errors:[{ r:"strengthAgree" }, { r:"noBecause", sugg:"Connect it to the job: 'My strengths are patience and teamwork, because this job needs both.'" }],
+        fallback:"Good strengths! Linking them to the job makes a strong impression." },
+      { ai:"Good. Tell me about a mistake you made and what you learned from it.",
+        expect:["i learned","i made","last year","i worked"],
+        errors:[{ r:"pastWork" }, { r:"tooShort", n:8 }],
+        fallback:"Thank you for being honest — that is exactly what we like to hear." },
+      { ai:"Thoughtful answer. Do you have any questions for us?",
+        expect:["could you","can you tell me","i would like to know","what"],
+        errors:[{ r:"shortNo" }, { r:"missingPolite" }],
+        fallback:"Good question! Asking about the schedule or training shows real interest." }
+    ]}
+  }
+}
+];
+
+const byId = id => SCENARIOS.find(s => s.id === id) || SCENARIOS[0];
+
+/* ---------- state ---------- */
+const state = {
+  page: "home",
+  pick: { level: null, scenario: null },
+  session: null,     // sesi percakapan yang sedang berjalan
+  summary: null,     // hasil sesi terakhir yang selesai
+  history: [],       // riwayat selama sesi browser
+  busy: false,
+  voice: { ttsOn: true, listening: false, msg: "", needTab: false, blocked: false }
+};
+
+const PAGES = [
+  { id:"home", label:"Beranda" },
+  { id:"setup", label:"Mulai Latihan" },
+  { id:"history", label:"Riwayat Latihan" },
+  { id:"about", label:"Tentang Proyek" }
+];
+
+function go(page){
+  hush();
+  if (state.voice.listening && rec){ try { rec.abort(); } catch (e) {} state.voice.listening = false; }
+  state.page = page;
+  render();
+  window.scrollTo(0, 0);
+}
+
+function renderNav(){
+  $("#nav").innerHTML = PAGES.map(p =>
+    `<button data-nav="${p.id}" ${state.page === p.id || (state.page === "chat" && p.id === "setup") || (state.page === "summary" && p.id === "setup") ? 'aria-current="page"' : ""}>${p.label}</button>`
+  ).join("");
+}
+
+/* =========================================================
+   HALAMAN
+   ========================================================= */
+function viewHome(){
+  return `
+  <div class="stack">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">Tier 3 – AI Lab · Usia 12+</span>
+        <h1>Latihan ngobrol bahasa Inggris santai bareng AI, tanpa takut salah</h1>
+        <p class="tag">Pilih level dan situasi, lalu ngobrol dalam bahasa Inggris — <b>jawab dengan suara lewat mikrofon</b> atau ketik. Kalau ada kalimat yang bisa diperbaiki, kamu dapat kartu koreksi yang ramah — bukan nilai merah.</p>
+        <div class="hero-actions">
+          <button class="btn big" data-go="setup">Mulai Latihan →</button>
+          <button class="btn ghost" data-go="about">Tentang Proyek</button>
+        </div>
+        <div class="hero-meta">
+          <span class="pill">🎚️ 3 level</span>
+          <span class="pill">🗣️ 5 situasi</span>
+          <span class="pill">🔊 AI berbicara</span>
+          <span class="pill sim">⚙️ Simulasi Respons AI</span>
+        </div>
+      </div>
+      <div class="demo-chat" aria-hidden="true">
+        <div class="b ai">Nice to meet you! Where are you from?</div>
+        <div class="b me">I from Jakarta</div>
+        <div class="b fix">💡 Good try! Remember to add 'am': <b>I am from Jakarta.</b></div>
+        <div class="b ai">Thanks for sharing! What do you like to do in your free time?</div>
+      </div>
+    </section>
+
+    <section class="stack">
+      <div>
+        <span class="eyebrow">Cara Menggunakan</span>
+        <h2 style="font-size:1.5rem;margin-top:6px">Enam langkah, satu percakapan</h2>
+      </div>
+      <div class="howto">
+        ${[
+          "Pilih tingkat kesulitan: Beginner, Intermediate, atau Advanced.",
+          "Pilih situasi percakapan yang ingin kamu latih.",
+          "Baca kosakata kunci sebelum mulai, lalu klik “Mulai Percakapan”.",
+          "Dengarkan kalimat AI, tirukan keras-keras, lalu ketik (atau ucapkan lewat 🎤) jawabanmu.",
+          "Perhatikan kartu koreksi jika muncul, lalu coba kalimat yang lebih baik.",
+          "Lihat skor dan ringkasanmu di akhir sesi."
+        ].map((s, i) => `<div class="step"><span class="n">${i + 1}</span><p>${s}</p></div>`).join("")}
+      </div>
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Situasi yang bisa dilatih</span>
+      <div class="grid-sit" style="margin-top:14px">
+        ${SCENARIOS.map(s => `<div class="pick" style="cursor:default"><span class="em">${s.emoji}</span><span class="t">${s.title}</span><span class="d">${s.short}</span></div>`).join("")}
+      </div>
+    </section>
+
+    <div class="warn">
+      <b>Catatan jujur:</b> respons “AI” di aplikasi ini adalah <b>simulasi</b>. Aplikasi mengenali kata kunci dan pola kalimat yang sudah disiapkan siswa — bukan model AI sungguhan. Tidak ada API key, tidak ada data yang dikirim ke mana pun, dan aplikasi tidak pernah meminta data pribadimu.
+    </div>
+  </div>`;
+}
+
+function viewSetup(){
+  const lvl = state.pick.level, sc = state.pick.scenario;
+  const scen = sc ? byId(sc) : null;
+  const resume = state.session && !state.session.finished
+    ? `<div class="preview" style="border-style:solid">
+         <div><b>Kamu punya sesi yang sedang berjalan:</b> ${byId(state.session.scenarioId).emoji} ${byId(state.session.scenarioId).title} · ${LEVEL_NAME[state.session.level]}</div>
+         <div class="row">
+           <button class="btn" data-resume>Lanjutkan Percakapan</button>
+           <button class="btn ghost" data-drop>Mulai Sesi Baru</button>
+         </div>
+       </div>` : "";
+
+  return `
+  <div class="stack">
+    ${resume}
+    <section class="stack">
+      <div><span class="eyebrow">Langkah 1</span><h2 style="font-size:1.5rem;margin-top:4px">Pilih tingkat kesulitan</h2></div>
+      <div class="grid-lvl">
+        ${LEVELS.map(l => `
+          <button class="pick" data-level="${l.id}" aria-pressed="${lvl === l.id}">
+            <span class="lvl-bars">${[1,2,3].map(n => `<i class="${n <= l.bars ? "on" : ""}"></i>`).join("")}</span>
+            <span class="t">${l.name}</span>
+            <span class="d">${l.desc}</span>
+          </button>`).join("")}
+      </div>
+    </section>
+
+    <section class="stack">
+      <div><span class="eyebrow">Langkah 2</span><h2 style="font-size:1.5rem;margin-top:4px">Pilih situasi percakapan</h2></div>
+      <div class="grid-sit">
+        ${SCENARIOS.map(s => `
+          <button class="pick" data-scen="${s.id}" aria-pressed="${sc === s.id}">
+            <span class="em">${s.emoji}</span>
+            <span class="t">${s.title}</span>
+            <span class="d">${s.short}</span>
+          </button>`).join("")}
+      </div>
+    </section>
+
+    ${lvl && scen ? `
+    <section class="preview">
+      <div><span class="eyebrow">Pratinjau</span>
+        <h3 style="font-size:1.2rem;margin-top:4px">${scen.emoji} ${scen.title} · ${LEVEL_NAME[lvl]}</h3>
+      </div>
+      <p class="small">${scen.context}</p>
+      <div>
+        <div class="small muted" style="margin-bottom:7px"><b>Kosakata kunci yang akan berguna:</b></div>
+        <div class="vocab-chips">
+          ${scen.vocab.map(v => `<span class="chip"><b>${v.en}</b> <span>· ${v.id}</span></span>`).join("")}
+        </div>
+      </div>
+      <p class="small muted">🔊 <b>Mode suara:</b> AI membacakan setiap kalimat — dengarkan, tirukan keras-keras, lalu ketik jawabanmu. Tombol 🎤 (menjawab langsung dengan suara) hanya aktif kalau aplikasi dibuka di luar tampilan pratinjau; alasannya dijelaskan di halaman Tentang Proyek.</p>
+      <div class="row">
+        <button class="btn big" data-start>Mulai Percakapan →</button>
+        <span class="pill">${scen.levels[lvl].steps.length} giliran percakapan</span>
+      </div>
+    </section>` : `
+    <div class="card small muted">Pilih <b>tingkat kesulitan</b> dan <b>situasi</b> untuk melihat pratinjau kosakata dan memulai percakapan.</div>`}
+  </div>`;
+}
+
+/* ---------- sesi percakapan ---------- */
+function startSession(scenarioId, level){
+  const scen = byId(scenarioId);
+  const steps = scen.levels[level].steps;
+  state.session = {
+    scenarioId, level,
+    idx: 0,                 // giliran yang sedang ditanyakan
+    total: steps.length,
+    messages: [],
+    corrections: [],
+    vocabUsed: [],
+    spoken: [],
+    answered: 0,
+    errorCount: 0,
+    finished: false,
+    vocabOpen: false,
+    startedAt: Date.now()
+  };
+  state.page = "chat";
+  render();
+  aiSay(steps[0].ai, true);
+}
+
+function aiSay(text, withTyping){
+  const s = state.session;
+  if (!s) return;
+  if (!withTyping){
+    s.messages.push({ role:"ai", text });
+    renderChat();
+    speak(text);
+    return;
+  }
+  state.busy = true;
+  renderChat(true);
+  setTimeout(() => {
+    state.busy = false;
+    if (state.session !== s || s.finished){ renderChat(); return; }
+    s.messages.push({ role:"ai", text });
+    renderChat(true);
+    speak(text);
+  }, 950);
+}
+
+function trackVocab(text){
+  const s = state.session, scen = byId(s.scenarioId), t = norm(text);
+  scen.vocab.forEach(v => {
+    const forms = [v.en].concat(v.alt || []);
+    if (forms.some(f => t.indexOf(norm(f).trim()) !== -1) && s.vocabUsed.indexOf(v.en) === -1){
+      s.vocabUsed.push(v.en);
+    }
+  });
+}
+
+function evaluate(raw, step){
+  const t = norm(raw);
+  const flat = raw.toLowerCase().replace(/[^a-z' ]/g, "").replace(/\s+/g, " ").trim();
+  for (const e of (step.errors || [])){
+    const rule = RULES[e.r];
+    if (!rule) continue;
+    let hit;
+    if (e.r === "tooShort") hit = words(raw) > 0 && words(raw) < (e.n || 4);
+    else hit = !!rule.test(t, flat);
+    if (hit){
+      let better = null;
+      try { better = e.better || (rule.fix ? rule.fix(raw) : null); } catch (_) { better = null; }
+      if (better && !/[.!?]$/.test(better)) better += ".";
+      return {
+        kind: "fix",
+        original: raw,
+        sugg: e.sugg || rule.sugg,
+        tip: e.tip || rule.tip,
+        better: better || null
+      };
+    }
+  }
+  const matched = (step.expect || []).some(k => t.indexOf(" " + norm(k).trim()) !== -1 || t.indexOf(norm(k).trim()) !== -1);
+  return { kind: matched ? "praise" : "fallback" };
+}
+
+function sendAnswer(raw){
+  const s = state.session;
+  if (!s || s.finished || state.busy) return;
+  const text = String(raw || "").trim();
+  if (!text) return;
+  const scen = byId(s.scenarioId);
+  const steps = scen.levels[s.level].steps;
+  const step = steps[Math.min(s.idx, steps.length - 1)];
+
+  const msg = { role:"me", text };
+  s.messages.push(msg);
+  s.answered++;
+  trackVocab(text);
+
+  const res = evaluate(text, step);
+  if (res.kind === "fix"){
+    s.errorCount++;
+    const fix = { original: res.original, sugg: res.sugg, tip: res.tip, better: res.better, revealed: false, id: "fx" + Date.now() + Math.random().toString(36).slice(2, 6) };
+    s.messages.push({ role:"fix", fix });
+    s.corrections.push(fix);
+  }
+  s.idx++;
+
+  const lead = res.kind === "fix"
+    ? "Thanks for trying! Small fix above — you're doing great."
+    : res.kind === "praise"
+      ? PRAISE[Math.floor(Math.random() * PRAISE.length)]
+      : (step.fallback || "Thanks for sharing! Let's keep going.");
+
+  const next = steps[s.idx];
+  if (next){
+    aiSay(lead + "\n\n" + next.ai, true);
+  } else {
+    aiSay(lead + "\n\n" + scen.levels[s.level].closing, true);
+    setTimeout(() => {
+      if (state.session === s && !s.finished){
+        s.messages.push({ role:"note", text:"Percakapan selesai 🎉 Lihat skor dan ringkasan latihanmu." });
+        renderChat();
+      }
+    }, 1150);
+  }
+  renderChat(true);
+}
+
+function finishSession(){
+  const s = state.session;
+  if (!s) return;
+  const scen = byId(s.scenarioId);
+  const vocabTotal = scen.vocab.length;
+  const completion = s.total > 0 ? 45 * (Math.min(s.answered, s.total) / s.total) : 0;
+  const vocabPart = vocabTotal > 0 ? 25 * (s.vocabUsed.length / vocabTotal) : 0;
+  const accuracy = Math.max(10, 30 - s.errorCount * 6);
+  let score = s.answered === 0 ? 0 : Math.round(completion + vocabPart + accuracy);
+  if (!isFinite(score) || isNaN(score)) score = 0;
+  score = Math.max(0, Math.min(100, score));
+
+  const record = {
+    scenarioId: s.scenarioId, level: s.level, score,
+    answered: s.answered, total: s.total,
+    parts: {
+      completion: Math.round(completion), completionMax: 45,
+      vocab: Math.round(vocabPart), vocabMax: 25,
+      accuracy: Math.round(accuracy), accuracyMax: 30
+    },
+    corrections: s.corrections.slice(),
+    spoken: s.spoken.length,
+    vocabUsed: s.vocabUsed.slice(),
+    vocabMissed: scen.vocab.filter(v => s.vocabUsed.indexOf(v.en) === -1),
+    at: new Date()
+  };
+  s.finished = true;
+  state.voice.msg = "";
+  state.summary = record;
+  state.history.unshift(record);
+  state.session = null;
+  state.busy = false;
+  go("summary");
+}
+
+function viewChat(){
+  const s = state.session;
+  if (!s) return `<div class="card">Belum ada percakapan yang berjalan. <button class="btn ghost" data-go="setup" style="margin-left:8px">Pilih Situasi</button></div>`;
+  const scen = byId(s.scenarioId);
+  const cur = Math.min(s.idx + 1, s.total);
+  const pct = Math.max(4, Math.round((Math.min(s.answered, s.total) / s.total) * 100));
+  const spokenNow = s.spoken.indexOf(Math.min(s.idx, s.total - 1)) !== -1;
+
+  return `
+  <div class="chat-shell">
+    <div class="chat-head">
+      <div class="line1">
+        <span style="font-size:1.5rem">${scen.emoji}</span>
+        <h2>${scen.title}</h2>
+        <span class="pill">${LEVEL_NAME[s.level]}</span>
+        <span class="pill sim">Simulasi Respons AI</span>
+        <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          ${TTS_OK ? `<button class="btn ghost small" style="padding:8px 12px" data-tts aria-pressed="${state.voice.ttsOn}">${state.voice.ttsOn ? "🔊 Suara AI: Aktif" : "🔇 Suara AI: Mati"}</button>` : ""}
+          <button class="btn ghost small" style="padding:8px 12px" data-vocab>${s.vocabOpen ? "Tutup" : "Buka"} Kosakata</button>
+        </span>
+      </div>
+      <div>
+        <div class="small muted" style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span>Percakapan ${cur} dari ${s.total}</span>
+          <span>${s.vocabUsed.length}/${scen.vocab.length} kosakata kunci dipakai</span>
+        </div>
+        <div class="progress"><i style="width:${pct}%"></i></div>
+      </div>
+      <div class="vocab-panel" ${s.vocabOpen ? "" : "hidden"}>
+        <div class="small"><b>Kosakata kunci — ${scen.title}</b></div>
+        <div class="vocab-list">
+          ${scen.vocab.map((v, i) => {
+            const used = s.vocabUsed.indexOf(v.en) !== -1;
+            return `<div class="vocab-item ${used ? "used" : ""}"><span class="mark">${used ? "✓" : "•"}</span><span><b>${v.en}</b> — <span class="muted">${v.id}</span> ${TTS_OK ? `<button class="speak-btn mini" data-say-vocab="${i}" title="Dengarkan pelafalannya">🔊</button>` : ""}</span></div>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="msgs" id="msgs">
+      <div class="sysnote">${scen.context}</div>
+      ${s.messages.map((m, i) => msgHTML(m, i)).join("")}
+      ${state.busy ? `<div class="typing" aria-label="AI sedang mengetik"><i></i><i></i><i></i></div>` : ""}
+      ${s.idx >= s.total && !state.busy ? `<div class="sysnote">Semua giliran percakapan selesai. Klik <b>Selesai Latihan</b> untuk melihat skormu.</div>` : ""}
+    </div>
+
+    <div class="composer">
+      <div class="in">
+        <textarea id="answer" rows="2" placeholder="${s.idx >= s.total ? "Percakapan sudah selesai — klik Selesai Latihan" : state.voice.listening ? "Sedang mendengarkan… bicara dalam bahasa Inggris" : "Bicara dengan 🎤 atau ketik jawabanmu dalam bahasa Inggris..."}" ${s.idx >= s.total || state.busy ? "disabled" : ""}></textarea>
+        <span class="in-btns">
+          <button class="btn mic" data-mic aria-pressed="${state.voice.listening}" title="${ASR_OK ? "Jawab dengan suara" : "Input suara tidak tersedia di browser ini"}" ${s.idx >= s.total || state.busy ? "disabled" : ""}>${state.voice.listening ? "⏹" : "🎤"}</button>
+          <button class="btn" data-send ${s.idx >= s.total || state.busy ? "disabled" : ""}>Kirim</button>
+        </span>
+      </div>
+      <div class="voice-note ${state.voice.msg ? "warn-line" : ""}">
+        ${state.voice.msg
+          ? "⚠️ " + esc(state.voice.msg) + (state.voice.blocked ? ` <button class="btn-fix" data-go="about">Cara memakai mikrofon →</button>` : "")
+          : state.voice.listening
+            ? "🎙️ <b>Mendengarkan…</b> bicara dalam bahasa Inggris, lalu tekan ⏹ untuk berhenti. Hasilnya muncul di kolom jawaban supaya bisa kamu periksa dulu."
+            : (ASR_OK ? "🎤 Tekan mikrofon untuk menjawab dengan suara" : "🎤 Input suara butuh Chrome/Edge — di browser ini kamu bisa mengetik") + " · 🔊 Dengarkan untuk menirukan kalimat AI · Enter untuk mengirim"}
+      </div>
+      <div class="row" style="justify-content:space-between;align-items:center;gap:10px">
+        <span class="row" style="gap:9px;align-items:center">
+          <button class="btn ghost" style="padding:9px 14px" data-spoken aria-pressed="${spokenNow}" ${s.idx >= s.total ? "disabled" : ""}>${spokenNow ? "✅ Sudah kuucapkan" : "🗣️ Aku ucapkan dulu"}</button>
+          <span class="small muted">${s.spoken.length}/${s.total} kalimat kamu ucapkan keras-keras</span>
+        </span>
+        <button class="btn gold" data-finish>Selesai Latihan</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function msgHTML(m, i){
+  if (m.role === "ai") return `<div class="msg ai"><span class="who">AI Partner</span><div class="bubble">${esc(m.text)}</div>${TTS_OK ? `<span class="row" style="gap:6px"><button class="speak-btn" data-say-msg="${i}">🔊 Dengarkan</button><button class="speak-btn" data-say-msg="${i}" data-slow="1">🐢 Pelan</button></span>` : ""}</div>`;
+  if (m.role === "me") return `<div class="msg me"><span class="who">Kamu</span><div class="bubble">${esc(m.text)}</div>${TTS_OK ? `<button class="speak-btn" data-say-text="${esc(m.text)}" title="Dengar bagaimana kalimatmu diucapkan">🔊 Ucapkan kalimatku</button>` : ""}</div>`;
+  if (m.role === "note") return `<div class="sysnote">${esc(m.text)}</div>`;
+  if (m.role === "fix"){
+    const f = m.fix;
+    return `<div class="fixcard">
+      <div class="hd">💡 Kartu Koreksi — santai, ini bagian dari belajar</div>
+      <div class="rowline"><span class="lbl">Kalimatmu</span><span class="val strike">${esc(f.original)}</span></div>
+      <div class="rowline"><span class="lbl">Saran</span><span class="val good">${esc(f.sugg)}</span></div>
+      <div class="tip">${esc(f.tip)}</div>
+      ${f.better ? (f.revealed
+        ? `<div class="better"><b>Versi yang lebih baik</b>${esc(f.better)}${TTS_OK ? ` <button class="speak-btn mini" data-say-text="${esc(f.better)}" title="Dengarkan lalu tirukan">🔊</button>` : ""}</div>`
+        : `<button class="btn-fix" data-better="${f.id}">✨ Coba Kalimat yang Lebih Baik</button>`) : ""}
+    </div>`;
+  }
+  return "";
+}
+
+function viewSummary(){
+  const r = state.summary;
+  if (!r) return `<div class="card">Belum ada sesi yang selesai. <button class="btn ghost" data-go="setup" style="margin-left:8px">Mulai Latihan</button></div>`;
+  const scen = byId(r.scenarioId);
+  const band = r.score >= 85 ? { t:"Luar biasa!", d:"Kalimatmu jelas dan percaya diri. Coba level yang lebih tinggi!" }
+    : r.score >= 70 ? { t:"Bagus sekali!", d:"Kamu sudah nyaman berbicara. Perbanyak kosakata kunci di sesi berikutnya." }
+    : r.score >= 55 ? { t:"Terus berlatih!", d:"Alurnya sudah jalan. Baca lagi kartu koreksinya, lalu ulangi situasi ini." }
+    : { t:"Awal yang baik!", d:"Setiap orang mulai dari sini. Coba jawab semua giliran percakapan di sesi berikutnya." };
+
+  return `
+  <div class="stack">
+    <section class="card">
+      <span class="eyebrow">Ringkasan Latihan</span>
+      <h2 style="font-size:1.5rem;margin:6px 0 18px">${scen.emoji} ${scen.title} · ${LEVEL_NAME[r.level]}</h2>
+      <div class="score-wrap">
+        <div class="ring" style="--p:${r.score}"><div class="in"><div><div class="num">${r.score}</div><div class="of">DARI 100</div></div></div></div>
+        <div class="breakdown">
+          <h3 style="font-size:1.25rem">${band.t}</h3>
+          <p class="small muted" style="margin-bottom:6px">${band.d}</p>
+          ${bdRow("Kelengkapan menjawab", r.parts.completion, r.parts.completionMax, `${r.answered} dari ${r.total} giliran dijawab`)}
+          ${bdRow("Kosakata kunci dipakai", r.parts.vocab, r.parts.vocabMax, `${r.vocabUsed.length} dari ${r.vocabUsed.length + r.vocabMissed.length} kosakata`)}
+          ${bdRow("Ketepatan kalimat", r.parts.accuracy, r.parts.accuracyMax, `${r.corrections.length} kartu koreksi muncul · nilai dasar tetap diberikan`)}
+        </div>
+      </div>
+      <div class="preview" style="margin-top:18px;border-style:solid">
+        <div class="row" style="align-items:center;gap:12px">
+          <span style="font-size:1.6rem">🗣️</span>
+          <div>
+            <div><b>Latihan mengucapkan: ${r.spoken || 0} dari ${r.total} kalimat</b></div>
+            <p class="small muted">Ini kamu tandai sendiri, jadi tidak masuk hitungan skor — aplikasi belum bisa mendengar dan menilai pelafalanmu. Yang penting: kalimat yang diucapkan keras-keras jauh lebih cepat melekat daripada yang hanya diketik.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Ringkasan Kesalahan</span>
+      <h3 style="font-size:1.2rem;margin:6px 0 12px">Yang bisa kamu rapikan</h3>
+      ${r.corrections.length === 0
+        ? `<p class="small muted">Tidak ada kartu koreksi di sesi ini. Kalimatmu sudah sesuai pola yang dikenali sistem — mantap! 🎉</p>`
+        : `<div class="stack" style="gap:10px">${r.corrections.map(f => `
+            <div class="fixcard">
+              <div class="rowline"><span class="lbl">Kalimatmu</span><span class="val strike">${esc(f.original)}</span></div>
+              <div class="rowline"><span class="lbl">Saran</span><span class="val good">${esc(f.sugg)}</span></div>
+              ${f.better ? `<div class="better"><b>Versi yang lebih baik</b>${esc(f.better)}</div>` : ""}
+              <div class="tip">${esc(f.tip)}</div>
+            </div>`).join("")}</div>`}
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Rekomendasi Kosakata</span>
+      <h3 style="font-size:1.2rem;margin:6px 0 12px">Coba pakai ini di latihan berikutnya</h3>
+      ${r.vocabMissed.length === 0
+        ? `<p class="small muted">Kamu memakai semua kosakata kunci situasi ini. Luar biasa! Coba situasi lain atau naikkan levelnya.</p>`
+        : `<div class="vocab-chips">${r.vocabMissed.map(v => `<span class="chip"><b>${v.en}</b> <span>· ${v.id}</span></span>`).join("")}</div>`}
+      ${r.vocabUsed.length ? `<p class="small muted" style="margin-top:12px">Sudah kamu pakai: ${r.vocabUsed.map(v => `<b>${esc(v)}</b>`).join(", ")}.</p>` : ""}
+    </section>
+
+    <div class="row">
+      <button class="btn" data-go="setup">Latihan Situasi Lain</button>
+      <button class="btn ghost" data-again>Ulangi Situasi Ini</button>
+      <button class="btn ghost" data-go="history">Lihat Riwayat Latihan</button>
+    </div>
+  </div>`;
+}
+
+function bdRow(label, val, max, note){
+  const pct = max > 0 ? Math.round((val / max) * 100) : 0;
+  return `<div class="bd-row">
+    <span>${label} <span class="muted small">· ${note}</span></span>
+    <span class="v">${val}/${max}</span>
+    <span class="bd-bar"><i style="width:${pct}%"></i></span>
+  </div>`;
+}
+
+function viewHistory(){
+  return `
+  <div class="stack">
+    <div>
+      <span class="eyebrow">Riwayat Latihan</span>
+      <h2 style="font-size:1.5rem;margin-top:4px">Sesi yang sudah kamu selesaikan</h2>
+      <p class="small muted" style="margin-top:6px">Riwayat disimpan sementara di browser selama sesi ini berlangsung. Tidak ada data pribadi yang disimpan, dan riwayat akan kosong lagi jika halaman dimuat ulang.</p>
+    </div>
+    ${state.history.length === 0
+      ? `<div class="card"><p class="small muted">Belum ada sesi yang selesai. Setelah kamu menyelesaikan satu latihan, hasilnya akan muncul di sini.</p>
+         <div class="row" style="margin-top:12px"><button class="btn" data-go="setup">Mulai Latihan</button></div></div>`
+      : `<div class="hist">${state.history.map((r, i) => {
+          const scen = byId(r.scenarioId);
+          const jam = r.at.toLocaleTimeString("id-ID", { hour:"2-digit", minute:"2-digit" });
+          return `<div class="hist-item">
+            <span class="em">${scen.emoji}</span>
+            <span><b>${scen.title}</b><br><span class="small muted">${LEVEL_NAME[r.level]} · ${r.answered}/${r.total} giliran · ${r.corrections.length} koreksi · 🗣️ ${r.spoken || 0} diucapkan · ${jam}</span></span>
+            <span class="sc">${r.score}</span>
+          </div>`;
+        }).join("")}</div>
+        <div class="row"><button class="btn" data-go="setup">Latihan Lagi</button></div>`}
+  </div>`;
+}
+
+function viewAbout(){
+  const flow = ["Landing Page","Pilihan Level & Situasi","Ruang Percakapan","Ringkasan & Skor","Riwayat Latihan"];
+  return `
+  <div class="stack">
+    <section class="card">
+      <span class="eyebrow">Portofolio Proyek</span>
+      <h2 style="font-size:1.7rem;margin:6px 0 14px">English Speaking Partner</h2>
+      <dl class="kv">
+        <dt>Tier</dt><dd>Tier 3 – AI Lab, usia 12 tahun ke atas</dd>
+        <dt>Pembuat</dt><dd>Siswa Future Makers</dd>
+        <dt>Jenis produk</dt><dd>AI-Powered Web App (simulasi teman latihan bicara)</dd>
+        <dt>Bahasa</dt><dd>Antarmuka Bahasa Indonesia · latihan percakapan Bahasa Inggris</dd>
+      </dl>
+    </section>
+
+    <div class="about-grid">
+      <section class="card">
+        <span class="eyebrow">Masalah</span>
+        <p class="small" style="margin-top:8px">Banyak siswa sudah memahami kosakata bahasa Inggris, tetapi kurang percaya diri menggunakannya dalam percakapan nyata. Takut salah membuat mereka memilih diam.</p>
+      </section>
+      <section class="card">
+        <span class="eyebrow">Tujuan Proyek</span>
+        <p class="small" style="margin-top:8px">Merancang aplikasi latihan percakapan yang membangun kepercayaan diri berbicara, sekaligus belajar merancang system prompt untuk AI yang berperan sebagai teman latihan — bukan sekadar mesin penilai.</p>
+      </section>
+    </div>
+
+    <section class="card">
+      <span class="eyebrow">System Prompt yang Digunakan</span>
+      <div class="quote" style="margin-top:10px">“Kamu adalah teman latihan bicara bahasa Inggris yang ramah untuk siswa SMP/SMA. Sesuaikan tingkat kesulitan pertanyaan dan kosakata dengan level yang dipilih pengguna (Beginner/Intermediate/Advanced). Jangan pernah mengejek kesalahan tata bahasa; berikan koreksi dengan sopan dan penuh semangat. Setelah mengoreksi, selalu dorong pengguna untuk melanjutkan percakapan. Fokus utamamu adalah membangun rasa percaya diri pengguna dalam berbicara bahasa Inggris, bukan hanya menilai kebenaran gramatikal.”</div>
+      <div class="stack" style="gap:10px;margin-top:16px">
+        <div>
+          <div class="small"><b>Contoh prompt siswa (merancang system prompt)</b></div>
+          <div class="quote" style="margin-top:6px">“Bantu saya membuat system prompt untuk AI yang berperan sebagai teman latihan bicara bahasa Inggris untuk siswa SMP/SMA. AI harus ramah, tidak mengejek kesalahan, memberi koreksi dengan sopan, menyesuaikan tingkat kesulitan dengan level pengguna, dan selalu mendorong pengguna untuk melanjutkan percakapan.”</div>
+        </div>
+        <div>
+          <div class="small"><b>Contoh prompt perbaikan (versi 1 → versi 2)</b></div>
+          <div class="quote" style="margin-top:6px">“Tolong revisi system prompt di atas supaya AI lebih menekankan membangun rasa percaya diri pengguna, bukan hanya menilai benar-salah tata bahasa — tambahkan penekanan bahwa tujuan utamanya adalah membuat siswa berani mencoba berbicara.”</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="about-grid">
+      <section class="card">
+        <span class="eyebrow">Apa yang dibuat siswa</span>
+        <ul class="clean" style="margin-top:10px">
+          <li>Menentukan lima situasi percakapan sehari-hari</li>
+          <li>Merancang system prompt agar AI bersikap suportif, bukan menghakimi</li>
+          <li>Menyusun kosakata kunci dan pola kesalahan umum untuk tiap situasi</li>
+          <li>Merancang sistem skor yang adil dan tidak menghukum berlebihan</li>
+          <li>Menambahkan mode suara: AI membacakan kalimatnya dan siswa menjawab lewat mikrofon</li>
+          <li>Menguji percakapan dengan teman dan mencatat masukannya</li>
+          <li>Memperbaiki skenario berdasarkan hasil pengujian</li>
+        </ul>
+      </section>
+      <section class="card">
+        <span class="eyebrow">Bagaimana Claude AI membantu</span>
+        <ul class="clean" style="margin-top:10px">
+          <li>Menyusun draf system prompt berdasarkan peran yang diinginkan siswa</li>
+          <li>Membuat variasi kalimat AI untuk tiap situasi dan level kesulitan</li>
+          <li>Menghasilkan pola kesalahan umum beserta saran perbaikannya</li>
+          <li>Membantu menulis pesan apresiasi dan dorongan yang suportif</li>
+          <li>Membantu menyambungkan mode suara memakai Web Speech API bawaan browser, lengkap dengan pesan cadangan jika mikrofon tidak tersedia</li>
+          <li>Membantu membangun aplikasi interaktif sesuai struktur yang ditentukan siswa</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="card">
+      <span class="eyebrow">Diagram Alur Aplikasi</span>
+      <h3 style="font-size:1.2rem;margin:6px 0 14px">Bagaimana pengguna bergerak di dalam aplikasi</h3>
+      <div class="flow">
+        ${flow.map((n, i) => `<div class="node">${n}</div>${i < flow.length - 1 ? `<div class="arr">→</div>` : ""}`).join("")}
+      </div>
+      <p class="small muted" style="margin-top:12px">Dari halaman <b>Ringkasan &amp; Skor</b>, pengguna dapat kembali ke pilihan situasi, mengulang situasi yang sama, atau membuka riwayat latihan.</p>
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Latihan Bicara</span>
+      <h3 style="font-size:1.2rem;margin:6px 0 12px">Bagian mana yang benar-benar “speaking”?</h3>
+      <p class="small">Aplikasi ini bernama <b>Speaking</b> Partner, jadi latihannya tidak berhenti di mengetik. Dua fitur suara memakai <b>Web Speech API bawaan browser</b> — bukan model AI, tanpa API key, dan tanpa mengirim rekaman ke server kami:</p>
+      <ul class="clean" style="margin-top:10px">
+        <li><b>🔊 AI berbicara</b> (text-to-speech) — <b>berfungsi di mana saja.</b> Setiap kalimat AI dibacakan dalam bahasa Inggris, ada tombol “Dengarkan” dan “🐢 Pelan” di tiap pesan, tombol 🔊 di tiap kosakata kunci, di kalimatmu sendiri, dan di setiap versi perbaikan pada kartu koreksi.</li>
+        <li><b>🗣️ Kamu menirukan</b> — dengarkan kalimat AI, ucapkan keras-keras, lalu tekan “Aku ucapkan dulu” sebelum menjawab. Jumlahnya muncul di halaman ringkasan. Ini penandaan mandiri (aplikasi belum bisa mendengarmu), tetapi inilah bagian yang membuat latihan ini benar-benar <i>speaking</i>, bukan sekadar mengetik.</li>
+        <li><b>🎤 Kamu berbicara</b> (speech-to-text) — tekan mikrofon, ucapkan jawabanmu, browser mengubahnya menjadi teks di kolom jawaban untuk kamu periksa dulu. <b>Hanya berjalan bila aplikasi dibuka di luar tampilan pratinjau</b> — lihat kotak di bawah.</li>
+      </ul>
+      <div class="warn" style="margin-top:14px"><b>Batasnya jujur:</b> aplikasi <b>belum menilai pelafalan</b> — suara diubah menjadi teks, lalu teks itulah yang dinilai. Penandaan “sudah kuucapkan” tidak masuk hitungan skor karena tidak bisa diverifikasi. Penilaian pelafalan adalah rencana pengembangan berikutnya.</div>
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Kalau Mikrofon Tidak Mau Jalan</span>
+      <h3 style="font-size:1.2rem;margin:6px 0 12px">Penyebab utamanya bukan di perangkatmu</h3>
+      <p class="small">Aplikasi ini ditampilkan di dalam <b>kotak aman (sandbox)</b> milik platform tempat ia dipublikasikan. Sandbox itu memblokir akses mikrofon untuk semua halaman yang dimuat di dalamnya, dan halaman di dalam sandbox <b>tidak bisa meminta izin itu sendiri</b> — sekalipun izin mikrofon di laptop, HP, dan browser sudah kamu berikan. Jadi kalau tombol 🎤 menolak di sini, itu batas platform, bukan kesalahan perangkatmu.</p>
+      <p class="small" style="margin-top:10px"><b>Cara memakai mikrofon sungguhan:</b></p>
+      <ol class="clean" style="margin-top:8px">
+        <li><b>Unduh berkas aplikasinya</b> (file <code>.html</code>), lalu buka dengan Chrome atau Edge langsung dari komputermu. Saat tombol 🎤 ditekan, browser akan menampilkan permintaan izin mikrofon yang sebenarnya — pilih <i>Allow</i>.</li>
+        <li>Kalau membuka berkas langsung masih ditolak, jalankan lewat server lokal: buka folder berkas itu di Terminal/Command Prompt, ketik <code>python -m http.server 8000</code>, lalu buka <code>http://localhost:8000</code> di Chrome. Cara ini paling dapat diandalkan karena <code>localhost</code> dianggap alamat aman oleh browser.</li>
+        <li>Atau unggah berkas ke hosting statis milik sekolah/pribadi (mis. GitHub Pages) — asalkan alamatnya <code>https://</code>, mikrofon akan berfungsi normal.</li>
+      </ol>
+      <p class="small muted" style="margin-top:12px">Pemeriksaan tambahan bila sudah di luar sandbox tetapi mikrofon tetap diam: pakai Chrome/Edge (Firefox dan Safari belum mendukung pengenalan suara ini) · klik ikon gembok di sebelah alamat web → <i>Site settings</i> → <i>Microphone</i> → <i>Allow</i> · tutup aplikasi lain yang memakai mikrofon (Zoom, Meet, perekam suara) · cek <i>Settings → Privacy &amp; security → Microphone</i> di Windows atau <i>System Settings → Privacy &amp; Security → Microphone</i> di macOS.</p>
+      <p class="small muted" style="margin-top:10px">Aplikasi meminta izin lewat <code>getUserMedia</code> lebih dulu sebelum menyalakan pengenalan suara, supaya pesan yang muncul menyebut penyebab yang tepat — bukan sekadar “gagal”. Tanpa mikrofon pun, seluruh latihan tetap berjalan penuh: AI tetap berbicara, kamu menirukan, lalu mengetik jawabanmu, dan skornya dihitung sama.</p>
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Bagaimana “AI” di aplikasi ini bekerja</span>
+      <h3 style="font-size:1.2rem;margin:6px 0 12px">Simulasi yang jujur</h3>
+      <p class="small">Aplikasi ini berjalan sendiri di browser, tanpa backend dan tanpa API key. Karena itu respons “AI” adalah <b>simulasi</b>: setiap jawaban siswa dicocokkan dengan daftar pola kesalahan umum dan kata kunci yang sudah disiapkan siswa untuk situasi tersebut. Hasilnya salah satu dari tiga kemungkinan:</p>
+      <ul class="clean" style="margin-top:10px">
+        <li><b>Apresiasi</b> — jawaban mengandung kata kunci yang diharapkan dan tidak cocok dengan pola kesalahan mana pun.</li>
+        <li><b>Kartu koreksi</b> — jawaban cocok dengan salah satu pola kesalahan (misalnya “Name is ...” tanpa “My”). Kartu berisi kalimat asli, saran perbaikan, penjelasan singkat, dan tombol “Coba Kalimat yang Lebih Baik”.</li>
+        <li><b>Dorongan</b> — pola tidak dikenali sama sekali; aplikasi tetap merespons dengan kalimat dorongan yang relevan dengan situasi, lalu melanjutkan percakapan.</li>
+      </ul>
+      <div class="warn" style="margin-top:14px"><b>Versi produksi:</b> untuk pemahaman bahasa yang benar-benar alami, aplikasi ini perlu dihubungkan ke model AI melalui <b>backend yang aman</b>. API key tidak boleh pernah disimpan atau ditampilkan di sisi frontend. System prompt di atas adalah instruksi yang akan dipakai apabila API sungguhan dihubungkan.</div>
+    </section>
+
+    <div class="about-grid">
+      <section class="card">
+        <span class="eyebrow">Keterbatasan AI</span>
+        <ul class="clean" style="margin-top:10px">
+          <li>Hanya mengenali pola kalimat yang sudah didaftarkan — kalimat di luar itu mendapat respons dorongan umum.</li>
+          <li>Tidak memahami makna kalimat, jadi jawaban yang benar pun bisa terlewat apresiasinya.</li>
+          <li>Koreksi tata bahasa terbatas pada kesalahan umum siswa Indonesia, bukan seluruh aturan grammar.</li>
+          <li>Belum ada penilaian pelafalan — suara diubah menjadi teks, lalu teks itulah yang dinilai.</li>
+          <li>Pengenalan suara memakai mesin bawaan browser, jadi aksen atau suara latar bisa membuatnya salah dengar.</li>
+          <li>Skor adalah alat latihan, bukan penilaian kemampuan bahasa Inggris yang resmi.</li>
+        </ul>
+      </section>
+      <section class="card">
+        <span class="eyebrow">Catatan Privasi &amp; Keamanan</span>
+        <ul class="clean" style="margin-top:10px">
+          <li>Aplikasi tidak pernah meminta nama lengkap, alamat, sekolah, nomor telepon, atau foto.</li>
+          <li>Suara diproses oleh fitur bawaan browser hanya saat tombol mikrofon aktif — tidak ada rekaman yang disimpan aplikasi ini.</li>
+          <li>Semua percakapan hanya berada di browser dan hilang saat halaman dimuat ulang.</li>
+          <li>Tidak ada kolom API key, tidak ada data yang dikirim ke server mana pun.</li>
+          <li>Jangan menuliskan informasi pribadi di kolom jawaban — gunakan nama samaran saat berlatih.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="card">
+      <span class="eyebrow">Bukti Portofolio</span>
+      <h3 style="font-size:1.2rem;margin:6px 0 12px">Checklist untuk dilengkapi siswa</h3>
+      <div class="check">
+        <label><input type="checkbox"> <span>Live web app — tautan ke aplikasi ini</span></label>
+        <label><input type="checkbox"> <span>Video demo 1–2 menit — tambahkan tautan videonya di sini setelah direkam</span></label>
+        <label><input type="checkbox" checked> <span>System prompt — sudah tercantum di halaman ini</span></label>
+        <label><input type="checkbox" checked> <span>Diagram alur aplikasi — sudah tercantum di halaman ini</span></label>
+        <label><input type="checkbox"> <span>Hasil pengujian pengguna — isi di kolom bawah setelah mencobanya bersama teman</span></label>
+        <label><input type="checkbox"> <span>Catatan pengembangan berikutnya — lihat daftar di bawah</span></label>
+      </div>
+      <div style="margin-top:14px">
+        <label class="small" for="ujicoba"><b>Hasil pengujian pengguna</b></label>
+        <textarea id="ujicoba" rows="4" style="margin-top:8px" placeholder="Tulis hasil pengujian ke teman di sini setelah kamu mencobanya. Contoh: siapa yang mencoba (tanpa nama lengkap), situasi yang dipilih, apa yang membingungkan, dan perbaikan apa yang kamu lakukan."></textarea>
+        <p class="small muted" style="margin-top:6px">Catatan ini hanya tersimpan sementara di browsermu — salin ke dokumen portofoliomu setelah menulisnya.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Rencana Pengembangan Berikutnya</span>
+      <ul class="clean" style="margin-top:10px">
+        <li>Menghubungkan ke API AI sungguhan melalui backend yang aman untuk pemahaman bahasa yang lebih alami</li>
+        <li>Menambahkan penilaian pelafalan (pronunciation scoring) supaya siswa tahu bunyi mana yang perlu diperbaiki</li>
+        <li>Menyediakan alternatif input suara untuk browser di luar Chrome/Edge</li>
+        <li>Menyimpan riwayat latihan secara permanen supaya kemajuan bisa dipantau setiap minggu</li>
+        <li>Menambah situasi baru: berbelanja, berkenalan dengan turis, dan wawancara beasiswa</li>
+        <li>Menambahkan mode “tantangan harian” dengan target kosakata mingguan</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <span class="eyebrow">Refleksi Siswa</span>
+      <ul class="clean" style="margin-top:10px">
+        <li>Merancang system prompt ternyata menentukan “kepribadian” AI — satu kalimat tambahan mengubah nada seluruh aplikasi.</li>
+        <li>Membuat sistem koreksi yang membangun lebih sulit daripada sekadar menandai jawaban salah.</li>
+        <li>Saat diuji ke teman, jawaban mereka sering di luar dugaan — itulah alasan respons cadangan (fallback) harus tetap terasa hangat.</li>
+        <li>AI bisa salah mengenali maksud pengguna, jadi aplikasinya perlu terus diperbaiki, bukan sekali jadi.</li>
+      </ul>
+    </section>
+  </div>`;
+}
+
+/* =========================================================
+   RENDER + EVENT
+   ========================================================= */
+function render(){
+  renderNav();
+  const app = $("#app");
+  let html = "";
+  switch (state.page){
+    case "setup": html = viewSetup(); break;
+    case "chat": html = viewChat(); break;
+    case "summary": html = viewSummary(); break;
+    case "history": html = viewHistory(); break;
+    case "about": html = viewAbout(); break;
+    default: html = viewHome();
+  }
+  app.innerHTML = html;
+  if (state.page === "chat") scrollMsgs();
+}
+
+function renderChat(keepFocus){
+  if (state.page !== "chat") return;
+  const val = $("#answer") ? $("#answer").value : "";
+  $("#app").innerHTML = viewChat();
+  const ta = $("#answer");
+  if (ta && !ta.disabled){ ta.value = val; if (keepFocus) ta.focus(); }
+  scrollMsgs();
+}
+
+function scrollMsgs(){
+  const box = $("#msgs");
+  if (box) box.scrollTop = box.scrollHeight;
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-nav],[data-go],[data-level],[data-scen],[data-start],[data-send],[data-finish],[data-vocab],[data-better],[data-again],[data-resume],[data-drop],[data-tts],[data-mic],[data-spoken],[data-say-msg],[data-say-vocab],[data-say-text]");
+  if (!t) return;
+
+  if (t.hasAttribute("data-mic")) return micToggle();
+  if (t.hasAttribute("data-open-tab")){
+    try { window.open(window.location.href, "_blank", "noopener"); } catch (err) {}
+    return;
+  }
+  if (t.hasAttribute("data-tts")){
+    state.voice.ttsOn = !state.voice.ttsOn;
+    if (!state.voice.ttsOn) hush();
+    return renderChat();
+  }
+  if (t.dataset.sayMsg !== undefined){
+    const s = state.session;
+    const m = s && s.messages[+t.dataset.sayMsg];
+    if (m && m.role === "ai") speak(m.text, true, t.dataset.slow === "1");
+    return;
+  }
+  if (t.hasAttribute("data-spoken")){
+    const s = state.session;
+    if (!s) return;
+    const turn = Math.min(s.idx, s.total - 1);
+    const at = s.spoken.indexOf(turn);
+    if (at === -1) s.spoken.push(turn); else s.spoken.splice(at, 1);
+    return renderChat(true);
+  }
+  if (t.dataset.sayVocab !== undefined){
+    const s = state.session;
+    if (!s) return;
+    const v = byId(s.scenarioId).vocab[+t.dataset.sayVocab];
+    if (v) speak(v.en, true);
+    return;
+  }
+  if (t.dataset.sayText !== undefined) return speak(t.dataset.sayText, true);
+
+  if (t.dataset.nav !== undefined) return go(t.dataset.nav);
+  if (t.dataset.go !== undefined) return go(t.dataset.go);
+
+  if (t.dataset.level !== undefined){ state.pick.level = t.dataset.level; return render(); }
+  if (t.dataset.scen !== undefined){ state.pick.scenario = t.dataset.scen; return render(); }
+
+  if (t.hasAttribute("data-start")){
+    if (!state.pick.level || !state.pick.scenario) return;
+    return startSession(state.pick.scenario, state.pick.level);
+  }
+  if (t.hasAttribute("data-resume")){ state.page = "chat"; return render(); }
+  if (t.hasAttribute("data-drop")){ state.session = null; return render(); }
+  if (t.hasAttribute("data-again")){
+    if (!state.summary) return go("setup");
+    state.pick.level = state.summary.level;
+    state.pick.scenario = state.summary.scenarioId;
+    return startSession(state.summary.scenarioId, state.summary.level);
+  }
+  if (t.hasAttribute("data-send")){
+    const ta = $("#answer");
+    if (!ta) return;
+    const v = ta.value; ta.value = "";
+    return sendAnswer(v);
+  }
+  if (t.hasAttribute("data-finish")) return finishSession();
+  if (t.hasAttribute("data-vocab")){
+    if (state.session){ state.session.vocabOpen = !state.session.vocabOpen; renderChat(); }
+    return;
+  }
+  if (t.dataset.better !== undefined){
+    const s = state.session;
+    if (!s) return;
+    const m = s.messages.find(x => x.role === "fix" && x.fix.id === t.dataset.better);
+    if (m){ m.fix.revealed = true; renderChat(); }
+    return;
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.target && e.target.id === "answer" && e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    const v = e.target.value; e.target.value = "";
+    sendAnswer(v);
+  }
+});
+
+render();
+</script>
+
+</body></html>

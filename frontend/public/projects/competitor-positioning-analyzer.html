@@ -1,0 +1,1552 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Competitor Positioning Analyzer</title>
+<style>
+:root{
+  --navy:#0B2545; --navy-2:#123A6B; --blue:#1D5DFF; --blue-soft:#E8EFFF;
+  --cyan:#06B6D4; --cyan-soft:#E0F7FB; --green:#0FA97D; --green-soft:#E3F7F0;
+  --amber:#C97A0E; --amber-soft:#FDF3E2; --red:#D64550; --red-soft:#FDEBEC;
+  --ink:#0F1B2D; --ink-2:#41546E; --ink-3:#73849B;
+  --line:#DEE6F1; --line-2:#EDF2F9; --bg:#F4F7FC; --card:#FFFFFF;
+  --shadow:0 1px 2px rgba(11,37,69,.05), 0 8px 24px -12px rgba(11,37,69,.18);
+  --radius:14px;
+  --font:"Inter","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;line-height:1.3;letter-spacing:-.01em}
+p{margin:0}
+a{color:var(--blue)}
+button{font-family:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+
+/* ---------- HEADER ---------- */
+.topbar{background:linear-gradient(135deg,#0B2545 0%,#123A6B 55%,#17548F 100%);color:#fff;padding:30px 0 34px;position:relative;overflow:hidden}
+.topbar::after{content:"";position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.35),transparent 65%)}
+.brandline{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.logo{width:46px;height:46px;flex:none;border-radius:13px;background:rgba(255,255,255,.12);display:grid;place-items:center;border:1px solid rgba(255,255,255,.22)}
+.topbar h1{font-size:25px;font-weight:700}
+.topbar .tagline{color:#BBD3F0;font-size:14.5px;margin-top:3px;max-width:640px}
+.hbadges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:relative;z-index:1}
+.hbadge{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);color:#EAF2FF}
+.hbadge.cy{background:rgba(6,182,212,.22);border-color:rgba(6,182,212,.5);color:#B8F3FC}
+
+/* ---------- ACTION BAR ---------- */
+.actionbar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:11px 0}
+.actionbar .wrap{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 15px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.btn:hover{border-color:#B9CBE6;background:#F8FAFF}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 6px 16px -8px rgba(29,93,255,.9)}
+.btn-primary:hover{background:#1550E6;border-color:#1550E6}
+.btn-ghost{background:transparent}
+.btn-danger{color:var(--red);border-color:#F3CFD2}
+.btn-danger:hover{background:var(--red-soft);border-color:#E9AEB3}
+.btn svg{flex:none}
+.spacer{flex:1}
+.savehint{font-size:12px;color:var(--ink-3);white-space:nowrap}
+
+/* ---------- LAYOUT ---------- */
+main{padding:26px 0 70px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+.card-head .num{width:26px;height:26px;border-radius:8px;background:var(--blue-soft);color:var(--blue);font-size:12.5px;font-weight:700;display:grid;place-items:center;flex:none}
+.card-head h2{font-size:16.5px;font-weight:700}
+.card-head .sub{font-size:12.5px;color:var(--ink-3);font-weight:400;margin-top:1px}
+.chev{margin-left:auto;color:var(--ink-3);transition:transform .2s}
+.card.collapsed .chev{transform:rotate(-90deg)}
+.card-body{padding:2px 20px 20px;border-top:1px solid var(--line-2)}
+.card.collapsed .card-body{display:none}
+
+/* ---------- FORM ---------- */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}
+.grid.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.full{grid-column:1/-1}
+label.f{display:block}
+label.f>span.lbl{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+input[type=text],input[type=url],textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--ink);background:#fff;transition:.15s}
+textarea{resize:vertical;min-height:74px;line-height:1.55}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,93,255,.13)}
+input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.12)}
+.hint{font-size:11.5px;color:var(--ink-3);margin-top:5px}
+.linkrow{display:flex;align-items:center;gap:8px;margin-top:5px}
+.lstat{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.lstat.ok{background:var(--green-soft);color:var(--green)}
+.lstat.empty{background:#EEF2F7;color:var(--ink-3)}
+.lstat.bad{background:var(--red-soft);color:var(--red)}
+.lopen{font-size:11.5px;font-weight:600;text-decoration:none}
+
+/* sliders */
+.scores{background:#FAFCFF;border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;margin-top:18px}
+.scores>.stitle{font-size:12.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.scores>.sdesc{font-size:11.5px;color:var(--ink-3);margin-bottom:12px}
+.sgrid{display:grid;gap:12px 20px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.srow .stop{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:600;color:var(--ink-2);gap:8px}
+.srow .sval{background:var(--navy);color:#fff;font-size:11.5px;font-weight:700;border-radius:7px;padding:1px 8px;min-width:26px;text-align:center}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:5px;border-radius:99px;background:linear-gradient(90deg,var(--blue) var(--p,50%),#DFE7F3 var(--p,50%));margin:9px 0 2px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,37,69,.3);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,37,69,.3);cursor:pointer;border-color:var(--blue)}
+.sends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3)}
+
+/* tooltip */
+.tip{position:relative;display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:#E3EAF5;color:var(--ink-3);font-size:10px;font-weight:700;cursor:help;flex:none}
+.tip:hover{background:var(--blue);color:#fff}
+.tip::after{content:attr(data-tip);position:absolute;bottom:135%;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:11.5px;font-weight:400;line-height:1.45;padding:8px 10px;border-radius:8px;width:230px;opacity:0;pointer-events:none;transition:.15s;z-index:80;box-shadow:0 8px 20px -6px rgba(11,37,69,.5)}
+.tip:hover::after{opacity:1}
+@media(max-width:640px){.tip::after{width:180px;left:auto;right:-6px;transform:none}}
+
+/* ---------- COMPETITOR CARDS ---------- */
+.compwrap{display:grid;gap:14px;margin-top:16px}
+.comp{border:1px solid var(--line);border-radius:12px;background:#fff}
+.comp-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#F8FAFE;border-bottom:1px solid var(--line-2);border-radius:12px 12px 0 0}
+.comp-dot{width:11px;height:11px;border-radius:50%;flex:none}
+.comp-head strong{font-size:14px}
+.comp-head .idx{font-size:11.5px;color:var(--ink-3);font-weight:600}
+.comp-body{padding:4px 14px 16px}
+.iconbtn{margin-left:auto;background:transparent;border:1px solid transparent;color:var(--ink-3);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;gap:5px;align-items:center}
+.iconbtn:hover{background:var(--red-soft);color:var(--red)}
+.addcomp{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.countpill{font-size:12px;color:var(--ink-3)}
+
+/* axis chooser */
+.axopts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:16px}
+.axopt{border:1px solid var(--line);border-radius:11px;padding:12px 13px;cursor:pointer;transition:.15s;background:#fff;position:relative}
+.axopt:hover{border-color:#B9CBE6;background:#FAFCFF}
+.axopt input{position:absolute;opacity:0}
+.axopt .t{font-size:13.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:7px}
+.axopt .d{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+.axopt .rd{width:15px;height:15px;border-radius:50%;border:2px solid #C4D2E6;flex:none;display:grid;place-items:center}
+.axopt.sel{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(29,93,255,.1)}
+.axopt.sel .rd{border-color:var(--blue)}
+.axopt.sel .rd::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.tagfull{font-size:10px;font-weight:700;color:var(--green);background:var(--green-soft);padding:2px 7px;border-radius:999px;margin-left:auto}
+
+/* ---------- EMPTY / PROGRESS ---------- */
+.empty{text-align:center;padding:52px 24px;border:1.5px dashed var(--line);border-radius:var(--radius);background:#fff}
+.empty .ico{width:60px;height:60px;margin:0 auto 14px;border-radius:18px;background:var(--blue-soft);display:grid;place-items:center;color:var(--blue)}
+.empty h3{font-size:17px;margin-bottom:6px}
+.empty p{font-size:13.5px;color:var(--ink-3);max-width:460px;margin:0 auto 18px}
+.emptysteps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;max-width:760px;margin:22px auto 0;text-align:left}
+.estep{border:1px solid var(--line-2);border-radius:11px;padding:12px;background:#FAFCFF}
+.estep b{display:block;font-size:12.5px;color:var(--navy)}
+.estep span{font-size:11.5px;color:var(--ink-3)}
+
+.progbox{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px;text-align:center;box-shadow:var(--shadow)}
+.progbar{height:7px;border-radius:99px;background:#E7EEF8;overflow:hidden;max-width:420px;margin:16px auto 10px}
+.progbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:99px;transition:width .35s ease}
+.progtxt{font-size:13.5px;font-weight:600;color:var(--navy)}
+
+/* ---------- RESULTS ---------- */
+.sechead{display:flex;align-items:flex-start;gap:11px;margin:30px 0 14px}
+.sechead .bar{width:4px;border-radius:99px;background:linear-gradient(180deg,var(--blue),var(--cyan));align-self:stretch;flex:none}
+.sechead h2{font-size:18px}
+.sechead p{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.sechead .k{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.08em;text-transform:uppercase}
+
+.sum3{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.sumcard{border-radius:var(--radius);padding:18px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}
+.sumcard.hero{background:linear-gradient(140deg,var(--navy),#17548F);border-color:var(--navy);color:#fff}
+.sumcard .cap{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.sumcard.hero .cap{color:#9FC2EA}
+.sumcard .big{font-size:20px;font-weight:700;margin:9px 0 6px;letter-spacing:-.02em}
+.sumcard .txt{font-size:12.8px;color:var(--ink-2)}
+.sumcard.hero .txt{color:#D6E6FA}
+.sumcard.opp{border-color:#BDEBE0;background:linear-gradient(140deg,#F2FCF9,#fff)}
+.sumcard.opp .big{color:var(--green)}
+.metaline{margin-top:11px;padding-top:10px;border-top:1px solid rgba(0,0,0,.07);font-size:11.5px;color:var(--ink-3)}
+.sumcard.hero .metaline{border-color:rgba(255,255,255,.18);color:#9FC2EA}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.b-blue{background:var(--blue-soft);color:var(--blue)}
+.b-cyan{background:var(--cyan-soft);color:#0785A0}
+.b-green{background:var(--green-soft);color:var(--green)}
+.b-amber{background:var(--amber-soft);color:var(--amber)}
+.b-red{background:var(--red-soft);color:var(--red)}
+.b-gray{background:#EEF2F7;color:var(--ink-3)}
+.b-navy{background:#E7EDF6;color:var(--navy)}
+
+/* map */
+.mapcard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.mapwrap{width:100%;overflow:hidden}
+#mapSvg{width:100%;height:auto;display:block;touch-action:manipulation}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-2)}
+.lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}
+.lg i{width:11px;height:11px;border-radius:50%;flex:none;display:block}
+.lg.me{font-weight:700;color:var(--navy)}
+.note{font-size:11.5px;color:var(--ink-3);background:#F7FAFE;border:1px solid var(--line-2);border-radius:9px;padding:9px 11px;margin-top:12px;display:flex;gap:8px;align-items:flex-start}
+.note svg{flex:none;margin-top:2px;color:var(--blue)}
+
+/* table */
+.tablecard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:13px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line-2);vertical-align:top}
+thead th{background:var(--navy);color:#fff;font-size:12px;font-weight:600;position:sticky;top:0;white-space:nowrap}
+thead th:first-child{background:#081C36}
+tbody th{background:#F7FAFE;font-weight:600;color:var(--ink-2);font-size:12.5px;white-space:nowrap;position:sticky;left:0;z-index:2;border-right:1px solid var(--line-2)}
+td.me{background:#F3F7FF}
+tr.scorerow td,tr.scorerow th{font-variant-numeric:tabular-nums}
+.cellbar{display:flex;align-items:center;gap:7px}
+.cellbar .bb{flex:1;min-width:38px;height:5px;border-radius:99px;background:#E7EEF8;overflow:hidden}
+.cellbar .bb i{display:block;height:100%;border-radius:99px;background:var(--blue)}
+td.me .cellbar .bb i{background:var(--navy)}
+.muted{color:var(--ink-3);font-style:italic}
+.srcline{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+
+/* scorecards */
+.sc-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.sc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.sc-top{padding:14px 16px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.sc-top .nm{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sc-links{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+.slink{font-size:11.5px;font-weight:600;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:3px 9px;color:var(--blue);background:#fff;display:inline-flex;align-items:center;gap:4px}
+.slink:hover{background:var(--blue-soft)}
+.slink.off{color:var(--ink-3);border-style:dashed;cursor:not-allowed;pointer-events:none}
+.sc-body{padding:14px 16px}
+.sc-row{display:flex;gap:9px;padding:9px 0;border-bottom:1px dashed var(--line-2);font-size:13px}
+.sc-row:last-child{border:0;padding-bottom:0}
+.sc-row .k{font-size:11.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;width:112px;flex:none;padding-top:2px}
+.sc-row .v{color:var(--ink-2);flex:1}
+.dist{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+
+/* whitespace */
+.wsgrid{display:grid;gap:14px;grid-template-columns:1.15fr .85fr;align-items:start}
+.ws-main{background:linear-gradient(150deg,#F0FBF7,#fff 60%);border:1px solid #BDEBE0;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.ws-main h3{font-size:18px;color:var(--navy);margin:8px 0 8px}
+.ws-main .lead{font-size:13.5px;color:var(--ink-2)}
+.wslist{margin-top:16px;display:grid;gap:11px}
+.wsi{background:#fff;border:1px solid var(--line-2);border-radius:11px;padding:12px 13px}
+.wsi .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.wsi .v{font-size:13px;color:var(--ink-2)}
+.densgrid{display:grid;grid-template-columns:auto repeat(3,1fr);gap:5px;margin-top:12px;font-size:11px}
+.dcell{border-radius:8px;padding:10px 6px;text-align:center;font-weight:700;border:1px solid var(--line-2);background:#F7FAFE;color:var(--ink-3);position:relative}
+.dcell.d0{background:var(--green-soft);border-color:#BDEBE0;color:var(--green)}
+.dcell.d1{background:#FFF8E8;border-color:#F5E2BB;color:var(--amber)}
+.dcell.d2{background:var(--red-soft);border-color:#F3CFD2;color:var(--red)}
+.dcell.pick{outline:2px solid var(--green);outline-offset:1px}
+.dcell.you::after{content:"ANDA";position:absolute;top:2px;right:3px;font-size:8px;color:var(--navy);letter-spacing:.05em}
+.daxis{font-size:10px;color:var(--ink-3);display:grid;place-items:center;font-weight:600;text-align:center}
+
+/* strategy */
+.stgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.stcard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px 18px}
+.stcard .h{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.stcard .h .ic{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--blue-soft);color:var(--blue)}
+.stcard .h h3{font-size:14.5px}
+.stcard ol,.stcard ul{margin:0;padding-left:19px;display:grid;gap:8px}
+.stcard li{font-size:13px;color:var(--ink-2)}
+.stcard li b{color:var(--navy)}
+.stmt{background:linear-gradient(140deg,var(--navy),#17548F);color:#fff;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.stmt .cap{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9FC2EA}
+.stmt .q{font-size:17.5px;line-height:1.55;font-weight:600;margin:10px 0 12px;letter-spacing:-.01em}
+.stmt .sub{font-size:12.5px;color:#C9DEF6}
+.avoid .h .ic{background:var(--red-soft);color:var(--red)}
+.content .h .ic{background:var(--cyan-soft);color:#0785A0}
+.offer .h .ic{background:var(--green-soft);color:var(--green)}
+
+/* transparency */
+.tp{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
+.tp ul{margin:10px 0 0;padding-left:18px;display:grid;gap:7px}
+.tp li{font-size:12.8px;color:var(--ink-2)}
+.compl{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#F7FAFE;border:1px solid var(--line-2);border-radius:11px;padding:14px;margin-top:15px}
+.ring{width:76px;height:76px;flex:none;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring span{position:absolute;inset:0;display:grid;place-items:center;font-size:16px;font-weight:700;color:var(--navy)}
+.compl .ci{flex:1;min-width:220px}
+.compl .ci b{font-size:13.5px;color:var(--navy)}
+.compl .ci p{font-size:12px;color:var(--ink-3);margin-top:3px}
+.misslist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.miss{font-size:11px;background:#fff;border:1px solid var(--line);color:var(--ink-2);border-radius:999px;padding:3px 9px}
+
+/* toast + footer */
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,26px);background:var(--navy);color:#fff;font-size:13.5px;font-weight:600;padding:11px 18px;border-radius:11px;box-shadow:0 14px 34px -12px rgba(11,37,69,.75);opacity:0;pointer-events:none;transition:.25s;z-index:200;max-width:88vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+footer{border-top:1px solid var(--line);padding:22px 0 30px;color:var(--ink-3);font-size:12px;text-align:center;background:#fff}
+.dis{background:var(--amber-soft);border:1px solid #F5E2BB;color:#7A4E08;border-radius:11px;padding:11px 13px;font-size:12.2px;display:flex;gap:9px;align-items:flex-start;margin-bottom:18px}
+.dis svg{flex:none;margin-top:1px}
+
+/* responsive */
+@media(max-width:900px){
+  .sum3{grid-template-columns:1fr}
+  .wsgrid{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  body{font-size:14.5px}
+  .grid,.grid.g3,.sgrid{grid-template-columns:1fr}
+  .topbar h1{font-size:21px}
+  .actionbar .wrap{gap:7px}
+  .btn{padding:8px 12px;font-size:13px;flex:1 1 auto;justify-content:center}
+  .spacer,.savehint{display:none}
+  .card-head{padding:14px 15px}
+  .card-body{padding:2px 15px 18px}
+  .sc-row .k{width:96px}
+}
+
+/* print */
+@media print{
+  body{background:#fff}
+  .actionbar,.noprint,footer,#toast{display:none!important}
+  .card,.mapcard,.tablecard,.sc,.stcard,.tp,.ws-main{box-shadow:none;break-inside:avoid}
+  .topbar{background:#0B2545!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tscroll{overflow:visible}
+  table{min-width:0;width:100%;table-layout:fixed;font-size:9.5px}
+  th,td{padding:5px 6px;overflow-wrap:anywhere}
+  thead th,tbody th{position:static;white-space:normal}
+  tbody th{width:15%}
+  td{overflow:hidden}
+  .cellbar{gap:4px}
+  .cellbar .bb{min-width:10px}
+  .badge{white-space:normal;font-size:8.5px;padding:2px 6px}
+  .sc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sechead{break-after:avoid}
+  @page{margin:12mm}
+}
+</style>
+<header class="topbar">
+  <div class="wrap">
+    <div class="brandline">
+      <div class="logo">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7FE7F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.3" fill="#7FE7F5"/>
+          <path d="M12 1.6v3M12 19.4v3M1.6 12h3M19.4 12h3"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Competitor Positioning Analyzer</h1>
+        <p class="tagline">Analisis kompetitor, temukan posisi brand, dan rancang pembeda yang lebih kuat.</p>
+      </div>
+    </div>
+    <div class="hbadges">
+      <span class="hbadge cy">MVP untuk Analisis Brand B2C</span>
+      <span class="hbadge">Tanpa login &amp; tanpa API</span>
+      <span class="hbadge">Data tersimpan di browser Anda</span>
+      <span class="hbadge">Riki MarkeThink</span>
+    </div>
+  </div>
+</header>
+
+<div class="actionbar noprint">
+  <div class="wrap">
+    <button class="btn btn-primary" id="btnAnalyze">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3.5-4 3 3L20 6"/></svg>
+      Analisis Positioning
+    </button>
+    <button class="btn" id="btnDemo">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
+      Muat Data Demo
+    </button>
+    <button class="btn" id="btnCopy">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Salin Laporan
+    </button>
+    <button class="btn" id="btnPrint">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><rect x="6" y="14" width="12" height="8"/><path d="M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/></svg>
+      Cetak / Simpan PDF
+    </button>
+    <button class="btn btn-danger" id="btnReset">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      Reset
+    </button>
+    <span class="spacer"></span>
+    <span class="savehint" id="saveHint">Data tersimpan otomatis di browser ini</span>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- 1. PROFIL BRAND -->
+  <section class="card noprint" id="cardBrand">
+    <div class="card-head" data-toggle>
+      <span class="num">1</span>
+      <div>
+        <h2>Profil Brand Anda</h2>
+        <div class="sub">Dasar perbandingan. Isi seakurat mungkin agar hasil analisis relevan.</div>
+      </div>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="grid">
+        <label class="f"><span class="lbl">Nama Brand <em style="color:#D64550;font-style:normal">*</em></span><input type="text" id="b_nama" placeholder="Contoh: Lumière Skin"></label>
+        <label class="f"><span class="lbl">Kategori Bisnis</span><input type="text" id="b_kategori" placeholder="Contoh: Skincare lokal"></label>
+        <label class="f full"><span class="lbl">Produk / Layanan Utama</span><input type="text" id="b_produk" placeholder="Contoh: Serum brightening, moisturizer, sunscreen"></label>
+        <label class="f"><span class="lbl">Kisaran Harga</span><input type="text" id="b_hargaTxt" placeholder="Contoh: Rp 89.000 – Rp 189.000"></label>
+        <label class="f"><span class="lbl">Target Audiens</span><input type="text" id="b_audiens" placeholder="Contoh: Perempuan 22–32 tahun, first jobber"></label>
+        <label class="f"><span class="lbl">Lokasi / Cakupan Pasar</span><input type="text" id="b_lokasi" placeholder="Contoh: Nasional, dominan Jabodetabek"></label>
+        <label class="f"><span class="lbl">Tujuan Positioning yang Diinginkan</span><input type="text" id="b_tujuan" placeholder="Contoh: Dikenal sebagai skincare klinis harga menengah"></label>
+        <label class="f full"><span class="lbl">Keunggulan Utama Brand</span><textarea id="b_keunggulan" placeholder="Contoh: Formula BPOM dengan kadar aktif transparan, konsultasi gratis via WhatsApp, hasil uji lab dipublikasikan."></textarea></label>
+        <label class="f"><span class="lbl">Link Website Brand</span><input type="url" id="b_web" placeholder="https://brandanda.com" data-link>
+          <div class="linkrow"><span class="lstat empty" data-lstat="b_web">Belum diisi</span><a class="lopen" data-lopen="b_web" target="_blank" rel="noopener" style="display:none">Buka di tab baru ↗</a></div>
+        </label>
+        <label class="f"><span class="lbl">Link Instagram Brand</span><input type="url" id="b_ig" placeholder="https://instagram.com/brandanda" data-link>
+          <div class="linkrow"><span class="lstat empty" data-lstat="b_ig">Belum diisi</span><a class="lopen" data-lopen="b_ig" target="_blank" rel="noopener" style="display:none">Buka di tab baru ↗</a></div>
+        </label>
+      </div>
+
+      <div class="scores">
+        <div class="stitle">Skor Positioning Brand Anda (1–10)
+          <span class="tip" data-tip="Skor ini adalah penilaian persepsi Anda sendiri. Semua perhitungan peta, kompetitor terdekat, dan white space memakai angka ini.">?</span>
+        </div>
+        <div class="sdesc">Geser slider sesuai persepsi pasar terhadap brand Anda, bukan harapan internal. Gunakan skala yang sama untuk semua kompetitor agar perbandingan adil.</div>
+        <div class="sgrid" id="brandScores"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. KOMPETITOR -->
+  <section class="card noprint" id="cardComp">
+    <div class="card-head" data-toggle>
+      <span class="num">2</span>
+      <div>
+        <h2>Kompetitor</h2>
+        <div class="sub">Maksimal 5 kompetitor. Minimal 1 kompetitor untuk menjalankan analisis.</div>
+      </div>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="note" style="margin-top:14px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+        <span>Aplikasi ini <b>tidak mengambil data otomatis</b> dari website maupun Instagram. Link berfungsi sebagai sumber referensi yang bisa Anda buka, lalu tulis temuannya pada kolom <b>Catatan dari Website / Instagram</b>.</span>
+      </div>
+      <div class="compwrap" id="compWrap"></div>
+      <div class="addcomp">
+        <button class="btn" id="btnAddComp">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Tambah Kompetitor
+        </button>
+        <span class="countpill" id="compCount">0 dari 5 kompetitor</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. AXIS -->
+  <section class="card noprint" id="cardAxis">
+    <div class="card-head" data-toggle>
+      <span class="num">3</span>
+      <div>
+        <h2>Pengaturan Peta Positioning</h2>
+        <div class="sub">Pilih dua dimensi yang dipakai sebagai sumbu peta.</div>
+      </div>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="card-body">
+      <div class="axopts" id="axOpts"></div>
+      <div class="note">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>
+        <span id="axFormula">Sumbu dihitung langsung dari skor yang Anda isi.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <div id="resultArea">
+    <div class="empty" id="emptyState">
+      <div class="ico">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m9 4-6 2v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>
+      </div>
+      <h3>Peta positioning Anda akan muncul di sini</h3>
+      <p>Isi profil brand dan minimal satu kompetitor, lalu klik <b>Analisis Positioning</b>. Belum punya data? Klik <b>Muat Data Demo</b> untuk melihat contoh lengkap.</p>
+      <button class="btn btn-primary" id="btnDemo2">Muat Data Demo</button>
+      <div class="emptysteps">
+        <div class="estep"><b>1. Isi profil brand</b><span>Termasuk 5 skor positioning 1–10.</span></div>
+        <div class="estep"><b>2. Tambahkan kompetitor</b><span>Buka website &amp; Instagram mereka, catat temuannya.</span></div>
+        <div class="estep"><b>3. Pilih sumbu peta</b><span>Default: Harga vs Nilai/Kualitas.</span></div>
+        <div class="estep"><b>4. Baca hasil &amp; strategi</b><span>Salin laporan atau simpan sebagai PDF.</span></div>
+      </div>
+    </div>
+    <div id="progressBox" style="display:none">
+      <div class="progbox">
+        <div class="progtxt" id="progTxt">Menyiapkan data…</div>
+        <div class="progbar"><i id="progFill"></i></div>
+        <div style="font-size:12px;color:#73849B">Analisis dihitung langsung di browser Anda.</div>
+      </div>
+    </div>
+    <div id="results" style="display:none"></div>
+  </div>
+</main>
+
+<footer class="noprint">
+  <div class="wrap">
+    Competitor Positioning Analyzer — MVP oleh <b>Riki MarkeThink</b> · AI Marketing Strategist ·
+    Hasil analisis adalah estimasi berbasis input pengguna, bukan data real-time platform.
+  </div>
+</footer>
+<div id="toast"></div>
+<script>
+/* =====================================================================
+   Competitor Positioning Analyzer — MVP
+   Riki MarkeThink · seluruh perhitungan dilakukan di browser pengguna
+   ===================================================================== */
+(function(){
+"use strict";
+
+/* ---------------- KONSTANTA ---------------- */
+const SCORES=[
+  {key:"harga",  label:"Skor Harga",                       lo:"1 = sangat terjangkau", hi:"10 = sangat premium",
+   tip:"Seberapa mahal harga Anda dipersepsikan pasar dibanding rata-rata kategori. Bukan margin, tapi persepsi harga."},
+  {key:"nilai",  label:"Skor Nilai / Kualitas Dirasakan",  lo:"1 = nilai rendah",      hi:"10 = nilai sangat tinggi",
+   tip:"Seberapa besar manfaat yang dirasakan pembeli: kualitas produk, hasil, layanan, dan pengalaman."},
+  {key:"inovasi",label:"Skor Inovasi",                     lo:"1 = sangat konvensional",hi:"10 = sangat inovatif",
+   tip:"Kebaruan produk, formula, model layanan, atau cara berjualan dibanding pemain lain di kategori."},
+  {key:"digital",label:"Skor Kekuatan Digital / Konten",   lo:"1 = hampir tidak aktif", hi:"10 = sangat kuat",
+   tip:"Konsistensi konten, kualitas visual, engagement, ukuran audiens, dan aktivitas iklan yang terlihat."},
+  {key:"jelas",  label:"Skor Kejelasan Brand",             lo:"1 = pesan kabur",        hi:"10 = pesan sangat jelas",
+   tip:"Seberapa cepat orang baru paham 'brand ini untuk siapa dan bedanya apa' hanya dari halaman depan atau feed."}
+];
+const SKEYS=SCORES.map(s=>s.key);
+
+const AXES=[
+  {id:"harga_nilai",full:true,
+   name:"Harga vs Nilai / Kualitas",
+   desc:"Peta klasik untuk melihat value for money.",
+   x:{label:"Harga",lo:"Lebih Terjangkau",hi:"Lebih Premium",calc:s=>s.harga},
+   y:{label:"Nilai / Kualitas yang Dirasakan",lo:"Lebih Rendah",hi:"Lebih Tinggi",calc:s=>s.nilai},
+   quad:{tl:"Value Leader",tr:"Premium Leader",bl:"Budget / Low Value",br:"Premium perlu pembuktian nilai"},
+   formula:"Sumbu X = Skor Harga (apa adanya). Sumbu Y = Skor Nilai/Kualitas (apa adanya)."},
+  {id:"mass_niche",
+   name:"Mass Market vs Niche Market",
+   desc:"Melihat seberapa spesifik pasar yang dilayani.",
+   x:{label:"Cakupan Pasar",lo:"Lebih Mass Market",hi:"Lebih Niche",calc:s=>0.45*s.harga+0.35*s.inovasi+0.20*(11-s.digital)},
+   y:{label:"Kejelasan Brand",lo:"Pesan Kabur",hi:"Pesan Tajam",calc:s=>s.jelas},
+   quad:{tl:"Mass Market dengan Brand Kuat",tr:"Niche Specialist",bl:"Mass Market Generik",br:"Niche belum terbaca jelas"},
+   formula:"Sumbu X = (0,45 × Harga) + (0,35 × Inovasi) + (0,20 × (11 − Kekuatan Digital)). Logikanya: makin premium, makin spesifik, dan makin kecil jangkauan digital → makin niche. Sumbu Y = Skor Kejelasan Brand."},
+  {id:"trad_inov",
+   name:"Tradisional vs Inovatif",
+   desc:"Membandingkan kebaruan dan eksekusi digital.",
+   x:{label:"Tingkat Inovasi",lo:"Lebih Tradisional",hi:"Lebih Inovatif",calc:s=>s.inovasi},
+   y:{label:"Kekuatan Digital / Konten",lo:"Lebih Lemah",hi:"Lebih Kuat",calc:s=>s.digital},
+   quad:{tl:"Tradisional tapi Kuat Digital",tr:"Inovator Digital",bl:"Tradisional & Pasif Digital",br:"Inovatif tapi Kurang Terekspos"},
+   formula:"Sumbu X = Skor Inovasi (apa adanya). Sumbu Y = Skor Kekuatan Digital/Konten (apa adanya)."},
+  {id:"akses_premium",
+   name:"Aksesibel vs Premium",
+   desc:"Posisi kelas brand dan kejelasan pesannya.",
+   x:{label:"Kelas Brand",lo:"Lebih Aksesibel",hi:"Lebih Premium",calc:s=>0.65*s.harga+0.35*s.nilai},
+   y:{label:"Kejelasan Brand",lo:"Pesan Kabur",hi:"Pesan Tajam",calc:s=>s.jelas},
+   quad:{tl:"Aksesibel & Mudah Dipahami",tr:"Premium dengan Brand Jelas",bl:"Aksesibel tapi Brand Kabur",br:"Premium tapi Pesan Belum Tajam"},
+   formula:"Sumbu X = (0,65 × Harga) + (0,35 × Nilai/Kualitas). Sumbu Y = Skor Kejelasan Brand."},
+  {id:"konten",
+   name:"Konten Informatif vs Emosional",
+   desc:"Perkiraan gaya konten dari skor inovasi & digital.",
+   x:{label:"Kecenderungan Gaya Konten",lo:"Lebih Informatif",hi:"Lebih Emosional",calc:s=>0.6*s.inovasi+0.4*s.digital},
+   y:{label:"Kejelasan Brand",lo:"Pesan Kabur",hi:"Pesan Tajam",calc:s=>s.jelas},
+   quad:{tl:"Informatif & Terstruktur",tr:"Emosional dengan Pesan Jelas",bl:"Informatif tapi Datar",br:"Emosional tapi Pesan Kabur"},
+   formula:"Sumbu X = (0,60 × Inovasi) + (0,40 × Kekuatan Digital) sebagai perkiraan kecenderungan gaya konten. Sumbu Y = Skor Kejelasan Brand. Sumbu ini bersifat estimasi turunan, bukan pengukuran konten langsung."}
+];
+
+const CCOLORS=["#E4572E","#7B2FF7","#0FA97D","#C97A0E","#0785A0"];
+const ME_COLOR="#0B2545";
+const MAX_COMP=5;
+const LS_KEY="cpa_riki_v1";
+
+const CFIELDS=[
+  {k:"nama",   l:"Nama Kompetitor", ph:"Contoh: GlowLab", type:"text", w:"half"},
+  {k:"produk", l:"Produk / Layanan Utama", ph:"Contoh: Serum niacinamide, toner exfoliating", type:"text", w:"half"},
+  {k:"web",    l:"Link Website", ph:"https://kompetitor.com", type:"link", w:"half"},
+  {k:"ig",     l:"Link Instagram", ph:"https://instagram.com/kompetitor", type:"link", w:"half"},
+  {k:"hargaTxt",l:"Kisaran Harga", ph:"Contoh: Rp 59.000 – Rp 120.000", type:"text", w:"half"},
+  {k:"audiens",l:"Target Audiens", ph:"Contoh: Remaja & mahasiswa 17–24 tahun", type:"text", w:"half"},
+  {k:"usp",    l:"USP / Keunggulan yang Terlihat", ph:"Contoh: Harga murah, varian sangat banyak", type:"area", w:"full"},
+  {k:"tone",   l:"Gaya Komunikasi / Tone Konten", ph:"Contoh: Kasual, humor, bahasa gaul", type:"text", w:"half"},
+  {k:"promo",  l:"Aktivitas Promosi yang Terlihat", ph:"Contoh: Flash sale mingguan, bundling 3 item", type:"text", w:"half"},
+  {k:"cta",    l:"CTA yang Sering Digunakan", ph:"Contoh: 'Checkout sekarang, stok terbatas'", type:"text", w:"half"},
+  {k:"catatan",l:"Catatan dari Website / Instagram", ph:"Tulis yang Anda lihat sendiri: produk utama, kisaran harga, promo, gaya konten, target audiens, klaim keunggulan, CTA, testimoni / bukti sosial.", type:"area", w:"full"}
+];
+const CTEXTKEYS=CFIELDS.map(f=>f.k);
+
+/* ---------------- STATE ---------------- */
+let uidSeq=1;
+let state=blankState();
+let lastResult=null;
+
+function blankBrand(){
+  return {nama:"",kategori:"",produk:"",hargaTxt:"",audiens:"",lokasi:"",tujuan:"",keunggulan:"",web:"",ig:"",
+          harga:5,nilai:5,inovasi:5,digital:5,jelas:5};
+}
+function blankComp(){
+  const o={uid:uidSeq++};
+  CTEXTKEYS.forEach(k=>o[k]="");
+  SKEYS.forEach(k=>o[k]=5);
+  return o;
+}
+function blankState(){ return {brand:blankBrand(),competitors:[],axis:"harga_nilai",isDemo:false}; }
+
+/* ---------------- UTIL ---------------- */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.prototype.slice.call(document.querySelectorAll(s));
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const r1=v=>String(Math.round(v*10)/10).replace('.',',');
+const nz=(v,f)=>{v=(v||"").trim();return v?v:(f||"—");};
+const isFilled=v=>!!(v&&String(v).trim().length);
+
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),2600);
+}
+
+function linkInfo(raw,kind){
+  const v=(raw||"").trim();
+  if(!v) return {k:"empty",t:"Belum diisi",href:""};
+  let u=v;
+  if(kind==="ig" && /^@?[A-Za-z0-9._]{1,40}$/.test(v) && v.indexOf(".")===-1)
+    u="https://instagram.com/"+v.replace(/^@/,"");
+  if(!/^https?:\/\//i.test(u)) u="https://"+u;
+  let p;
+  try{ p=new URL(u); }catch(e){ return {k:"bad",t:"Format link tidak valid",href:""}; }
+  const host=p.hostname.toLowerCase();
+  if(!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(host)) return {k:"bad",t:"Format link tidak valid",href:""};
+  if(kind==="ig" && host.indexOf("instagram.")===-1)
+    return {k:"bad",t:"Format link tidak valid",href:""};
+  return {k:"ok",t:"Link valid",href:p.href};
+}
+
+/* ---------------- PERSISTENSI ---------------- */
+function save(){
+  try{
+    const plain={brand:state.brand,axis:state.axis,isDemo:state.isDemo,
+      competitors:state.competitors.map(c=>{const o={};CTEXTKEYS.forEach(k=>o[k]=c[k]);SKEYS.forEach(k=>o[k]=c[k]);return o;})};
+    localStorage.setItem(LS_KEY,JSON.stringify(plain));
+    $("#saveHint").textContent="Tersimpan otomatis · "+new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
+  }catch(e){ $("#saveHint").textContent="Penyimpanan browser tidak aktif"; }
+}
+function load(){
+  try{
+    const raw=localStorage.getItem(LS_KEY); if(!raw) return false;
+    const d=JSON.parse(raw); if(!d||!d.brand) return false;
+    state=blankState();
+    Object.keys(state.brand).forEach(k=>{ if(d.brand[k]!==undefined) state.brand[k]=d.brand[k]; });
+    state.axis=d.axis||"harga_nilai"; state.isDemo=!!d.isDemo;
+    (d.competitors||[]).slice(0,MAX_COMP).forEach(c=>{
+      const nc=blankComp();
+      CTEXTKEYS.forEach(k=>{ if(c[k]!==undefined) nc[k]=c[k]; });
+      SKEYS.forEach(k=>{ if(c[k]!==undefined) nc[k]=+c[k]||5; });
+      state.competitors.push(nc);
+    });
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ---------------- SLIDER BUILDER ---------------- */
+function buildScoreBlock(container,obj,onChange){
+  container.innerHTML="";
+  SCORES.forEach(sc=>{
+    const row=document.createElement("div"); row.className="srow";
+    row.innerHTML=
+      '<div class="stop"><span>'+esc(sc.label)+' <span class="tip" data-tip="'+esc(sc.tip)+'">?</span></span>'+
+      '<span class="sval">'+obj[sc.key]+'</span></div>'+
+      '<input type="range" min="1" max="10" step="1" value="'+obj[sc.key]+'">'+
+      '<div class="sends"><span>'+esc(sc.lo)+'</span><span>'+esc(sc.hi)+'</span></div>';
+    const inp=row.querySelector("input"), val=row.querySelector(".sval");
+    const paint=()=>inp.style.setProperty("--p",((inp.value-1)/9*100)+"%");
+    paint();
+    inp.addEventListener("input",()=>{ obj[sc.key]=+inp.value; val.textContent=inp.value; paint(); if(onChange)onChange(); save(); });
+    container.appendChild(row);
+  });
+}
+
+/* ---------------- FORM BRAND ---------------- */
+const BTEXT=[["b_nama","nama"],["b_kategori","kategori"],["b_produk","produk"],["b_hargaTxt","hargaTxt"],
+  ["b_audiens","audiens"],["b_lokasi","lokasi"],["b_tujuan","tujuan"],["b_keunggulan","keunggulan"],
+  ["b_web","web"],["b_ig","ig"]];
+
+function bindBrandForm(){
+  BTEXT.forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    el.addEventListener("input",()=>{
+      state.brand[key]=el.value; el.classList.remove("err");
+      if(key==="web"||key==="ig") paintLink(id,key);
+      save();
+    });
+  });
+  buildScoreBlock($("#brandScores"),state.brand);
+}
+function paintLink(id,key){
+  const info=linkInfo(state.brand[key],key==="ig"?"ig":"web");
+  const st=document.querySelector('[data-lstat="'+id+'"]');
+  const op=document.querySelector('[data-lopen="'+id+'"]');
+  st.className="lstat "+info.k; st.textContent=info.t;
+  if(info.k==="ok"){ op.style.display="inline"; op.href=info.href; } else op.style.display="none";
+}
+function fillBrandForm(){
+  BTEXT.forEach(([id,key])=>{ document.getElementById(id).value=state.brand[key]||""; });
+  paintLink("b_web","web"); paintLink("b_ig","ig");
+  buildScoreBlock($("#brandScores"),state.brand);
+}
+
+/* ---------------- FORM KOMPETITOR ---------------- */
+function renderCompCard(c){
+  const wrap=$("#compWrap");
+  const card=document.createElement("div");
+  card.className="comp"; card.dataset.uid=c.uid;
+  let fieldsHtml="";
+  CFIELDS.forEach(f=>{
+    const cls=f.w==="full"?"f full":"f";
+    let inner;
+    if(f.type==="area") inner='<textarea data-k="'+f.k+'" placeholder="'+esc(f.ph)+'">'+esc(c[f.k])+'</textarea>';
+    else if(f.type==="link") inner='<input type="url" data-k="'+f.k+'" placeholder="'+esc(f.ph)+'" value="'+esc(c[f.k])+'">'+
+      '<div class="linkrow"><span class="lstat empty" data-ls="'+f.k+'">Belum diisi</span>'+
+      '<a class="lopen" data-lo="'+f.k+'" target="_blank" rel="noopener" style="display:none">Buka di tab baru ↗</a></div>';
+    else inner='<input type="text" data-k="'+f.k+'" placeholder="'+esc(f.ph)+'" value="'+esc(c[f.k])+'">';
+    fieldsHtml+='<label class="'+cls+'"><span class="lbl">'+esc(f.l)+
+      (f.k==="catatan"?' <span class="tip" data-tip="Isi dari apa yang Anda lihat langsung di website atau Instagram mereka. Aplikasi tidak mengambil data ini secara otomatis.">?</span>':"")+
+      '</span>'+inner+'</label>';
+  });
+  card.innerHTML=
+    '<div class="comp-head"><span class="comp-dot"></span><span class="idx"></span>'+
+    '<strong class="cname">Kompetitor baru</strong>'+
+    '<button class="iconbtn" type="button" data-del>'+
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Hapus</button></div>'+
+    '<div class="comp-body"><div class="grid">'+fieldsHtml+'</div>'+
+    '<div class="scores"><div class="stitle">Skor Positioning Kompetitor (1–10) '+
+    '<span class="tip" data-tip="Gunakan skala yang sama seperti brand Anda agar perbandingan adil.">?</span></div>'+
+    '<div class="sdesc">Perkiraan Anda berdasarkan website, Instagram, dan pengalaman di pasar.</div>'+
+    '<div class="sgrid" data-scores></div></div></div>';
+
+  card.querySelectorAll("[data-k]").forEach(el=>{
+    const k=el.dataset.k;
+    el.addEventListener("input",()=>{
+      c[k]=el.value;
+      if(k==="nama"){ card.querySelector(".cname").textContent=el.value.trim()||"Kompetitor baru"; el.classList.remove("err"); }
+      if(k==="web"||k==="ig"){
+        const info=linkInfo(c[k],k==="ig"?"ig":"web");
+        const st=card.querySelector('[data-ls="'+k+'"]'), op=card.querySelector('[data-lo="'+k+'"]');
+        st.className="lstat "+info.k; st.textContent=info.t;
+        if(info.k==="ok"){op.style.display="inline";op.href=info.href;} else op.style.display="none";
+      }
+      save();
+    });
+  });
+  ["web","ig"].forEach(k=>{
+    const info=linkInfo(c[k],k==="ig"?"ig":"web");
+    const st=card.querySelector('[data-ls="'+k+'"]'), op=card.querySelector('[data-lo="'+k+'"]');
+    st.className="lstat "+info.k; st.textContent=info.t;
+    if(info.k==="ok"){op.style.display="inline";op.href=info.href;}
+  });
+  card.querySelector(".cname").textContent=(c.nama||"").trim()||"Kompetitor baru";
+  card.querySelector("[data-del]").addEventListener("click",()=>{
+    state.competitors=state.competitors.filter(x=>x.uid!==c.uid);
+    card.remove(); refreshCompMeta(); save();
+    toast("Kompetitor dihapus.");
+  });
+  buildScoreBlock(card.querySelector("[data-scores]"),c);
+  wrap.appendChild(card);
+}
+function refreshCompMeta(){
+  $$("#compWrap .comp").forEach((el,i)=>{
+    el.querySelector(".idx").textContent="#"+(i+1);
+    el.querySelector(".comp-dot").style.background=CCOLORS[i%CCOLORS.length];
+  });
+  const n=state.competitors.length;
+  $("#compCount").textContent=n+" dari "+MAX_COMP+" kompetitor"+(n>=MAX_COMP?" · maksimum tercapai":"");
+  $("#btnAddComp").disabled=n>=MAX_COMP;
+  $("#btnAddComp").style.opacity=n>=MAX_COMP?.5:1;
+}
+function addCompetitor(data){
+  if(state.competitors.length>=MAX_COMP){ toast("Maksimal "+MAX_COMP+" kompetitor."); return null; }
+  const c=blankComp();
+  if(data) Object.keys(data).forEach(k=>{ if(k in c) c[k]=data[k]; });
+  state.competitors.push(c); renderCompCard(c); refreshCompMeta(); save();
+  return c;
+}
+function rebuildCompList(){
+  $("#compWrap").innerHTML="";
+  state.competitors.forEach(renderCompCard);
+  refreshCompMeta();
+}
+
+/* ---------------- AXIS PICKER ---------------- */
+function renderAxes(){
+  const box=$("#axOpts"); box.innerHTML="";
+  AXES.forEach(a=>{
+    const el=document.createElement("label");
+    el.className="axopt"+(state.axis===a.id?" sel":"");
+    el.innerHTML='<div class="t"><span class="rd"></span>'+esc(a.name)+
+      (a.full?'<span class="tagfull">MODE PENUH</span>':"")+'</div><div class="d">'+esc(a.desc)+'</div>';
+    el.addEventListener("click",()=>{
+      state.axis=a.id; save();
+      $$(".axopt").forEach(x=>x.classList.remove("sel")); el.classList.add("sel");
+      $("#axFormula").innerHTML="<b>Cara sumbu dihitung:</b> "+esc(a.formula);
+      if(lastResult) runAnalysis(true);
+    });
+    box.appendChild(el);
+  });
+  const cur=AXES.filter(a=>a.id===state.axis)[0]||AXES[0];
+  $("#axFormula").innerHTML="<b>Cara sumbu dihitung:</b> "+esc(cur.formula);
+}
+
+/* =====================================================================
+   MESIN ANALISIS
+   ===================================================================== */
+function axisOf(){ return AXES.filter(a=>a.id===state.axis)[0]||AXES[0]; }
+function scoresOf(o){ const s={}; SKEYS.forEach(k=>s[k]=clamp(+o[k]||5,1,10)); return s; }
+
+function buildEntities(){
+  const ax=axisOf(), list=[];
+  const bs=scoresOf(state.brand);
+  list.push({me:true,name:(state.brand.nama||"").trim()||"Brand Anda",color:ME_COLOR,s:bs,
+             x:clamp(ax.x.calc(bs),1,10),y:clamp(ax.y.calc(bs),1,10),raw:state.brand});
+  state.competitors.forEach((c,i)=>{
+    const s=scoresOf(c);
+    list.push({me:false,name:(c.nama||"").trim()||("Kompetitor "+(i+1)),color:CCOLORS[i%CCOLORS.length],
+               s:s,x:clamp(ax.x.calc(s),1,10),y:clamp(ax.y.calc(s),1,10),raw:c,idx:i});
+  });
+  return list;
+}
+const dist=(a,b)=>Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));
+function strengthOf(s){ return (s.nilai+s.inovasi+s.digital+s.jelas)/4; }
+function dist5(a,b){ let t=0; SKEYS.forEach(k=>t+=Math.pow(a.s[k]-b.s[k],2)); return Math.sqrt(t); }
+
+function labelPosition(s){
+  const h=s.harga,n=s.nilai;
+  let base;
+  if(h<=4.5&&n>=6.5) base="Affordable Value Brand";
+  else if(h<=4.5&&n<6.5) base="Budget Mass Player";
+  else if(h>=7&&n>=7)  base="Premium Leader";
+  else if(h>=7&&n<7)   base="Premium yang Perlu Pembuktian Nilai";
+  else if(n>=7)        base="Mid-Price High Value Brand";
+  else if(n<5)         base="Mass Market Challenger";
+  else                 base="Mid-Market Balanced Brand";
+  let pre="";
+  if(s.inovasi>=8&&s.digital>=8) pre="Innovative Digital ";
+  else if(s.inovasi>=8) pre="Innovative ";
+  else if(s.digital>=8) pre="Digital-First ";
+  else if(s.jelas>=8) pre="Clear-Message ";
+  return pre+base;
+}
+const zoneIdx=v=>v<4.34?0:(v<7.34?1:2);
+const ZX=["rendah","menengah","tinggi"], ZY=["rendah","menengah","tinggi"];
+
+function whiteSpace(ents,ax){
+  const comps=ents.filter(e=>!e.me), me=ents[0];
+  const grid=[]; for(let y=0;y<3;y++){ grid.push([0,0,0]); }
+  comps.forEach(c=>{ grid[zoneIdx(c.y)][zoneIdx(c.x)]++; });
+  const myCell={x:zoneIdx(me.x),y:zoneIdx(me.y)};
+  let best=null;
+  for(let y=0;y<3;y++) for(let x=0;x<3;x++){
+    const cnt=grid[y][x];
+    let sc=0;
+    sc+= (3-Math.min(cnt,3))*2.0;               // makin kosong makin menarik
+    sc+= y*2.0;                                  // posisi sumbu-Y tinggi lebih bernilai
+    sc+= (x===1?1.3:(x===0?0.2:0));              // zona tengah paling realistis dimasuki
+    sc-= (Math.abs(x-myCell.x)+Math.abs(y-myCell.y))*0.85; // realistis dari posisi sekarang
+    if(x===myCell.x&&y===myCell.y) sc-=1.2;      // zona saat ini bukan peluang baru
+    if(x<myCell.x) sc-=1.0;                      // turun kelas harga menekan margin
+    if(cnt>=3) sc-=3;
+    if(!best||sc>best.sc) best={x:x,y:y,sc:sc,count:cnt};
+  }
+  const cx=[2.7,5.8,8.9][best.x], cy=[2.7,5.8,8.9][best.y];
+  let guard=null,gd=99;
+  comps.forEach(c=>{ const d=Math.sqrt(Math.pow(c.x-cx,2)+Math.pow(c.y-cy,2)); if(d<gd){gd=d;guard=c;} });
+  return {grid:grid,cell:best,myCell:myCell,center:{x:cx,y:cy},guard:guard,guardDist:gd,ax:ax};
+}
+
+function completeness(){
+  const b=state.brand;
+  const bKeys=["nama","kategori","produk","hargaTxt","audiens","lokasi","tujuan","keunggulan","web","ig"];
+  let filled=0,total=0,missing=[];
+  const LBL={nama:"Nama brand",kategori:"Kategori bisnis",produk:"Produk utama",hargaTxt:"Kisaran harga",
+    audiens:"Target audiens",lokasi:"Cakupan pasar",tujuan:"Tujuan positioning",keunggulan:"Keunggulan utama",
+    web:"Link website brand",ig:"Link Instagram brand"};
+  bKeys.forEach(k=>{ total++; if(isFilled(b[k])) filled++; else missing.push(LBL[k]); });
+  state.competitors.forEach((c,i)=>{
+    CFIELDS.forEach(f=>{
+      total++;
+      if(isFilled(c[f.k])) filled++;
+      else if(["nama","catatan","usp","hargaTxt","audiens"].indexOf(f.k)>=0)
+        missing.push(f.l+" (K"+(i+1)+")");
+    });
+  });
+  const fieldScore=total?filled/total:0;
+  const breadth=Math.min(state.competitors.length,3)/3;
+  const pct=Math.round((fieldScore*0.75+breadth*0.25)*100);
+  return {pct:clamp(pct,0,100),filled:filled,total:total,missing:missing.slice(0,10),
+          moreMissing:Math.max(0,missing.length-10)};
+}
+
+function analyze(){
+  const ax=axisOf();
+  const ents=buildEntities();
+  const me=ents[0], comps=ents.slice(1);
+  const avg={}; SKEYS.forEach(k=>avg[k]=comps.reduce((t,c)=>t+c.s[k],0)/comps.length);
+
+  const ranked=comps.map(c=>({c:c,d:dist(me,c),d5:dist5(me,c),str:strengthOf(c.s)}))
+                    .sort((a,b)=>a.d-b.d);
+  const nearest=ranked[0];
+
+  const scoreCards=ranked.map(r=>{
+    const c=r.c, near=r.d<=3.0, strong=r.str>=7;
+    let lvl = near&&strong ? "Tinggi" : ((near||strong) ? "Sedang" : "Rendah");
+    // kekuatan utama: dimensi tertinggi kompetitor
+    const strengths=SKEYS.filter(k=>k!=="harga").map(k=>({k:k,v:c.s[k],gap:c.s[k]-me.s[k]}))
+                     .sort((a,b)=>(b.v+b.gap)-(a.v+a.gap));
+    const weak=SKEYS.filter(k=>k!=="harga").map(k=>({k:k,v:c.s[k],gap:me.s[k]-c.s[k]}))
+                     .sort((a,b)=>(b.gap*1.4-b.v)-(a.gap*1.4-a.v));
+    return {c:c,d:r.d,d5:r.d5,str:r.str,level:lvl,near:near,strong:strong,
+            top:strengths[0],top2:strengths[1],beat:weak[0],beat2:weak[1],
+            quad:quadOf(c,ax)};
+  });
+
+  const ws=whiteSpace(ents,ax);
+  const comp=completeness();
+  const rec=recommend(me,comps,avg,nearest,ws,ax,scoreCards);
+
+  return {ax:ax,ents:ents,me:me,comps:comps,avg:avg,ranked:ranked,nearest:nearest,
+          scoreCards:scoreCards,ws:ws,comp:comp,rec:rec,label:labelPosition(me.s),
+          quad:quadOf(me,ax),ts:new Date()};
+}
+function quadOf(e,ax){
+  const right=e.x>=5.5, top=e.y>=5.5;
+  return top?(right?ax.quad.tr:ax.quad.tl):(right?ax.quad.br:ax.quad.bl);
+}
+const DIMLBL={harga:"harga",nilai:"nilai / kualitas yang dirasakan",inovasi:"inovasi",
+              digital:"kekuatan digital & konten",jelas:"kejelasan pesan brand"};
+const DIMACT={
+  nilai:"Perkuat bukti kualitas: publikasikan hasil pemakaian, before–after, garansi, atau sertifikasi.",
+  inovasi:"Keluarkan satu pembaruan yang terlihat: varian baru, format layanan baru, atau fitur yang tidak dimiliki kompetitor.",
+  digital:"Naikkan konsistensi konten: tetapkan pilar konten mingguan dan format yang paling mudah diproduksi.",
+  jelas:"Rapikan pesan utama: satu kalimat positioning yang sama dipakai di bio, header website, dan iklan.",
+  harga:"Tinjau struktur harga & paket agar posisi harga Anda tidak membingungkan pasar."
+};
+
+function recommend(me,comps,avg,nearest,ws,ax,cards){
+  const b=state.brand;
+  const brandName=(b.nama||"").trim()||"Brand Anda";
+  const audiens=nz(b.audiens,"target audiens Anda");
+  const kategori=nz(b.kategori,"kategorinya");
+  const lokasi=(b.lokasi||"").trim();
+  const nearName=nearest?nearest.c.name:"kompetitor terdekat";
+
+  // dimensi terkuat & terlemah relatif
+  const rel=SKEYS.filter(k=>k!=="harga").map(k=>({k:k,gap:me.s[k]-avg[k],v:me.s[k]}));
+  const strong=rel.slice().sort((a,b)=>b.gap-a.gap)[0];
+  const weakSorted=rel.slice().sort((a,b)=>a.gap-b.gap);
+  const priceGap=me.s.harga-avg.harga;
+
+  // 1. positioning statement
+  const zoneTxt=(ZX[ws.cell.x]==="menengah"?"harga menengah":(ZX[ws.cell.x]==="rendah"?"harga terjangkau":"harga premium"));
+  const zoneY=(ZY[ws.cell.y]==="tinggi"?"nilai tinggi":(ZY[ws.cell.y]==="menengah"?"nilai menengah":"nilai dasar"));
+  let claim;
+  if(isFilled(b.keunggulan)){
+    claim=b.keunggulan.trim().split(/[.\n;]/)[0].trim();
+    if(claim.length>130) claim=claim.slice(0,127).replace(/[\s,]+\S*$/,"")+"…";
+    claim=claim.charAt(0).toLowerCase()+claim.slice(1);
+  }else claim="memberi "+DIMLBL[strong.k]+" yang lebih baik dari rata-rata kategori";
+  const statement=brandName+" adalah "+kategori+" untuk "+audiens+(lokasi?" di "+lokasi.split(",")[0].trim():"")+
+    " yang menawarkan "+zoneTxt+" dengan "+zoneY+" — "+claim+
+    ". Berbeda dari "+nearName+", keunggulan yang paling bisa dibuktikan adalah "+DIMLBL[strong.k]+".";
+
+  // 2. pesan utama
+  const msgs=[];
+  msgs.push("<b>Pesan nilai:</b> "+(strong.gap>0
+    ? "Tegaskan bahwa "+DIMLBL[strong.k]+" Anda ("+r1(me.s[strong.k])+"/10) di atas rata-rata kompetitor ("+r1(avg[strong.k])+"/10)."
+    : "Belum ada dimensi yang unggul dari rata-rata kompetitor. Pilih satu dimensi — sarannya "+DIMLBL[strong.k]+" — dan jadikan fokus 90 hari ke depan."));
+  msgs.push("<b>Pesan harga:</b> "+(priceGap>1
+    ? "Harga Anda dipersepsikan lebih premium (+"+r1(priceGap)+" poin). Selalu sandingkan harga dengan alasan: bahan, proses, layanan, atau hasil."
+    : (priceGap<-1
+      ? "Harga Anda lebih terjangkau ("+r1(priceGap)+" poin). Jangan hanya menjual 'murah' — bingkai sebagai harga masuk akal untuk kualitas yang jelas."
+      : "Harga Anda setara kompetitor. Pemenangnya adalah yang pesannya paling jelas, bukan yang paling murah.")));
+  msgs.push("<b>Pesan bukti:</b> Tampilkan bukti pada aset paling sering dilihat (bio, header, halaman produk): testimoni, angka pemakai, atau hasil uji — terutama untuk mengimbangi "+nearName+".");
+
+  // 3. pembeda yang perlu diperkuat
+  const diffs=weakSorted.slice(0,3).map(w=>({
+    dim:DIMLBL[w.k],
+    act:DIMACT[w.k],
+    gap:r1(w.gap),
+    now:r1(me.s[w.k]),
+    avg:r1(avg[w.k])
+  }));
+
+  // 4. strategi konten dari kelemahan kompetitor
+  const compWeak={}; SKEYS.forEach(k=>{
+    const m=comps.reduce((t,c)=>t+c.s[k],0)/comps.length; compWeak[k]=m;
+  });
+  const ideas=[];
+  const weakestComp=SKEYS.filter(k=>k!=="harga").map(k=>({k:k,v:compWeak[k]})).sort((a,b)=>a.v-b.v);
+  const w1=weakestComp[0], w2=weakestComp[1];
+  const ideaMap={
+    jelas:"Seri konten “Sebenarnya kamu butuh yang mana?” — bantu audiens memilih produk dengan kriteria jelas. Rata-rata kejelasan pesan kompetitor hanya "+r1(compWeak.jelas)+"/10, jadi kejelasan adalah celah nyata.",
+    nilai:"Konten pembuktian: uji pemakaian 14 hari, dokumentasi bahan/proses, atau bedah komposisi. Rata-rata nilai kompetitor "+r1(compWeak.nilai)+"/10 — audiens butuh alasan untuk percaya.",
+    inovasi:"Konten “apa yang baru dan kenapa penting” — perkenalkan pembaruan produk/layanan Anda. Rata-rata inovasi kompetitor "+r1(compWeak.inovasi)+"/10.",
+    digital:"Konten berformat ringan dan rutin (short video / carousel edukasi). Rata-rata kekuatan digital kompetitor "+r1(compWeak.digital)+"/10, ruang perhatian masih terbuka."
+  };
+  ideas.push(ideaMap[w1.k]); ideas.push(ideaMap[w2.k]);
+  const noteFilled=comps.filter(c=>isFilled(c.raw.catatan));
+  if(noteFilled.length){
+    ideas.push("Konten pembanding jujur berdasarkan catatan Anda tentang "+noteFilled[0].name+
+      ": jelaskan perbedaan cara kerja/format produk tanpa menyerang brand mereka, lalu tutup dengan CTA yang lebih spesifik.");
+  }else{
+    ideas.push("Konten FAQ dari keberatan pembeli (harga, keamanan, kecocokan). Ini mengisi celah yang jarang dibahas kompetitor pada halaman depan mereka.");
+  }
+  const ctaComp=comps.filter(c=>isFilled(c.raw.cta))[0];
+  ideas.push(ctaComp
+    ? "Uji CTA yang berbeda dari "+ctaComp.name+" (“"+String(ctaComp.raw.cta).trim()+"”). Alih-alih dorongan beli cepat, gunakan CTA berbasis bantuan seperti “Cek kecocokan dulu, gratis”."
+    : "Uji dua versi CTA: dorongan beli langsung vs CTA berbasis bantuan (“konsultasi dulu”), lalu pertahankan yang konversinya lebih baik.");
+
+  // 5. strategi penawaran
+  const offers=[];
+  if(priceGap<=-1){
+    offers.push("Bundling “paket lengkap” agar nilai transaksi naik tanpa menurunkan harga satuan.");
+    offers.push("Garansi coba (misalnya uang kembali 7 hari) untuk mengurangi keraguan pada harga rendah.");
+  }else if(priceGap>=1){
+    offers.push("Trial size atau paket perkenalan agar audiens dapat mencoba tanpa risiko harga penuh.");
+    offers.push("Bonus layanan (konsultasi, panduan pemakaian) yang memperkuat alasan harga premium.");
+  }else{
+    offers.push("Paket bertingkat (starter / reguler / lengkap) agar pembeli memilih level, bukan membandingkan harga saja.");
+    offers.push("Program referral atau repeat-order untuk menaikkan nilai jangka panjang.");
+  }
+  offers.push("Kumpulkan bukti sosial terstruktur: minimal 10 testimoni dengan konteks (masalah → pemakaian → hasil) untuk dipakai di halaman produk dan iklan.");
+  if(comps.filter(c=>isFilled(c.raw.promo)).length)
+    offers.push("Hindari mengikuti ritme promo "+comps.filter(c=>isFilled(c.raw.promo))[0].name+" secara langsung; buat momentum sendiri (misalnya edisi bulanan) agar tidak terseret perang diskon.");
+
+  // 6. hal yang dihindari
+  const avoid=[];
+  if(priceGap<0.5) avoid.push("Perang harga tanpa pembeda. Skor harga Anda sudah di bawah/serupa rata-rata kompetitor; menurunkan harga lagi akan menekan margin tanpa menambah alasan membeli.");
+  else avoid.push("Menaikkan harga tanpa menaikkan bukti nilai. Posisi harga Anda sudah di atas rata-rata, sehingga setiap kenaikan perlu bukti baru.");
+  avoid.push("Meniru gaya komunikasi "+nearName+" secara menyeluruh — posisi Anda sudah paling dekat dengan mereka, meniru justru membuat brand sulit dibedakan.");
+  avoid.push("Mengklaim kualitas tanpa bukti yang bisa diperiksa (sertifikat, uji, testimoni, dokumentasi proses).");
+  if(me.s.jelas<7) avoid.push("Menambah pesan baru sebelum satu pesan utama benar-benar melekat. Skor kejelasan brand Anda "+r1(me.s.jelas)+"/10.");
+  if(state.competitors.length<3) avoid.push("Mengambil kesimpulan pasar dari sedikit kompetitor. Saat ini baru "+state.competitors.length+" kompetitor yang dianalisis.");
+
+  return {statement:statement,messages:msgs,diffs:diffs,ideas:ideas,offers:offers,avoid:avoid,
+          strong:strong,priceGap:priceGap,zoneTxt:zoneTxt,zoneY:zoneY};
+}
+/* =====================================================================
+   RENDER HASIL
+   ===================================================================== */
+function srcBadges(o,isMe){
+  const w=linkInfo(o.web,"web"), g=linkInfo(o.ig,"ig");
+  let h='<span class="badge b-navy">Data input pengguna</span>';
+  if(w.k==="ok") h+=' <span class="badge b-blue">Referensi Website</span>';
+  if(g.k==="ok") h+=' <span class="badge b-cyan">Referensi Instagram</span>';
+  if(!isMe && isFilled(o.catatan)) h+=' <span class="badge b-green">Catatan manual</span>';
+  return h;
+}
+function bar(v,me){
+  return '<div class="cellbar"><span>'+r1(v)+'</span><span class="bb"><i style="width:'+(v/10*100)+'%"></i></span></div>';
+}
+function lvlBadge(l){
+  return l==="Tinggi"?'<span class="badge b-red">Persaingan Tinggi</span>'
+       : l==="Sedang"?'<span class="badge b-amber">Persaingan Sedang</span>'
+       : '<span class="badge b-green">Persaingan Rendah</span>';
+}
+
+function drawMap(R){
+  const ax=R.ax, ents=R.ents;
+  const MOB=(typeof window!=="undefined"&&window.innerWidth<700);
+  const W=MOB?420:660, H=MOB?470:470, L=MOB?46:58, Rr=MOB?16:24, T=MOB?22:26, B=MOB?54:56;
+  const FQ=MOB?10:12.5, FA=MOB?11.5:13, FS=MOB?9.5:11.5, FN=MOB?11:12, FNM=MOB?11.5:13;
+  const x0=L,x1=W-Rr,y0=T,y1=H-B,pw=x1-x0,ph=y1-y0;
+  const px=v=>x0+(clamp(v,1,10)-1)/9*pw;
+  const py=v=>y1-(clamp(v,1,10)-1)/9*ph;
+  const mx=px(5.5),my=py(5.5);
+  let s='<svg id="mapSvg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Peta positioning">';
+  s+='<defs><filter id="sh" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0B2545" flood-opacity=".28"/></filter></defs>';
+  // kuadran
+  s+='<rect x="'+x0+'" y="'+y0+'" width="'+(mx-x0)+'" height="'+(my-y0)+'" fill="#EAFBF5"/>';
+  s+='<rect x="'+mx+'" y="'+y0+'" width="'+(x1-mx)+'" height="'+(my-y0)+'" fill="#EDF3FF"/>';
+  s+='<rect x="'+x0+'" y="'+my+'" width="'+(mx-x0)+'" height="'+(y1-my)+'" fill="#F5F7FA"/>';
+  s+='<rect x="'+mx+'" y="'+my+'" width="'+(x1-mx)+'" height="'+(y1-my)+'" fill="#FFF8EC"/>';
+  // grid
+  for(let i=1;i<=10;i++){
+    s+='<line x1="'+px(i)+'" y1="'+y0+'" x2="'+px(i)+'" y2="'+y1+'" stroke="#DCE6F3" stroke-width=".7"/>';
+    s+='<line x1="'+x0+'" y1="'+py(i)+'" x2="'+x1+'" y2="'+py(i)+'" stroke="#DCE6F3" stroke-width=".7"/>';
+  }
+  s+='<line x1="'+mx+'" y1="'+y0+'" x2="'+mx+'" y2="'+y1+'" stroke="#9FB4CE" stroke-width="1.4" stroke-dasharray="5 4"/>';
+  s+='<line x1="'+x0+'" y1="'+my+'" x2="'+x1+'" y2="'+my+'" stroke="#9FB4CE" stroke-width="1.4" stroke-dasharray="5 4"/>';
+  s+='<rect x="'+x0+'" y="'+y0+'" width="'+pw+'" height="'+ph+'" fill="none" stroke="#C7D5E7" stroke-width="1"/>';
+  // label kuadran
+  const q=[[x0+9,y0+19,"start",ax.quad.tl,"#0FA97D"],[x1-9,y0+19,"end",ax.quad.tr,"#1D5DFF"],
+           [x0+9,y1-10,"start",ax.quad.bl,"#73849B"],[x1-9,y1-10,"end",ax.quad.br,"#C97A0E"]];
+  q.forEach(k=>{ s+='<text x="'+k[0]+'" y="'+k[1]+'" text-anchor="'+k[2]+'" font-size="'+FQ+'" font-weight="700" fill="'+k[4]+'" opacity=".92">'+esc(k[3])+'</text>'; });
+  // sumbu
+  s+='<text x="'+((x0+x1)/2)+'" y="'+(y1+42)+'" text-anchor="middle" font-size="'+FA+'" font-weight="700" fill="#0B2545">'+esc(ax.x.label)+'</text>';
+  s+='<text x="'+x0+'" y="'+(y1+20)+'" text-anchor="start" font-size="'+FS+'" fill="#73849B">← '+esc(ax.x.lo)+'</text>';
+  s+='<text x="'+x1+'" y="'+(y1+20)+'" text-anchor="end" font-size="'+FS+'" fill="#73849B">'+esc(ax.x.hi)+' →</text>';
+  s+='<text transform="translate('+(MOB?13:17)+','+((y0+y1)/2)+') rotate(-90)" text-anchor="middle" font-size="'+FA+'" font-weight="700" fill="#0B2545">'+esc(ax.y.label)+'</text>';
+  s+='<text transform="translate('+(MOB?30:36)+','+(y1-4)+') rotate(-90)" text-anchor="start" font-size="'+FS+'" fill="#73849B">← '+esc(ax.y.lo)+'</text>';
+  s+='<text transform="translate('+(MOB?30:36)+','+(y0+4)+') rotate(-90)" text-anchor="end" font-size="'+FS+'" fill="#73849B">'+esc(ax.y.hi)+' →</text>';
+  // titik
+  const placed=[];
+  const ordered=ents.slice().sort((a,b)=>a.me?1:(b.me?-1:0));
+  ordered.forEach(e=>{
+    const cx=px(e.x),cy=py(e.y),r=e.me?(MOB?8.5:10):(MOB?6.5:7.5);
+    const txt=e.name+(e.me?" (Anda)":"");
+    const fw=(e.me?FNM:FN)*0.55, tw=txt.length*fw;
+    const cands=[{dx:r+7,dy:4,a:"start"},{dx:-(r+7),dy:4,a:"end"},
+                 {dx:0,dy:-(r+9),a:"middle"},{dx:0,dy:r+17,a:"middle"},
+                 {dx:r+7,dy:-13,a:"start"},{dx:-(r+7),dy:-13,a:"end"},
+                 {dx:r+7,dy:20,a:"start"},{dx:-(r+7),dy:20,a:"end"},
+                 {dx:0,dy:-(r+25),a:"middle"},{dx:0,dy:r+33,a:"middle"}];
+    let pick=null;
+    for(let i=0;i<cands.length;i++){
+      const c=cands[i], lx=cx+c.dx, ly=cy+c.dy;
+      const bx = c.a==="start"?lx : (c.a==="end"?lx-tw : lx-tw/2);
+      const box={x1:bx,x2:bx+tw,y1:ly-11,y2:ly+4};
+      if(box.x1<x0+2||box.x2>x1-2||box.y1<y0+2||box.y2>y1-2) continue;
+      if(placed.some(p=>!(box.x2<p.x1-4||box.x1>p.x2+4||box.y2<p.y1-2||box.y1>p.y2+2))) continue;
+      pick={lx:lx,ly:ly,a:c.a,box:box}; break;
+    }
+    if(!pick){ const lx=cx+r+7,ly=cy+4; pick={lx:lx,ly:ly,a:"start",box:{x1:lx,x2:lx+tw,y1:ly-11,y2:ly+4}}; }
+    placed.push(pick.box);
+    const lx=pick.lx, ly=pick.ly, anchor=pick.a;
+    s+='<g><title>'+esc(e.name)+' — '+esc(ax.x.label)+': '+r1(e.x)+'/10, '+esc(ax.y.label)+': '+r1(e.y)+'/10</title>';
+    if(e.me) s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(MOB?15:17)+'" fill="'+ME_COLOR+'" opacity=".13"/>';
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+e.color+'" stroke="#fff" stroke-width="'+(e.me?3:2.2)+'" filter="url(#sh)"/>';
+    if(e.me) s+='<circle cx="'+cx+'" cy="'+cy+'" r="3.4" fill="#7FE7F5"/>';
+    s+='<text x="'+lx+'" y="'+ly+'" text-anchor="'+anchor+'" font-size="'+(e.me?FNM:FN)+'" font-weight="'+(e.me?800:600)+'" fill="'+(e.me?ME_COLOR:"#41546E")+'" paint-order="stroke" stroke="#fff" stroke-width="3.2" stroke-linejoin="round">'+esc(e.name)+(e.me?" (Anda)":"")+'</text>';
+    s+='</g>';
+  });
+  s+='</svg>';
+  return s;
+}
+
+function renderResults(R){
+  const ax=R.ax, me=R.me, comps=R.comps;
+  const demoBanner=state.isDemo?
+    '<div class="dis"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>'+
+    '<span><b>Anda sedang melihat DATA DEMO.</b> Brand “Lumière Skin”, “GlowLab”, “PureKind”, dan “DermaDaily” adalah contoh fiktif untuk demonstrasi. Ganti dengan data brand Anda sendiri sebelum mengambil keputusan.</span></div>':"";
+
+  let h=demoBanner;
+
+  /* --- A. RINGKASAN --- */
+  h+='<div class="sechead"><span class="bar"></span><div><span class="k">Bagian A</span><h2>Ringkasan Posisi Brand</h2>'+
+     '<p>Dihitung dari skor yang Anda isi pada peta “'+esc(ax.name)+'”. Semua pernyataan bersifat estimasi berdasarkan data yang dimasukkan.</p></div></div>';
+  const n=R.nearest;
+  h+='<div class="sum3">';
+  h+='<div class="sumcard hero"><div class="cap">Posisi Brand Anda</div><div class="big">'+esc(R.label)+'</div>'+
+     '<div class="txt">Berdasarkan data yang dimasukkan, '+esc(me.name)+' berada di kuadran <b>'+esc(R.quad)+'</b> dengan '+esc(ax.x.label)+' '+r1(me.x)+'/10 dan '+esc(ax.y.label)+' '+r1(me.y)+'/10.</div>'+
+     '<div class="metaline">Skor: harga '+me.s.harga+' · nilai '+me.s.nilai+' · inovasi '+me.s.inovasi+' · digital '+me.s.digital+' · kejelasan '+me.s.jelas+'</div></div>';
+  h+='<div class="sumcard"><div class="cap">Kompetitor Terdekat</div><div class="big" style="color:'+n.c.color+'">'+esc(n.c.name)+'</div>'+
+     '<div class="txt">Jarak posisi <b>'+r1(n.d)+'</b> poin pada peta aktif (skala 0–12,7). Semakin kecil jaraknya, semakin besar kemungkinan Anda diperbandingkan langsung oleh calon pembeli.</div>'+
+     '<div class="metaline">Jarak pada 5 dimensi: '+r1(n.d5)+' · Kekuatan kompetitor: '+r1(strengthOf(n.c.s))+'/10</div></div>';
+  const wsZone=ZX[R.ws.cell.x]+" pada sumbu "+ax.x.label.toLowerCase()+" & "+ZY[R.ws.cell.y]+" pada sumbu "+ax.y.label.toLowerCase();
+  h+='<div class="sumcard opp"><div class="cap">Peluang Positioning</div><div class="big">'+esc(R.rec.zoneTxt.replace(/^\w/,c=>c.toUpperCase()))+' + '+esc(R.rec.zoneY)+'</div>'+
+     '<div class="txt">Berdasarkan data yang dimasukkan, area '+esc(wsZone)+' berisi <b>'+R.ws.cell.count+' kompetitor</b> sehingga relatif lebih longgar untuk dimasuki.</div>'+
+     '<div class="metaline">Detail lengkap ada pada bagian E — Peluang White Space.</div></div>';
+  h+='</div>';
+
+  /* --- B. PETA --- */
+  h+='<div class="sechead"><span class="bar"></span><div><span class="k">Bagian B</span><h2>Peta Positioning</h2>'+
+     '<p>Sumbu X: '+esc(ax.x.label)+' · Sumbu Y: '+esc(ax.y.label)+'. Arahkan kursor ke titik untuk melihat nilainya.</p></div></div>';
+  h+='<div class="mapcard"><div class="mapwrap">'+drawMap(R)+'</div><div class="legend">';
+  R.ents.forEach(e=>{ h+='<span class="lg'+(e.me?" me":"")+'"><i style="background:'+e.color+'"></i>'+esc(e.name)+(e.me?" — brand Anda":"")+'</span>'; });
+  h+='</div><div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>'+
+     '<span>Peta ini dibuat dari <b>skor input pengguna</b>, bukan hasil pengambilan data otomatis dari website atau Instagram. '+esc(ax.formula)+'</span></div></div>';
+
+  /* --- C. TABEL --- */
+  h+='<div class="sechead"><span class="bar"></span><div><span class="k">Bagian C</span><h2>Tabel Perbandingan Kompetitor</h2>'+
+     '<p>Geser tabel ke samping pada layar kecil untuk melihat seluruh kolom.</p></div></div>';
+  const rows=[
+    ["Produk / layanan utama",e=>esc(nz(e.me?state.brand.produk:e.raw.produk))],
+    ["Kisaran harga",e=>esc(nz(e.me?state.brand.hargaTxt:e.raw.hargaTxt))],
+    ["Target audiens",e=>esc(nz(e.me?state.brand.audiens:e.raw.audiens))],
+    ["Keunggulan / USP",e=>esc(nz(e.me?state.brand.keunggulan:e.raw.usp))],
+    ["Gaya komunikasi",e=>e.me?'<span class="muted">Tidak diisi untuk brand sendiri</span>':esc(nz(e.raw.tone))],
+    ["Promosi",e=>e.me?'<span class="muted">—</span>':esc(nz(e.raw.promo))],
+    ["CTA",e=>e.me?'<span class="muted">—</span>':esc(nz(e.raw.cta))],
+    ["Harga (1–10)",e=>bar(e.s.harga),1],
+    ["Nilai / kualitas (1–10)",e=>bar(e.s.nilai),1],
+    ["Inovasi (1–10)",e=>bar(e.s.inovasi),1],
+    ["Kekuatan digital (1–10)",e=>bar(e.s.digital),1],
+    ["Kejelasan brand (1–10)",e=>bar(e.s.jelas),1],
+    ["Sumber referensi",e=>'<div class="srcline">'+srcBadges(e.me?state.brand:e.raw,e.me)+'</div>']
+  ];
+  h+='<div class="tablecard"><div class="tscroll"><table><thead><tr><th>Aspek</th>';
+  R.ents.forEach(e=>{ h+='<th style="border-bottom:3px solid '+e.color+'">'+esc(e.name)+(e.me?" (Anda)":"")+'</th>'; });
+  h+='</tr></thead><tbody>';
+  rows.forEach(rw=>{
+    h+='<tr'+(rw[2]?' class="scorerow"':'')+'><th>'+esc(rw[0])+'</th>';
+    R.ents.forEach(e=>{ h+='<td'+(e.me?' class="me"':'')+'>'+rw[1](e)+'</td>'; });
+    h+='</tr>';
+  });
+  h+='</tbody></table></div></div>';
+
+  /* --- D. SCORECARD --- */
+  h+='<div class="sechead"><span class="bar"></span><div><span class="k">Bagian D</span><h2>Scorecard &amp; Analisis Kompetitor</h2>'+
+     '<p>Tingkat persaingan dihitung dari kedekatan posisi (≤ 3,0 poin = dekat) dan kekuatan rata-rata kompetitor (≥ 7/10 = kuat).</p></div></div>';
+  h+='<div class="sc-grid">';
+  R.scoreCards.forEach(sc=>{
+    const c=sc.c, w=linkInfo(c.raw.web,"web"), g=linkInfo(c.raw.ig,"ig");
+    h+='<div class="sc"><div class="sc-top"><div class="nm"><span class="comp-dot" style="background:'+c.color+'"></span>'+esc(c.name)+'</div>'+
+       '<div class="sc-links">'+
+       (w.k==="ok"?'<a class="slink" href="'+esc(w.href)+'" target="_blank" rel="noopener">Website ↗</a>':'<span class="slink off">Website belum diisi</span>')+
+       (g.k==="ok"?'<a class="slink" href="'+esc(g.href)+'" target="_blank" rel="noopener">Instagram ↗</a>':'<span class="slink off">Instagram belum diisi</span>')+
+       '</div></div><div class="sc-body">';
+    h+='<div class="sc-row"><div class="k">Posisi</div><div class="v">'+esc(sc.quad)+' · '+esc(labelPosition(c.s))+
+       '<div class="dist">Jarak ke brand Anda: '+r1(sc.d)+' poin · kekuatan '+r1(sc.str)+'/10</div></div></div>';
+    h+='<div class="sc-row"><div class="k">Kekuatan utama</div><div class="v">Unggul pada <b>'+DIMLBL[sc.top.k]+'</b> ('+r1(c.s[sc.top.k])+'/10'+
+       (sc.top.gap>0?', +'+r1(sc.top.gap)+' dari Anda':', setara/di bawah Anda')+'), diikuti '+DIMLBL[sc.top2.k]+' ('+r1(c.s[sc.top2.k])+'/10).'+
+       (isFilled(c.raw.usp)?' Klaim yang terlihat: “'+esc(String(c.raw.usp).trim())+'”.':"")+'</div></div>';
+    h+='<div class="sc-row"><div class="k">Bisa dikalahkan</div><div class="v">Titik terlemah mereka adalah <b>'+DIMLBL[sc.beat.k]+'</b> ('+r1(c.s[sc.beat.k])+'/10'+
+       (sc.beat.gap>0?', Anda unggul '+r1(sc.beat.gap)+' poin':'')+'), lalu '+DIMLBL[sc.beat2.k]+' ('+r1(c.s[sc.beat2.k])+'/10). '+DIMACT[sc.beat.k]+'</div></div>';
+    let risk;
+    if(sc.level==="Tinggi") risk="Posisi Anda sangat berdekatan dan kekuatan mereka tinggi, sehingga calon pembeli berpotensi membandingkan langsung dan memilih berdasarkan harga. Perbedaan perlu dinyatakan eksplisit.";
+    else if(sc.level==="Sedang") risk=(sc.near?"Posisi berdekatan, namun kekuatan mereka belum tinggi — masih ada waktu untuk mengunci pembeda sebelum mereka menguat."
+                                              :"Posisi relatif berjauhan, tetapi kekuatan mereka tinggi sehingga mereka dapat bergeser ke area Anda kapan saja.");
+    else risk="Posisi relatif berjauhan dan kekuatan mereka belum tinggi. Risiko langsung kecil; cukup dipantau berkala.";
+    if(isFilled(c.raw.promo)&&sc.level!=="Rendah") risk+=" Aktivitas promosi yang Anda catat (“"+esc(String(c.raw.promo).trim())+"”) dapat menekan persepsi harga Anda.";
+    h+='<div class="sc-row"><div class="k">Risiko</div><div class="v">'+risk+'</div></div>';
+    h+='<div class="sc-row"><div class="k">Persaingan</div><div class="v">'+lvlBadge(sc.level)+' '+
+       '<span class="dist">'+(sc.near?"posisi dekat":"posisi jauh")+' · '+(sc.strong?"kekuatan tinggi":"kekuatan sedang/rendah")+'</span></div></div>';
+    h+='<div class="sc-row"><div class="k">Sumber</div><div class="v">'+srcBadges(c.raw,false)+
+       (isFilled(c.raw.catatan)?'<div class="dist" style="margin-top:6px">Catatan Anda: “'+esc(String(c.raw.catatan).trim())+'”</div>':'<div class="dist" style="margin-top:6px">Belum ada catatan dari website / Instagram.</div>')+'</div></div>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+
+  /* --- E. WHITE SPACE --- */
+  const ws=R.ws;
+  h+='<div class="sechead"><span class="bar"></span><div><span class="k">Bagian E</span><h2>Peluang White Space</h2>'+
+     '<p>Area peta yang paling longgar dari kompetitor, dengan mempertimbangkan seberapa realistis Anda mencapainya dari posisi saat ini.</p></div></div>';
+  h+='<div class="wsgrid"><div class="ws-main"><span class="badge b-green">Area peluang utama</span>'+
+     '<h3>'+esc(ax.x.label)+' '+ZX[ws.cell.x]+' × '+esc(ax.y.label)+' '+ZY[ws.cell.y]+'</h3>'+
+     '<p class="lead">Berdasarkan data yang dimasukkan, area ini berisi <b>'+ws.cell.count+' dari '+comps.length+' kompetitor</b> yang Anda analisis, sementara posisi Anda sekarang berada di area '+
+     esc(ZX[ws.myCell.x])+' × '+esc(ZY[ws.myCell.y])+'.</p>';
+  h+='<div class="wslist">';
+  let reason="Area ini relatif kosong dibanding area lain pada peta. ";
+  if(ws.cell.count===0) reason+="Tidak ada kompetitor yang Anda input berada di sini, sehingga pesan yang Anda bangun berpeluang lebih mudah diingat.";
+  else reason+="Hanya "+ws.cell.count+" kompetitor yang menempatinya, dan kekuatannya belum mendominasi seluruh dimensi.";
+  const steps=Math.abs(ws.cell.x-ws.myCell.x)+Math.abs(ws.cell.y-ws.myCell.y);
+  reason+=steps===0
+    ? " Anda sudah berada di zona ini, sehingga peluangnya bukan berpindah posisi melainkan mengunci kepemilikan zona sebelum kompetitor masuk."
+    : " Perpindahan dari posisi Anda sekarang juga tergolong realistis karena hanya berjarak "+steps+" langkah zona.";
+  h+='<div class="wsi"><div class="k">Alasan peluang</div><div class="v">'+reason+'</div></div>';
+  h+='<div class="wsi"><div class="k">Kompetitor yang perlu diperhatikan</div><div class="v">'+
+     (ws.guard?'<b>'+esc(ws.guard.name)+'</b> adalah brand terdekat dengan area ini (jarak '+r1(ws.guardDist)+' poin dari pusat area). Pantau apakah mereka mulai menggeser harga atau pesan ke arah tersebut.':'Belum ada kompetitor yang dekat dengan area ini.')+'</div></div>';
+  let risk2="Masuk ke area ini menuntut konsistensi: jika pesan baru tidak didukung bukti, brand berisiko terbaca sebagai klaim kosong dan kembali dibandingkan berdasarkan harga.";
+  if(ws.cell.count===0) risk2+=" Area kosong juga bisa berarti permintaannya memang kecil — validasi dulu dengan survei kecil atau uji iklan berbiaya rendah sebelum investasi besar.";
+  h+='<div class="wsi"><div class="k">Risiko bila masuk</div><div class="v">'+risk2+'</div></div>';
+  h+='<div class="wsi"><div class="k">Pembuktian nilai yang diperlukan</div><div class="v">'+
+     '1) Bukti hasil: testimoni berkonteks, dokumentasi pemakaian, atau uji sederhana. '+
+     '2) Bukti proses: bahan, standar produksi, atau sertifikasi yang dapat diperiksa. '+
+     '3) Bukti pengalaman: kecepatan respon, garansi, atau layanan purna jual yang dijanjikan di halaman depan.</div></div>';
+  h+='</div></div>';
+  // grid kepadatan
+  h+='<div class="tp"><b style="font-size:13.5px;color:#0B2545">Peta kepadatan kompetitor (3×3)</b>'+
+     '<p style="font-size:12px;color:#73849B;margin-top:3px">Angka = jumlah kompetitor pada zona tersebut. Hijau berarti longgar.</p><div class="densgrid">';
+  for(let y=2;y>=0;y--){
+    h+='<div class="daxis">'+esc(ax.y.label.split(" ")[0])+'<br>'+ZY[y]+'</div>';
+    for(let x=0;x<3;x++){
+      const c=ws.grid[y][x];
+      const cls="dcell d"+Math.min(c,2)+(ws.cell.x===x&&ws.cell.y===y?" pick":"")+(ws.myCell.x===x&&ws.myCell.y===y?" you":"");
+      h+='<div class="'+cls+'">'+c+'</div>';
+    }
+  }
+  h+='<div class="daxis"></div>';
+  for(let x=0;x<3;x++) h+='<div class="daxis">'+esc(ax.x.label.split(" ")[0])+' '+ZX[x]+'</div>';
+  h+='</div></div></div>';
+
+  /* --- F. STRATEGI --- */
+  const rec=R.rec;
+  h+='<div class="sechead"><span class="bar"></span><div><span class="k">Bagian F</span><h2>Rekomendasi Strategi Positioning</h2>'+
+     '<p>Disusun dari data yang Anda isi: selisih skor Anda terhadap rata-rata kompetitor, kompetitor terdekat, dan area white space.</p></div></div>';
+  h+='<div class="stmt"><div class="cap">1 · Rekomendasi Positioning Utama</div><div class="q">“'+esc(rec.statement)+'”</div>'+
+     '<div class="sub">Gunakan sebagai acuan internal, lalu ringkas menjadi 1 kalimat pendek untuk bio Instagram dan header website.</div></div>';
+  h+='<div class="stgrid" style="margin-top:14px">';
+  h+='<div class="stcard"><div class="h"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11l18-8-8 18-2-7-8-3Z"/></svg></span><h3>2 · Pesan Utama Brand</h3></div><ol>';
+  rec.messages.forEach(m=>h+='<li>'+m+'</li>');
+  h+='</ol></div>';
+  h+='<div class="stcard"><div class="h"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20v-8M6 20v-4M18 20V8"/><path d="M3 20h18"/></svg></span><h3>3 · Pembeda yang Perlu Diperkuat</h3></div><ol>';
+  rec.diffs.forEach(d=>h+='<li><b>'+d.dim.charAt(0).toUpperCase()+d.dim.slice(1)+'</b> (Anda '+d.now+'/10 vs rata-rata kompetitor '+d.avg+'/10). '+d.act+'</li>');
+  h+='</ol></div>';
+  h+='<div class="stcard content"><div class="h"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></span><h3>4 · Strategi Konten</h3></div><ul>';
+  rec.ideas.forEach(i=>h+='<li>'+i+'</li>');
+  h+='</ul></div>';
+  h+='<div class="stcard offer"><div class="h"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 7v14M12 7S9 2 6.5 4.5 12 7 12 7ZM12 7s3-5 5.5-2.5S12 7 12 7Z"/></svg></span><h3>5 · Strategi Penawaran</h3></div><ul>';
+  rec.offers.forEach(o=>h+='<li>'+o+'</li>');
+  h+='</ul></div>';
+  h+='<div class="stcard avoid"><div class="h"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></span><h3>6 · Hal yang Sebaiknya Dihindari</h3></div><ul>';
+  rec.avoid.forEach(a=>h+='<li>'+a+'</li>');
+  h+='</ul></div>';
+  h+='</div>';
+
+  /* --- G. TRANSPARANSI --- */
+  const cp=R.comp, circ=2*Math.PI*32, off=circ*(1-cp.pct/100);
+  h+='<div class="sechead"><span class="bar"></span><div><span class="k">Bagian G</span><h2>Transparansi Analisis</h2>'+
+     '<p>Bagaimana angka-angka di atas dihasilkan, dan apa batasannya.</p></div></div>';
+  h+='<div class="tp"><b style="font-size:14px;color:#0B2545">Cara kerja perhitungan</b><ul>'+
+     '<li><b>Peta positioning</b> memakai skor '+esc(ax.x.label)+' dan '+esc(ax.y.label)+' yang Anda isi. '+esc(ax.formula)+'</li>'+
+     '<li><b>Kompetitor terdekat</b> dihitung dengan jarak Euclidean antara titik brand Anda dan setiap kompetitor pada peta aktif.</li>'+
+     '<li><b>Tingkat persaingan</b> = kombinasi kedekatan posisi (jarak ≤ 3,0 poin) dan kekuatan kompetitor (rata-rata skor nilai, inovasi, digital, kejelasan ≥ 7). Dua syarat terpenuhi = Tinggi, satu = Sedang, tidak ada = Rendah.</li>'+
+     '<li><b>White space</b> dihitung dengan membagi peta menjadi 9 zona, menghitung jumlah kompetitor per zona, lalu memilih zona yang paling longgar dan paling realistis dijangkau dari posisi Anda.</li>'+
+     '<li><b>Rekomendasi</b> disusun dari selisih skor Anda terhadap rata-rata kompetitor serta isian teks Anda (USP, promo, CTA, catatan). Tidak ada data eksternal yang ditambahkan.</li>'+
+     '<li><b>Link website dan Instagram</b> hanya digunakan sebagai referensi yang dapat Anda buka. Aplikasi ini <b>tidak mengambil data real-time</b> dari platform mana pun dan tidak menggunakan API Meta/Instagram.</li>'+
+     '<li>Semakin lengkap data yang diisi — terutama catatan dari website/Instagram — semakin tinggi kualitas insight yang dihasilkan.</li>'+
+     '</ul>';
+  h+='<div class="compl"><div class="ring"><svg width="76" height="76"><circle cx="38" cy="38" r="32" fill="none" stroke="#E7EEF8" stroke-width="8"/>'+
+     '<circle cx="38" cy="38" r="32" fill="none" stroke="'+(cp.pct>=75?"#0FA97D":cp.pct>=45?"#1D5DFF":"#C97A0E")+'" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+off+'"/></svg><span>'+cp.pct+'%</span></div>'+
+     '<div class="ci"><b>Kelengkapan Data Analisis: '+cp.pct+'%</b>'+
+     '<p>'+cp.filled+' dari '+cp.total+' kolom terisi, dengan '+state.competitors.length+' kompetitor dianalisis. '+
+     (cp.pct>=75?"Data sudah cukup kuat untuk mengambil arah strategi.":cp.pct>=45?"Cukup untuk gambaran awal. Lengkapi kolom di bawah agar hasil lebih tajam.":"Masih terbatas. Hasil sebaiknya diperlakukan sebagai hipotesis awal.")+'</p>'+
+     (cp.missing.length?'<div class="misslist">'+cp.missing.map(m=>'<span class="miss">Belum: '+esc(m)+'</span>').join("")+
+       (cp.moreMissing?'<span class="miss">+'+cp.moreMissing+' lainnya</span>':"")+'</div>':"")+
+     '</div></div></div>';
+
+  h+='<div class="note" style="margin-top:16px">'+
+     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>'+
+     '<span>Laporan dibuat pada '+R.ts.toLocaleString("id-ID")+'. Seluruh hasil merupakan estimasi berbasis input pengguna dan tidak mewakili data resmi kompetitor.</span></div>';
+
+  return h;
+}
+
+/* =====================================================================
+   LAPORAN TEKS
+   ===================================================================== */
+function buildReport(R){
+  const ax=R.ax,me=R.me,L=[];
+  const line=s=>L.push(s);
+  line("COMPETITOR POSITIONING ANALYZER — LAPORAN ANALISIS");
+  line("Dibuat: "+R.ts.toLocaleString("id-ID"));
+  if(state.isDemo) line("*** MENGGUNAKAN DATA DEMO (FIKTIF) ***");
+  line("Peta aktif: "+ax.name);
+  line("");
+  line("A. RINGKASAN POSISI BRAND");
+  line("- Brand: "+me.name);
+  line("- Posisi: "+R.label+" ("+R.quad+")");
+  line("- Koordinat: "+ax.x.label+" "+r1(me.x)+"/10 · "+ax.y.label+" "+r1(me.y)+"/10");
+  line("- Skor: harga "+me.s.harga+", nilai "+me.s.nilai+", inovasi "+me.s.inovasi+", digital "+me.s.digital+", kejelasan "+me.s.jelas);
+  line("- Kompetitor terdekat: "+R.nearest.c.name+" (jarak "+r1(R.nearest.d)+" poin)");
+  line("- Peluang: "+R.rec.zoneTxt+" + "+R.rec.zoneY+" ("+R.ws.cell.count+" kompetitor di area tersebut)");
+  line("");
+  line("B. POSISI SETIAP BRAND PADA PETA");
+  R.ents.forEach(e=>line("- "+e.name+(e.me?" (Anda)":"")+": X="+r1(e.x)+" · Y="+r1(e.y)+" · kuadran "+quadOf(e,ax)));
+  line("");
+  line("C. PERBANDINGAN RINGKAS");
+  R.ents.forEach(e=>{
+    const o=e.me?state.brand:e.raw;
+    line("* "+e.name+(e.me?" (Anda)":""));
+    line("  Produk       : "+nz(o.produk));
+    line("  Harga        : "+nz(o.hargaTxt));
+    line("  Audiens      : "+nz(o.audiens));
+    line("  USP          : "+nz(e.me?o.keunggulan:o.usp));
+    if(!e.me){ line("  Tone         : "+nz(o.tone)); line("  Promosi      : "+nz(o.promo)); line("  CTA          : "+nz(o.cta)); }
+    line("  Skor         : harga "+e.s.harga+" | nilai "+e.s.nilai+" | inovasi "+e.s.inovasi+" | digital "+e.s.digital+" | kejelasan "+e.s.jelas);
+    line("  Website      : "+(nz(o.web))+"  ["+linkInfo(o.web,"web").t+"]");
+    line("  Instagram    : "+(nz(o.ig))+"  ["+linkInfo(o.ig,"ig").t+"]");
+    if(!e.me) line("  Catatan      : "+nz(o.catatan));
+  });
+  line("");
+  line("D. SCORECARD KOMPETITOR");
+  R.scoreCards.forEach(sc=>{
+    line("* "+sc.c.name+" — Persaingan "+sc.level+" (jarak "+r1(sc.d)+", kekuatan "+r1(sc.str)+"/10)");
+    line("  Kekuatan utama : "+DIMLBL[sc.top.k]+" ("+r1(sc.c.s[sc.top.k])+"/10)");
+    line("  Bisa dikalahkan: "+DIMLBL[sc.beat.k]+" ("+r1(sc.c.s[sc.beat.k])+"/10)");
+  });
+  line("");
+  line("E. PELUANG WHITE SPACE");
+  line("- Area: "+ax.x.label+" "+ZX[R.ws.cell.x]+" × "+ax.y.label+" "+ZY[R.ws.cell.y]);
+  line("- Jumlah kompetitor di area tersebut: "+R.ws.cell.count);
+  line("- Kompetitor yang perlu diperhatikan: "+(R.ws.guard?R.ws.guard.name+" (jarak "+r1(R.ws.guardDist)+")":"tidak ada"));
+  line("");
+  line("F. REKOMENDASI STRATEGI");
+  line("1) Positioning statement:");
+  line("   "+R.rec.statement);
+  line("2) Pesan utama brand:");
+  R.rec.messages.forEach((m,i)=>line("   "+(i+1)+". "+m.replace(/<[^>]+>/g,"")));
+  line("3) Pembeda yang perlu diperkuat:");
+  R.rec.diffs.forEach((d,i)=>line("   "+(i+1)+". "+d.dim+" (Anda "+d.now+"/10 vs kompetitor "+d.avg+"/10) — "+d.act));
+  line("4) Strategi konten:");
+  R.rec.ideas.forEach((x,i)=>line("   "+(i+1)+". "+x));
+  line("5) Strategi penawaran:");
+  R.rec.offers.forEach((x,i)=>line("   "+(i+1)+". "+x));
+  line("6) Hal yang sebaiknya dihindari:");
+  R.rec.avoid.forEach((x,i)=>line("   "+(i+1)+". "+x));
+  line("");
+  line("G. TRANSPARANSI");
+  line("- Peta memakai skor input pengguna. "+ax.formula);
+  line("- Kompetitor terdekat = jarak Euclidean pada peta aktif.");
+  line("- Tingkat persaingan = kedekatan posisi (≤3,0) + kekuatan kompetitor (≥7/10).");
+  line("- Link website/Instagram hanya referensi; tidak ada pengambilan data real-time.");
+  line("- Kelengkapan data analisis: "+R.comp.pct+"% ("+R.comp.filled+"/"+R.comp.total+" kolom).");
+  line("");
+  line("Dibuat dengan Competitor Positioning Analyzer — Riki MarkeThink.");
+  return L.join("\n");
+}
+
+/* =====================================================================
+   ALUR APLIKASI
+   ===================================================================== */
+function validate(){
+  if(!isFilled(state.brand.nama)){
+    $("#cardBrand").classList.remove("collapsed");
+    const el=$("#b_nama"); el.classList.add("err"); el.focus();
+    el.scrollIntoView({behavior:"smooth",block:"center"});
+    toast("Nama brand belum diisi.");
+    return false;
+  }
+  if(!state.competitors.length){
+    $("#cardComp").classList.remove("collapsed");
+    $("#btnAddComp").scrollIntoView({behavior:"smooth",block:"center"});
+    toast("Tambahkan minimal 1 kompetitor untuk dibandingkan.");
+    return false;
+  }
+  const noName=state.competitors.filter(c=>!isFilled(c.nama));
+  if(noName.length===state.competitors.length){
+    $("#cardComp").classList.remove("collapsed");
+    const f=$("#compWrap .comp input[data-k='nama']"); if(f){f.classList.add("err");f.focus();}
+    toast("Isi minimal satu nama kompetitor.");
+    return false;
+  }
+  return true;
+}
+
+function runAnalysis(silent){
+  if(!validate()) return;
+  const R=analyze(); lastResult=R;
+  const paint=()=>{
+    $("#emptyState").style.display="none";
+    $("#progressBox").style.display="none";
+    const res=$("#results");
+    res.style.display="block";
+    res.innerHTML=renderResults(R);
+    if(!silent){
+      $("#cardBrand").classList.add("collapsed");
+      $("#cardComp").classList.add("collapsed");
+      setTimeout(()=>{ res.scrollIntoView({behavior:"smooth",block:"start"}); },60);
+    }
+  };
+  if(silent){ paint(); return; }
+  const steps=["Membaca profil brand…","Menghitung skor kompetitor…","Memetakan posisi kompetitor…","Mencari celah white space…","Menyusun rekomendasi strategi…"];
+  $("#emptyState").style.display="none";
+  $("#results").style.display="none";
+  $("#progressBox").style.display="block";
+  let i=0;
+  const tick=()=>{
+    $("#progTxt").textContent=steps[i];
+    $("#progFill").style.width=((i+1)/steps.length*100)+"%";
+    i++;
+    if(i<steps.length) setTimeout(tick,230); else setTimeout(paint,320);
+  };
+  tick();
+}
+
+/* ---------------- DATA DEMO ---------------- */
+const DEMO={
+  brand:{nama:"Lumière Skin",kategori:"Skincare lokal (brightening & barrier care)",
+    produk:"Serum brightening, moisturizer barrier, sunscreen SPF 40",
+    hargaTxt:"Rp 89.000 – Rp 189.000",
+    audiens:"Perempuan 22–32 tahun, first jobber di kota besar, kulit kusam & sensitif",
+    lokasi:"Nasional, penjualan dominan Jabodetabek & Bandung",
+    tujuan:"Dikenal sebagai skincare “klinis tapi terjangkau” dengan transparansi kandungan",
+    keunggulan:"Kadar bahan aktif dicantumkan terbuka, hasil uji lab dipublikasikan, konsultasi kulit gratis via WhatsApp dengan tim berlatar farmasi",
+    web:"https://lumiereskin.example.com",ig:"https://instagram.com/lumiereskin",
+    harga:5,nilai:7,inovasi:6,digital:5,jelas:6},
+  comps:[
+    {nama:"GlowLab",web:"https://glowlab.example.com",ig:"https://instagram.com/glowlab",
+     produk:"Serum niacinamide, toner exfoliating, paket 3-step",
+     hargaTxt:"Rp 49.000 – Rp 99.000",
+     audiens:"Remaja & mahasiswa 17–24 tahun, budget terbatas",
+     usp:"Harga paling murah di kategori, varian sangat banyak, sering viral lewat TikTok",
+     tone:"Kasual, humor, bahasa gaul, banyak trend audio",
+     promo:"Flash sale mingguan, bundling 3 item, gratis ongkir",
+     cta:"“Checkout sekarang, stok terbatas!”",
+     catatan:"Dari Instagram: konten dominan hard selling dan diskon, sedikit edukasi kandungan. Di website tidak ada halaman uji klinis. Testimoni banyak tapi berupa screenshot tanpa konteks masalah kulit.",
+     harga:3,nilai:5,inovasi:5,digital:8,jelas:6},
+    {nama:"PureKind",web:"https://purekind.example.com",ig:"https://instagram.com/purekind",
+     produk:"Skincare vegan & clean beauty, sabun wajah, essence",
+     hargaTxt:"Rp 150.000 – Rp 320.000",
+     audiens:"Perempuan 25–35 tahun, peduli isu lingkungan dan bahan alami",
+     usp:"Sertifikasi vegan & cruelty free, kemasan ramah lingkungan, cerita brand kuat",
+     tone:"Tenang, storytelling, visual earthy dan konsisten",
+     promo:"Jarang diskon, lebih sering bundling edisi terbatas",
+     cta:"“Pelajari ceritanya”",
+     catatan:"Website rapi dengan halaman bahan dan asal-usul. Instagram konsisten satu palet warna. Klaim hasil pemakaian minim, lebih banyak bicara nilai dan gaya hidup.",
+     harga:8,nilai:7,inovasi:7,digital:7,jelas:8},
+    {nama:"DermaDaily",web:"https://dermadaily.example.com",ig:"https://instagram.com/dermadaily",
+     produk:"Skincare berbasis rekomendasi dokter, acne series, sunscreen",
+     hargaTxt:"Rp 120.000 – Rp 260.000",
+     audiens:"Usia 20–35 tahun dengan masalah kulit spesifik (jerawat, hiperpigmentasi)",
+     usp:"Diformulasikan bersama dokter kulit, klaim uji klinis, layanan konsultasi berbayar",
+     tone:"Formal, edukatif, banyak istilah medis",
+     promo:"Paket konsultasi + produk, promo hari besar saja",
+     cta:"“Konsultasi dulu sebelum membeli”",
+     catatan:"Website menampilkan profil dokter dan ringkasan uji. Instagram edukatif tapi visual kurang menarik dan frekuensi posting rendah. Bahasa cenderung berat untuk pemula.",
+     harga:7,nilai:8,inovasi:6,digital:4,jelas:7}
+  ]
+};
+function loadDemo(){
+  state=blankState(); state.isDemo=true;
+  Object.keys(DEMO.brand).forEach(k=>state.brand[k]=DEMO.brand[k]);
+  DEMO.comps.forEach(c=>{ const nc=blankComp(); Object.keys(c).forEach(k=>{ if(k in nc) nc[k]=c[k]; }); state.competitors.push(nc); });
+  fillBrandForm(); rebuildCompList(); renderAxes(); save();
+  toast("Data demo dimuat — contoh fiktif brand skincare.");
+  runAnalysis();
+}
+
+/* ---------------- SALIN & CETAK ---------------- */
+function copyReport(){
+  if(!lastResult){ toast("Jalankan analisis terlebih dahulu."); runAnalysis(); return; }
+  const txt=buildReport(lastResult);
+  const done=()=>toast("Laporan disalin ke clipboard.");
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
+  }else fallbackCopy(txt,done);
+}
+function fallbackCopy(txt,done){
+  const ta=document.createElement("textarea");
+  ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){ toast("Browser memblokir penyalinan otomatis."); }
+  document.body.removeChild(ta);
+}
+function doPrint(){
+  if(!lastResult){ toast("Menjalankan analisis dulu sebelum mencetak…"); }
+  const go=()=>setTimeout(()=>window.print(),350);
+  if(!lastResult){ runAnalysis(); setTimeout(go,1700); } else go();
+}
+function doReset(){
+  if(!confirm("Hapus semua data brand dan kompetitor dari browser ini? Tindakan ini tidak dapat dibatalkan.")) return;
+  try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  state=blankState(); lastResult=null;
+  fillBrandForm(); rebuildCompList(); renderAxes();
+  $("#results").style.display="none"; $("#results").innerHTML="";
+  $("#progressBox").style.display="none"; $("#emptyState").style.display="block";
+  $("#cardBrand").classList.remove("collapsed"); $("#cardComp").classList.remove("collapsed");
+  $("#saveHint").textContent="Data dikosongkan";
+  window.scrollTo({top:0,behavior:"smooth"});
+  toast("Semua data telah direset.");
+}
+
+/* ---------------- INIT ---------------- */
+function init(){
+  bindBrandForm();
+  $$("[data-toggle]").forEach(h=>h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed")));
+  $("#btnAddComp").addEventListener("click",()=>{
+    const c=addCompetitor();
+    if(c){ const el=$('#compWrap .comp[data-uid="'+c.uid+'"]');
+      el.scrollIntoView({behavior:"smooth",block:"center"});
+      el.querySelector('input[data-k="nama"]').focus(); }
+  });
+  $("#btnAnalyze").addEventListener("click",()=>runAnalysis());
+  $("#btnDemo").addEventListener("click",loadDemo);
+  $("#btnDemo2").addEventListener("click",loadDemo);
+  $("#btnCopy").addEventListener("click",copyReport);
+  $("#btnPrint").addEventListener("click",doPrint);
+  $("#btnReset").addEventListener("click",doReset);
+
+  let lastMob=window.innerWidth<700, rt;
+  window.addEventListener("resize",()=>{
+    clearTimeout(rt);
+    rt=setTimeout(()=>{
+      const m=window.innerWidth<700;
+      if(m!==lastMob){ lastMob=m; if(lastResult) runAnalysis(true); }
+    },260);
+  });
+
+  const had=load();
+  if(had){ fillBrandForm(); rebuildCompList(); renderAxes();
+    if(isFilled(state.brand.nama)&&state.competitors.length){ runAnalysis(true); $("#emptyState").style.display="none"; }
+    $("#saveHint").textContent="Data sebelumnya dipulihkan";
+  }else{
+    renderAxes(); addCompetitor(); addCompetitor();
+  }
+  refreshCompMeta();
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+
+})();
+</script>
+
+</body></html>

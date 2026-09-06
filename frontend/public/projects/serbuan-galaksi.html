@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serbuan Galaksi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;600&display=swap">
+
+<style>
+/* ============================================================
+   SERBUAN GALAKSI — game arcade bergaya Space Invaders
+   Satu file: HTML + CSS + JavaScript, tanpa dependensi eksternal
+   (hanya font Google; game tetap jalan tanpa koneksi internet).
+   ============================================================ */
+
+:root{
+  /* Palet kabinet arcade — sengaja satu tema gelap (dunia CRT) */
+  --void:      #04050c;   /* latar terluar */
+  --cabinet:   #0d1022;   /* badan kabinet */
+  --bezel:     #171b34;   /* bingkai layar */
+  --screen:    #05070f;   /* layar CRT */
+  --ink:       #cbd3f0;   /* teks utama */
+  --ink-dim:   #6f78a3;   /* teks sekunder */
+  --alien:     #5ef08a;   /* hijau alien */
+  --ship:      #3ee6f5;   /* cyan kapal */
+  --shot:      #ffe14d;   /* peluru pemain */
+  --danger:    #ff4b5c;   /* peluru alien / bahaya */
+  --magenta:   #ff5fd2;   /* aksen level */
+  --grid:      rgba(94,240,138,.14);
+}
+
+*{ box-sizing:border-box; }
+[hidden]{ display:none !important; }
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, #131a3a 0%, transparent 60%),
+    var(--void);
+  color:var(--ink);
+  font-family:"IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  display:flex;
+  justify-content:center;
+  padding:clamp(12px, 3vw, 32px);
+}
+
+.cabinet{
+  width:100%;
+  max-width:720px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+/* ---------- Marquee (papan nama kabinet) ---------- */
+.marquee{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  padding-bottom:12px;
+  border-bottom:1px solid rgba(94,240,138,.18);
+}
+.marquee h1{
+  margin:0;
+  font-family:"Press Start 2P", "IBM Plex Mono", monospace;
+  font-size:clamp(15px, 3.6vw, 26px);
+  line-height:1.35;
+  letter-spacing:.02em;
+  color:var(--alien);
+  text-shadow:0 0 12px rgba(94,240,138,.45), 0 0 34px rgba(94,240,138,.16);
+  text-wrap:balance;
+}
+.marquee .sub{
+  font-size:11px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+}
+
+/* ---------- HUD ---------- */
+.hud{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:10px;
+  padding:11px 14px;
+  background:linear-gradient(180deg, var(--cabinet), #090c1c);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:4px;
+}
+.hud .cell{ display:flex; flex-direction:column; gap:6px; }
+.hud .cell.mid{ align-items:center; }
+.hud .cell.right{ align-items:flex-end; }
+.hud .label{
+  font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-dim);
+}
+.hud .value{
+  font-family:"Press Start 2P", monospace;
+  font-size:14px;
+  font-variant-numeric:tabular-nums;
+  color:var(--ink);
+}
+.hud .value.score{ color:var(--shot); }
+.hud .value.level{ color:var(--magenta); }
+
+/* Nyawa digambar sebagai siluet kapal, bukan hati/emoji */
+.lives{ display:flex; gap:7px; height:16px; align-items:center; }
+.life{
+  width:20px; height:14px;
+  background:var(--ship);
+  clip-path:polygon(50% 0,62% 34%,100% 55%,100% 100%,66% 100%,50% 78%,34% 100%,0 100%,0 55%,38% 34%);
+  box-shadow:0 0 10px rgba(62,230,245,.6);
+}
+.life.spent{ background:#2b3252; box-shadow:none; }
+
+/* ---------- Layar CRT ---------- */
+.screen{
+  position:relative;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:6px;
+  background:var(--bezel);
+  padding:10px;
+  box-shadow:0 0 0 1px rgba(94,240,138,.06), 0 24px 60px rgba(0,0,0,.6);
+}
+canvas{
+  display:block;
+  width:100%;
+  height:auto;
+  background:var(--screen);
+  border-radius:2px;
+  image-rendering:pixelated;
+  touch-action:none;
+}
+/* Garis scanline + vignette khas monitor tabung */
+.crt{
+  position:absolute; inset:10px;
+  border-radius:2px;
+  pointer-events:none;
+  background:
+    radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(0,0,0,.55) 100%),
+    repeating-linear-gradient(to bottom, rgba(0,0,0,.28) 0 1px, transparent 1px 3px);
+  mix-blend-mode:multiply;
+}
+
+/* ---------- Overlay layar (mulai / jeda / game over) ---------- */
+.overlay{
+  position:absolute; inset:10px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:16px;
+  padding:24px;
+  text-align:center;
+  background:rgba(4,6,14,.9);
+  border-radius:2px;
+}
+.overlay[hidden]{ display:none; }
+.overlay h2{
+  margin:0;
+  font-family:"Press Start 2P", monospace;
+  font-size:clamp(14px, 3.4vw, 22px);
+  line-height:1.5;
+  color:var(--alien);
+  text-shadow:0 0 16px rgba(94,240,138,.4);
+  text-wrap:balance;
+}
+.overlay h2.bad{ color:var(--danger); text-shadow:0 0 16px rgba(255,75,92,.4); }
+.overlay h2.good{ color:var(--shot); text-shadow:0 0 16px rgba(255,225,77,.4); }
+.overlay p{
+  margin:0; max-width:44ch;
+  font-size:13px; line-height:1.75; color:var(--ink);
+}
+.overlay .muted{ color:var(--ink-dim); font-size:12px; }
+.overlay .stat{
+  font-family:"Press Start 2P", monospace;
+  font-size:18px; color:var(--shot);
+  font-variant-numeric:tabular-nums;
+}
+.keys{
+  display:flex; flex-wrap:wrap; gap:8px 10px; justify-content:center;
+  font-size:12px; color:var(--ink-dim);
+}
+.keys b{
+  display:inline-block;
+  min-width:26px; padding:4px 7px; margin-right:6px;
+  background:#151a33; border:1px solid rgba(255,255,255,.12);
+  border-bottom-width:2px; border-radius:3px;
+  color:var(--ink); font-weight:600;
+}
+
+/* ---------- Tombol ---------- */
+.btn{
+  font-family:"Press Start 2P", monospace;
+  font-size:12px; line-height:1;
+  padding:15px 22px;
+  color:var(--void);
+  background:var(--alien);
+  border:0; border-radius:3px;
+  cursor:pointer;
+  box-shadow:0 4px 0 #2e9a56, 0 0 26px rgba(94,240,138,.35);
+  transition:transform .08s ease, box-shadow .08s ease;
+}
+.btn:hover{ transform:translateY(-1px); box-shadow:0 5px 0 #2e9a56, 0 0 34px rgba(94,240,138,.5); }
+.btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #2e9a56; }
+.btn:focus-visible{ outline:3px solid var(--ship); outline-offset:3px; }
+.btn.alt{ background:var(--ship); box-shadow:0 4px 0 #1a95a3, 0 0 26px rgba(62,230,245,.3); }
+.btn.alt:hover{ box-shadow:0 5px 0 #1a95a3, 0 0 34px rgba(62,230,245,.45); }
+.btn.alt:active{ box-shadow:0 1px 0 #1a95a3; }
+
+/* ---------- Panel bawah ---------- */
+.deck{
+  display:flex; flex-wrap:wrap; gap:12px;
+  align-items:center; justify-content:space-between;
+}
+.hint{ font-size:12px; color:var(--ink-dim); line-height:1.9; }
+.hint b{
+  display:inline-block; padding:3px 6px; margin:0 2px;
+  background:#151a33; border:1px solid rgba(255,255,255,.12);
+  border-radius:3px; color:var(--ink); font-weight:600;
+}
+.tools{ display:flex; gap:8px; }
+.chip{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  padding:9px 13px;
+  color:var(--ink-dim);
+  background:#0f1328;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:3px; cursor:pointer;
+}
+.chip:hover{ color:var(--ink); border-color:rgba(94,240,138,.45); }
+.chip:focus-visible{ outline:2px solid var(--ship); outline-offset:2px; }
+.chip[aria-pressed="true"]{ color:var(--alien); border-color:rgba(94,240,138,.5); }
+
+/* Tabel nilai poin — informasi, bukan hiasan */
+.scoring{
+  display:flex; flex-wrap:wrap; gap:6px 18px;
+  padding-top:12px; margin-top:2px;
+  border-top:1px solid rgba(255,255,255,.07);
+  font-size:11px; color:var(--ink-dim);
+}
+.scoring span{ display:flex; align-items:center; gap:7px; }
+.dot{ width:9px; height:9px; background:var(--alien); }
+.dot.b{ background:#9ef7b8; }
+.dot.c{ background:#d7fbe4; }
+
+/* ---------- Kontrol sentuh (tablet & ponsel) ---------- */
+.touchpad{
+  display:none;
+  gap:10px;
+  margin-top:2px;
+}
+.touchpad button{
+  flex:1; padding:18px 0;
+  font-family:"Press Start 2P", monospace; font-size:12px;
+  color:var(--ink);
+  background:#12172e;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:4px;
+  user-select:none; -webkit-user-select:none; touch-action:manipulation;
+}
+.touchpad button:active{ background:#1c2348; color:var(--alien); }
+@media (hover:none) and (pointer:coarse){ .touchpad{ display:flex; } }
+@media (max-width:520px){
+  .hud{ grid-template-columns:1fr 1fr; row-gap:12px; }
+  .hud .cell.mid{ align-items:flex-start; }
+  .hud .cell.right{ align-items:flex-end; }
+}
+@media (prefers-reduced-motion:reduce){
+  .btn{ transition:none; }
+}
+</style>
+</head>
+<body>
+
+<main class="cabinet">
+
+  <header class="marquee">
+    <h1>SERBUAN GALAKSI</h1>
+    <div class="sub">Arcade · 5 Gelombang</div>
+  </header>
+
+  <div class="hud">
+    <div class="cell">
+      <div class="label">Skor</div>
+      <div class="value score" id="ui-score">0</div>
+    </div>
+    <div class="cell mid">
+      <div class="label">Nyawa</div>
+      <div class="lives" id="ui-lives"></div>
+    </div>
+    <div class="cell right">
+      <div class="label">Level</div>
+      <div class="value level" id="ui-level">1 / 5</div>
+    </div>
+  </div>
+
+  <div class="screen">
+    <canvas id="game" width="640" height="720" aria-label="Area permainan Serbuan Galaksi"></canvas>
+    <div class="crt"></div>
+
+    <div class="overlay" id="overlay">
+      <h2 id="ov-title">SERBUAN GALAKSI</h2>
+      <p id="ov-text">Armada asing turun dari orbit. Kamu satu-satunya kapal penjaga yang tersisa. Hancurkan seluruh formasi sebelum mereka menyentuh permukaan.</p>
+      <div class="keys" id="ov-keys">
+        <span><b>&larr;</b><b>&rarr;</b> atau <b>A</b><b>D</b> untuk bergerak</span>
+        <span><b>Spasi</b> untuk menembak</span>
+      </div>
+      <button class="btn" id="ov-btn">MULAI</button>
+      <p class="muted" id="ov-note">Tekan <b style="all:unset;color:var(--ink)">P</b> kapan saja untuk jeda.</p>
+    </div>
+  </div>
+
+  <div class="touchpad">
+    <button id="t-left" aria-label="Gerak kiri">&#9668;</button>
+    <button id="t-fire" aria-label="Tembak">TEMBAK</button>
+    <button id="t-right" aria-label="Gerak kanan">&#9658;</button>
+  </div>
+
+  <div class="deck">
+    <div class="hint">
+      <b>&larr;</b> <b>&rarr;</b> / <b>A</b> <b>D</b> gerak &nbsp;·&nbsp; <b>Spasi</b> tembak &nbsp;·&nbsp; <b>P</b> jeda &nbsp;·&nbsp; <b>R</b> ulang
+    </div>
+    <div class="tools">
+      <button class="chip" id="btn-sound" aria-pressed="true">Suara: Nyala</button>
+      <button class="chip" id="btn-restart">Main Lagi</button>
+    </div>
+  </div>
+
+  <div class="scoring">
+    <span><i class="dot"></i> Baris 1 — 50 poin</span>
+    <span><i class="dot b"></i> Baris 2–3 — 30 &amp; 20 poin</span>
+    <span><i class="dot c"></i> Baris 4–5 — 10 poin</span>
+    <span>Setiap level: alien lebih cepat &amp; lebih sering menembak</span>
+  </div>
+
+</main>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. KONSTANTA & SETUP
+   ============================================================ */
+const canvas = document.getElementById("game");
+const ctx    = canvas.getContext("2d");
+const W = canvas.width;    // resolusi logis tetap 640x720,
+const H = canvas.height;   // CSS yang menskalakan ke lebar layar
+
+const MAX_LEVEL = 5;
+const MARGIN    = 24;      // batas kiri/kanan formasi alien
+
+const COLS = 8, ROWS = 5;  // formasi 5 baris x 8 kolom
+const PX   = 4;            // ukuran satu "pixel" sprite
+const ALIEN_W = 8 * PX, ALIEN_H = 8 * PX;
+const GAP_X = 46, GAP_Y = 42;
+const STEP_X = 12, STEP_DOWN = 26;   // langkah geser & turun formasi
+
+const PLAYER_W = 9 * PX, PLAYER_H = 7 * PX;
+const PLAYER_Y = H - 74;
+const PLAYER_SPEED = 340;            // pixel per detik
+const SHOT_COOLDOWN = 260;           // jeda tembak pemain (ms)
+const MAX_PLAYER_SHOTS = 2;
+
+const INVASION_LINE = PLAYER_Y + PLAYER_H;  // alien menyentuh garis ini = kalah
+
+/* ---------- Sprite pixel-art orisinal (2 frame animasi) ---------- */
+const SPRITES = {
+  a:[[ "..X..X..",".XXXXXX.","XX.XX.XX","XXXXXXXX",".XXXXXX.","X.XXXX.X","X......X",".X....X." ],
+     [ "..X..X..",".XXXXXX.","XX.XX.XX","XXXXXXXX",".XXXXXX.",".X.XX.X.","..X..X..","X.X..X.X" ]],
+  b:[[ "X..XX..X",".XXXXXX.","XX.XX.XX","XXXXXXXX","..XXXX..",".X.XX.X.","X.X..X.X","..X..X.." ],
+     [ "X..XX..X",".XXXXXX.","XX.XX.XX","XXXXXXXX","..XXXX..","X.X..X.X",".X....X.","X......X" ]],
+  c:[[ "...XX...","..XXXX..",".XXXXXX.","XX.XX.XX","XXXXXXXX","..XXXX..",".X.XX.X.","X......X" ],
+     [ "...XX...","..XXXX..",".XXXXXX.","XX.XX.XX","XXXXXXXX","..XXXX..","X.X..X.X",".X....X." ]]
+};
+const SHIP = [
+  "....X....","...XXX...","...XXX...",".XXXXXXX.","XXXXXXXXX","XXXXXXXXX","XX.XXX.XX"
+];
+
+/* Konfigurasi tiap baris: sprite, warna, dan nilai poin.
+   Baris paling atas paling sulit dijangkau, jadi nilainya paling tinggi. */
+const ROW_CONF = [
+  { s:"a", color:"#5ef08a", points:50 },
+  { s:"b", color:"#8bf3ab", points:30 },
+  { s:"b", color:"#8bf3ab", points:20 },
+  { s:"c", color:"#d7fbe4", points:10 },
+  { s:"c", color:"#d7fbe4", points:10 }
+];
+
+/* ============================================================
+   2. STATE PERMAINAN
+   ============================================================ */
+let state = "start";   // start | playing | paused | levelclear | gameover | win
+let score = 0, lives = 3, level = 1;
+let player, aliens = [], pShots = [], eShots = [], particles = [], stars = [];
+let swarm = { dir:1, timer:0, interval:600, fireTimer:0, fireInterval:1200, frame:0 };
+let shakeTime = 0, flashTime = 0, levelClearTimer = 0;
+let soundOn = true;
+
+const keys = Object.create(null);
+const touch = { left:false, right:false, fire:false };
+
+/* ---------- Bintang latar (dibuat sekali, bergerak pelan) ---------- */
+function makeStars(){
+  stars = [];
+  for(let i=0;i<110;i++){
+    stars.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()<0.82 ? 1 : 2,
+      sp:8 + Math.random()*26,
+      a:0.25 + Math.random()*0.65
+    });
+  }
+}
+
+/* ============================================================
+   3. MEMBANGUN LEVEL
+   ============================================================ */
+function buildWave(){
+  aliens = [];
+  const totalW = (COLS-1)*GAP_X + ALIEN_W;
+  const startX = (W - totalW)/2;
+  const startY = 108;
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      aliens.push({
+        x:startX + c*GAP_X,
+        y:startY + r*GAP_Y,
+        col:c, row:r,
+        alive:true,
+        conf:ROW_CONF[r]
+      });
+    }
+  }
+  // Sistem level: makin tinggi level, formasi melangkah lebih cepat
+  // dan alien menembak lebih sering.
+  swarm.dir = 1;
+  swarm.timer = 0;
+  swarm.frame = 0;
+  swarm.interval     = Math.max(150, 620 - (level-1)*80);
+  swarm.fireInterval = Math.max(320, 1350 - (level-1)*190);
+  swarm.fireTimer    = swarm.fireInterval * 0.6;
+  pShots = []; eShots = []; particles = [];
+}
+
+function resetPlayer(){
+  player = {
+    x:(W - PLAYER_W)/2, y:PLAYER_Y,
+    w:PLAYER_W, h:PLAYER_H,
+    cool:0, invul:0
+  };
+}
+
+function startGame(){
+  score = 0; lives = 3; level = 1;
+  resetPlayer(); buildWave(); syncHUD();
+  hideOverlay(); state = "playing";
+}
+
+function nextLevel(){
+  level++;
+  if(level > MAX_LEVEL){ state = "win"; showWin(); return; }
+  resetPlayer(); buildWave(); syncHUD();
+  hideOverlay(); state = "playing";
+}
+
+/* ============================================================
+   4. INPUT
+   ============================================================ */
+addEventListener("keydown", e=>{
+  const k = e.key.toLowerCase();
+  if([" ","arrowleft","arrowright","arrowup","arrowdown"].includes(k)) e.preventDefault();
+  keys[k] = true;
+  if(k === "p" && (state === "playing" || state === "paused")) togglePause();
+  if(k === "r") restart();
+  if(k === "enter" || k === " "){
+    if(state === "start")      startGame();
+    else if(state === "levelclear") nextLevel();
+    else if(state === "gameover" || state === "win") restart();
+  }
+});
+addEventListener("keyup", e=>{ keys[e.key.toLowerCase()] = false; });
+addEventListener("blur", ()=>{ for(const k in keys) keys[k] = false; });
+
+function bindTouch(id, prop){
+  const el = document.getElementById(id);
+  const on  = e=>{ e.preventDefault(); touch[prop] = true; unlockAudio(); };
+  const off = e=>{ e.preventDefault(); touch[prop] = false; };
+  el.addEventListener("pointerdown", on);
+  el.addEventListener("pointerup", off);
+  el.addEventListener("pointerleave", off);
+  el.addEventListener("pointercancel", off);
+}
+bindTouch("t-left","left"); bindTouch("t-right","right"); bindTouch("t-fire","fire");
+
+document.getElementById("btn-restart").addEventListener("click", restart);
+document.getElementById("btn-sound").addEventListener("click", e=>{
+  soundOn = !soundOn;
+  e.currentTarget.setAttribute("aria-pressed", String(soundOn));
+  e.currentTarget.textContent = "Suara: " + (soundOn ? "Nyala" : "Mati");
+});
+document.getElementById("ov-btn").addEventListener("click", ()=>{
+  unlockAudio();
+  if(state === "start")            startGame();
+  else if(state === "levelclear")  nextLevel();
+  else                             restart();
+});
+
+function restart(){ startGame(); }
+
+function togglePause(){
+  if(state === "playing"){
+    state = "paused";
+    showOverlay({ title:"JEDA", cls:"", text:"Permainan dihentikan sementara.", btn:"LANJUTKAN", note:"Tekan P untuk melanjutkan." });
+  } else if(state === "paused"){
+    hideOverlay(); state = "playing";
+  }
+}
+
+/* ============================================================
+   5. SUARA (WebAudio, tanpa file eksternal)
+   ============================================================ */
+let actx = null;
+function unlockAudio(){
+  if(!actx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(AC) actx = new AC();
+  }
+  if(actx && actx.state === "suspended") actx.resume();
+}
+function beep(freq, dur, type, vol){
+  if(!soundOn || !actx) return;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type || "square";
+  o.frequency.setValueAtTime(freq, actx.currentTime);
+  g.gain.setValueAtTime(vol || 0.05, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+  o.connect(g); g.connect(actx.destination);
+  o.start(); o.stop(actx.currentTime + dur);
+}
+addEventListener("keydown", unlockAudio, { once:true });
+addEventListener("pointerdown", unlockAudio, { once:true });
+
+/* ============================================================
+   6. LOGIKA UTAMA — UPDATE
+   ============================================================ */
+function aliveAliens(){ return aliens.filter(a=>a.alive); }
+
+/* --- Gerakan formasi alien: melangkah menyamping; bila salah satu
+       ujung menyentuh tepi layar, seluruh formasi turun satu baris
+       lalu berbalik arah. --- */
+function stepSwarm(){
+  const alive = aliveAliens();
+  if(!alive.length) return;
+  let minX = Infinity, maxX = -Infinity;
+  for(const a of alive){
+    if(a.x < minX) minX = a.x;
+    if(a.x + ALIEN_W > maxX) maxX = a.x + ALIEN_W;
+  }
+  const nextL = minX + swarm.dir*STEP_X;
+  const nextR = maxX + swarm.dir*STEP_X;
+
+  if(nextL < MARGIN || nextR > W - MARGIN){
+    swarm.dir *= -1;
+    for(const a of alive) a.y += STEP_DOWN;
+  } else {
+    for(const a of alive) a.x += swarm.dir*STEP_X;
+  }
+  swarm.frame ^= 1;
+  beep(alive.length > 20 ? 95 : 135, 0.05, "square", 0.028);
+}
+
+/* --- Alien menembak: pilih kolom acak yang masih punya alien,
+       yang menembak adalah alien paling bawah di kolom itu. --- */
+function alienFire(){
+  const alive = aliveAliens();
+  if(!alive.length) return;
+  const cols = [...new Set(alive.map(a=>a.col))];
+  const col  = cols[Math.floor(Math.random()*cols.length)];
+  let shooter = null;
+  for(const a of alive) if(a.col === col && (!shooter || a.y > shooter.y)) shooter = a;
+  if(!shooter) return;
+  eShots.push({ x:shooter.x + ALIEN_W/2 - 2, y:shooter.y + ALIEN_H, w:4, h:12, vy:210 + level*26 });
+  beep(220, 0.09, "sawtooth", 0.03);
+}
+
+function firePlayer(){
+  if(player.cool > 0 || pShots.length >= MAX_PLAYER_SHOTS) return;
+  pShots.push({ x:player.x + player.w/2 - 2, y:player.y - 10, w:4, h:14, vy:-560 });
+  player.cool = SHOT_COOLDOWN;
+  beep(880, 0.07, "square", 0.035);
+}
+
+function hit(a, b){
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function burst(x, y, color, n){
+  for(let i=0;i<n;i++){
+    const ang = Math.random()*Math.PI*2, sp = 40 + Math.random()*190;
+    particles.push({ x, y, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp,
+                     life:0.42 + Math.random()*0.34, max:0.76, color, s:2 + Math.random()*2 });
+  }
+}
+
+function playerHit(){
+  if(player.invul > 0) return;
+  lives--;
+  burst(player.x + player.w/2, player.y + player.h/2, "#3ee6f5", 34);
+  beep(120, 0.35, "sawtooth", 0.06);
+  shakeTime = 0.35; flashTime = 0.22;
+  syncHUD();
+  if(lives <= 0){ state = "gameover"; showGameOver(); }
+  else { player.invul = 1.6; player.x = (W - PLAYER_W)/2; eShots = []; }
+}
+
+function update(dt){
+  // Bintang latar terus bergerak walau permainan belum dimulai
+  for(const s of stars){
+    s.y += s.sp * dt;
+    if(s.y > H){ s.y = -2; s.x = Math.random()*W; }
+  }
+  if(shakeTime > 0) shakeTime -= dt;
+  if(flashTime > 0) flashTime -= dt;
+
+  // Partikel ledakan hidup di semua state agar animasi selesai mulus
+  for(let i=particles.length-1;i>=0;i--){
+    const p = particles[i];
+    p.x += p.vx*dt; p.y += p.vy*dt; p.vy += 210*dt; p.life -= dt;
+    if(p.life <= 0) particles.splice(i,1);
+  }
+
+  if(state === "levelclear"){
+    levelClearTimer -= dt;
+    return;
+  }
+  if(state !== "playing") return;
+
+  /* --- Pemain --- */
+  const left  = keys["arrowleft"]  || keys["a"] || touch.left;
+  const right = keys["arrowright"] || keys["d"] || touch.right;
+  if(left)  player.x -= PLAYER_SPEED*dt;
+  if(right) player.x += PLAYER_SPEED*dt;
+  player.x = Math.max(MARGIN, Math.min(W - MARGIN - player.w, player.x));
+
+  if(player.cool > 0)  player.cool  -= dt*1000;
+  if(player.invul > 0) player.invul -= dt;
+  if(keys[" "] || touch.fire) firePlayer();
+
+  /* --- Formasi alien: makin sedikit alien, makin cepat langkahnya --- */
+  const alive = aliveAliens();
+  const ratio = alive.length / (COLS*ROWS);
+  const interval = Math.max(85, swarm.interval * (0.22 + 0.78*ratio));
+  swarm.timer += dt*1000;
+  if(swarm.timer >= interval){ swarm.timer = 0; stepSwarm(); }
+
+  swarm.fireTimer -= dt*1000;
+  if(swarm.fireTimer <= 0){
+    alienFire();
+    swarm.fireTimer = swarm.fireInterval * (0.55 + Math.random()*0.9);
+  }
+
+  /* --- Peluru pemain + deteksi tabrakan dengan alien --- */
+  for(let i=pShots.length-1;i>=0;i--){
+    const s = pShots[i];
+    s.y += s.vy*dt;
+    if(s.y + s.h < 0){ pShots.splice(i,1); continue; }
+    for(const a of aliens){
+      if(!a.alive) continue;
+      if(hit(s, { x:a.x, y:a.y, w:ALIEN_W, h:ALIEN_H })){
+        a.alive = false;
+        score += a.conf.points;
+        burst(a.x + ALIEN_W/2, a.y + ALIEN_H/2, a.conf.color, 16);
+        beep(420, 0.1, "triangle", 0.045);
+        pShots.splice(i,1);
+        syncHUD();
+        break;
+      }
+    }
+  }
+
+  /* --- Peluru alien + deteksi tabrakan dengan kapal --- */
+  for(let i=eShots.length-1;i>=0;i--){
+    const s = eShots[i];
+    s.y += s.vy*dt;
+    if(s.y > H){ eShots.splice(i,1); continue; }
+    if(player.invul <= 0 && hit(s, player)){
+      eShots.splice(i,1);
+      playerHit();
+      if(state !== "playing") return;
+    }
+  }
+
+  /* --- Kalah bila alien mencapai garis kapal --- */
+  for(const a of aliveAliens()){
+    if(a.y + ALIEN_H >= INVASION_LINE){
+      lives = 0; syncHUD();
+      burst(player.x + player.w/2, player.y + player.h/2, "#ff4b5c", 40);
+      shakeTime = 0.5;
+      state = "gameover"; showGameOver(true);
+      return;
+    }
+  }
+
+  /* --- Menang gelombang --- */
+  if(aliveAliens().length === 0){
+    score += 100;                 // bonus menyelesaikan gelombang
+    syncHUD();
+    beep(660, 0.14, "triangle", 0.05);
+    if(level >= MAX_LEVEL){ state = "win"; showWin(); }
+    else { state = "levelclear"; levelClearTimer = 0.6; showLevelClear(); }
+  }
+}
+
+/* ============================================================
+   7. GAMBAR
+   ============================================================ */
+function drawSprite(rows, x, y, px, color){
+  ctx.fillStyle = color;
+  for(let r=0;r<rows.length;r++){
+    const line = rows[r];
+    for(let c=0;c<line.length;c++){
+      if(line[c] === "X") ctx.fillRect(x + c*px, y + r*px, px, px);
+    }
+  }
+}
+
+function draw(){
+  ctx.save();
+  if(shakeTime > 0){
+    const m = shakeTime*14;
+    ctx.translate((Math.random()-0.5)*m, (Math.random()-0.5)*m);
+  }
+
+  // Latar + bintang
+  ctx.fillStyle = "#05070f";
+  ctx.fillRect(-20,-20,W+40,H+40);
+  for(const s of stars){
+    ctx.globalAlpha = s.a;
+    ctx.fillStyle = s.r > 1 ? "#9fb0ff" : "#e8edff";
+    ctx.fillRect(s.x|0, s.y|0, s.r, s.r);
+  }
+  ctx.globalAlpha = 1;
+
+  // Garis invasi (batas bawah yang harus dipertahankan)
+  ctx.strokeStyle = "rgba(255,75,92,.32)";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8,10]);
+  ctx.beginPath();
+  ctx.moveTo(0, INVASION_LINE + 4);
+  ctx.lineTo(W, INVASION_LINE + 4);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Alien
+  for(const a of aliens){
+    if(!a.alive) continue;
+    drawSprite(SPRITES[a.conf.s][swarm.frame], a.x, a.y, PX, a.conf.color);
+  }
+
+  // Peluru pemain (kuning) & peluru alien (merah)
+  ctx.fillStyle = "#ffe14d";
+  for(const s of pShots) ctx.fillRect(s.x, s.y, s.w, s.h);
+  ctx.fillStyle = "#ff4b5c";
+  for(const s of eShots) ctx.fillRect(s.x, s.y, s.w, s.h);
+
+  // Kapal pemain — berkedip saat kebal setelah tertembak
+  if(player && lives > 0){
+    const blink = player.invul > 0 && Math.floor(player.invul*12) % 2 === 0;
+    if(!blink) drawSprite(SHIP, player.x, player.y, PX, "#3ee6f5");
+  }
+
+  // Partikel ledakan
+  for(const p of particles){
+    ctx.globalAlpha = Math.max(0, p.life/p.max);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.s, p.s);
+  }
+  ctx.globalAlpha = 1;
+
+  // Kilat merah saat kapal tertembak
+  if(flashTime > 0){
+    ctx.fillStyle = "rgba(255,75,92," + (flashTime*1.6).toFixed(3) + ")";
+    ctx.fillRect(-20,-20,W+40,H+40);
+  }
+
+  ctx.restore();
+}
+
+/* ============================================================
+   8. HUD & OVERLAY
+   ============================================================ */
+const uiScore = document.getElementById("ui-score");
+const uiLives = document.getElementById("ui-lives");
+const uiLevel = document.getElementById("ui-level");
+const overlay = document.getElementById("overlay");
+const ovTitle = document.getElementById("ov-title");
+const ovText  = document.getElementById("ov-text");
+const ovKeys  = document.getElementById("ov-keys");
+const ovBtn   = document.getElementById("ov-btn");
+const ovNote  = document.getElementById("ov-note");
+
+function syncHUD(){
+  uiScore.textContent = String(score).padStart(5,"0");
+  uiLevel.textContent = Math.min(level, MAX_LEVEL) + " / " + MAX_LEVEL;
+  uiLives.innerHTML = "";
+  for(let i=0;i<3;i++){
+    const d = document.createElement("span");
+    d.className = "life" + (i < lives ? "" : " spent");
+    uiLives.appendChild(d);
+  }
+}
+
+function showOverlay(o){
+  ovTitle.textContent = o.title;
+  ovTitle.className = o.cls || "";
+  ovText.innerHTML = o.text;
+  ovBtn.textContent = o.btn;
+  ovBtn.className = "btn" + (o.alt ? " alt" : "");
+  ovKeys.hidden = !o.keys;
+  ovNote.innerHTML = o.note || "";
+  ovNote.hidden = !o.note;
+  overlay.hidden = false;
+  ovBtn.focus({ preventScroll:true });
+}
+function hideOverlay(){ overlay.hidden = true; }
+
+function showLevelClear(){
+  showOverlay({
+    title:"LEVEL " + level + " AMAN",
+    cls:"good",
+    text:'Gelombang dibersihkan. Bonus <span class="stat">+100</span><br>Skor sekarang <span class="stat">' + score + '</span>',
+    btn:"LEVEL " + (level+1),
+    alt:true,
+    note:"Gelombang berikutnya bergerak lebih cepat dan menembak lebih sering."
+  });
+}
+function showGameOver(byInvasion){
+  showOverlay({
+    title:"GAME OVER",
+    cls:"bad",
+    text:(byInvasion
+        ? "Armada asing berhasil menembus garis pertahanan."
+        : "Kapal penjaga terakhir hancur tertembak.") +
+      '<br><br>Skor akhir <span class="stat">' + score + '</span><br>Bertahan sampai level ' + Math.min(level,MAX_LEVEL) + " dari " + MAX_LEVEL,
+    btn:"MAIN LAGI",
+    note:"Tekan Spasi atau R untuk mengulang."
+  });
+}
+function showWin(){
+  showOverlay({
+    title:"GALAKSI AMAN",
+    cls:"good",
+    text:'Kelima gelombang berhasil dihancurkan. Orbit bersih kembali.<br><br>Skor akhir <span class="stat">' + score + '</span>',
+    btn:"MAIN LAGI",
+    alt:true,
+    note:"Tekan Spasi atau R untuk bermain dari level 1."
+  });
+}
+function showStart(){
+  showOverlay({
+    title:"SERBUAN GALAKSI",
+    text:"Armada asing turun dari orbit. Kamu satu-satunya kapal penjaga yang tersisa. Hancurkan seluruh formasi sebelum mereka menyentuh garis merah.",
+    btn:"MULAI",
+    keys:true,
+    note:"5 level · 3 nyawa · alien baris atas bernilai lebih besar"
+  });
+}
+
+/* ============================================================
+   9. LOOP UTAMA
+   ============================================================ */
+let last = performance.now();
+function loop(now){
+  let dt = (now - last)/1000;
+  last = now;
+  if(dt > 0.05) dt = 0.05;   // jaga stabilitas bila tab sempat tidak aktif
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* ---------- Inisialisasi ---------- */
+makeStars();
+resetPlayer();
+buildWave();
+syncHUD();
+showStart();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>

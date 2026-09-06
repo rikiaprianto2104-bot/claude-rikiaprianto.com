@@ -1,0 +1,1350 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Save the Rainbow Forest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#EDF5EE;
+    --bg-2:#E2EFE4;
+    --surface:#FFFFFF;
+    --surface-2:#F5FAF5;
+    --ink:#1E3328;
+    --ink-2:#4C6357;
+    --ink-3:#7A9184;
+    --line:#D2E4D6;
+    --hijau:#2E9E5B;
+    --hijau-lembut:#DCF2E3;
+    --biru:#2C9CD6;
+    --biru-lembut:#DAEEFA;
+    --kuning:#E8A50C;
+    --kuning-lembut:#FCEFCF;
+    --ungu:#7C5CF0;
+    --ungu-lembut:#E8E2FE;
+    --pink:#E0619B;
+    --pink-lembut:#FBE1EE;
+    --emas:#F2A81C;
+    --jingga:#E07A3F;
+    --shadow:0 6px 0 rgba(30,51,40,.08);
+    --shadow-lift:0 10px 24px rgba(30,51,40,.12);
+    --r-lg:26px;
+    --r-md:18px;
+    --r-sm:12px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#122019;
+      --bg-2:#0D1913;
+      --surface:#1C2F26;
+      --surface-2:#24392F;
+      --ink:#EAF7EE;
+      --ink-2:#AECBBB;
+      --ink-3:#7E9C8B;
+      --line:#31503F;
+      --hijau:#54D48D;
+      --hijau-lembut:#1E4130;
+      --biru:#63C6F2;
+      --biru-lembut:#173C4E;
+      --kuning:#FFC64A;
+      --kuning-lembut:#453416;
+      --ungu:#B7A0FF;
+      --ungu-lembut:#2E2551;
+      --pink:#FF9CC8;
+      --pink-lembut:#48213A;
+      --emas:#FFC64A;
+      --jingga:#F0996A;
+      --shadow:0 6px 0 rgba(0,0,0,.28);
+      --shadow-lift:0 10px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#122019;
+    --bg-2:#0D1913;
+    --surface:#1C2F26;
+    --surface-2:#24392F;
+    --ink:#EAF7EE;
+    --ink-2:#AECBBB;
+    --ink-3:#7E9C8B;
+    --line:#31503F;
+    --hijau:#54D48D;
+    --hijau-lembut:#1E4130;
+    --biru:#63C6F2;
+    --biru-lembut:#173C4E;
+    --kuning:#FFC64A;
+    --kuning-lembut:#453416;
+    --ungu:#B7A0FF;
+    --ungu-lembut:#2E2551;
+    --pink:#FF9CC8;
+    --pink-lembut:#48213A;
+    --emas:#FFC64A;
+    --jingga:#F0996A;
+    --shadow:0 6px 0 rgba(0,0,0,.28);
+    --shadow-lift:0 10px 24px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Nunito","Segoe UI",system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    -webkit-text-size-adjust:100%;
+  }
+  h1,h2,h3,h4,.font-display{font-family:"Fredoka","Nunito",system-ui,sans-serif;font-weight:600;text-wrap:balance;letter-spacing:-.01em}
+  h1{font-size:clamp(2rem,6vw,3.1rem);line-height:1.1;margin:0}
+  h2{font-size:clamp(1.4rem,4vw,2rem);line-height:1.2;margin:0}
+  h3{font-size:1.18rem;margin:0}
+  p{margin:0}
+  button{font-family:inherit;font-size:inherit;cursor:pointer}
+  :focus-visible{outline:3px solid var(--ungu);outline-offset:3px;border-radius:8px}
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:color-mix(in srgb,var(--surface) 92%,transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:2px solid var(--line);
+  }
+  .topbar-in{
+    max-width:1000px;margin:0 auto;padding:10px 16px;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-family:"Fredoka",sans-serif;font-weight:600;font-size:1.02rem;color:var(--ink);white-space:nowrap}
+  .brand .dots{display:flex;gap:3px}
+  .brand .dots i{width:9px;height:9px;border-radius:50%;display:block}
+  .navwrap{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  nav.menu{display:flex;gap:4px;background:var(--surface-2);border:2px solid var(--line);border-radius:999px;padding:4px}
+  nav.menu button{
+    border:0;background:transparent;color:var(--ink-2);
+    font-family:"Fredoka",sans-serif;font-weight:500;font-size:.93rem;
+    padding:7px 13px;border-radius:999px;line-height:1.1;
+  }
+  nav.menu button:hover{background:var(--bg-2);color:var(--ink)}
+  nav.menu button[aria-current="page"]{background:var(--hijau);color:#fff}
+  :root[data-theme="dark"] nav.menu button[aria-current="page"],
+  :root:not([data-theme="light"]) nav.menu button[aria-current="page"]{color:#0D1913}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]) nav.menu button[aria-current="page"]{color:#fff}}
+
+  .starbar{
+    display:flex;align-items:center;gap:7px;
+    background:var(--kuning-lembut);border:2px solid var(--kuning);
+    border-radius:999px;padding:5px 13px 5px 10px;
+    font-family:"Fredoka",sans-serif;font-weight:600;color:var(--ink);white-space:nowrap;
+  }
+  .starbar .slots{display:flex;gap:2px}
+  .starbar .slots span{font-size:1rem;line-height:1;filter:grayscale(1);opacity:.35}
+  .starbar .slots span.on{filter:none;opacity:1;animation:pop .45s ease}
+  @keyframes pop{0%{transform:scale(.4) rotate(-25deg)}70%{transform:scale(1.35) rotate(8deg)}100%{transform:scale(1)}}
+
+  /* ---------- Layout ---------- */
+  main{max-width:1000px;margin:0 auto;padding:22px 16px 70px}
+  .card{
+    background:var(--surface);border:2px solid var(--line);
+    border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow);
+  }
+  .stack{display:flex;flex-direction:column;gap:18px}
+  .lead{color:var(--ink-2);font-size:1.05rem}
+  .eyebrow{
+    font-family:"Fredoka",sans-serif;font-weight:500;font-size:.78rem;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-family:"Fredoka",sans-serif;font-weight:600;
+    border-radius:999px;border:2px solid transparent;
+    padding:14px 24px;min-height:52px;text-align:center;line-height:1.15;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{transform:translateY(2px)}
+  .btn-primary{background:var(--hijau);color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.16)}
+  :root[data-theme="dark"] .btn-primary{color:#0D1913}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn-primary{color:#0D1913}}
+  .btn-big{font-size:1.2rem;padding:18px 34px;min-height:62px}
+  .btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line);box-shadow:var(--shadow)}
+  .btn-ghost:hover{border-color:var(--hijau)}
+  .btn-ungu{background:var(--ungu);color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.16)}
+  :root[data-theme="dark"] .btn-ungu{color:#160F32}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn-ungu{color:#160F32}}
+  .btn-row{display:flex;flex-wrap:wrap;gap:12px}
+  .btn-link{background:none;border:0;color:var(--ink-3);text-decoration:underline;padding:8px 2px;font-family:"Nunito",sans-serif;font-weight:600;font-size:.95rem}
+  .btn-link:hover{color:var(--ink)}
+
+  /* ---------- Beranda ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    background:linear-gradient(170deg,var(--surface) 0%,var(--surface-2) 100%);
+    border:2px solid var(--line);border-radius:var(--r-lg);
+    padding:26px;box-shadow:var(--shadow-lift);
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:center}
+  @media (max-width:760px){.hero-grid{grid-template-columns:1fr;gap:20px}}
+  .tag{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--ungu-lembut);color:var(--ungu);
+    border-radius:999px;padding:6px 14px;
+    font-family:"Fredoka",sans-serif;font-weight:600;font-size:.83rem;letter-spacing:.02em;
+  }
+  .rainbow-rule{height:7px;border-radius:99px;background:linear-gradient(90deg,var(--pink),var(--jingga),var(--kuning),var(--hijau),var(--biru),var(--ungu));}
+  .cast{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .cast-chip{
+    display:flex;align-items:center;gap:8px;
+    background:var(--surface-2);border:2px solid var(--line);border-radius:999px;
+    padding:5px 13px 5px 6px;font-weight:700;font-size:.9rem;color:var(--ink-2);
+  }
+  .cast-chip svg{width:30px;height:30px;flex:none}
+  .maker-note{
+    display:flex;align-items:center;gap:10px;color:var(--ink-3);font-size:.9rem;font-weight:600;
+  }
+
+  /* ---------- Peta ---------- */
+  .peta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media (max-width:760px){.peta{grid-template-columns:repeat(2,1fr)}}
+  .lokasi{
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;
+    background:var(--surface-2);border:2px solid var(--line);border-radius:var(--r-md);
+    padding:14px 10px;text-align:center;
+    filter:grayscale(.9);opacity:.72;transition:filter .6s ease,opacity .6s ease,transform .2s ease,border-color .3s ease;
+  }
+  .lokasi.hidup{filter:none;opacity:1;border-color:var(--hijau);background:var(--hijau-lembut)}
+  .lokasi.aktif{filter:none;opacity:1;border-color:var(--ungu);border-style:dashed;background:var(--ungu-lembut)}
+  .lokasi svg{width:100%;height:auto;max-width:110px}
+  .lokasi .nama{font-family:"Fredoka",sans-serif;font-weight:600;font-size:.95rem;line-height:1.15}
+  .lokasi .status{font-size:.76rem;font-weight:700;color:var(--ink-3);letter-spacing:.02em}
+  .lokasi .no{
+    position:absolute;top:-11px;left:-11px;width:30px;height:30px;border-radius:50%;
+    background:var(--surface);border:2px solid var(--line);
+    display:grid;place-items:center;font-family:"Fredoka",sans-serif;font-weight:600;font-size:.85rem;
+  }
+  .lokasi.hidup .no{background:var(--hijau);color:#fff;border-color:var(--hijau)}
+  :root[data-theme="dark"] .lokasi.hidup .no{color:#0D1913}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .lokasi.hidup .no{color:#0D1913}}
+
+  /* ---------- Misi ---------- */
+  .misi-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .misi-head .karakter{width:64px;height:64px;flex:none}
+  .progress{height:14px;background:var(--bg-2);border:2px solid var(--line);border-radius:99px;overflow:hidden}
+  .progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--hijau),var(--biru),var(--ungu));transition:width .5s ease}
+  .benda{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    background:var(--surface-2);border:2px dashed var(--line);border-radius:var(--r-md);
+    padding:20px;text-align:center;
+  }
+  .benda .emoji{font-size:3.4rem;line-height:1;animation:goyang 3s ease-in-out infinite}
+  @keyframes goyang{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  .pilihan{display:grid;gap:12px}
+  .pilihan.tiga{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:700px){.pilihan.tiga{grid-template-columns:1fr}}
+  .opsi{
+    display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+    background:var(--surface);border:2px solid var(--line);border-radius:var(--r-md);
+    padding:16px;min-height:64px;color:var(--ink);font-weight:700;line-height:1.35;
+    box-shadow:var(--shadow);transition:transform .12s ease,border-color .15s ease,background .15s ease;
+  }
+  .opsi:hover:not(:disabled){border-color:var(--ungu);background:var(--surface-2)}
+  .opsi:active:not(:disabled){transform:translateY(2px)}
+  .opsi:disabled{opacity:.5;cursor:not-allowed}
+  .opsi .ikon{font-size:1.9rem;line-height:1;flex:none}
+  .opsi.kategori{flex-direction:column;text-align:center;justify-content:center;gap:8px;min-height:112px}
+  .opsi.kategori .ikon{font-size:2.3rem}
+  .opsi.benar{border-color:var(--hijau);background:var(--hijau-lembut)}
+  .opsi.kurang{border-color:var(--kuning);background:var(--kuning-lembut)}
+
+  .umpan{
+    border-radius:var(--r-md);padding:18px;border:2px solid var(--line);background:var(--surface-2);
+    display:flex;flex-direction:column;gap:10px;animation:masuk .35s ease;
+  }
+  @keyframes masuk{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .umpan.baik{border-color:var(--hijau);background:var(--hijau-lembut)}
+  .umpan.belajar{border-color:var(--kuning);background:var(--kuning-lembut)}
+  .umpan h3{display:flex;align-items:center;gap:9px}
+  .catatan{
+    display:flex;gap:10px;align-items:flex-start;
+    background:var(--biru-lembut);border:2px solid var(--biru);border-radius:var(--r-md);
+    padding:14px;font-size:.94rem;color:var(--ink);
+  }
+  .catatan b{color:var(--ink)}
+
+  /* ---------- Bintang & koleksi ---------- */
+  .bintang-besar{font-size:2.6rem;line-height:1;letter-spacing:4px}
+  .bintang-besar span{display:inline-block;filter:grayscale(1);opacity:.3}
+  .bintang-besar span.on{filter:none;opacity:1;animation:kelip 2.4s ease-in-out infinite}
+  .bintang-besar span.on:nth-child(2){animation-delay:.3s}
+  .bintang-besar span.on:nth-child(3){animation-delay:.6s}
+  .bintang-besar span.on:nth-child(4){animation-delay:.9s}
+  @keyframes kelip{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+  .koleksi-list{display:grid;gap:14px}
+  .koleksi-item{
+    display:grid;grid-template-columns:76px 1fr;gap:14px;align-items:center;
+    background:var(--surface-2);border:2px solid var(--line);border-radius:var(--r-md);padding:14px;
+  }
+  @media (max-width:520px){.koleksi-item{grid-template-columns:56px 1fr;gap:10px}}
+  .koleksi-item svg{width:100%;height:auto;filter:grayscale(.9);opacity:.7}
+  .koleksi-item.selesai{border-color:var(--hijau)}
+  .koleksi-item.selesai svg{filter:none;opacity:1}
+  .chip{
+    display:inline-block;border-radius:999px;padding:3px 11px;
+    font-size:.78rem;font-weight:800;letter-spacing:.02em;
+    background:var(--bg-2);color:var(--ink-2);border:2px solid var(--line);
+  }
+  .chip.selesai{background:var(--hijau-lembut);color:var(--hijau);border-color:var(--hijau)}
+  .chip.proses{background:var(--ungu-lembut);color:var(--ungu);border-color:var(--ungu)}
+  .fakta{font-size:.94rem;color:var(--ink-2)}
+
+  /* ---------- Ending ---------- */
+  .ending-hero{
+    text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;
+    background:linear-gradient(175deg,var(--surface),var(--surface-2));
+  }
+  .pesan-moral{
+    font-family:"Fredoka",sans-serif;font-weight:500;font-size:1.15rem;line-height:1.4;
+    background:var(--ungu-lembut);color:var(--ink);border:2px solid var(--ungu);
+    border-radius:var(--r-md);padding:16px 20px;max-width:34rem;
+  }
+
+  /* ---------- Sertifikat ---------- */
+  .sertifikat{
+    background:var(--surface);
+    border:4px double var(--emas);
+    border-radius:var(--r-lg);
+    padding:30px 24px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    position:relative;overflow:hidden;
+  }
+  .sertifikat::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle at 12% 10%,color-mix(in srgb,var(--kuning) 18%,transparent),transparent 42%),
+               radial-gradient(circle at 88% 88%,color-mix(in srgb,var(--ungu) 16%,transparent),transparent 42%);
+  }
+  .sertifikat > *{position:relative}
+  .sertifikat .judul{font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(1.5rem,5vw,2.2rem);color:var(--ink)}
+  .sertifikat .isi{max-width:36rem;color:var(--ink-2);font-size:1.02rem}
+  .sertifikat .meta{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:center;font-size:.9rem;color:var(--ink-3);font-weight:700}
+  .penerima{font-family:"Fredoka",sans-serif;font-weight:600;font-size:clamp(1.3rem,4vw,1.8rem);color:var(--hijau)}
+
+  /* ---------- Tentang ---------- */
+  .dua-kolom{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.dua-kolom{grid-template-columns:1fr}}
+  .info-blok{background:var(--surface-2);border:2px solid var(--line);border-radius:var(--r-md);padding:18px}
+  .info-blok h3{margin-bottom:8px}
+  ul.rapi{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--ink-2)}
+  .prompt-box{
+    background:var(--bg-2);border-left:5px solid var(--ungu);border-radius:var(--r-sm);
+    padding:13px 15px;font-style:italic;color:var(--ink-2);
+  }
+  .dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.97rem}
+  .dl dt{font-weight:800;color:var(--ink-3)}
+  .dl dd{margin:0;color:var(--ink-2)}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  }
+
+  /* ---------- Cetak ---------- */
+  @media print{
+    body{background:#fff;color:#111}
+    .topbar,.no-print{display:none!important}
+    main{padding:0;max-width:none}
+    .sertifikat{border:4px double #C58A0B;box-shadow:none;page-break-inside:avoid}
+    .sertifikat .judul,.sertifikat .isi,.sertifikat .meta,.penerima{color:#111!important}
+    .penerima{color:#1B7A45!important}
+  }
+</style>
+
+<header class="topbar no-print">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="dots" aria-hidden="true">
+        <i style="background:var(--pink)"></i><i style="background:var(--kuning)"></i><i style="background:var(--hijau)"></i><i style="background:var(--biru)"></i>
+      </span>
+      Hutan Pelangi
+    </div>
+    <div class="navwrap">
+      <div class="starbar" title="Bintang Penjaga Hutan">
+        <span aria-hidden="true">⭐</span>
+        <span id="star-teks">0/4</span>
+        <span class="slots" id="star-slots" aria-hidden="true"></span>
+      </div>
+      <nav class="menu" id="menu" aria-label="Menu utama">
+        <button data-act="nav" data-val="beranda">Beranda</button>
+        <button data-act="nav" data-val="main">Bermain</button>
+        <button data-act="nav" data-val="koleksi">Koleksi Bintang</button>
+        <button data-act="nav" data-val="tentang">Tentang Proyek</button>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     ILUSTRASI ORISINAL (SVG sederhana, dibuat sendiri)
+     ========================================================= */
+  var svgLumi = function(size){
+    size = size || 120;
+    return '<svg viewBox="0 0 100 120" width="'+size+'" role="img" aria-label="LUMI si peri penjaga hutan">'+
+      '<ellipse cx="26" cy="56" rx="18" ry="26" fill="#B7A0FF" opacity=".55" transform="rotate(-18 26 56)"/>'+
+      '<ellipse cx="74" cy="56" rx="18" ry="26" fill="#7FD8F5" opacity=".55" transform="rotate(18 74 56)"/>'+
+      '<path d="M50 58 L34 104 h32 Z" fill="#54C98D"/>'+
+      '<path d="M50 58 L42 104 h16 Z" fill="#8CE0B4" opacity=".8"/>'+
+      '<circle cx="50" cy="38" r="21" fill="#FFE0BC"/>'+
+      '<path d="M29 34 a21 21 0 0 1 42 0 q-21 -12 -42 0 Z" fill="#F2A81C"/>'+
+      '<circle cx="43" cy="39" r="2.8" fill="#2B3A31"/>'+
+      '<circle cx="57" cy="39" r="2.8" fill="#2B3A31"/>'+
+      '<path d="M44 47 q6 6 12 0" stroke="#2B3A31" stroke-width="2.6" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="36" cy="45" r="3.4" fill="#F79BC0" opacity=".7"/>'+
+      '<circle cx="64" cy="45" r="3.4" fill="#F79BC0" opacity=".7"/>'+
+      '<path d="M50 6 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 Z" fill="#F2A81C"/>'+
+      '<circle cx="18" cy="90" r="3" fill="#F2A81C" opacity=".8"/>'+
+      '<circle cx="84" cy="82" r="2.5" fill="#7FD8F5" opacity=".8"/>'+
+    '</svg>';
+  };
+
+  var svgKiki = function(size){
+    size = size || 60;
+    return '<svg viewBox="0 0 80 80" width="'+size+'" role="img" aria-label="Kiki si kelinci">'+
+      '<ellipse cx="28" cy="24" rx="8" ry="19" fill="#F3F0EA" stroke="#D6CFC4" stroke-width="2"/>'+
+      '<ellipse cx="52" cy="24" rx="8" ry="19" fill="#F3F0EA" stroke="#D6CFC4" stroke-width="2"/>'+
+      '<ellipse cx="28" cy="25" rx="3.5" ry="12" fill="#F7B7CE"/>'+
+      '<ellipse cx="52" cy="25" rx="3.5" ry="12" fill="#F7B7CE"/>'+
+      '<circle cx="40" cy="52" r="22" fill="#F7F4EE" stroke="#D6CFC4" stroke-width="2"/>'+
+      '<circle cx="32" cy="49" r="3" fill="#3A3A3A"/>'+
+      '<circle cx="48" cy="49" r="3" fill="#3A3A3A"/>'+
+      '<path d="M40 56 l-4 3 4 3 4 -3 Z" fill="#F0819F"/>'+
+      '<path d="M33 63 q7 5 14 0" stroke="#3A3A3A" stroke-width="2" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="24" cy="58" r="4" fill="#F7B7CE" opacity=".7"/>'+
+      '<circle cx="56" cy="58" r="4" fill="#F7B7CE" opacity=".7"/>'+
+    '</svg>';
+  };
+
+  var svgBubu = function(size){
+    size = size || 60;
+    return '<svg viewBox="0 0 80 80" width="'+size+'" role="img" aria-label="Bubu si beruang">'+
+      '<circle cx="20" cy="26" r="11" fill="#B98551"/><circle cx="20" cy="26" r="5" fill="#E5C39B"/>'+
+      '<circle cx="60" cy="26" r="11" fill="#B98551"/><circle cx="60" cy="26" r="5" fill="#E5C39B"/>'+
+      '<circle cx="40" cy="45" r="25" fill="#C08F5C"/>'+
+      '<ellipse cx="40" cy="55" rx="14" ry="11" fill="#EBD3B4"/>'+
+      '<circle cx="31" cy="41" r="3.2" fill="#3A2A1C"/>'+
+      '<circle cx="49" cy="41" r="3.2" fill="#3A2A1C"/>'+
+      '<ellipse cx="40" cy="51" rx="5" ry="3.6" fill="#3A2A1C"/>'+
+      '<path d="M34 59 q6 5 12 0" stroke="#3A2A1C" stroke-width="2.2" fill="none" stroke-linecap="round"/>'+
+    '</svg>';
+  };
+
+  var svgTiko = function(size){
+    size = size || 60;
+    return '<svg viewBox="0 0 80 80" width="'+size+'" role="img" aria-label="Tiko si burung">'+
+      '<ellipse cx="42" cy="46" rx="24" ry="21" fill="#4FB6E8"/>'+
+      '<ellipse cx="46" cy="52" rx="15" ry="12" fill="#BEE9FA"/>'+
+      '<path d="M20 34 q-12 6 -6 18 q10 2 16 -8 Z" fill="#2E93C9"/>'+
+      '<circle cx="52" cy="38" r="10" fill="#59C1F0"/>'+
+      '<circle cx="55" cy="36" r="3" fill="#2B3A31"/>'+
+      '<circle cx="56.2" cy="35" r="1" fill="#fff"/>'+
+      '<path d="M62 40 l11 3 -11 4 Z" fill="#F2A81C"/>'+
+      '<path d="M48 28 q4 -8 10 -6" stroke="#2E93C9" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+      '<path d="M34 65 l-3 8 M46 66 l0 8" stroke="#F2A81C" stroke-width="3" stroke-linecap="round"/>'+
+    '</svg>';
+  };
+
+  /* Ilustrasi lokasi — 4 pemandangan sederhana */
+  var svgTaman = '<svg viewBox="0 0 120 90" role="img" aria-label="Taman Kelinci">'+
+    '<rect x="0" y="60" width="120" height="30" rx="8" fill="#7BC98F"/>'+
+    '<circle cx="26" cy="46" r="17" fill="#4FAE6E"/><rect x="23" y="56" width="6" height="14" fill="#8A6A44"/>'+
+    '<circle cx="92" cy="42" r="20" fill="#3F9C63"/><rect x="89" y="56" width="7" height="16" fill="#8A6A44"/>'+
+    '<circle cx="52" cy="70" r="4" fill="#F2A81C"/><circle cx="68" cy="74" r="4" fill="#EF7BAE"/><circle cx="60" cy="66" r="4" fill="#7C5CF0"/>'+
+    '<circle cx="18" cy="16" r="9" fill="#FFD466"/>'+
+  '</svg>';
+
+  var svgSungai = '<svg viewBox="0 0 120 90" role="img" aria-label="Sungai Berkilau">'+
+    '<rect x="0" y="58" width="120" height="32" rx="8" fill="#7BC98F"/>'+
+    '<path d="M0 34 q30 -12 60 0 t60 0 v30 q-30 12 -60 0 t-60 0 Z" fill="#4FB6E8"/>'+
+    '<path d="M10 44 q14 -6 28 0" stroke="#BEE9FA" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+    '<path d="M64 54 q14 -6 28 0" stroke="#BEE9FA" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+    '<circle cx="24" cy="20" r="10" fill="#4FAE6E"/><circle cx="98" cy="18" r="12" fill="#3F9C63"/>'+
+  '</svg>';
+
+  var svgPohon = '<svg viewBox="0 0 120 90" role="img" aria-label="Rumah Pohon">'+
+    '<rect x="0" y="66" width="120" height="24" rx="8" fill="#7BC98F"/>'+
+    '<rect x="54" y="34" width="12" height="34" fill="#8A6A44"/>'+
+    '<circle cx="60" cy="28" r="26" fill="#4FAE6E"/><circle cx="38" cy="36" r="15" fill="#3F9C63"/><circle cx="84" cy="36" r="14" fill="#5FBF7E"/>'+
+    '<rect x="44" y="40" width="32" height="22" rx="4" fill="#C08F5C"/>'+
+    '<rect x="55" y="48" width="10" height="14" rx="2" fill="#8A6A44"/>'+
+    '<path d="M40 40 l20 -12 20 12 Z" fill="#E07A3F"/>'+
+    '<circle cx="26" cy="76" r="4" fill="#EF7BAE"/><circle cx="96" cy="78" r="4" fill="#F2A81C"/>'+
+  '</svg>';
+
+  var svgBukit = '<svg viewBox="0 0 120 90" role="img" aria-label="Bukit Daur Ulang">'+
+    '<path d="M0 90 q30 -46 60 -20 q30 -34 60 20 Z" fill="#7BC98F"/>'+
+    '<path d="M14 30 a46 46 0 0 1 92 0" fill="none" stroke="#EF7BAE" stroke-width="6"/>'+
+    '<path d="M22 34 a38 38 0 0 1 76 0" fill="none" stroke="#F2A81C" stroke-width="6"/>'+
+    '<path d="M30 38 a30 30 0 0 1 60 0" fill="none" stroke="#4FB6E8" stroke-width="6"/>'+
+    '<rect x="46" y="60" width="28" height="22" rx="4" fill="#4FAE6E"/>'+
+    '<path d="M54 71 l6 -7 6 7" stroke="#EAF7EE" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+  '</svg>';
+
+  /* =========================================================
+     DATA MISI
+     ========================================================= */
+  var MISI = [
+    {
+      id:'taman',
+      nama:'Taman Kelinci',
+      gambar:svgTaman,
+      karakter:svgKiki,
+      tokoh:'Kiki si kelinci',
+      tipe:'pilah',
+      cerita:'Kiki si kelinci mau bermain lompat-lompat, tetapi tamannya penuh sampah. Ayo bantu Kiki memasukkan setiap benda ke tempat yang tepat.',
+      kategori:[
+        {kode:'organik', label:'Sampah organik', ikon:'🍃'},
+        {kode:'daur',    label:'Sampah daur ulang', ikon:'♻️'},
+        {kode:'residu',  label:'Sampah residu', ikon:'🗑️'}
+      ],
+      benda:[
+        {nama:'Kulit pisang', emoji:'🍌', jawab:'organik',
+         benar:'Tepat! Kulit pisang berasal dari tumbuhan. Di tempat sampah organik, kulit pisang bisa berubah menjadi kompos, yaitu makanan untuk tanah.',
+         salah:'Belum tepat, tidak apa-apa. Kulit pisang berasal dari tumbuhan dan mudah membusuk. Coba pilih tempat untuk sampah yang bisa membusuk.'},
+        {nama:'Botol plastik', emoji:'🧴', jawab:'daur',
+         benar:'Hebat! Botol plastik yang sudah kosong, bersih, dan kering biasanya dikumpulkan untuk didaur ulang menjadi barang baru.',
+         salah:'Hampir! Botol ini masih kuat dan bisa dipakai lagi menjadi barang baru. Coba pilih tempat untuk barang yang bisa diolah kembali.'},
+        {nama:'Tisu kotor', emoji:'🧻', jawab:'residu',
+         benar:'Betul! Tisu yang sudah kotor dan basah sulit didaur ulang, jadi tisu masuk ke sampah residu, yaitu sampah sisa.',
+         salah:'Coba lagi ya. Tisu ini sudah kotor sehingga sulit diolah kembali. Ia masuk ke tempat sampah sisa.'}
+      ],
+      fakta:'Sampah dipilah menjadi organik, daur ulang, dan residu. Aturan pemilahan bisa berbeda di setiap daerah, jadi tanyakan pada orang dewasa di rumahmu.',
+      selesaiTeks:'Taman Kelinci bersih kembali! Warna bunga-bunganya muncul lagi dan Kiki melompat kegirangan.',
+      catatan:'Tidak semua plastik bisa didaur ulang di setiap kota. Bertanyalah pada orang dewasa tentang aturan pemilahan sampah di daerahmu.'
+    },
+    {
+      id:'sungai',
+      nama:'Sungai Berkilau',
+      gambar:svgSungai,
+      karakter:svgBubu,
+      tokoh:'Bubu si beruang',
+      tipe:'pilihan',
+      cerita:'Bubu si beruang menemukan banyak sampah mengapung di Sungai Berkilau. Airnya jadi keruh dan ikan-ikan sulit bernapas. Apa yang sebaiknya kita lakukan?',
+      opsi:[
+        {ikon:'🧤', teks:'Ambil sampah memakai penjepit dan sarung tangan bersama orang dewasa, lalu buang ke tempat sampah yang sesuai', benar:true,
+         umpan:'Pilihan terbaik! Sampah benar-benar pergi dari sungai, dan kamu tetap aman karena memakai alat serta ditemani orang dewasa. Air sungai pelan-pelan menjadi jernih lagi.'},
+        {ikon:'🌊', teks:'Dorong sampahnya ke bagian sungai yang lain', benar:false,
+         umpan:'Ide yang menarik, tetapi sampahnya hanya berpindah tempat. Nanti sampah itu menumpuk di tempat lain atau terbawa sampai ke laut. Yuk, coba pilihan lain.'},
+        {ikon:'🙈', teks:'Biarkan saja karena sampah itu bukan milik kita', benar:false,
+         umpan:'Perasaanmu benar bahwa itu bukan sampahmu. Tetapi sungai adalah rumah bersama untuk ikan, burung, dan kita. Kalau dibiarkan, sungai jadi makin kotor. Yuk, coba pilihan lain.'}
+      ],
+      fakta:'Sampah yang dibiarkan di sungai bisa terbawa arus sampai ke laut dan membahayakan hewan air.',
+      selesaiTeks:'Sungai Berkilau kembali jernih! Airnya berkilau memantulkan warna pelangi dan Bubu bertepuk tangan.',
+      catatan:'Jangan mengambil sampah di air dengan tangan kosong. Selalu minta bantuan orang dewasa dan jangan menyentuh benda tajam, baterai, atau botol bahan kimia.'
+    },
+    {
+      id:'pohon',
+      nama:'Rumah Pohon',
+      gambar:svgPohon,
+      karakter:svgKiki,
+      tokoh:'Kiki si kelinci',
+      tipe:'pilihan',
+      cerita:'Kiki baru selesai menyiram bunga di depan rumah pohon. Tetapi kerannya masih terbuka dan airnya terus mengalir. Apa yang kita lakukan?',
+      opsi:[
+        {ikon:'🚿', teks:'Tutup keran karena airnya sudah selesai dipakai', benar:true,
+         umpan:'Tepat sekali! Air bersih itu berharga. Dengan menutup keran, air cukup untuk semua penghuni hutan. Bunga-bunga di sekitar rumah pohon langsung mekar berwarna.'},
+        {ikon:'💧', teks:'Biarkan air terus mengalir supaya tidak repot', benar:false,
+         umpan:'Terima kasih sudah memilih. Kalau air terus mengalir, air bersih terbuang padahal tidak dipakai. Yuk, coba pilihan lain.'},
+        {ikon:'🫧', teks:'Bermain air sampai airnya habis', benar:false,
+         umpan:'Bermain air memang seru! Tetapi kalau airnya habis, tumbuhan dan hewan hutan bisa kehausan. Kita bisa bermain air secukupnya saja. Yuk, coba pilihan lain.'}
+      ],
+      fakta:'Menutup keran saat tidak dipakai adalah cara paling mudah menghemat air, misalnya saat menggosok gigi atau menyabuni tangan.',
+      selesaiTeks:'Pohon dan bunga di sekitar rumah pohon kembali segar dan berwarna cerah.',
+      catatan:'Kalau keran rusak atau bocor, beri tahu orang dewasa agar bisa segera diperbaiki.'
+    },
+    {
+      id:'bukit',
+      nama:'Bukit Daur Ulang',
+      gambar:svgBukit,
+      karakter:svgTiko,
+      tokoh:'Tiko si burung',
+      tipe:'pilihan',
+      cerita:'Tiko si burung ingin membuat tempat makan burung dari barang yang sudah tidak dipakai. Bahan mana yang paling aman untuk dipakai kembali?',
+      opsi:[
+        {ikon:'🥤', teks:'Wadah bekas yang sudah dicuci bersih, dibuat bersama orang dewasa', benar:true,
+         umpan:'Pilihan yang aman! Wadah bekas yang bersih bisa dipakai lagi menjadi barang baru yang berguna. Ini namanya menggunakan kembali, atau reuse.'},
+        {ikon:'🔋', teks:'Baterai bekas', benar:false,
+         umpan:'Terima kasih sudah berpikir hemat. Tetapi baterai bekas berisi bahan kimia yang berbahaya dan tidak boleh dijadikan mainan. Baterai bekas diserahkan kepada orang dewasa untuk dibuang di tempat pengumpulan khusus. Yuk, coba pilihan lain.'},
+        {ikon:'🔪', teks:'Pecahan kaca', benar:false,
+         umpan:'Hati-hati ya. Pecahan kaca sangat tajam dan bisa melukai tangan. Pecahan kaca hanya boleh ditangani orang dewasa. Yuk, coba pilihan lain.'}
+      ],
+      fakta:'Reuse berarti memakai kembali barang yang masih bagus, misalnya kaleng bekas menjadi pot tanaman. Barang berbahaya seperti baterai punya tempat pembuangan khusus.',
+      selesaiTeks:'Bukit Daur Ulang bersinar dengan warna pelangi! Tiko menggantung tempat makan burung buatannya di dahan pohon.',
+      catatan:'Jangan pernah menyentuh pecahan kaca, baterai bocor, jarum, atau botol bahan kimia. Panggil orang dewasa.'
+    }
+  ];
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  var SIMPAN = 'hutanpelangi_v1';
+  var state;
+
+  function stateBaru(){
+    return {
+      halaman:'beranda',
+      adegan:'pembuka',
+      misiAktif:0,
+      tahap:'main',          /* 'main' | 'selesai' */
+      indeksBenda:0,
+      umpan:null,            /* {jenis:'baik'|'belajar', judul, teks} */
+      pilihanTerpilih:null,
+      endingDilihat:null,
+      misi:[0,1,2,3].map(function(){ return {status:'belum', sempurna:true, salah:0}; })
+    };
+  }
+
+  function muat(){
+    state = stateBaru();
+    try{
+      var mentah = localStorage.getItem(SIMPAN);
+      if(mentah){
+        var d = JSON.parse(mentah);
+        if(d && Array.isArray(d.misi) && d.misi.length === 4){
+          for(var i=0;i<4;i++){
+            var m = d.misi[i] || {};
+            state.misi[i] = {
+              status: (m.status==='selesai'||m.status==='proses') ? m.status : 'belum',
+              sempurna: m.sempurna !== false,
+              salah: typeof m.salah === 'number' ? m.salah : 0
+            };
+          }
+        }
+      }
+    }catch(e){ /* penyimpanan tidak tersedia, permainan tetap jalan */ }
+  }
+
+  function simpan(){
+    try{ localStorage.setItem(SIMPAN, JSON.stringify({misi:state.misi})); }catch(e){}
+  }
+
+  function jumlahBintang(){
+    var n = 0;
+    for(var i=0;i<4;i++){ if(state.misi[i].status === 'selesai') n++; }
+    return n;
+  }
+  function semuaSelesai(){ return jumlahBintang() === 4; }
+  function adaSalah(){
+    for(var i=0;i<4;i++){ if(state.misi[i].salah > 0) return true; }
+    return false;
+  }
+  function misiBerikutBelumSelesai(){
+    for(var i=0;i<4;i++){ if(state.misi[i].status !== 'selesai') return i; }
+    return -1;
+  }
+
+  /* =========================================================
+     UTIL
+     ========================================================= */
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+  function tanggalHariIni(){
+    try{
+      return new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    }catch(e){ return new Date().toDateString(); }
+  }
+  function statusLabel(s){
+    if(s==='selesai') return 'Selesai';
+    if(s==='proses') return 'Sedang dikerjakan';
+    return 'Belum dimulai';
+  }
+
+  /* =========================================================
+     KOMPONEN
+     ========================================================= */
+  function petaHTML(){
+    var h = '<div class="peta">';
+    for(var i=0;i<MISI.length;i++){
+      var m = MISI[i], st = state.misi[i];
+      var kelas = st.status === 'selesai' ? 'lokasi hidup'
+                : (state.halaman==='main' && state.adegan==='misi' && state.misiAktif===i) ? 'lokasi aktif'
+                : (st.status === 'proses' ? 'lokasi aktif' : 'lokasi');
+      h += '<div class="'+kelas+'">'+
+             '<span class="no">'+(i+1)+'</span>'+
+             m.gambar+
+             '<span class="nama">'+esc(m.nama)+'</span>'+
+             '<span class="status">'+(st.status==='selesai' ? '⭐ Berwarna lagi' : statusLabel(st.status))+'</span>'+
+           '</div>';
+    }
+    return h + '</div>';
+  }
+
+  function bintangBesarHTML(){
+    var n = jumlahBintang(), h = '<div class="bintang-besar" aria-hidden="true">';
+    for(var i=0;i<4;i++){ h += '<span class="'+(i<n?'on':'')+'">⭐</span>'; }
+    return h+'</div><p class="sr-only">'+n+' dari 4 Bintang Penjaga Hutan.</p>';
+  }
+
+  function perbaruiBintangBar(){
+    var n = jumlahBintang();
+    var teks = document.getElementById('star-teks');
+    var slots = document.getElementById('star-slots');
+    if(teks) teks.textContent = n + '/4';
+    if(slots){
+      var h = '';
+      for(var i=0;i<4;i++){ h += '<span class="'+(i<n?'on':'')+'">⭐</span>'; }
+      slots.innerHTML = h;
+    }
+    var tombol = document.querySelectorAll('#menu button');
+    for(var j=0;j<tombol.length;j++){
+      if(tombol[j].getAttribute('data-val') === state.halaman){ tombol[j].setAttribute('aria-current','page'); }
+      else { tombol[j].removeAttribute('aria-current'); }
+    }
+  }
+
+  /* =========================================================
+     HALAMAN: BERANDA
+     ========================================================= */
+  function viewBeranda(){
+    var lanjut = misiBerikutBelumSelesai();
+    var sudahMulai = jumlahBintang() > 0;
+    return '<div class="stack">'+
+      '<section class="hero">'+
+        '<div class="hero-grid">'+
+          '<div class="stack" style="gap:14px">'+
+            '<span class="tag">🎮 Interactive AI Story Game</span>'+
+            '<h1>Save the Rainbow Forest</h1>'+
+            '<div class="rainbow-rule"></div>'+
+            '<p class="lead"><b>Petualangan Menyelamatkan Hutan Pelangi</b></p>'+
+            '<p class="lead">Dahulu Hutan Pelangi penuh pohon berwarna-warni, sungai jernih, dan hewan-hewan yang gembira. Sekarang sampah mulai berserakan, air sungai keruh, dan warna pelanginya perlahan menghilang. LUMI si peri penjaga hutan meminta bantuanmu.</p>'+
+            '<div class="btn-row">'+
+              '<button class="btn btn-primary btn-big" data-act="mulai">'+(sudahMulai && lanjut>=0 ? '▶️ Lanjutkan Petualangan' : '🌈 Mulai Petualangan')+'</button>'+
+              '<button class="btn btn-ghost" data-act="nav" data-val="cara">📖 Cara Bermain</button>'+
+            '</div>'+
+            '<div class="maker-note"><span aria-hidden="true">👧</span><span>Dibuat oleh <b>Siswa Future Makers</b> · Tier 1 – AI Buddy Basics (usia 6–8 tahun)</span></div>'+
+          '</div>'+
+          '<div style="display:flex;flex-direction:column;align-items:center;gap:12px">'+
+            svgLumi(150)+
+            '<p style="text-align:center;font-family:Fredoka,sans-serif;font-weight:600">LUMI, peri penjaga hutan</p>'+
+            '<div class="cast">'+
+              '<span class="cast-chip">'+svgKiki(30)+' Kiki si kelinci</span>'+
+              '<span class="cast-chip">'+svgBubu(30)+' Bubu si beruang</span>'+
+              '<span class="cast-chip">'+svgTiko(30)+' Tiko si burung</span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</section>'+
+
+      '<section class="card">'+
+        '<h2>Empat tempat yang kehilangan warnanya</h2>'+
+        '<p class="lead" style="margin:8px 0 16px">Tempat yang belum diselamatkan tampak kusam. Setelah misinya selesai, warnanya kembali cerah.</p>'+
+        petaHTML()+
+      '</section>'+
+
+      '<section class="card">'+
+        '<span class="eyebrow">Bintang Penjaga Hutan</span>'+
+        '<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:8px">'+
+          bintangBesarHTML()+
+          '<p class="lead" style="flex:1;min-width:220px">Kamu sudah mengumpulkan <b>'+jumlahBintang()+' dari 4 bintang</b>. Setiap misi yang selesai memberi satu bintang. Bintang tidak pernah berkurang, walaupun kamu perlu mencoba beberapa kali.</p>'+
+        '</div>'+
+      '</section>'+
+    '</div>';
+  }
+
+  /* =========================================================
+     HALAMAN: CARA BERMAIN
+     ========================================================= */
+  function viewCara(){
+    var langkah = [
+      ['🧚','Ikuti perjalanan bersama LUMI si peri penjaga hutan.'],
+      ['🐾','Bantu Kiki, Bubu, dan Tiko menyelesaikan empat misi.'],
+      ['👆','Pilih tindakan yang paling baik untuk lingkungan.'],
+      ['⭐','Kumpulkan Bintang Penjaga Hutan.'],
+      ['🌈','Kembalikan warna Hutan Pelangi.']
+    ];
+    var h = '<div class="stack"><section class="card"><span class="eyebrow">Cara bermain</span>'+
+      '<h2 style="margin-top:6px">Lima langkah saja</h2>'+
+      '<div class="stack" style="gap:12px;margin-top:16px">';
+    for(var i=0;i<langkah.length;i++){
+      h += '<div style="display:flex;gap:14px;align-items:center;background:var(--surface-2);border:2px solid var(--line);border-radius:var(--r-md);padding:14px">'+
+             '<span style="font-size:1.8rem;line-height:1">'+langkah[i][0]+'</span>'+
+             '<span style="font-weight:700">'+(i+1)+'. '+esc(langkah[i][1])+'</span>'+
+           '</div>';
+    }
+    h += '</div>'+
+      '<div class="umpan baik" style="margin-top:18px">'+
+        '<h3>😊 Tidak ada yang namanya kalah</h3>'+
+        '<p>Kalau pilihanmu belum tepat, LUMI akan menjelaskan dengan lembut dan kamu bisa mencoba lagi. Bintangmu tidak akan berkurang. Yang penting kamu mau belajar.</p>'+
+      '</div>'+
+      '<div class="catatan" style="margin-top:14px">'+
+        '<span style="font-size:1.4rem;line-height:1">🧑‍🦰</span>'+
+        '<p><b>Catatan keselamatan:</b> permainan ini bercerita tentang membersihkan lingkungan. Di dunia nyata, selalu minta bantuan orang dewasa dan jangan menyentuh pecahan kaca, baterai, jarum, atau botol bahan kimia.</p>'+
+      '</div>'+
+      '<div class="btn-row" style="margin-top:18px">'+
+        '<button class="btn btn-primary" data-act="mulai">🌈 Mulai Petualangan</button>'+
+        '<button class="btn btn-ghost" data-act="nav" data-val="beranda">🏠 Kembali ke Beranda</button>'+
+      '</div>'+
+    '</section></div>';
+    return h;
+  }
+
+  /* =========================================================
+     HALAMAN: BERMAIN
+     ========================================================= */
+  function viewMain(){
+    if(state.adegan === 'pembuka')    return viewPembuka();
+    if(state.adegan === 'misi')       return viewMisi();
+    if(state.adegan === 'ending')     return viewEnding();
+    if(state.adegan === 'sertifikat') return viewSertifikat();
+    state.adegan = 'pembuka';
+    return viewPembuka();
+  }
+
+  function viewPembuka(){
+    var lanjut = misiBerikutBelumSelesai();
+    var teksTombol = (jumlahBintang()>0 && lanjut>=0) ? '▶️ Lanjutkan ke Misi '+(lanjut+1) : '🌿 Ayo Selamatkan Hutan';
+    if(lanjut < 0) teksTombol = '🏆 Lihat Hasil Petualangan';
+    return '<div class="stack">'+
+      '<section class="card">'+
+        '<div class="misi-head">'+
+          '<div style="flex:none">'+svgLumi(96)+'</div>'+
+          '<div style="flex:1;min-width:220px">'+
+            '<span class="eyebrow">Adegan pembuka</span>'+
+            '<h2 style="margin:4px 0 10px">"Halo, teman baru! Aku LUMI."</h2>'+
+            '<p class="lead">"Aku penjaga Hutan Pelangi. Empat bagian hutan kami kehilangan warnanya karena sampah berserakan dan air terbuang. Kiki, Bubu, dan Tiko sudah menunggumu. Maukah kamu membantu kami?"</p>'+
+          '</div>'+
+        '</div>'+
+        '<div class="rainbow-rule" style="margin:20px 0 18px"></div>'+
+        '<h3 style="margin-bottom:12px">Peta perjalanan kita</h3>'+
+        petaHTML()+
+        '<div class="btn-row" style="margin-top:20px">'+
+          '<button class="btn btn-primary btn-big" data-act="mulai-misi">'+teksTombol+'</button>'+
+          '<button class="btn btn-ghost" data-act="nav" data-val="cara">📖 Cara Bermain</button>'+
+        '</div>'+
+      '</section>'+
+    '</div>';
+  }
+
+  function viewMisiHilang(){
+    return '<div class="stack"><section class="card">'+
+      '<h2>🌱 Ups, jalurnya belum ketemu</h2>'+
+      '<p class="lead" style="margin:10px 0 16px">LUMI belum menemukan misi ini di peta. Tidak apa-apa, kita bisa mulai lagi dari awal perjalanan.</p>'+
+      '<div class="btn-row">'+
+        '<button class="btn btn-primary" data-act="mulai-ulang-lembut">🔄 Mulai Ulang</button>'+
+        '<button class="btn btn-ghost" data-act="nav" data-val="beranda">🏠 Kembali ke Beranda</button>'+
+      '</div></section></div>';
+  }
+
+  function viewMisi(){
+    var i = state.misiAktif;
+    if(typeof i !== 'number' || i < 0 || i >= MISI.length || !MISI[i]) return viewMisiHilang();
+    var m = MISI[i], st = state.misi[i];
+    var persen = Math.round(((i + (state.tahap==='selesai'?1:0)) / 4) * 100);
+
+    var h = '<div class="stack">';
+
+    /* Kepala misi */
+    h += '<section class="card">'+
+      '<div class="misi-head">'+
+        '<div class="karakter">'+m.karakter(64)+'</div>'+
+        '<div style="flex:1;min-width:200px">'+
+          '<span class="eyebrow">Misi '+(i+1)+' dari 4 · bersama '+esc(m.tokoh)+'</span>'+
+          '<h2 style="margin-top:4px">'+esc(m.nama)+'</h2>'+
+        '</div>'+
+        '<div style="flex:none;width:110px">'+m.gambar+'</div>'+
+      '</div>'+
+      '<div class="progress" style="margin-top:14px" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="'+(i+(state.tahap==='selesai'?1:0))+'" aria-label="Kemajuan misi"><i style="width:'+persen+'%"></i></div>'+
+    '</section>';
+
+    if(state.tahap === 'selesai'){
+      h += '<section class="card umpan baik">'+
+        '<h3>🎉 Misi selesai! Kamu mendapat satu Bintang Penjaga Hutan</h3>'+
+        '<p>'+esc(m.selesaiTeks)+'</p>'+
+        bintangBesarHTML()+
+        '<div class="catatan"><span style="font-size:1.3rem;line-height:1">💡</span><p><b>Yang kita pelajari:</b> '+esc(m.fakta)+'</p></div>'+
+        '<div><p class="eyebrow" style="margin-bottom:8px">Warna hutan yang sudah kembali</p>'+petaHTML()+'</div>'+
+        '<div class="btn-row" style="margin-top:6px">'+
+          (misiBerikutBelumSelesai() >= 0
+            ? '<button class="btn btn-primary btn-big" data-act="lanjut">➡️ Lanjut ke Misi Berikutnya</button>'
+            : '<button class="btn btn-primary btn-big" data-act="lihat-hasil">🏆 Lihat Hasil Petualangan</button>')+
+          '<button class="btn btn-ghost" data-act="peta">🗺️ Lihat Peta</button>'+
+        '</div>'+
+      '</section>';
+      h += '</div>';
+      return h;
+    }
+
+    /* Cerita masalah */
+    h += '<section class="card"><h3>Apa yang terjadi?</h3><p class="lead" style="margin-top:8px">'+esc(m.cerita)+'</p></section>';
+
+    if(m.tipe === 'pilah'){
+      var idx = state.indeksBenda;
+      if(idx < 0 || idx >= m.benda.length) idx = state.indeksBenda = 0;
+      var b = m.benda[idx];
+      h += '<section class="card"><div class="stack">'+
+        '<span class="eyebrow">Benda '+(idx+1)+' dari '+m.benda.length+'</span>'+
+        '<div class="benda"><span class="emoji">'+b.emoji+'</span><h3>'+esc(b.nama)+'</h3><p class="lead">Ini masuk ke tempat sampah yang mana?</p></div>';
+      if(state.umpan){
+        h += umpanHTML();
+        if(state.umpan.jenis === 'baik'){
+          h += '<div class="btn-row">'+
+                 '<button class="btn btn-primary btn-big" data-act="benda-lanjut">'+(idx+1 < m.benda.length ? '➡️ Benda Berikutnya' : '⭐ Selesaikan Misi')+'</button>'+
+               '</div>';
+        } else {
+          h += '<div class="btn-row"><button class="btn btn-ungu btn-big" data-act="coba-lagi">🔁 Coba Lagi</button></div>';
+        }
+      } else {
+        h += '<div class="pilihan tiga">';
+        for(var k=0;k<m.kategori.length;k++){
+          var kat = m.kategori[k];
+          h += '<button class="opsi kategori" data-act="pilah" data-val="'+kat.kode+'">'+
+                 '<span class="ikon" aria-hidden="true">'+kat.ikon+'</span>'+
+                 '<span>'+esc(kat.label)+'</span>'+
+               '</button>';
+        }
+        h += '</div>';
+      }
+      h += '</div></section>';
+    } else {
+      h += '<section class="card"><div class="stack">';
+      if(state.umpan){
+        h += umpanHTML();
+        if(state.umpan.jenis === 'baik'){
+          h += '<div class="btn-row"><button class="btn btn-primary btn-big" data-act="terima-bintang">⭐ Ambil Bintang Penjaga Hutan</button></div>';
+        } else {
+          h += '<div class="btn-row"><button class="btn btn-ungu btn-big" data-act="coba-lagi">🔁 Coba Pilihan Lain</button></div>';
+        }
+      } else {
+        h += '<h3>Pilih tindakan yang paling baik</h3><div class="pilihan">';
+        for(var o=0;o<m.opsi.length;o++){
+          h += '<button class="opsi" data-act="pilih" data-val="'+o+'">'+
+                 '<span class="ikon" aria-hidden="true">'+m.opsi[o].ikon+'</span>'+
+                 '<span>'+esc(m.opsi[o].teks)+'</span>'+
+               '</button>';
+        }
+        h += '</div>';
+      }
+      h += '</div></section>';
+    }
+
+    if(m.catatan){
+      h += '<div class="catatan"><span style="font-size:1.3rem;line-height:1">🛡️</span><p><b>Ingat ya:</b> '+esc(m.catatan)+'</p></div>';
+    }
+
+    h += '<section class="card"><h3 style="margin-bottom:12px">Peta perjalanan</h3>'+petaHTML()+
+         '<div class="btn-row" style="margin-top:16px">'+
+           '<button class="btn-link" data-act="lihat-hasil">Lihat hasil petualangan sekarang</button>'+
+         '</div></section>';
+
+    return h + '</div>';
+  }
+
+  function umpanHTML(){
+    var u = state.umpan;
+    return '<div class="umpan '+(u.jenis==='baik'?'baik':'belajar')+'">'+
+      '<h3>'+esc(u.judul)+'</h3><p>'+esc(u.teks)+'</p></div>';
+  }
+
+  /* =========================================================
+     ENDING
+     ========================================================= */
+  function tentukanEnding(){
+    if(semuaSelesai()) return adaSalah() ? 2 : 1;
+    return 3;
+  }
+
+  function viewEnding(){
+    var e = tentukanEnding();
+    var judul, hasil, moral, ikon;
+    if(e === 1){
+      ikon = '🌈'; judul = 'Penjaga Hutan Hebat';
+      hasil = 'Luar biasa! Kamu memilih tindakan yang tepat sejak awal di semua misi. Seluruh warna Hutan Pelangi kembali bersinar. Kiki melompat, Bubu menari, dan Tiko bernyanyi di atas dahan. LUMI menaburkan cahaya pelangi untukmu.';
+      moral = 'Kebiasaan kecil yang baik dapat membawa perubahan besar.';
+    } else if(e === 2){
+      ikon = '💪'; judul = 'Sahabat Hutan yang Pantang Menyerah';
+      hasil = 'Kamu sempat memilih jalan yang berbeda, lalu kamu berpikir lagi dan mencoba sekali lagi sampai berhasil. Hutan Pelangi kembali berwarna karena kamu mau belajar. Kata LUMI, "Inilah yang membuatmu istimewa."';
+      moral = 'Tidak apa-apa melakukan kesalahan selama kita mau belajar dan mencoba kembali.';
+    } else {
+      ikon = '🌱'; judul = 'Petualangan Masih Berlanjut';
+      hasil = 'Sebagian Hutan Pelangi sudah kembali berwarna berkat bantuanmu. Beberapa tempat masih menunggu. Kiki, Bubu, dan Tiko melambaikan tangan, "Kami tunggu kamu kembali ya!"';
+      moral = 'Setiap langkah baik tetap berarti. Ayo lanjutkan misinya.';
+    }
+
+    var h = '<div class="stack">'+
+      '<section class="card ending-hero">'+
+        '<span class="tag">Ending '+e+' dari 3</span>'+
+        '<div style="font-size:3.4rem;line-height:1">'+ikon+'</div>'+
+        '<h1 style="font-size:clamp(1.7rem,5vw,2.6rem)">'+esc(judul)+'</h1>'+
+        '<div class="rainbow-rule" style="width:min(320px,80%)"></div>'+
+        bintangBesarHTML()+
+        '<p style="font-weight:700">'+jumlahBintang()+' dari 4 Bintang Penjaga Hutan</p>'+
+        '<p class="lead" style="max-width:38rem">'+esc(hasil)+'</p>'+
+        '<div class="pesan-moral">💚 '+esc(moral)+'</div>'+
+        '<div class="btn-row" style="justify-content:center">'+
+          (misiBerikutBelumSelesai() >= 0 ? '<button class="btn btn-primary btn-big" data-act="lanjutkan-misi">➡️ Lanjutkan Misi</button>' : '')+
+          (semuaSelesai() ? '<button class="btn btn-ungu btn-big" data-act="sertifikat">🏅 Lihat Sertifikat</button>' : '')+
+          '<button class="btn btn-ghost" data-act="main-lagi">🔄 Main Lagi</button>'+
+          '<button class="btn btn-ghost" data-act="nav" data-val="beranda">🏠 Kembali ke Beranda</button>'+
+        '</div>'+
+      '</section>'+
+      '<section class="card"><h3 style="margin-bottom:12px">Hasil perjalananmu di Hutan Pelangi</h3>'+petaHTML()+'</section>'+
+    '</div>';
+    return h;
+  }
+
+  /* =========================================================
+     SERTIFIKAT
+     ========================================================= */
+  function viewSertifikat(){
+    if(!semuaSelesai()){
+      return '<div class="stack"><section class="card">'+
+        '<h2>🏅 Sertifikat masih dijaga LUMI</h2>'+
+        '<p class="lead" style="margin:10px 0 16px">Sertifikat terbuka setelah keempat misi selesai. Sekarang kamu punya '+jumlahBintang()+' dari 4 bintang. Ayo lanjutkan misinya!</p>'+
+        '<div class="btn-row"><button class="btn btn-primary" data-act="lanjutkan-misi">➡️ Lanjutkan Misi</button>'+
+        '<button class="btn btn-ghost" data-act="nav" data-val="koleksi">⭐ Koleksi Bintang</button></div>'+
+      '</section></div>';
+    }
+    return '<div class="stack">'+
+      '<section class="sertifikat" id="sertifikat">'+
+        '<div style="font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:var(--emas)">Hutan Pelangi</div>'+
+        '<div class="judul">Sertifikat Penjaga Hutan Pelangi</div>'+
+        '<div style="display:flex;justify-content:center">'+svgLumi(110)+'</div>'+
+        '<p style="font-weight:700;color:var(--ink-2)">Diberikan kepada</p>'+
+        '<div class="penerima">Siswa Future Makers</div>'+
+        '<div class="bintang-besar" aria-hidden="true"><span class="on">⭐</span><span class="on">⭐</span><span class="on">⭐</span><span class="on">⭐</span></div>'+
+        '<p class="isi">karena telah membantu LUMI dan para hewan menjaga kebersihan, menghemat air, serta menggunakan kembali benda dengan aman di Hutan Pelangi.</p>'+
+        '<div class="rainbow-rule" style="width:min(340px,86%)"></div>'+
+        '<div class="meta">'+
+          '<span>🌈 Save the Rainbow Forest</span>'+
+          '<span>🎓 Tier 1 – AI Buddy Basics</span>'+
+          '<span>📅 '+esc(tanggalHariIni())+'</span>'+
+        '</div>'+
+      '</section>'+
+      '<div class="btn-row no-print">'+
+        '<button class="btn btn-primary" data-act="cetak">🖨️ Cetak atau Simpan Sertifikat</button>'+
+        '<button class="btn btn-ghost" data-act="main-lagi">🔄 Main Lagi</button>'+
+        '<button class="btn btn-ghost" data-act="nav" data-val="beranda">🏠 Kembali ke Beranda</button>'+
+      '</div>'+
+      '<p class="fakta no-print">Saat jendela cetak muncul, pilih <b>Simpan sebagai PDF</b> jika ingin menyimpan sertifikatnya.</p>'+
+    '</div>';
+  }
+
+  /* =========================================================
+     KOLEKSI BINTANG
+     ========================================================= */
+  function viewKoleksi(){
+    var h = '<div class="stack"><section class="card">'+
+      '<span class="eyebrow">Koleksi Bintang</span>'+
+      '<h2 style="margin-top:4px">Bintang Penjaga Hutan</h2>'+
+      '<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:14px 0 4px">'+
+        bintangBesarHTML()+
+        '<p class="lead" style="flex:1;min-width:220px"><b>'+jumlahBintang()+' dari 4 bintang</b> sudah terkumpul. '+
+        (semuaSelesai() ? 'Semua tempat di Hutan Pelangi sudah berwarna lagi!' : 'Masih ada tempat yang menunggu bantuanmu.')+'</p>'+
+      '</div></section>';
+
+    h += '<section class="card"><h3 style="margin-bottom:14px">Empat lokasi misi</h3><div class="koleksi-list">';
+    for(var i=0;i<MISI.length;i++){
+      var m = MISI[i], st = state.misi[i];
+      var chip = st.status==='selesai' ? 'chip selesai' : (st.status==='proses' ? 'chip proses' : 'chip');
+      h += '<div class="koleksi-item'+(st.status==='selesai'?' selesai':'')+'">'+
+             '<div>'+m.gambar+'</div>'+
+             '<div class="stack" style="gap:6px">'+
+               '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
+                 '<h3>'+(i+1)+'. '+esc(m.nama)+'</h3>'+
+                 '<span class="'+chip+'">'+statusLabel(st.status)+'</span>'+
+                 (st.status==='selesai' ? '<span class="chip selesai">⭐ 1 bintang</span>' : '')+
+               '</div>'+
+               '<p class="fakta">'+(st.status==='selesai'
+                  ? '💡 '+esc(m.fakta)
+                  : '🔒 Pengetahuan dari misi ini terbuka setelah kamu menyelesaikannya bersama '+esc(m.tokoh)+'.')+'</p>'+
+             '</div>'+
+           '</div>';
+    }
+    h += '</div>';
+
+    var lanjut = misiBerikutBelumSelesai();
+    h += '<div class="btn-row" style="margin-top:18px">'+
+      (lanjut >= 0
+        ? '<button class="btn btn-primary" data-act="lanjutkan-misi">➡️ Lanjutkan Misi '+(lanjut+1)+'</button>'
+        : '<button class="btn btn-ungu" data-act="sertifikat">🏅 Lihat Sertifikat</button>')+
+      '<button class="btn btn-ghost" data-act="main-lagi">🔄 Main Lagi dari Awal</button>'+
+    '</div></section>';
+
+    h += '<section class="card"><h3>Peta Hutan Pelangi</h3><p class="lead" style="margin:8px 0 16px">Tempat yang sudah diselamatkan tampil berwarna.</p>'+petaHTML()+'</section>';
+    return h + '</div>';
+  }
+
+  /* =========================================================
+     TENTANG PROYEK
+     ========================================================= */
+  function viewTentang(){
+    return '<div class="stack">'+
+      '<section class="card">'+
+        '<span class="tag">📁 Portofolio Proyek Akhir</span>'+
+        '<h2 style="margin:12px 0 6px">Save the Rainbow Forest</h2>'+
+        '<div class="rainbow-rule" style="margin:6px 0 16px"></div>'+
+        '<dl class="dl">'+
+          '<dt>Tier</dt><dd>Tier 1 – AI Buddy Basics (usia 6–8 tahun)</dd>'+
+          '<dt>Jenis</dt><dd>Interactive AI Story Game</dd>'+
+          '<dt>Pembuat</dt><dd>Siswa Future Makers</dd>'+
+          '<dt>Tema</dt><dd>Lingkungan dan kebiasaan ramah lingkungan</dd>'+
+          '<dt>Bahasa</dt><dd>Bahasa Indonesia</dd>'+
+        '</dl>'+
+      '</section>'+
+
+      '<section class="card">'+
+        '<h3>🎯 Tujuan proyek</h3>'+
+        '<p class="lead" style="margin-top:8px">Membuat cerita interaktif yang mengajak anak mengenal kebiasaan sederhana untuk menjaga lingkungan: memilah sampah, menjaga sungai tetap bersih, menghemat air, dan menggunakan kembali barang bekas dengan aman.</p>'+
+      '</section>'+
+
+      '<section class="card">'+
+        '<h3>🕹️ Cara menggunakan</h3>'+
+        '<ul class="rapi" style="margin-top:10px">'+
+          '<li>Buka Beranda, lalu tekan <b>Mulai Petualangan</b>.</li>'+
+          '<li>Dengarkan LUMI di adegan pembuka, lalu tekan <b>Ayo Selamatkan Hutan</b>.</li>'+
+          '<li>Selesaikan empat misi dengan memilih tindakan yang paling baik.</li>'+
+          '<li>Kumpulkan bintang, lihat ending, lalu buka sertifikat.</li>'+
+          '<li>Menu <b>Koleksi Bintang</b> memperlihatkan kemajuanmu kapan saja.</li>'+
+        '</ul>'+
+      '</section>'+
+
+      '<div class="dua-kolom">'+
+        '<div class="info-blok">'+
+          '<h3>🧒 Apa yang dibuat siswa</h3>'+
+          '<ul class="rapi">'+
+            '<li>Menentukan tema lingkungan</li>'+
+            '<li>Membuat karakter LUMI, Kiki, Bubu, dan Tiko</li>'+
+            '<li>Memilih empat masalah lingkungan</li>'+
+            '<li>Menentukan pilihan tindakan di setiap misi</li>'+
+            '<li>Memilih pesan moral</li>'+
+            '<li>Menguji seluruh misi dan ending</li>'+
+            '<li>Memperbaiki permainan berdasarkan hasil pengujian</li>'+
+          '</ul>'+
+        '</div>'+
+        '<div class="info-blok">'+
+          '<h3>🤖 Bagaimana Claude AI membantu</h3>'+
+          '<ul class="rapi">'+
+            '<li>Memberikan ide karakter dan latar cerita</li>'+
+            '<li>Membantu menyusun masalah lingkungan</li>'+
+            '<li>Membantu membuat pilihan tindakan</li>'+
+            '<li>Membantu menulis feedback yang mudah dipahami</li>'+
+            '<li>Memberikan beberapa ide ending</li>'+
+            '<li>Membantu membangun permainan interaktif berdasarkan keputusan siswa</li>'+
+          '</ul>'+
+        '</div>'+
+      '</div>'+
+
+      '<section class="card">'+
+        '<h3>💬 Contoh prompt siswa</h3>'+
+        '<div class="stack" style="gap:12px;margin-top:12px">'+
+          '<div class="prompt-box">"Buatkan cerita petualangan sederhana tentang peri dan hewan yang menyelamatkan hutan dari sampah. Gunakan bahasa untuk anak usia tujuh tahun."</div>'+
+          '<div class="prompt-box">"Buat penjelasan tentang menghemat air menjadi lebih singkat, positif, dan mudah dipahami anak."</div>'+
+        '</div>'+
+      '</section>'+
+
+      '<section class="card">'+
+        '<h3>📚 Hal yang dipelajari siswa</h3>'+
+        '<ul class="rapi" style="margin-top:10px">'+
+          '<li>Memberikan instruksi sederhana kepada AI</li>'+
+          '<li>Membuat karakter dan alur cerita</li>'+
+          '<li>Menghubungkan pilihan dengan akibatnya</li>'+
+          '<li>Memilih hasil AI yang paling sesuai</li>'+
+          '<li>Memeriksa informasi sebelum digunakan</li>'+
+          '<li>Menguji dan memperbaiki permainan</li>'+
+          '<li>Mengenal kebiasaan menjaga lingkungan</li>'+
+        '</ul>'+
+      '</section>'+
+
+      '<section class="card">'+
+        '<h3>🔒 Catatan keamanan dan keterbatasan</h3>'+
+        '<ul class="rapi" style="margin-top:10px">'+
+          '<li><b>Tidak ada AI yang berjalan saat permainan dimainkan.</b> Semua cerita, pilihan, dan feedback sudah ditulis lebih dulu. Claude AI hanya membantu pada proses pembuatan.</li>'+
+          '<li>Tidak ada API key di aplikasi ini dan tidak ada data yang dikirim ke mana pun.</li>'+
+          '<li>Permainan tidak meminta nama lengkap, alamat, nama sekolah, atau foto. Identitas yang dipakai adalah "Siswa Future Makers".</li>'+
+          '<li>Kemajuan permainan disimpan di peramban perangkat ini saja, dan bisa dihapus dengan tombol "Main Lagi dari Awal".</li>'+
+          '<li>Aturan pemilahan sampah berbeda di setiap daerah. Tidak semua plastik dapat didaur ulang di semua tempat, jadi ikuti aturan di daerahmu.</li>'+
+          '<li>Anak tidak boleh menyentuh pecahan kaca, baterai, jarum, atau bahan kimia. Kegiatan bersih-bersih perlu ditemani orang dewasa.</li>'+
+          '<li>Semua tempat dan tokoh dalam permainan ini adalah cerita rekaan, bukan lokasi nyata.</li>'+
+        '</ul>'+
+      '</section>'+
+
+      '<section class="card">'+
+        '<h3>🚀 Rencana pengembangan berikutnya</h3>'+
+        '<ul class="rapi" style="margin-top:10px">'+
+          '<li>Menambah misi kelima tentang menanam pohon dan merawat tanaman</li>'+
+          '<li>Menambahkan suara narasi agar anak yang belum lancar membaca tetap bisa bermain</li>'+
+          '<li>Menambah mode dua bahasa (Indonesia dan Inggris)</li>'+
+          '<li>Membuat versi cetak lembar kegiatan untuk dikerjakan di rumah</li>'+
+          '<li>Menguji permainan bersama lebih banyak teman untuk mencari bagian yang masih membingungkan</li>'+
+        '</ul>'+
+      '</section>'+
+
+      '<section class="card">'+
+        '<h3>🤝 Catatan penggunaan AI</h3>'+
+        '<p class="lead" style="margin-top:8px">"Claude AI membantu memberikan ide dan mengembangkan permainan, tetapi siswa tetap menentukan karakter, misi, pilihan, pesan moral, dan hasil akhirnya. Informasi dari AI harus diperiksa sebelum digunakan."</p>'+
+        '<div class="btn-row" style="margin-top:18px">'+
+          '<button class="btn btn-primary" data-act="mulai">🌈 Coba Mainkan</button>'+
+          '<button class="btn btn-ghost" data-act="nav" data-val="beranda">🏠 Kembali ke Beranda</button>'+
+        '</div>'+
+      '</section>'+
+    '</div>';
+  }
+
+  /* =========================================================
+     RENDER
+     ========================================================= */
+  function render(){
+    var app = document.getElementById('app');
+    if(!app) return;
+    var html;
+    try{
+      if(state.halaman === 'beranda')      html = viewBeranda();
+      else if(state.halaman === 'cara')    html = viewCara();
+      else if(state.halaman === 'main')    html = viewMain();
+      else if(state.halaman === 'koleksi') html = viewKoleksi();
+      else if(state.halaman === 'tentang') html = viewTentang();
+      else { state.halaman = 'beranda'; html = viewBeranda(); }
+    }catch(err){
+      html = viewMisiHilang();
+    }
+    app.innerHTML = html;
+    perbaruiBintangBar();
+    window.scrollTo({top:0,behavior:'auto'});
+  }
+
+  /* =========================================================
+     AKSI
+     ========================================================= */
+  function bukaMisi(i){
+    if(i < 0 || i >= MISI.length) i = 0;
+    state.misiAktif = i;
+    state.adegan = 'misi';
+    state.halaman = 'main';
+    state.tahap = 'main';
+    state.indeksBenda = 0;
+    state.umpan = null;
+    if(state.misi[i].status === 'belum') state.misi[i].status = 'proses';
+    simpan();
+  }
+
+  function selesaikanMisi(i){
+    state.misi[i].status = 'selesai';
+    state.tahap = 'selesai';
+    state.umpan = null;
+    simpan();
+  }
+
+  var AKSI = {
+    nav: function(val){
+      if(val === 'main'){
+        state.halaman = 'main';
+        if(state.adegan !== 'misi' && state.adegan !== 'ending' && state.adegan !== 'sertifikat'){
+          state.adegan = 'pembuka';
+        }
+        if(state.adegan === 'misi'){
+          var i = state.misiAktif;
+          if(typeof i !== 'number' || i < 0 || i >= MISI.length){ state.adegan = 'pembuka'; }
+        }
+      } else {
+        state.halaman = val;
+      }
+    },
+    mulai: function(){
+      state.halaman = 'main';
+      state.adegan = 'pembuka';
+      state.umpan = null;
+      state.tahap = 'main';
+    },
+    'mulai-misi': function(){
+      var i = misiBerikutBelumSelesai();
+      if(i < 0){ state.adegan = 'ending'; state.halaman='main'; return; }
+      bukaMisi(i);
+    },
+    pilah: function(val){
+      var m = MISI[state.misiAktif];
+      if(!m || m.tipe !== 'pilah') return;
+      var b = m.benda[state.indeksBenda];
+      if(!b) return;
+      if(val === b.jawab){
+        state.umpan = {jenis:'baik', judul:'👏 Bagus sekali!', teks:b.benar};
+      } else {
+        state.misi[state.misiAktif].salah++;
+        state.misi[state.misiAktif].sempurna = false;
+        state.umpan = {jenis:'belajar', judul:'😊 Hampir, ayo kita lihat lagi', teks:b.salah};
+        simpan();
+      }
+    },
+    'benda-lanjut': function(){
+      var m = MISI[state.misiAktif];
+      if(!m) return;
+      state.umpan = null;
+      if(state.indeksBenda + 1 < m.benda.length){
+        state.indeksBenda++;
+      } else {
+        selesaikanMisi(state.misiAktif);
+      }
+    },
+    pilih: function(val){
+      var m = MISI[state.misiAktif];
+      if(!m || !m.opsi) return;
+      var o = m.opsi[parseInt(val,10)];
+      if(!o) return;
+      if(o.benar){
+        state.umpan = {jenis:'baik', judul:'🌟 Pilihan yang tepat!', teks:o.umpan};
+      } else {
+        state.misi[state.misiAktif].salah++;
+        state.misi[state.misiAktif].sempurna = false;
+        state.umpan = {jenis:'belajar', judul:'😊 Terima kasih sudah mencoba', teks:o.umpan};
+        simpan();
+      }
+    },
+    'terima-bintang': function(){ selesaikanMisi(state.misiAktif); },
+    'coba-lagi': function(){ state.umpan = null; },
+    lanjut: function(){
+      var i = misiBerikutBelumSelesai();
+      if(i < 0){ state.adegan = 'ending'; return; }
+      bukaMisi(i);
+    },
+    peta: function(){ state.adegan = 'pembuka'; state.tahap='main'; state.umpan=null; },
+    'lihat-hasil': function(){ state.halaman='main'; state.adegan = 'ending'; state.tahap='main'; state.umpan=null; },
+    'lanjutkan-misi': function(){
+      var i = misiBerikutBelumSelesai();
+      if(i < 0){ state.halaman='main'; state.adegan='ending'; return; }
+      bukaMisi(i);
+    },
+    sertifikat: function(){ state.halaman='main'; state.adegan = 'sertifikat'; },
+    cetak: function(){ try{ window.print(); }catch(e){} },
+    'main-lagi': function(){
+      state = stateBaru();
+      state.halaman = 'main';
+      state.adegan = 'pembuka';
+      try{ localStorage.removeItem(SIMPAN); }catch(e){}
+    },
+    'mulai-ulang-lembut': function(){
+      state = stateBaru();
+      try{ localStorage.removeItem(SIMPAN); }catch(e){}
+    }
+  };
+
+  document.addEventListener('click', function(ev){
+    var t = ev.target;
+    while(t && t !== document && !(t.getAttribute && t.getAttribute('data-act'))){ t = t.parentNode; }
+    if(!t || t === document) return;
+    var act = t.getAttribute('data-act');
+    var val = t.getAttribute('data-val');
+    var fn = AKSI[act];
+    if(!fn) return;
+    try{ fn(val); }catch(e){ /* jaga-jaga: jangan sampai layar kosong */ }
+    if(act !== 'cetak') render();
+  });
+
+  muat();
+  render();
+})();
+</script>
+
+</body></html>

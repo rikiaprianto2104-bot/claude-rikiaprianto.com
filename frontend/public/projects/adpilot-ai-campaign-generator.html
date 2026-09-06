@@ -1,0 +1,2158 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>AdPilot AI Campaign Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#F4F7FC; --surface:#FFFFFF; --surface-2:#EDF2FB; --surface-3:#E3EBF8;
+  --line:#D8E2F1; --line-strong:#C2D0E6;
+  --ink:#0B1830; --ink-2:#243756; --muted:#5E739A;
+  --brand:#1D4FD8; --brand-ink:#123A9E; --brand-soft:#E4ECFF;
+  --violet:#6742F5; --violet-soft:#ECE6FF;
+  --sky:#1E9BE0; --sky-soft:#E1F2FC;
+  --ok:#0C8F63; --ok-soft:#E0F5EE;
+  --warn:#A96A0B; --warn-soft:#FCF0DC;
+  --crit:#CC3A48; --crit-soft:#FCE6E8;
+  --shadow-sm:0 1px 2px rgba(11,24,48,.06), 0 1px 1px rgba(11,24,48,.04);
+  --shadow-md:0 4px 16px rgba(11,24,48,.08), 0 1px 3px rgba(11,24,48,.05);
+  --shadow-lg:0 18px 48px rgba(11,24,48,.16);
+  --r-sm:8px; --r-md:12px; --r-lg:18px;
+  --display:'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --body:'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#070E1D; --surface:#0E1A2E; --surface-2:#14223A; --surface-3:#1B2C48;
+    --line:#22334F; --line-strong:#2F4467;
+    --ink:#E8EFFA; --ink-2:#C3D2E8; --muted:#8FA3C2;
+    --brand:#5C8BFF; --brand-ink:#A9C3FF; --brand-soft:#15264A;
+    --violet:#9B7DFF; --violet-soft:#1E1A44;
+    --sky:#49B4EF; --sky-soft:#102A3D;
+    --ok:#3ECF9B; --ok-soft:#0D2B23;
+    --warn:#E0A64A; --warn-soft:#2E2211;
+    --crit:#F4737F; --crit-soft:#33161A;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 4px 18px rgba(0,0,0,.45);
+    --shadow-lg:0 20px 52px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#070E1D; --surface:#0E1A2E; --surface-2:#14223A; --surface-3:#1B2C48;
+  --line:#22334F; --line-strong:#2F4467;
+  --ink:#E8EFFA; --ink-2:#C3D2E8; --muted:#8FA3C2;
+  --brand:#5C8BFF; --brand-ink:#A9C3FF; --brand-soft:#15264A;
+  --violet:#9B7DFF; --violet-soft:#1E1A44;
+  --sky:#49B4EF; --sky-soft:#102A3D;
+  --ok:#3ECF9B; --ok-soft:#0D2B23;
+  --warn:#E0A64A; --warn-soft:#2E2211;
+  --crit:#F4737F; --crit-soft:#33161A;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow-md:0 4px 18px rgba(0,0,0,.45);
+  --shadow-lg:0 20px 52px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:clip}
+h1,h2,h3,h4{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.22;letter-spacing:-.015em}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--brand)}
+:focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:4px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* ============ APP SHELL ============ */
+.topbar{position:sticky;top:0;z-index:60;background:color-mix(in srgb, var(--surface) 95%, transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1400px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:11px;min-width:0}
+.logo-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(150deg,var(--brand),var(--violet));display:grid;place-items:center;flex:none;box-shadow:var(--shadow-sm)}
+.logo-mark svg{width:21px;height:21px}
+.logo-txt strong{display:block;font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.02em}
+.logo-txt span{display:block;font-size:11.5px;color:var(--muted);line-height:1.3}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;transition:.15s}
+.icon-btn:hover{border-color:var(--brand);color:var(--brand)}
+.icon-btn svg{width:18px;height:18px}
+
+.shell{max-width:1400px;margin:0 auto;padding:20px;display:grid;grid-template-columns:248px minmax(0,1fr);gap:22px;align-items:start}
+.shell > main{min-width:0}
+.shell{overflow-x:clip}
+.rail{position:sticky;top:78px;display:flex;flex-direction:column;gap:6px}
+.rail-label{padding:4px 10px 6px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:var(--r-md);border:1px solid transparent;background:transparent;color:var(--ink-2);font-weight:500;transition:.15s}
+.nav-btn:hover{background:var(--surface-2)}
+.nav-btn.active{background:var(--surface);border-color:var(--line);color:var(--ink);font-weight:600;box-shadow:var(--shadow-sm)}
+.nav-btn.active .nav-ix{background:var(--brand);color:#fff;border-color:transparent}
+.nav-ix{width:24px;height:24px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--muted);flex:none}
+.nav-count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.rail-note{margin-top:14px;padding:12px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--line);font-size:12.5px;color:var(--muted);line-height:1.5}
+.rail-note b{color:var(--ink-2);font-weight:600}
+
+.view{display:none;min-width:0}
+.view.active{display:block}
+
+/* ============ CARDS / FORM ============ */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.page-head{margin-bottom:18px}
+.page-head h1{font-size:clamp(22px,3vw,29px);font-weight:800}
+.page-head p{color:var(--muted);margin-top:6px;max-width:62ch}
+.fs{margin-bottom:16px;padding:20px}
+.fs > legend, .fs-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;width:100%}
+.fs-badge{width:28px;height:28px;border-radius:9px;background:var(--brand-soft);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:12px;flex:none}
+.fs-head h2{font-size:16.5px;font-weight:700}
+.fs-head span{font-size:12.5px;color:var(--muted);display:block;font-family:var(--body);font-weight:400;letter-spacing:0}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.span2{grid-column:span 2}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.field .hint{font-weight:400;color:var(--muted);font-size:12px}
+input[type=text],input[type=number],input[type=url],select,textarea{
+  width:100%;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--line-strong);
+  background:var(--surface);color:var(--ink);font-family:var(--body);font-size:14px;transition:.15s}
+textarea{resize:vertical;min-height:74px;line-height:1.55}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 18%,transparent)}
+input.err,select.err,textarea.err{border-color:var(--crit);background:color-mix(in srgb,var(--crit-soft) 60%,var(--surface))}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E739A' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:34px}
+.err-msg{display:none;font-size:12px;color:var(--crit);margin-top:4px;font-weight:500}
+.field.invalid .err-msg{display:block}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;width:0;height:0}
+.chip span{display:block;padding:8px 13px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);font-size:13.5px;font-weight:500;transition:.15s;color:var(--ink-2)}
+.chip:hover span{border-color:var(--brand);color:var(--brand)}
+.chip input:checked + span{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600;box-shadow:var(--shadow-sm)}
+.chip input:focus-visible + span{outline:2.5px solid var(--brand);outline-offset:2px}
+
+.objgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.obj{position:relative}
+.obj input{position:absolute;opacity:0;width:0;height:0}
+.obj span{display:flex;flex-direction:column;gap:2px;height:100%;padding:11px 13px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--surface);transition:.15s}
+.obj b{font-size:13.5px;font-weight:600}
+.obj em{font-style:normal;font-size:11.5px;color:var(--muted);line-height:1.35}
+.obj:hover span{border-color:var(--brand)}
+.obj input:checked + span{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1px var(--brand)}
+.obj input:checked + span em{color:var(--brand-ink)}
+.obj input:focus-visible + span{outline:2.5px solid var(--brand);outline-offset:2px}
+
+.pf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pf{position:relative}
+.pf input{position:absolute;opacity:0;width:0;height:0}
+.pf span{display:flex;align-items:center;gap:10px;padding:12px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--surface);transition:.15s;height:100%}
+.pf-ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;color:#fff;font-family:var(--display);font-weight:700;font-size:13px}
+.pf b{font-size:13.5px;font-weight:600;display:block}
+.pf em{font-style:normal;font-size:11.5px;color:var(--muted);display:block;line-height:1.3}
+.pf:hover span{border-color:var(--brand)}
+.pf input:checked + span{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1px var(--brand)}
+.pf input:focus-visible + span{outline:2.5px solid var(--brand);outline-offset:2px}
+.pf-check{margin-left:auto;width:18px;height:18px;border-radius:6px;border:1.5px solid var(--line-strong);display:grid;place-items:center;flex:none}
+.pf input:checked + span .pf-check{background:var(--brand);border-color:var(--brand)}
+.pf input:checked + span .pf-check::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px)}
+
+.actionbar{position:sticky;bottom:0;z-index:30;margin-top:18px;padding:14px 18px;border-radius:var(--r-lg);border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);box-shadow:var(--shadow-md);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.actionbar .note{font-size:12.5px;color:var(--muted);max-width:44ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:var(--r-md);border:1px solid var(--line-strong);background:var(--surface);font-weight:600;font-size:14px;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:linear-gradient(140deg,var(--brand),var(--violet));border-color:transparent;color:#fff;box-shadow:var(--shadow-md)}
+.btn-primary:hover{color:#fff;filter:brightness(1.07)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn-ghost:hover{background:var(--surface-2);color:var(--brand)}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:9px}
+.ml-auto{margin-left:auto}
+.form-alert{display:none;margin-top:12px;padding:11px 14px;border-radius:var(--r-md);background:var(--crit-soft);border:1px solid color-mix(in srgb,var(--crit) 35%,transparent);color:var(--crit);font-size:13px;font-weight:500}
+.form-alert.show{display:block}
+
+/* ============ TOOLTIP TERMS ============ */
+.term{border-bottom:1.5px dotted var(--brand);cursor:help;position:relative;font-weight:600;color:inherit}
+.term:focus{outline:none}
+.term::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);
+  width:max-content;max-width:min(250px,70vw);padding:9px 11px;border-radius:10px;background:var(--ink);color:var(--bg);
+  font-family:var(--body);font-weight:400;font-size:12px;line-height:1.45;letter-spacing:0;
+  opacity:0;pointer-events:none;transition:.16s;z-index:70;box-shadow:var(--shadow-lg);text-transform:none}
+.term:hover::after,.term:focus::after{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ============ EMPTY / LOADING ============ */
+.empty{padding:60px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.empty-art{width:100%;max-width:340px}
+.empty h2{font-size:20px;font-weight:700}
+.empty p{color:var(--muted);max-width:46ch;font-size:14px}
+.loader{padding:56px 28px;display:none;flex-direction:column;align-items:center;gap:18px;text-align:center}
+.loader.show{display:flex}
+.orbit{width:74px;height:74px;position:relative}
+.orbit i{position:absolute;inset:0;border-radius:50%;border:2.5px solid transparent;border-top-color:var(--brand);animation:spin 1.1s linear infinite}
+.orbit i:nth-child(2){inset:11px;border-top-color:var(--violet);animation-duration:1.6s;animation-direction:reverse}
+.orbit i:nth-child(3){inset:22px;border-top-color:var(--sky);animation-duration:2s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-steps{display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:var(--muted);min-width:230px}
+.lstep{display:flex;align-items:center;gap:9px;opacity:.35;transition:.3s}
+.lstep.on{opacity:1;color:var(--ink)}
+.lstep .dot{width:7px;height:7px;border-radius:50%;background:var(--line-strong)}
+.lstep.on .dot{background:var(--ok)}
+@media (prefers-reduced-motion:reduce){.orbit i{animation:none;border-color:var(--line-strong);border-top-color:var(--brand)}}
+
+/* ============ RESULT ============ */
+.res-head{padding:22px;background:linear-gradient(135deg,var(--brand) 0%,var(--violet) 100%);border-radius:var(--r-lg);color:#fff;box-shadow:var(--shadow-md);margin-bottom:16px}
+.res-head .eyebrow{color:rgba(255,255,255,.72)}
+.res-head h1{font-size:clamp(21px,3vw,27px);font-weight:800;margin:6px 0 4px}
+.res-head p{color:rgba(255,255,255,.85);font-size:14px}
+.res-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.res-tools .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(4px)}
+.res-tools .btn:hover{background:rgba(255,255,255,.26);color:#fff;border-color:rgba(255,255,255,.55)}
+.secnav{position:sticky;top:66px;z-index:40;display:flex;gap:6px;overflow-x:auto;padding:9px 4px;margin-bottom:14px;background:color-mix(in srgb,var(--bg) 95%,transparent);backdrop-filter:blur(8px);scrollbar-width:thin}
+.secnav a{flex:none;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;transition:.15s}
+.secnav a:hover{border-color:var(--brand);color:var(--brand)}
+.sec{margin-bottom:22px;scroll-margin-top:120px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.sec-head h2{font-size:19px;font-weight:700}
+.sec-head p{font-size:13px;color:var(--muted)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}
+.kpi{padding:14px 16px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.kpi .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .v{font-family:var(--display);font-size:20px;font-weight:700;margin-top:4px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:2px}
+.panel{padding:18px}
+.panel + .panel{margin-top:12px}
+.dl{display:grid;grid-template-columns:150px minmax(0,1fr);gap:8px 16px;font-size:14px}
+.dl dt{font-size:12.5px;color:var(--muted);font-weight:600}
+.dl dd{margin:0;color:var(--ink-2)}
+@media(max-width:560px){.dl{grid-template-columns:1fr;gap:2px 0}.dl dd{margin-bottom:9px}}
+
+.alloc{display:flex;flex-direction:column;gap:11px}
+.alloc-row{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:12px;align-items:center;font-size:13.5px}
+.alloc-bar{height:9px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.alloc-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--brand),var(--violet))}
+.alloc-val{font-family:var(--mono);font-size:12.5px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.alloc-row{grid-template-columns:1fr auto;grid-template-areas:"n v" "b b"}.alloc-row .n{grid-area:n}.alloc-bar{grid-area:b}.alloc-val{grid-area:v}}
+
+/* funnel */
+.funnel{display:flex;flex-direction:column;gap:10px}
+.fstage{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:stretch}
+.fbar{width:var(--w);min-width:96px;border-radius:var(--r-md);display:flex;flex-direction:column;justify-content:center;padding:12px 14px;color:#fff}
+.fbar .n{font-family:var(--mono);font-size:10.5px;opacity:.8;letter-spacing:.1em}
+.fbar .t{font-family:var(--display);font-weight:700;font-size:15px}
+.fbody{padding:12px 14px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);font-size:13.5px}
+.fbody b{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.ftags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{padding:3px 9px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);font-size:11.5px;color:var(--ink-2);font-weight:500}
+.tag.b{background:var(--brand-soft);border-color:transparent;color:var(--brand-ink)}
+.tag.v{background:var(--violet-soft);border-color:transparent;color:var(--violet)}
+.tag.s{background:var(--sky-soft);border-color:transparent;color:var(--sky)}
+.tag.o{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+@media(max-width:640px){.fstage{grid-template-columns:1fr}.fbar{width:100%!important}}
+
+/* accordion */
+.acc{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);margin-bottom:11px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.acc > summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:12px;font-weight:600}
+.acc > summary::-webkit-details-marker{display:none}
+.acc > summary:hover{background:var(--surface-2)}
+.acc-name{display:block;font-family:var(--display);font-size:15.5px;font-weight:700;line-height:1.25}
+.acc-sub{display:block;font-size:12.5px;color:var(--muted);font-weight:400}
+.acc-caret{margin-left:auto;width:22px;height:22px;display:grid;place-items:center;color:var(--muted);transition:.2s;flex:none}
+.acc[open] .acc-caret{transform:rotate(180deg)}
+.acc-body{padding:2px 18px 18px;border-top:1px solid var(--line);padding-top:16px}
+.blk{margin-bottom:16px}
+.blk:last-child{margin-bottom:0}
+.blk > h4{font-size:13px;font-family:var(--display);font-weight:700;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.blk > h4::before{content:"";width:3px;height:13px;border-radius:2px;background:var(--brand);flex:none}
+.ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink-2)}
+.ul li{margin-bottom:4px}
+.ul li::marker{color:var(--brand)}
+.copybox{border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface-2);padding:11px 13px;font-size:13.5px;margin-bottom:8px;position:relative;line-height:1.55;white-space:pre-wrap}
+.copybox .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+.mini-copy{position:absolute;top:8px;right:8px;padding:3px 8px;font-size:11px;border-radius:7px;border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);font-weight:600;opacity:0;transition:.15s}
+.copybox:hover .mini-copy,.mini-copy:focus{opacity:1}
+.mini-copy:hover{color:var(--brand);border-color:var(--brand)}
+.struct{display:flex;flex-direction:column;gap:0;font-family:var(--mono);font-size:12.5px}
+.struct div{padding:7px 11px;border-left:2px solid var(--brand);background:var(--surface-2);border-radius:0 8px 8px 0;margin-bottom:4px}
+.struct div:nth-child(2){margin-left:18px;border-left-color:var(--violet)}
+.struct div:nth-child(3){margin-left:36px;border-left-color:var(--sky)}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tab-btn{padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;color:var(--muted)}
+.tab-btn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:720px){.two{grid-template-columns:1fr}}
+
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-size:11.5px;font-family:var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pf-dot{display:inline-flex;align-items:center;gap:7px;font-weight:600;white-space:nowrap}
+.pf-dot i{width:9px;height:9px;border-radius:3px;flex:none}
+
+.callout{padding:13px 15px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-2);font-size:13.5px;display:flex;gap:11px;align-items:flex-start}
+.callout svg{width:17px;height:17px;flex:none;margin-top:2px}
+.callout.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 30%,transparent);color:var(--warn)}
+.callout.info{background:var(--sky-soft);border-color:color-mix(in srgb,var(--sky) 30%,transparent);color:var(--sky)}
+.callout.ok{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 30%,transparent);color:var(--ok)}
+.callout b{color:inherit}
+.check-list{display:grid;gap:8px}
+.check-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--line);font-size:13.5px}
+.check-item input{margin:2px 0 0;accent-color:var(--brand);width:16px;height:16px;flex:none}
+.disc{margin-top:8px;font-size:12.5px;color:var(--muted);line-height:1.55;padding:12px 14px;border-radius:var(--r-md);border:1px dashed var(--line-strong)}
+
+/* projects */
+.proj-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.proj-toolbar input,.proj-toolbar select{max-width:280px}
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.proj{padding:16px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:9px;transition:.15s}
+.proj:hover{border-color:var(--brand);box-shadow:var(--shadow-md)}
+.proj h3{font-size:15.5px;font-weight:700}
+.proj .meta{font-size:12.5px;color:var(--muted)}
+.proj .pfs{display:flex;flex-wrap:wrap;gap:5px}
+.proj .row{display:flex;gap:7px;margin-top:auto;padding-top:4px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);z-index:120;padding:11px 18px;border-radius:99px;background:var(--ink);color:var(--bg);font-size:13.5px;font-weight:500;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.24s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:130;display:none;place-items:center;padding:20px;background:rgba(7,14,29,.55);backdrop-filter:blur(3px)}
+.modal.show{display:grid}
+.modal-in{width:min(620px,100%);max-height:82vh;overflow:auto;background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--line);box-shadow:var(--shadow-lg);padding:20px}
+.modal-in h3{font-size:17px;font-weight:700;margin-bottom:8px}
+.modal-in textarea{min-height:200px;font-family:var(--mono);font-size:12px}
+
+@media(max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr);padding:14px;gap:14px}
+  .rail{position:static;flex-direction:row;overflow-x:auto;gap:7px;padding-bottom:2px;min-width:0}
+  .rail-label,.rail-note{display:none}
+  .nav-btn{width:auto;flex:none;background:var(--surface);border-color:var(--line);padding:8px 13px;font-size:13.5px}
+  .g2,.g3,.objgrid,.pf-grid{grid-template-columns:1fr}
+  .span2{grid-column:auto}
+  .objgrid,.pf-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .secnav{top:60px}
+}
+@media(max-width:520px){
+  .logo-txt span{display:none}
+  .objgrid{grid-template-columns:1fr}
+  .actionbar{padding:12px}
+  .actionbar .btn{flex:1 1 auto}
+}
+@media print{
+  .topbar,.rail,.secnav,.actionbar,.res-tools,.toast,.modal,.btn,.mini-copy{display:none!important}
+  body{background:#fff}
+  .shell{display:block;padding:0;max-width:none}
+  .view{display:none!important}
+  .view.active{display:block!important}
+  .acc-body{display:block!important}
+  .tab-pane{display:block!important}
+  .card,.acc,.panel{break-inside:avoid;box-shadow:none}
+  .res-head{background:#1D4FD8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec{page-break-inside:auto}
+}
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 21l9-4 9 4-9-19z"/></svg>
+      </div>
+      <div class="logo-txt">
+        <strong>AdPilot AI</strong>
+        <span>Campaign Generator</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" id="btnSample" type="button">Isi Data Contoh</button>
+      <button class="icon-btn" id="btnTheme" type="button" aria-label="Ganti tema terang / gelap" title="Ganti tema">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="rail" aria-label="Navigasi utama">
+    <div class="rail-label eyebrow">Alur Kerja</div>
+    <button class="nav-btn active" data-view="brief" type="button"><span class="nav-ix">1</span> Brief Campaign</button>
+    <button class="nav-btn" data-view="result" type="button"><span class="nav-ix">2</span> Hasil Strategi</button>
+    <button class="nav-btn" data-view="projects" type="button"><span class="nav-ix">3</span> Project Tersimpan <span class="nav-count" id="projCount">0</span></button>
+    <div class="rail-note">
+      <b>Catatan:</b> AdPilot AI menyusun <i>rancangan</i> campaign berbasis rule &amp; best practice periklanan. Tool ini tidak terhubung ke akun iklan mana pun, dan seluruh hasil tetap perlu diuji serta dioptimasi dengan data aktual Anda.
+    </div>
+  </nav>
+
+  <main>
+  <!-- ================= VIEW: BRIEF ================= -->
+  <section class="view active" id="view-brief">
+    <div class="page-head">
+      <div class="eyebrow">Langkah 1 — Brief</div>
+      <h1>Buat strategi campaign iklan multichannel dalam hitungan menit</h1>
+      <p>Isi brief bisnis Anda di bawah ini. Semakin spesifik isian, semakin tajam struktur campaign, targeting, dan copy iklan yang dihasilkan.</p>
+    </div>
+
+    <form id="briefForm" novalidate>
+      <!-- A -->
+      <section class="card fs">
+        <div class="fs-head"><span class="fs-badge">A</span><h2>Informasi Bisnis<span>Konteks brand dan produk yang akan diiklankan</span></h2></div>
+        <div class="grid g2">
+          <div class="field"><label for="brand">Nama bisnis / brand *</label><input type="text" id="brand" placeholder="Contoh: Nusa Kopi Roastery"><div class="err-msg">Nama brand wajib diisi.</div></div>
+          <div class="field"><label for="product">Produk / layanan yang diiklankan *</label><input type="text" id="product" placeholder="Contoh: Paket kopi arabika 250g"><div class="err-msg">Produk wajib diisi.</div></div>
+          <div class="field"><label for="category">Kategori bisnis *</label>
+            <select id="category">
+              <option value="">Pilih kategori…</option>
+              <option>Fashion</option><option>Kuliner</option><option>Skincare &amp; Beauty</option><option>Pendidikan</option>
+              <option>Jasa Profesional</option><option>Properti</option><option>Teknologi</option><option>Otomotif</option>
+              <option>Kesehatan</option><option>Retail</option><option>UMKM</option><option>Lainnya</option>
+            </select><div class="err-msg">Pilih kategori bisnis.</div></div>
+          <div class="field"><label for="price">Harga / rentang harga <span class="hint">(opsional)</span></label><input type="text" id="price" placeholder="Contoh: Rp 89.000 – Rp 250.000"></div>
+          <div class="field span2"><label for="desc">Deskripsi singkat produk *</label><textarea id="desc" placeholder="Jelaskan produk dalam 1–3 kalimat: apa, untuk siapa, dan apa hasil yang didapat pelanggan."></textarea><div class="err-msg">Deskripsi produk wajib diisi.</div></div>
+          <div class="field span2"><label for="usp">Keunggulan utama / <span class="term" tabindex="0" data-tip="Unique Selling Proposition: alasan spesifik kenapa pelanggan memilih Anda, bukan kompetitor.">USP</span> *</label><textarea id="usp" placeholder="Contoh: Biji kopi single origin dipanggang setiap minggu, dikirim maksimal 3 hari setelah roasting."></textarea><div class="err-msg">Keunggulan utama wajib diisi.</div></div>
+          <div class="field"><label for="promo">Promo / penawaran aktif <span class="hint">(opsional)</span></label><input type="text" id="promo" placeholder="Contoh: Diskon 25% + gratis ongkir min. 2 pack"></div>
+          <div class="field"><label for="url">Link website / landing page <span class="hint">(opsional)</span></label><input type="url" id="url" placeholder="https://"></div>
+        </div>
+      </section>
+
+      <!-- B -->
+      <section class="card fs">
+        <div class="fs-head"><span class="fs-badge">B</span><h2>Tujuan Iklan<span>Satu tujuan utama membuat struktur campaign lebih fokus</span></h2></div>
+        <div class="objgrid" id="objGrid"></div>
+        <div class="err-msg" id="objErr" style="margin-top:8px">Pilih satu tujuan iklan.</div>
+      </section>
+
+      <!-- C -->
+      <section class="card fs">
+        <div class="fs-head"><span class="fs-badge">C</span><h2>Target Audiens<span>Dasar penyusunan targeting dan angle komunikasi</span></h2></div>
+        <div class="grid g2">
+          <div class="field span2"><label for="location">Lokasi target *</label><input type="text" id="location" placeholder="Contoh: Jakarta, Bandung, Surabaya (radius kota besar)"><div class="err-msg">Lokasi target wajib diisi.</div></div>
+          <div class="field"><label for="ageMin">Usia minimum</label><select id="ageMin"></select></div>
+          <div class="field"><label for="ageMax">Usia maksimum</label><select id="ageMax"></select></div>
+          <div class="field"><label for="gender">Gender</label>
+            <select id="gender"><option>Semua gender</option><option>Perempuan</option><option>Laki-laki</option></select></div>
+          <div class="field"><label for="interests">Status / minat audiens</label><input type="text" id="interests" placeholder="Contoh: pekerja kantoran, penyuka kopi manual brew"></div>
+          <div class="field span2"><label for="pain">Masalah utama yang ingin diselesaikan produk *</label><textarea id="pain" placeholder="Contoh: Sulit menemukan kopi segar dengan rasa konsisten untuk diseduh di rumah."></textarea><div class="err-msg">Masalah utama wajib diisi.</div></div>
+          <div class="field span2"><label for="persona">Karakter calon pelanggan <span class="hint">(opsional)</span></label><input type="text" id="persona" placeholder="Contoh: Detail, suka riset sebelum membeli, aktif di Instagram"></div>
+          <div class="field span2"><label for="awareness">Level awareness audiens</label>
+            <select id="awareness">
+              <option value="1">1 — Belum sadar masalah</option>
+              <option value="2">2 — Sadar masalah</option>
+              <option value="3" selected>3 — Mencari solusi</option>
+              <option value="4">4 — Mengenal produk</option>
+              <option value="5">5 — Siap membeli</option>
+            </select></div>
+        </div>
+      </section>
+
+      <!-- D -->
+      <section class="card fs">
+        <div class="fs-head"><span class="fs-badge">D</span><h2>Pengaturan Budget<span>Dipakai untuk alokasi per platform dan struktur ad set</span></h2></div>
+        <div class="grid g3">
+          <div class="field"><label for="currency">Mata uang</label>
+            <select id="currency"><option value="IDR" selected>Rupiah (Rp)</option><option value="USD">US Dollar ($)</option><option value="SGD">Singapore Dollar (S$)</option><option value="MYR">Ringgit (RM)</option></select></div>
+          <div class="field"><label for="budgetTotal">Total budget *</label><input type="number" id="budgetTotal" min="0" placeholder="15000000"><div class="err-msg">Total budget wajib diisi (angka).</div></div>
+          <div class="field"><label for="duration">Durasi campaign (hari) *</label><input type="number" id="duration" min="1" max="365" value="30"><div class="err-msg">Durasi minimal 1 hari.</div></div>
+          <div class="field"><label for="budgetDaily">Budget harian <span class="hint">(otomatis, bisa diubah)</span></label><input type="number" id="budgetDaily" min="0" placeholder="500000"></div>
+          <div class="field span2"><label for="targetCPA">Target biaya per hasil / <span class="term" tabindex="0" data-tip="Cost Per Acquisition: rata-rata biaya iklan untuk mendapat satu hasil (pembelian, lead, atau chat).">CPA</span> <span class="hint">(opsional)</span></label><input type="number" id="targetCPA" min="0" placeholder="50000"></div>
+        </div>
+      </section>
+
+      <!-- E -->
+      <section class="card fs">
+        <div class="fs-head"><span class="fs-badge">E</span><h2>Pilihan Platform<span>Pilih satu atau lebih platform iklan</span></h2></div>
+        <div class="pf-grid" id="pfGrid"></div>
+        <div class="err-msg" id="pfErr" style="margin-top:8px">Pilih minimal satu platform iklan.</div>
+      </section>
+
+      <!-- F -->
+      <section class="card fs">
+        <div class="fs-head"><span class="fs-badge">F</span><h2>Gaya Komunikasi Iklan<span>Menentukan nada seluruh copy yang dihasilkan</span></h2></div>
+        <div class="chips" id="toneChips"></div>
+      </section>
+
+      <div class="actionbar">
+        <button class="btn btn-primary" id="btnGenerate" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3z"/></svg>
+          Generate Campaign Strategy
+        </button>
+        <button class="btn" id="btnReset" type="button">Reset Form</button>
+        <p class="note">Hasil berupa rancangan strategi, bukan jaminan performa. Selalu uji dan optimasi dengan data aktual.</p>
+      </div>
+      <div class="form-alert" id="formAlert"></div>
+    </form>
+  </section>
+
+  <!-- ================= VIEW: RESULT ================= -->
+  <section class="view" id="view-result">
+    <div class="card loader" id="loader">
+      <div class="orbit"><i></i><i></i><i></i></div>
+      <div>
+        <h2 style="font-size:18px;font-weight:700">Menyusun campaign plan…</h2>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:4px">Menerjemahkan brief Anda menjadi struktur campaign per platform.</p>
+      </div>
+      <div class="loader-steps" id="loaderSteps"></div>
+    </div>
+
+    <div class="card empty" id="resultEmpty">
+      <svg class="empty-art" viewBox="0 0 340 170" fill="none" aria-hidden="true">
+        <rect x="14" y="26" width="150" height="118" rx="12" fill="var(--surface-2)" stroke="var(--line)"/>
+        <rect x="30" y="44" width="70" height="8" rx="4" fill="var(--line-strong)"/>
+        <rect x="30" y="62" width="118" height="7" rx="3.5" fill="var(--line)"/>
+        <rect x="30" y="77" width="100" height="7" rx="3.5" fill="var(--line)"/>
+        <rect x="30" y="100" width="86" height="24" rx="8" fill="var(--brand)" opacity=".85"/>
+        <path d="M176 85h26" stroke="var(--brand)" stroke-width="2.5" stroke-dasharray="5 5" stroke-linecap="round"/>
+        <path d="M198 79l7 6-7 6" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="216" y="18" width="110" height="30" rx="9" fill="var(--brand-soft)" stroke="var(--brand)" stroke-opacity=".35"/>
+        <rect x="216" y="56" width="110" height="30" rx="9" fill="var(--violet-soft)" stroke="var(--violet)" stroke-opacity=".35"/>
+        <rect x="216" y="94" width="110" height="30" rx="9" fill="var(--sky-soft)" stroke="var(--sky)" stroke-opacity=".35"/>
+        <rect x="216" y="132" width="110" height="20" rx="8" fill="var(--surface-2)" stroke="var(--line)"/>
+        <rect x="228" y="29" width="50" height="8" rx="4" fill="var(--brand)" opacity=".55"/>
+        <rect x="228" y="67" width="66" height="8" rx="4" fill="var(--violet)" opacity=".55"/>
+        <rect x="228" y="105" width="42" height="8" rx="4" fill="var(--sky)" opacity=".55"/>
+      </svg>
+      <h2>Belum ada campaign yang dibuat</h2>
+      <p>Lengkapi brief pada langkah 1, lalu klik <b>Generate Campaign Strategy</b>. Hasilnya muncul di sini: struktur campaign, targeting, copy iklan, media plan, dan kalender optimasi.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-primary" data-goto="brief" type="button">Isi Brief Sekarang</button>
+        <button class="btn" id="btnSample2" type="button">Coba dengan Data Contoh</button>
+      </div>
+    </div>
+
+    <div id="resultRoot" hidden></div>
+  </section>
+
+  <!-- ================= VIEW: PROJECTS ================= -->
+  <section class="view" id="view-projects">
+    <div class="page-head">
+      <div class="eyebrow">Langkah 3 — Arsip</div>
+      <h1>Project campaign tersimpan</h1>
+      <p>Seluruh project disimpan di browser Anda (localStorage). Tidak ada data yang dikirim ke server mana pun.</p>
+    </div>
+    <div class="proj-toolbar">
+      <input type="text" id="projSearch" placeholder="Cari nama brand, produk, atau campaign…">
+      <select id="projFilter"><option value="">Semua platform</option></select>
+      <button class="btn btn-sm ml-auto" id="btnClearProjects" type="button">Hapus Semua</button>
+    </div>
+    <div class="proj-grid" id="projGrid"></div>
+    <div class="card empty" id="projEmpty" hidden style="padding:44px 24px">
+      <h2>Belum ada project tersimpan</h2>
+      <p>Setelah membuat campaign, klik <b>Simpan Project</b> pada halaman hasil untuk mengarsipkannya di sini.</p>
+    </div>
+  </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-in">
+    <h3 id="modalTitle">Ekspor Campaign Plan</h3>
+    <p style="color:var(--muted);font-size:13.5px;margin-bottom:12px" id="modalDesc"></p>
+    <textarea id="modalText" readonly></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" id="modalCopy" type="button">Salin Semua</button>
+      <button class="btn btn-sm" id="modalClose" type="button">Tutup</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+"use strict";
+
+/* ===================== UTILITIES ===================== */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let SEED = 7;
+function prng(seed){ let a = seed >>> 0; return function(){ a += 0x6D2B79F5; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+let RND = prng(SEED);
+function rot(arr, n){ if(!arr.length) return []; const k = n % arr.length; return arr.slice(k).concat(arr.slice(0, k)); }
+function take(arr, n, offset){ const r = rot(arr, (offset || 0) + (SEED % Math.max(arr.length,1))); return r.slice(0, n); }
+function cap(s){ s = String(s || "").trim(); return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+const STOPW = ["dan","atau","yang","untuk","dengan","sehingga","serta","agar","dari","pada","ke","di","the","a"];
+function clip(s, n){
+  s = String(s || "").trim();
+  if(s.length <= n) return s;
+  let c = s.slice(0, n);
+  if(s.charAt(n) !== " "){ const sp = c.lastIndexOf(" "); if(sp > n * 0.5) c = c.slice(0, sp); }
+  c = c.replace(/[,;:\.\-–—+\s]+$/, "");
+  for(let i = 0; i < 3; i++){
+    const m = c.match(/\s([A-Za-z\u00C0-\u024F]+|\d+)$/);
+    if(m && (STOPW.indexOf(m[1].toLowerCase()) >= 0 || /^\d+$/.test(m[1]))) c = c.slice(0, c.length - m[0].length).replace(/[,;:\.\-–—+\s]+$/, "");
+    else break;
+  }
+  return c;
+}
+function stripDot(s){ return String(s || "").trim().replace(/\.$/, ""); }
+function firstWords(s, n){ return String(s || "").trim().split(/\s+/).slice(0, n).join(" "); }
+function esc2(s){ return esc(s); }
+
+/* ===================== STATIC DATA ===================== */
+const OBJECTIVES = [
+  { id:"awareness",   name:"Brand Awareness",   desc:"Memperkenalkan brand ke audiens baru" },
+  { id:"traffic",     name:"Traffic Website",   desc:"Mendatangkan kunjungan ke website" },
+  { id:"engagement",  name:"Engagement",        desc:"Menambah interaksi & komunitas" },
+  { id:"leads",       name:"Leads / Data",      desc:"Mengumpulkan kontak calon pelanggan" },
+  { id:"whatsapp",    name:"WhatsApp / Message",desc:"Mengarahkan chat langsung ke admin" },
+  { id:"app",         name:"App Installation",  desc:"Mendorong instal aplikasi" },
+  { id:"sales",       name:"Sales / Conversion",desc:"Mendorong pembelian atau transaksi" },
+  { id:"retargeting", name:"Retargeting",       desc:"Menyasar ulang audiens yang pernah tertarik" },
+  { id:"launch",      name:"Product Launching", desc:"Meluncurkan produk atau layanan baru" }
+];
+const OBJ_MAP = Object.fromEntries(OBJECTIVES.map(o => [o.id, o]));
+
+const PLATFORMS = [
+  { id:"meta",     name:"Meta Ads",      sub:"Facebook & Instagram", color:"#1877F2", mark:"f" },
+  { id:"tiktok",   name:"TikTok Ads",    sub:"Video short-form",     color:"#EA2A55", mark:"t" },
+  { id:"google",   name:"Google Ads",    sub:"Search, PMax, Display",color:"#2F9E4F", mark:"G" },
+  { id:"youtube",  name:"YouTube Ads",   sub:"Video & Shorts",       color:"#D6262B", mark:"▶" },
+  { id:"linkedin", name:"LinkedIn Ads",  sub:"B2B & profesional",    color:"#0A66C2", mark:"in" },
+  { id:"x",        name:"X / Twitter Ads",sub:"Percakapan & real-time",color:"#43506B", mark:"X" }
+];
+const PF_MAP = Object.fromEntries(PLATFORMS.map(p => [p.id, p]));
+
+const TONES = [
+  { id:"profesional", name:"Profesional" }, { id:"friendly", name:"Friendly" },
+  { id:"edukatif", name:"Edukatif" }, { id:"hardsell", name:"Hard Selling" },
+  { id:"softsell", name:"Soft Selling" }, { id:"premium", name:"Premium / Eksklusif" },
+  { id:"genz", name:"Santai / Gen Z" }, { id:"urgent", name:"Urgent / Promo Terbatas" }
+];
+
+const AWARENESS = {
+  "1": { label:"Belum sadar masalah", angle:"Edukasi masalah lebih dulu — audiens belum merasa punya kebutuhan.", focus:"Konten problem-aware: fakta, kebiasaan keliru, konsekuensi jika dibiarkan.", funnel:[55,25,12,8] },
+  "2": { label:"Sadar masalah", angle:"Perbesar urgensi masalah, lalu perkenalkan kategori solusinya.", focus:"Konten agitasi masalah + perbandingan cara penyelesaian.", funnel:[45,30,15,10] },
+  "3": { label:"Mencari solusi", angle:"Posisikan produk sebagai solusi paling masuk akal dibanding alternatif.", focus:"Konten perbandingan, cara kerja, bukti hasil, dan keunggulan.", funnel:[30,35,22,13] },
+  "4": { label:"Mengenal produk", angle:"Hilangkan keraguan: bukti sosial, garansi, dan detail penawaran.", focus:"Testimoni, FAQ, demo produk, penjelasan harga & layanan.", funnel:[20,30,32,18] },
+  "5": { label:"Siap membeli", angle:"Dorong tindakan sekarang dengan penawaran jelas dan proses mudah.", focus:"Promo, urgency, bundling, kemudahan checkout / chat.", funnel:[12,20,45,23] }
+};
+
+const CATEGORIES = {
+  "Fashion": {
+    interests:["Online shopping","Fashion accessories","Zalora","Streetwear","OOTD","Shopee","Tokopedia"],
+    behaviors:["Engaged shoppers","Pembeli online 30 hari terakhir"],
+    keywords:["baju {kw}","outfit {kw}","fashion {kw} murah","jual baju {kw}"],
+    visual:["Flatlay produk dengan properti warna senada","Model mengenakan produk di lokasi urban","Video try-on 3 outfit dalam 15 detik","Detail close-up bahan & jahitan"],
+    palette:"Netral hangat (krem, cokelat muda) dengan satu aksen berani untuk tombol dan label promo.",
+    hashtags:["#ootdindo","#fashionlokal","#brandlokal","#outfitinspo","#fashionindonesia","#stylehariini","#lookbook","#fashiondaily","#localpride","#outfitideas"],
+    jobs:["Fashion Buyer","Retail Manager","Merchandiser"], industries:["Retail","Apparel & Fashion"],
+    triggers:["Ingin tampil percaya diri","Takut ketinggalan tren","Bangga memakai brand lokal"]
+  },
+  "Kuliner": {
+    interests:["Food delivery","GoFood","Kuliner","Coffee","Cooking","Restoran"],
+    behaviors:["Pengguna aplikasi pesan antar","Sering makan di luar"],
+    keywords:["{kw} enak dekat sini","pesan {kw} online","{kw} terdekat","catering {kw}"],
+    visual:["Close-up makanan dengan uap / tekstur","Video proses memasak 10 detik","Reaksi orang mencicipi produk","Paket bundling dengan harga besar"],
+    palette:"Warna hangat (merah bata, kuning mustard) di atas latar netral agar makanan tetap jadi fokus.",
+    hashtags:["#kulinerindonesia","#makanenak","#foodie","#kulinerlokal","#jajanan","#foodgram","#rekomendasikuliner","#makanansehat","#umkmkuliner","#foodlover"],
+    jobs:["F&B Manager","Owner Restoran","Procurement"], industries:["Food & Beverages","Restaurants"],
+    triggers:["Lapar mata","Ingin berbagi momen","Cari kepraktisan"]
+  },
+  "Skincare & Beauty": {
+    interests:["Skincare","Beauty","Sociolla","Makeup","Perawatan wajah","Self care"],
+    behaviors:["Pembeli produk kecantikan online"],
+    keywords:["skincare untuk {kw}","serum {kw}","cara mengatasi {kw}","review {kw}"],
+    visual:["Before–after (tanpa klaim medis berlebihan)","Tekstur produk di punggung tangan","Rutinitas pagi 15 detik","Ingredient highlight dengan teks besar"],
+    palette:"Pastel bersih (soft pink, sage, off-white) dengan tipografi tipis agar terasa lembut dan higienis.",
+    hashtags:["#skincareroutine","#skincareindonesia","#glowingskin","#perawatanwajah","#skincarelokal","#beautytips","#selfcare","#kulitsehat","#skincaretips","#beautylokal"],
+    jobs:["Beauty Advisor","Brand Manager","Apoteker"], industries:["Cosmetics","Health & Wellness"],
+    triggers:["Ingin kulit lebih sehat","Malu dengan kondisi kulit","Ingin rutinitas yang simpel"]
+  },
+  "Pendidikan": {
+    interests:["Online courses","Belajar","Beasiswa","Ruangguru","Skill development","Karier"],
+    behaviors:["Pencari kursus online","Orang tua siswa"],
+    keywords:["kursus {kw}","les {kw} online","belajar {kw} pemula","sertifikasi {kw}"],
+    visual:["Cuplikan materi kelas di layar","Testimoni alumni singkat","Papan tulis / whiteboard animasi","Screenshot hasil belajar"],
+    palette:"Biru tua + putih dengan aksen kuning untuk bagian penting; kesan kredibel dan mudah dibaca.",
+    hashtags:["#belajaronline","#kursusonline","#upgradeskill","#pendidikan","#kelasonline","#beasiswa","#skillbaru","#belajarbareng","#edukasi","#karier"],
+    jobs:["HR Manager","Learning & Development","Kepala Sekolah","Training Manager"], industries:["Education","Professional Training"],
+    triggers:["Takut tertinggal","Ingin naik karier","Ingin masa depan anak lebih baik"]
+  },
+  "Jasa Profesional": {
+    interests:["Business services","Konsultan","Entrepreneurship","LinkedIn","UKM"],
+    behaviors:["Pemilik usaha kecil","Pengambil keputusan bisnis"],
+    keywords:["jasa {kw}","konsultan {kw}","biaya jasa {kw}","{kw} profesional"],
+    visual:["Potret tim saat bekerja","Slide ringkas berisi framework layanan","Studi kasus dengan angka sebelum–sesudah","Dokumen / laporan yang rapi"],
+    palette:"Navy, abu terang, dan aksen biru; minim ornamen agar terasa terpercaya.",
+    hashtags:["#jasaprofesional","#konsultanbisnis","#bisnisindonesia","#ukmnaikkelas","#solusibisnis","#layananbisnis","#growthpartner","#bisniscerdas","#konsultasibisnis","#profesional"],
+    jobs:["Direktur","Founder","Operations Manager","Finance Manager"], industries:["Management Consulting","Financial Services","Legal Services"],
+    triggers:["Ingin proses lebih efisien","Takut salah langkah","Butuh pendamping ahli"]
+  },
+  "Properti": {
+    interests:["Real estate","KPR","Rumah123","Investasi properti","Interior"],
+    behaviors:["Pencari properti","Calon pembeli rumah pertama"],
+    keywords:["rumah dijual {kw}","apartemen {kw}","harga properti {kw}","kpr {kw}"],
+    visual:["Tur unit 15 detik","Foto fasad saat golden hour","Denah + highlight lokasi strategis","Simulasi cicilan dalam grafis sederhana"],
+    palette:"Netral elegan (putih, abu, kayu) dengan aksen emas tipis untuk kesan bernilai.",
+    hashtags:["#properti","#rumahdijual","#investasiproperti","#huniannyaman","#kpr","#rumahidaman","#propertiindonesia","#apartemen","#rumahbaru","#realestat"],
+    jobs:["Property Agent","Investor","General Manager"], industries:["Real Estate","Construction"],
+    triggers:["Ingin punya hunian sendiri","Takut harga naik","Ingin aset berkembang"]
+  },
+  "Teknologi": {
+    interests:["SaaS","Startup","Software","Productivity apps","Digital transformation"],
+    behaviors:["Pengguna aplikasi bisnis","Early adopter teknologi"],
+    keywords:["software {kw}","aplikasi {kw}","platform {kw}","tools {kw} terbaik"],
+    visual:["Screen recording fitur utama","Animasi alur kerja sebelum–sesudah","Dashboard produk dengan data contoh","Perbandingan cara manual vs otomatis"],
+    palette:"Biru elektrik + ungu lembut di atas latar terang; ikon garis tipis dan banyak ruang kosong.",
+    hashtags:["#teknologi","#digitaltools","#produktivitas","#saas","#startupindonesia","#transformasidigital","#aplikasibisnis","#techindonesia","#otomatisasi","#inovasi"],
+    jobs:["IT Manager","CTO","Product Manager","Operations Lead"], industries:["Information Technology","Software Development"],
+    triggers:["Ingin kerja lebih cepat","Frustrasi proses manual","Ingin unggul dari kompetitor"]
+  },
+  "Otomotif": {
+    interests:["Automotive","Modifikasi","Mobil bekas","Motor","Perawatan kendaraan"],
+    behaviors:["Pemilik kendaraan","Pencari mobil/motor"],
+    keywords:["{kw} harga","servis {kw}","sparepart {kw}","kredit {kw}"],
+    visual:["Detail eksterior dengan pencahayaan dramatis","Video test drive singkat","Sebelum–sesudah perawatan","Grafis spesifikasi utama"],
+    palette:"Hitam, abu metalik, dan satu aksen merah/biru untuk kesan tangguh.",
+    hashtags:["#otomotif","#mobilindonesia","#modifikasi","#perawatanmobil","#motorharian","#carlovers","#bengkel","#sparepart","#mobilbekas","#otomotifindonesia"],
+    jobs:["Fleet Manager","Sales Manager","Procurement"], industries:["Automotive","Transportation"],
+    triggers:["Bangga dengan kendaraan","Takut biaya perbaikan besar","Ingin nilai jual terjaga"]
+  },
+  "Kesehatan": {
+    interests:["Kesehatan","Fitness","Nutrisi","Halodoc","Gaya hidup sehat"],
+    behaviors:["Pencari layanan kesehatan","Peduli gaya hidup sehat"],
+    keywords:["klinik {kw}","cara mengatasi {kw}","suplemen {kw}","konsultasi {kw}"],
+    visual:["Rutinitas harian yang mudah diikuti","Infografis sederhana tentang manfaat","Testimoni pengguna (tanpa klaim medis)","Suasana klinik / tim profesional"],
+    palette:"Putih bersih, hijau tenang, dan biru muda; tipografi lapang agar mudah dibaca.",
+    hashtags:["#hidupsehat","#kesehatan","#tipssehat","#nutrisi","#kesehatankeluarga","#sehatalami","#gayahidupsehat","#wellness","#jagakesehatan","#sehatbersama"],
+    jobs:["Dokter","HR Benefit","Klinik Manager"], industries:["Hospital & Health Care","Wellness & Fitness"],
+    triggers:["Takut sakit","Ingin lebih berenergi","Ingin keluarga aman"]
+  },
+  "Retail": {
+    interests:["Belanja online","Marketplace","Diskon","Kebutuhan rumah tangga"],
+    behaviors:["Engaged shoppers","Pemburu promo"],
+    keywords:["beli {kw} online","{kw} murah","toko {kw}","promo {kw}"],
+    visual:["Katalog produk dalam format carousel","Video unboxing 15 detik","Grafis harga coret + promo","Foto rak / display toko"],
+    palette:"Putih dengan aksen warna cerah pada label harga; kontras tinggi agar promo terbaca cepat.",
+    hashtags:["#belanjaonline","#promohariini","#tokoonline","#diskon","#retailindonesia","#belanjahemat","#produklokal","#promospesial","#gratisongkir","#shoppinghaul"],
+    jobs:["Store Manager","Category Manager","Purchasing"], industries:["Retail","Consumer Goods"],
+    triggers:["Takut kehabisan promo","Ingin hemat","Ingin praktis"]
+  },
+  "UMKM": {
+    interests:["UMKM","Wirausaha","Bisnis rumahan","Produk lokal"],
+    behaviors:["Pemilik usaha mikro","Pembeli produk lokal"],
+    keywords:["{kw} umkm","produk lokal {kw}","{kw} rumahan","supplier {kw}"],
+    visual:["Cerita pemilik usaha (storytelling)","Proses produksi di rumah/workshop","Testimoni pelanggan setia","Paket bundling ramah kantong"],
+    palette:"Warna hangat dan ramah (terracotta, hijau daun) dengan sentuhan handmade.",
+    hashtags:["#umkmindonesia","#produklokal","#dukungumkm","#usahakecil","#umkmnaikkelas","#bangganlokal","#karyaanakbangsa","#belilokal","#umkmkreatif","#wirausaha"],
+    jobs:["Owner","Supervisor","Admin Penjualan"], industries:["Small Business","Consumer Goods"],
+    triggers:["Ingin usaha berkembang","Ingin dipercaya pelanggan","Bangga karya lokal"]
+  },
+  "Lainnya": {
+    interests:["Minat sesuai produk","Kompetitor sejenis","Komunitas terkait"],
+    behaviors:["Pembeli online aktif"],
+    keywords:["{kw}","harga {kw}","jasa {kw}","{kw} terbaik"],
+    visual:["Produk sebagai fokus utama","Cerita pelanggan","Demo cara pakai","Grafis penawaran"],
+    palette:"Biru dan putih dengan satu aksen kontras; bersih dan mudah dibaca.",
+    hashtags:["#bisnisindonesia","#produkberkualitas","#rekomendasi","#solusipraktis","#brandlokal","#terpercaya","#promoterbaru","#pilihantepat","#kualitasterjamin","#belanjacerdas"],
+    jobs:["Manager","Owner","Supervisor"], industries:["Business Services"],
+    triggers:["Ingin hasil lebih baik","Ingin proses mudah","Ingin nilai lebih"]
+  }
+};
+
+/* ---------- tone banks: {B} brand, {P} produk, {U} usp, {PAIN} masalah, {PROMO}, {LOC}, {AUD}, {CATL} ---------- */
+const TONE_BANK = {
+  profesional: {
+    note:"Bahasa lugas, fokus manfaat terukur dan kredibilitas. Hindari hiperbola.",
+    hooks:[
+      "{PAIN} — masalah ini menahan banyak {AUD} lebih lama dari yang seharusnya.",
+      "Memilih {CATL} yang tepat menentukan hasil selama berbulan-bulan ke depan.",
+      "Ada tiga hal yang sebaiknya dicek sebelum Anda memutuskan membeli {P}.",
+      "{B} membantu {AUD} menyelesaikan satu hal spesifik: {PAINS}."
+    ],
+    bodies:[
+      "{P} dirancang dengan satu keunggulan utama: {U}",
+      "Yang membedakan {B}: {U} Setiap detail disiapkan agar hasilnya konsisten.",
+      "Kami fokus pada hal yang paling berpengaruh — {U}"
+    ],
+    closes:["Pelajari detail lengkapnya sekarang.","Lihat bagaimana {B} bekerja untuk kebutuhan Anda.","Konsultasikan kebutuhan Anda hari ini."],
+    ctas:["Pelajari Selengkapnya","Lihat Detail","Hubungi Kami","Konsultasi Gratis"],
+    heads:["{PSHORT} untuk {AUDS}","Solusi {CATL} yang Terukur","{BSHORT}: {USHORT}","Pilihan Tepat untuk {AUDS}"]
+  },
+  friendly: {
+    note:"Hangat, personal, seperti berbicara dengan teman. Gunakan sapaan langsung.",
+    hooks:[
+      "Pernah merasa {PAINS}? Anda tidak sendirian.",
+      "Halo {AUD}! Ada kabar baik untuk Anda hari ini.",
+      "Kalau selama ini {PAINS}, mungkin ini yang Anda cari.",
+      "Kami sering ditanya: kenapa {P} banyak dipilih? Ini jawabannya."
+    ],
+    bodies:[
+      "{B} menghadirkan {P} yang bikin semuanya lebih mudah — {U}",
+      "Simpel saja: {U} Jadi Anda bisa fokus pada hal lain yang lebih penting.",
+      "{U} Itulah alasan pelanggan kami kembali lagi."
+    ],
+    closes:["Yuk, cek sekarang.","Silakan mampir dan lihat sendiri.","Kami siap bantu, tinggal klik saja."],
+    ctas:["Cek Sekarang","Lihat Produk","Chat Kami","Coba Dulu"],
+    heads:["{PSHORT} untuk Anda","Solusi untuk {PAINSS}","{BSHORT} Siap Bantu Anda","Cocok untuk {AUDS}"]
+  },
+  edukatif: {
+    note:"Awali dengan fakta atau insight, baru masuk ke produk. Bangun otoritas.",
+    hooks:[
+      "Fakta: sebagian besar {AUD} salah langkah saat pertama menghadapi {PAINS}.",
+      "Sebelum membeli {CATL}, pahami dulu 3 hal berikut.",
+      "Kenapa {PAINS} terus berulang? Biasanya karena satu kebiasaan kecil ini.",
+      "Panduan singkat: cara memilih {P} yang benar-benar sesuai kebutuhan."
+    ],
+    bodies:[
+      "Kuncinya ada pada kualitas dasar. Di {B}, itu berarti: {U}",
+      "Kami rangkum prosesnya agar mudah diikuti siapa saja. Hasilnya: {U}",
+      "Alih-alih menjanjikan hasil instan, {B} fokus pada fondasi yang benar — {U}"
+    ],
+    closes:["Baca panduan lengkapnya di halaman kami.","Pelajari langkah-langkahnya sekarang.","Simpan postingan ini agar tidak lupa."],
+    ctas:["Pelajari Selengkapnya","Baca Panduan","Unduh Panduan","Lihat Penjelasan"],
+    heads:["Panduan Memilih {PSHORT}","3 Hal Sebelum Beli {PSHORT}","Kenapa Ini Sering Terjadi?","Cara Tepat Atasi Masalahnya"]
+  },
+  hardsell: {
+    note:"Langsung ke penawaran, CTA tegas dan berulang. Cocok untuk audiens siap beli.",
+    hooks:[
+      "{PROMOH} — khusus untuk Anda yang butuh {PSHORT} sekarang.",
+      "Berhenti menunda. {PSHORT} yang Anda cari ada di sini.",
+      "Butuh {PSHORT}? Ini penawaran terbaik minggu ini.",
+      "Stok terbatas: {PSHORT} dengan {USHORT}."
+    ],
+    bodies:[
+      "{U} Pesan sekarang sebelum penawaran ditutup.",
+      "Langsung pesan, proses cepat, tanpa ribet. {U}",
+      "{PROMOB} Klik tombol di bawah dan amankan milik Anda."
+    ],
+    closes:["Pesan sekarang juga.","Klik dan checkout hari ini.","Jangan sampai kehabisan — order sekarang."],
+    ctas:["Pesan Sekarang","Beli Sekarang","Order Hari Ini","Ambil Penawaran"],
+    heads:["{PROMOHS}","Pesan {PSHORT} Sekarang","Penawaran Terbatas Hari Ini","{PSHORT} — Stok Terbatas"]
+  },
+  softsell: {
+    note:"Bercerita dulu, produk muncul sebagai jalan keluar yang wajar. Tekanan rendah.",
+    hooks:[
+      "Awalnya sederhana: {PAINS}. Lalu semuanya berubah.",
+      "Cerita seorang pelanggan kami yang dulu juga {PAINS}.",
+      "Tidak ada yang salah dengan cara lama. Hanya saja, ada cara yang lebih ringan.",
+      "Kadang solusi yang dicari ternyata sesederhana ini."
+    ],
+    bodies:[
+      "{B} membuat {P} untuk alasan itu — {U}",
+      "Tanpa janji berlebihan. Yang kami jaga hanya satu: {U}",
+      "Banyak yang bilang perubahannya terasa di pemakaian pertama. Kuncinya: {U}"
+    ],
+    closes:["Kalau terasa relevan, silakan lihat detailnya.","Tidak perlu buru-buru — pelajari dulu selengkapnya.","Kenali produknya lebih dekat."],
+    ctas:["Lihat Selengkapnya","Kenali Produknya","Baca Ceritanya","Lihat Detail"],
+    heads:["Cerita di Balik {PSHORT}","Cara yang Lebih Ringan","{BSHORT}, Dibuat dengan Alasan","Mungkin Ini yang Anda Cari"]
+  },
+  premium: {
+    note:"Tenang, terkurasi, sedikit kata. Tekankan kualitas, bukan harga.",
+    hooks:[
+      "Dibuat untuk mereka yang tahu perbedaannya.",
+      "Standar yang lebih tinggi untuk {CATL} Anda.",
+      "Ketika kualitas menjadi pertimbangan pertama.",
+      "{BSHORT} — kurasi untuk {AUD} yang selektif."
+    ],
+    bodies:[
+      "{U} Setiap detail dipilih, bukan kebetulan.",
+      "Kami membatasi jumlah agar kualitas tetap terjaga. {U}",
+      "{U} Hasilnya terlihat, dan terasa."
+    ],
+    closes:["Temukan koleksi lengkapnya.","Jelajahi detailnya.","Miliki sekarang, dalam jumlah terbatas."],
+    ctas:["Jelajahi Koleksi","Lihat Detail","Miliki Sekarang","Pesan Eksklusif"],
+    heads:["{PSHORT} Pilihan","Standar Baru {CATL}","Kualitas yang Terasa","Untuk yang Selektif"]
+  },
+  genz: {
+    note:"Ringkas, ritme cepat, bahasa sehari-hari. Hindari kaku dan formal.",
+    hooks:[
+      "POV: kamu akhirnya nemu solusi buat {PAINS}.",
+      "Ini sih wajib banget buat kamu yang {PAINS}.",
+      "Serius, kenapa nggak dari dulu tahu {PSHORT} ini?",
+      "Bukan iklan biasa — ini beneran ngebantu."
+    ],
+    bodies:[
+      "{U} Simpel, tinggal pakai.",
+      "Nggak perlu ribet. {U}",
+      "{U} Worth it banget buat dicoba."
+    ],
+    closes:["Cus cek sekarang.","Klik dulu, nyesel kalau kelewat.","Cobain, gampang kok."],
+    ctas:["Cek Sekarang","Cobain Yuk","Gas Pesan","Lihat Dulu"],
+    heads:["Ini Fix Bikin Beda","Solusi Buat {PAINSS}","{PSHORT} yang Lagi Rame","Wajib Coba Sekali"]
+  },
+  urgent: {
+    note:"Batas waktu jelas, satu penawaran, satu CTA. Jangan gunakan terus-menerus.",
+    hooks:[
+      "{PROMOH} Berlaku terbatas.",
+      "Hari terakhir: {PROMOHS}",
+      "Jangan sampai terlewat — penawaran ini segera ditutup.",
+      "Kuota promo {PSHORT} tinggal sedikit."
+    ],
+    bodies:[
+      "{PROMOB} {U}",
+      "{U} Ambil sekarang sebelum periode promo berakhir.",
+      "Setelah periode ini, harga kembali normal. {U}"
+    ],
+    closes:["Klaim sekarang sebelum habis.","Amankan sekarang juga.","Klik sebelum penawaran ditutup."],
+    ctas:["Klaim Promo","Ambil Sekarang","Pesan Sebelum Habis","Dapatkan Hari Ini"],
+    heads:["{PROMOHS}","Terbatas Hari Ini","Promo Segera Berakhir","Kesempatan Terakhir"]
+  }
+};
+
+/* platform affinity per objective (0–10) */
+const AFFINITY = {
+  meta:     { awareness:9, traffic:9, engagement:9, leads:9, whatsapp:10, app:8, sales:9, retargeting:10, launch:9 },
+  tiktok:   { awareness:10, traffic:7, engagement:10, leads:6, whatsapp:6, app:9, sales:7, retargeting:6, launch:9 },
+  google:   { awareness:4, traffic:9, engagement:3, leads:8, whatsapp:6, app:7, sales:10, retargeting:8, launch:6 },
+  youtube:  { awareness:9, traffic:6, engagement:7, leads:5, whatsapp:4, app:6, sales:5, retargeting:7, launch:8 },
+  linkedin: { awareness:5, traffic:5, engagement:5, leads:8, whatsapp:3, app:4, sales:5, retargeting:5, launch:5 },
+  x:        { awareness:6, traffic:6, engagement:8, leads:4, whatsapp:3, app:5, sales:4, retargeting:4, launch:7 }
+};
+const B2B_CATS = ["Jasa Profesional","Teknologi","Pendidikan","Properti"];
+const B2C_CATS = ["Fashion","Kuliner","Skincare & Beauty","Retail","UMKM","Otomotif","Kesehatan"];
+
+/* CPM assumption bands (IDR) — perencanaan kasar, bukan jaminan */
+const CPM_BAND = { meta:[25000,60000], tiktok:[15000,45000], google:[12000,35000], youtube:[20000,50000], linkedin:[90000,220000], x:[30000,75000] };
+const FX = { IDR:1, USD:16000, SGD:12200, MYR:3600 };
+const CUR_SYM = { IDR:"Rp", USD:"$", SGD:"S$", MYR:"RM" };
+
+const METRIC_GUIDE = {
+  awareness:{ primary:["Reach","Impressions","CPM","Frequency"], secondary:["Video Views (3s/ThruPlay)","Brand lift kualitatif"], note:"Fokus pada seberapa luas dan sehemat apa pesan menjangkau audiens baru. Jaga frequency di kisaran 1,5–3 per minggu." },
+  traffic:{ primary:["CTR","CPC","Landing Page Views"], secondary:["Bounce rate","Waktu di halaman"], note:"Klik yang mahal biasanya soal creative; klik banyak tapi sedikit landing page view biasanya soal kecepatan halaman." },
+  engagement:{ primary:["Engagement Rate","Cost per Engagement","Saves & Shares"], secondary:["Komentar berkualitas","Pertumbuhan follower"], note:"Interaksi murah belum tentu berkualitas — perhatikan share dan save sebagai sinyal terkuat." },
+  leads:{ primary:["CPL","Jumlah Lead","Conversion Rate form"], secondary:["Lead quality score","Show-up / follow-up rate"], note:"Lead murah tanpa kualitas adalah biaya. Beri skor kualitas tiap minggu bersama tim sales." },
+  whatsapp:{ primary:["Cost per Conversation","Jumlah chat masuk","Balas rate"], secondary:["Chat-to-order rate"], note:"Siapkan template balasan cepat; kecepatan respon 5 menit pertama sangat menentukan." },
+  app:{ primary:["Cost per Install","Install Rate","Retention D1/D7"], secondary:["Cost per event dalam aplikasi"], note:"Install murah tanpa retensi tidak berarti. Pantau event setelah instal." },
+  sales:{ primary:["CPA","ROAS","Conversion Rate","AOV"], secondary:["Add to cart rate","Checkout drop-off"], note:"Bandingkan CPA dengan margin, bukan dengan CPA kompetitor. Pastikan tracking konversi valid." },
+  retargeting:{ primary:["Frequency","CPA","ROAS"], secondary:["Reach audiens retargeting","Klik berulang"], note:"Batasi frequency agar tidak menimbulkan iklan yang mengganggu; segarkan creative tiap 2 minggu." },
+  launch:{ primary:["Reach","CTR","Cost per Add to Cart / Lead"], secondary:["Sentimen komentar","Waitlist signup"], note:"Fase peluncuran butuh jangkauan luas dulu, baru diikuti penawaran konversi." }
+};
+
+/* ===================== HELPERS FOR COPY ===================== */
+function moneyFmt(v, cur){
+  const sym = CUR_SYM[cur] || "Rp";
+  const n = Math.round(Number(v) || 0);
+  return sym + " " + n.toLocaleString("id-ID");
+}
+function shortMoney(v, cur){
+  const sym = CUR_SYM[cur] || "Rp";
+  const n = Math.round(Number(v) || 0);
+  if(cur === "IDR"){
+    if(n >= 1e9) return sym + " " + (n/1e9).toFixed(1).replace(".",",") + " M";
+    if(n >= 1e6) return sym + " " + (n/1e6).toFixed(1).replace(".",",") + " jt";
+    if(n >= 1e3) return sym + " " + Math.round(n/1e3) + " rb";
+  }
+  return sym + " " + n.toLocaleString("id-ID");
+}
+function vars(f){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const painShort = stripDot(f.pain).toLowerCase();
+  const promo = f.promo ? stripDot(f.promo) : "";
+  return {
+    B: f.brand, BSHORT: firstWords(f.brand, 3),
+    P: f.product, PSHORT: firstWords(f.product, 3),
+    U: stripDot(f.usp) + ".",
+    USHORT: clip(stripDot(f.usp), 40),
+    PAIN: cap(stripDot(f.pain)), PAINS: painShort, PAINSS: clip(painShort, 26),
+    PROMO: promo, PROMOH: promo ? promo + "!" : "Penawaran spesial periode ini!",
+    PROMOHS: promo ? clip(promo, 28) : "Penawaran Spesial",
+    PROMOB: promo ? promo + "." : "Penawaran khusus periode campaign ini.",
+    LOC: firstWords(f.location, 4),
+    AUD: f.interests ? f.interests.split(",")[0].trim() : "audiens Anda",
+    AUDS: clip(f.interests ? f.interests.split(",")[0].trim() : "Anda", 18),
+    CATL: (f.category || "produk").toLowerCase(),
+    PRICE: f.price || "",
+    CAT: f.category
+  };
+}
+function t(str, v){ return String(str).replace(/\{(\w+)\}/g, (m, k) => (v[k] !== undefined && v[k] !== "" ? v[k] : (m === "{PRICE}" ? "" : m))); }
+function tArr(arr, v){ return arr.map(s => t(s, v)); }
+
+/* ===================== BUDGET ALLOCATION ===================== */
+function allocate(f){
+  const sel = f.platforms;
+  const obj = f.objective;
+  const isB2B = B2B_CATS.indexOf(f.category) >= 0;
+  const isB2C = B2C_CATS.indexOf(f.category) >= 0;
+  const aw = Number(f.awareness);
+  const scores = {};
+  sel.forEach(p => {
+    let s = (AFFINITY[p] && AFFINITY[p][obj]) || 5;
+    if(isB2B){ if(p === "linkedin") s *= 1.7; if(p === "google") s *= 1.25; if(p === "tiktok") s *= 0.7; }
+    if(isB2C){ if(p === "tiktok") s *= 1.25; if(p === "meta") s *= 1.15; if(p === "linkedin") s *= 0.5; }
+    if(aw <= 2){ if(p === "tiktok" || p === "youtube") s *= 1.2; if(p === "google") s *= 0.85; }
+    if(aw >= 4){ if(p === "google") s *= 1.25; if(p === "meta") s *= 1.1; if(p === "tiktok") s *= 0.9; }
+    scores[p] = s;
+  });
+  const total = sel.reduce((a, p) => a + scores[p], 0) || 1;
+  let pcts = sel.map(p => ({ id:p, pct: Math.round(scores[p] / total * 100) }));
+  let diff = 100 - pcts.reduce((a, x) => a + x.pct, 0);
+  pcts.sort((a, b) => b.pct - a.pct);
+  let i = 0;
+  while(diff !== 0 && pcts.length){
+    pcts[i % pcts.length].pct += diff > 0 ? 1 : -1;
+    diff += diff > 0 ? -1 : 1; i++;
+  }
+  const budget = Number(f.budgetTotal) || 0;
+  return pcts.map(x => ({ id:x.id, pct:x.pct, amount: Math.round(budget * x.pct / 100), daily: Math.round(budget * x.pct / 100 / Math.max(1, Number(f.duration) || 1)) }));
+}
+function estImpressions(amount, pid, cur){
+  const rate = FX[cur] || 1;
+  const idr = amount * rate;
+  const band = CPM_BAND[pid] || [30000, 70000];
+  const hi = Math.round(idr / band[0] * 1000), lo = Math.round(idr / band[1] * 1000);
+  return [lo, hi];
+}
+
+/* ===================== PLAN BUILDER ===================== */
+const MONTHS = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+function tagDate(){ const d = new Date(); return MONTHS[d.getMonth()] + d.getFullYear(); }
+function slugUp(s, n){ return String(s || "").toUpperCase().replace(/[^A-Z0-9 ]/g, "").trim().split(/\s+/).slice(0, n || 2).join(""); }
+
+function adSetCount(dailyIdr){
+  if(dailyIdr < 100000) return { sets:2, creatives:6, note:"Budget harian terbatas — jaga jumlah ad set tetap sedikit agar pembelajaran algoritma tidak terpecah." };
+  if(dailyIdr < 300000) return { sets:3, creatives:9, note:"Cukup untuk menguji 2–3 kelompok audiens sekaligus." };
+  if(dailyIdr < 1000000) return { sets:4, creatives:12, note:"Bisa menguji audiens luas, minat, dan lookalike secara paralel." };
+  return { sets:5, creatives:15, note:"Skala budget memungkinkan struktur pengujian lengkap plus campaign retargeting terpisah." };
+}
+
+function buildMeta(f, v, alloc){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const tb = TONE_BANK[f.tone];
+  const a = alloc.find(x => x.id === "meta") || { amount:0, daily:0, pct:0 };
+  const dailyIdr = a.daily * (FX[f.currency] || 1);
+  const sz = adSetCount(dailyIdr);
+  const objMap = {
+    awareness:["Awareness (Brand Awareness / Reach)","Tidak ada conversion event — optimasi ke reach dengan frequency cap"],
+    traffic:["Traffic","Landing Page View"],
+    engagement:["Engagement (Post / Page Engagement)","Post Engagement"],
+    leads:["Leads (Instant Form atau Website)","Lead"],
+    whatsapp:["Engagement — Klik ke WhatsApp","Conversation Started (Messaging)"],
+    app:["App Promotion","App Install / Mobile App Event"],
+    sales:["Sales","Purchase (fallback: Initiate Checkout jika data konversi < 50/minggu)"],
+    retargeting:["Sales — khusus audiens hangat","Purchase / Add to Cart"],
+    launch:["Awareness untuk fase teaser, lalu Sales saat peluncuran","Add to Cart lalu Purchase"]
+  };
+  const om = objMap[f.objective] || objMap.traffic;
+  const interests = (f.interests ? f.interests.split(",").map(s => s.trim()).filter(Boolean) : []).concat(c.interests).slice(0, 8);
+  const primary = take(tb.hooks, 4, 1).map((h, i) => t(h, v) + "\n\n" + t(take(tb.bodies, 4, i)[0], v) + "\n\n" + t(take(tb.closes, 3, i)[0], v));
+  const heads = take(tb.heads, 4, 2).map(h => clip(t(h, v), 40));
+  const placements = {
+    awareness:["Facebook Feed","Instagram Feed","Instagram Reels","Facebook Reels","Stories (FB & IG)"],
+    traffic:["Facebook Feed","Instagram Feed","Stories","Instagram Explore"],
+    engagement:["Instagram Feed","Instagram Reels","Facebook Feed"],
+    leads:["Facebook Feed","Instagram Feed","Instagram Stories"],
+    whatsapp:["Facebook Feed","Instagram Feed","Stories","Messenger Inbox"],
+    app:["Instagram Reels","Facebook Feed","Audience Network"],
+    sales:["Facebook Feed","Instagram Feed","Instagram Reels","Stories","Advantage+ Placement"],
+    retargeting:["Facebook Feed","Instagram Feed","Stories","Audience Network (frequency rendah)"],
+    launch:["Instagram Reels","Facebook Feed","Instagram Feed","Stories"]
+  }[f.objective] || ["Advantage+ Placement"];
+  return {
+    objective: om[0], event: om[1], pct:a.pct, amount:a.amount, daily:a.daily,
+    campaignName: slugUp(f.brand,2) + "_" + f.objective.toUpperCase() + "_PROSPECTING_" + tagDate(),
+    structure: [
+      "Campaign: " + slugUp(f.brand,2) + "_" + f.objective.toUpperCase() + "_" + tagDate() + "  (Advantage Campaign Budget)",
+      "Ad Set: AS1_BROAD_" + v.LOC.replace(/\s/g,"") + " | AS2_INTEREST_" + slugUp(interests[0] || "MINAT",1) + " | AS3_LOOKALIKE1%",
+      "Ads: 3 creative per ad set (1 video, 1 carousel, 1 single image) — nama: AD_[format]_[angle]_v1"
+    ],
+    audience: v.LOC + " · usia " + f.ageMin + "–" + f.ageMax + " · " + f.gender + (f.persona ? " · " + f.persona : ""),
+    interests: interests,
+    behaviors: c.behaviors,
+    custom: [
+      "Website visitors 30 & 90 hari (butuh Meta Pixel + Conversions API)",
+      "Pengunjung halaman produk tanpa pembelian 14 hari",
+      "Instagram & Facebook engagers 365 hari",
+      "Video viewers 50% dan 75%",
+      "Daftar pelanggan / database WhatsApp (customer list upload)",
+      "Orang yang membuka form lead namun tidak submit"
+    ],
+    lookalike: [
+      "LLA 1% dari pembeli / lead 180 hari (paling akurat jika data ≥ 500 orang)",
+      "LLA 1–3% dari IG & FB engagers 365 hari",
+      "LLA 2% dari video viewers 75% (alternatif saat data konversi masih tipis)"
+    ],
+    placements: placements,
+    sets: sz.sets, creatives: sz.creatives, sizeNote: sz.note,
+    formats: ["Single Image 1:1 & 4:5","Video 4:5 (feed) dan 9:16 (Reels/Stories)","Carousel 3–5 kartu","Collection (jika katalog produk tersedia)"],
+    visualIdeas: take(c.visual, 4, 0),
+    primary: primary,
+    headlines: heads,
+    description: clip(t("{USHORT} — " + (f.promo ? "{PROMO}" : "cek detail lengkapnya sekarang"), v), 90),
+    cta: take(tb.ctas, 3, 0),
+    retarget: [
+      "Segmen 1 — pengunjung website 7 hari: iklan pengingat + testimoni.",
+      "Segmen 2 — add to cart / initiate checkout 14 hari: penawaran " + (f.promo ? "(" + v.PROMO + ")" : "insentif kecil seperti gratis ongkir") + ".",
+      "Segmen 3 — engagers 30 hari yang belum ke website: konten edukasi + CTA lembut.",
+      "Kecualikan pembeli 30 hari terakhir agar budget tidak terbuang.",
+      "Batasi frequency cap 2–3 per minggu untuk audiens retargeting."
+    ],
+    optimization: [
+      "Biarkan campaign belajar 3–5 hari sebelum menilai (fase learning).",
+      "Jangan ubah budget lebih dari 20–30% per perubahan agar tidak reset learning.",
+      "Matikan ads yang sudah menghabiskan 2–3× target " + (f.targetCPA ? "CPA (" + moneyFmt(f.targetCPA, f.currency) + ")" : "CPA") + " tanpa hasil.",
+      "Perhatikan CTR outbound < 0,8% sebagai sinyal creative perlu diganti.",
+      "Segarkan creative tiap 10–14 hari, atau saat frequency > 3."
+    ]
+  };
+}
+
+function buildTiktok(f, v, alloc){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const tb = TONE_BANK[f.tone];
+  const a = alloc.find(x => x.id === "tiktok") || { amount:0, daily:0, pct:0 };
+  const om = {
+    awareness:["Reach / Video Views","Awareness"], traffic:["Traffic","Consideration"],
+    engagement:["Community Interaction","Consideration"], leads:["Lead Generation (Instant Form)","Conversion"],
+    whatsapp:["Traffic ke link WhatsApp","Consideration"], app:["App Promotion","Conversion"],
+    sales:["Website Conversions / Product Sales","Conversion"], retargeting:["Website Conversions (audiens hangat)","Conversion"],
+    launch:["Video Views lalu Traffic","Awareness → Consideration"]
+  }[f.objective] || ["Traffic","Consideration"];
+  const hooks = [
+    "\"" + clip(cap(v.PAINS), 42) + "?\" — tunjukkan masalahnya di detik pertama, bukan logo.",
+    "Mulai dengan hasil akhir dulu (\"ini hasilnya setelah 7 hari\"), baru mundur ke prosesnya.",
+    "Buka dengan pertanyaan langsung ke kamera: \"Kamu masih " + clip(v.PAINS, 30) + "?\"",
+    "Pakai teks besar di layar 3 kata: \"JANGAN BELI DULU\" lalu jelaskan alasannya."
+  ];
+  const concepts = [
+    { title:"Problem–Solution 15 detik", desc:"Perlihatkan masalah nyata di 0–3 detik, solusi di 4–10 detik, penawaran di 11–15 detik.",
+      script:"0–3s: (visual masalah) \"" + clip(cap(v.PAINS), 46) + "\"\n4–8s: \"Saya coba " + v.PSHORT + " dari " + v.BSHORT + ".\"\n9–12s: \"" + clip(stripDot(f.usp), 70) + "\"\n13–15s: \"" + t(take(tb.closes,3,0)[0], v) + "\" (teks CTA + logo kecil)" },
+    { title:"Testimoni / UGC gaya native", desc:"Direkam handheld, tanpa pencahayaan studio, terasa seperti rekomendasi teman.",
+      script:"0–3s: \"Aku nggak nyangka ini beneran ngebantu.\"\n4–10s: cerita singkat pengalaman + tampilkan produk dipakai\n11–18s: sebutkan 1 keunggulan: \"" + clip(stripDot(f.usp), 60) + "\"\n19–22s: \"Cek keranjang kuning / link di bio.\"" },
+    { title:"3 Alasan / Listicle cepat", desc:"Potongan cepat dengan teks besar tiap poin, cocok untuk audiens yang sedang membandingkan.",
+      script:"0–2s: \"3 alasan " + v.PSHORT + " ini beda.\"\n3–8s: alasan 1 (visual bukti)\n9–14s: alasan 2 (" + clip(stripDot(f.usp), 40) + ")\n15–20s: alasan 3 (" + (f.promo ? v.PROMO : "layanan/garansi") + ")\n21–24s: CTA + tampilkan harga" },
+    { title:"Behind the scene / proses", desc:"Tunjukkan proses pembuatan atau cara kerja; membangun kepercayaan dengan cepat.",
+      script:"0–3s: \"Begini " + v.PSHORT + " dibuat.\"\n4–12s: potongan proses (3–4 shot cepat)\n13–18s: hasil akhir + keunggulan\n19–22s: \"" + t(take(tb.closes,3,1)[0], v) + "\"" }
+  ];
+  return {
+    objective: om[0], funnelStage: om[1], pct:a.pct, amount:a.amount, daily:a.daily,
+    campaignName: "TT_" + slugUp(f.brand,2) + "_" + f.objective.toUpperCase() + "_" + tagDate(),
+    campaignType: (f.objective === "sales" || f.objective === "leads") ? "Standard campaign + Smart Performance sebagai pembanding (jalankan paralel, bandingkan CPA setelah 7 hari)" : "Standard campaign dengan 2 ad group pengujian audiens",
+    audience: v.LOC + " · usia " + f.ageMin + "–" + f.ageMax + " · " + f.gender,
+    interests: c.interests.slice(0, 6),
+    behaviors: ["Video-related behavior: menonton video kategori terkait sampai selesai (7 hari)","Creator-related behavior: mengikuti / berinteraksi dengan kreator kategori sejenis","Hashtag-related behavior sesuai kategori"],
+    placement: "Mulai dengan TikTok Placement saja agar data creative bersih. Aktifkan Automatic Placement setelah menemukan creative pemenang, untuk memperluas jangkauan dengan CPM lebih murah.",
+    spark: "Prioritaskan Spark Ads — gunakan video organik dari akun brand atau kreator (butuh authorization code). Spark Ads biasanya terasa lebih native dan menyimpan interaksi ke postingan asli. Non-Spark Ads dipakai untuk creative khusus promo yang tidak ingin tampil di feed organik.",
+    videoFormat: "Vertikal 9:16, 1080×1920, sound-on, teks aman di area tengah (hindari 15% atas & bawah).",
+    duration: (f.objective === "awareness" || f.objective === "launch") ? "9–15 detik untuk jangkauan, plus 1 versi 21–34 detik untuk penjelasan." : "15–25 detik; sweet spot konversi biasanya 18–25 detik.",
+    hooks: hooks,
+    concepts: concepts,
+    caption: clip(t(take(tb.hooks, 1, 3)[0], v), 90) + " " + (f.promo ? v.PROMO + " " : "") + take(tb.ctas, 1, 1)[0] + " 👇",
+    cta: take(tb.ctas, 3, 2),
+    creativeNote: [
+      "Konten harus terasa native: rekam vertikal, hindari materi cetak/desain kaku.",
+      "Tulis hook dalam 3 detik pertama — 40% penonton memutuskan lanjut atau tidak di sini.",
+      "Gunakan voice over bahasa sehari-hari dan subtitle; banyak penonton menonton tanpa suara.",
+      "Siapkan minimal 3–5 hook berbeda untuk satu badan video yang sama (hook testing).",
+      "Ganti creative tiap 7–10 hari; TikTok jenuh lebih cepat dibanding platform lain."
+    ],
+    budgetNote: "TikTok memiliki minimum budget harian (umumnya sekitar $20–$50 per ad group/campaign, bisa berbeda per akun). Jika alokasi " + shortMoney(a.daily, f.currency) + "/hari di bawah minimum, gabungkan menjadi satu ad group saja."
+  };
+}
+
+function buildGoogle(f, v, alloc){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const tb = TONE_BANK[f.tone];
+  const a = alloc.find(x => x.id === "google") || { amount:0, daily:0, pct:0 };
+  const kw = firstWords(String(f.product).toLowerCase(), 3);
+  const loc = firstWords(String(f.location).split(",")[0], 2);
+  const main = [kw, kw + " " + loc, "harga " + kw, "jual " + kw, kw + " terbaik"].concat(c.keywords.map(k => k.replace("{kw}", kw))).slice(0, 9);
+  const longtail = [
+    kw + " untuk " + clip(v.AUD.toLowerCase(), 22),
+    "rekomendasi " + kw + " yang bagus",
+    kw + " terdekat di " + loc,
+    "berapa harga " + kw + " " + loc,
+    kw + " bergaransi dan terpercaya",
+    "cara memilih " + kw + " yang tepat",
+    (f.promo ? "promo " + kw + " " + loc : "beli " + kw + " online " + loc)
+  ];
+  const negatives = ["gratis","gratisan","murahan","bekas","second","lowongan","loker","tutorial","cara membuat sendiri","diy","pdf","skripsi","arti","adalah","review palsu"];
+  if(f.tone === "premium") negatives.push("murah","diskon besar","obral");
+  const rsaHeads = [
+    clip(cap(kw) + " " + (loc ? "di " + loc : "Terpercaya"), 30),
+    clip(v.BSHORT + " — " + clip(stripDot(f.usp), 18), 30),
+    clip(cap(kw) + " Berkualitas", 30),
+    clip("Solusi Tepat untuk " + v.AUDS, 30),
+    clip(f.promo ? cap(clip(v.PROMO, 26)) : "Penawaran Terbatas", 30),
+    clip("Konsultasi Gratis Hari Ini", 30),
+    clip(f.price ? "Harga Mulai " + firstWords(f.price, 2) : cap(kw) + " Harga Transparan", 30),
+    clip("Dipercaya " + (v.AUDS || "Banyak Pelanggan"), 30),
+    clip("Proses Cepat & Mudah", 30),
+    clip(/sekarang|hari ini/i.test(take(tb.ctas, 1, 0)[0]) ? take(tb.ctas, 1, 0)[0] : take(tb.ctas, 1, 0)[0] + " Sekarang", 30),
+    clip(cap(kw) + " Bergaransi", 30),
+    clip(v.BSHORT + " Official", 30)
+  ];
+  const rsaDesc = [
+    clip(stripDot(f.usp) + ". " + take(tb.closes, 1, 0)[0].replace(/\{\w+\}/g, ""), 90),
+    clip(cap(kw) + " untuk " + v.AUD + ". " + (f.promo ? v.PROMO + "." : "Konsultasi gratis sebelum memutuskan."), 90),
+    clip("Kami bantu atasi " + v.PAINS + " dengan proses yang jelas dan terukur.", 90),
+    clip((f.price ? "Harga " + f.price + ". " : "") + "Hubungi tim kami untuk penawaran sesuai kebutuhan Anda.", 90),
+    clip(v.BSHORT + " melayani area " + v.LOC + ". Respons cepat, informasi transparan.", 90)
+  ];
+  return {
+    pct:a.pct, amount:a.amount, daily:a.daily,
+    search:{
+      campaignName: "GS_" + slugUp(f.brand,2) + "_SEARCH_" + slugUp(loc,1) + "_" + tagDate(),
+      objective: f.objective === "sales" ? "Sales — Maximize Conversions (mulai dengan Maximize Clicks 2 minggu pertama bila data konversi belum ada)" : f.objective === "leads" ? "Leads — Maximize Conversions dengan target CPA setelah 30 konversi" : "Website Traffic — Maximize Clicks",
+      adGroups:[
+        { name:"AG1 — Brand", kws:[v.BSHORT.toLowerCase(), v.BSHORT.toLowerCase() + " " + kw, v.BSHORT.toLowerCase() + " official"] },
+        { name:"AG2 — Produk Inti", kws: main.slice(0, 5) },
+        { name:"AG3 — Intent Tinggi", kws:["harga " + kw, "beli " + kw, kw + " " + loc] }
+      ],
+      main: main, longtail: longtail, negatives: negatives,
+      matchType:"Mulai dengan phrase match untuk keyword inti dan exact match untuk keyword intent tinggi (harga/beli). Broad match hanya digunakan bersama Smart Bidding setelah data konversi cukup, dan wajib dipantau lewat Search Terms Report mingguan.",
+      rsaHeads: rsaHeads, rsaDesc: rsaDesc,
+      sitelinks:[
+        { t:"Lihat Harga", d:"Rincian paket dan harga terbaru." },
+        { t:"Produk Unggulan", d:"Pilihan paling banyak dipesan pelanggan." },
+        { t:"Testimoni Pelanggan", d:"Pengalaman pelanggan sebelumnya." },
+        { t:"Hubungi Kami", d:"Konsultasi cepat via WhatsApp." }
+      ],
+      callouts:["Respons Cepat","Harga Transparan","Layanan " + v.LOC,"Gratis Konsultasi", (f.promo ? clip(v.PROMO, 24) : "Kualitas Terjaga"),"Tim Berpengalaman"],
+      snippet:{ header: f.category === "Jasa Profesional" || f.category === "Teknologi" ? "Layanan" : "Tipe", values:[cap(kw), "Paket Reguler", "Paket Lengkap", "Custom sesuai kebutuhan"] },
+      cta: take(tb.ctas, 2, 0),
+      landing:"Arahkan ke halaman yang membahas persis kata kunci iklan (bukan homepage). Pastikan: judul halaman mengulang kata kunci, tombol CTA terlihat tanpa scroll, bukti sosial di paruh atas, waktu muat < 3 detik di mobile" + (f.url ? ". Gunakan " + f.url + " sebagai basis dan buat versi khusus iklan." : ".")
+    },
+    pmax:{
+      when:"Gunakan Performance Max setelah Search berjalan stabil dan tracking konversi valid, atau saat ingin menjangkau seluruh inventori Google (Search, Display, YouTube, Discover, Gmail, Maps) dengan satu campaign.",
+      assetGroup:"AG_" + slugUp(f.brand,2) + "_" + slugUp(kw,2) + " — satu asset group per kelompok produk/layanan, jangan campur.",
+      signals:["Customer list (pembeli & lead 12 bulan)","Website visitors 30–90 hari","Custom segment berdasarkan keyword: " + main.slice(0,3).join(", "),"Custom segment berdasarkan URL kompetitor/kategori","In-market audience sesuai kategori " + f.category],
+      heads: rsaHeads.slice(0, 5),
+      longHead: clip(v.BSHORT + " — " + stripDot(f.usp) + " untuk " + v.AUD, 90),
+      desc: rsaDesc.slice(0, 3),
+      visual:["1:1 (1200×1200) minimal 4 gambar","1.91:1 (1200×628) minimal 3 gambar","4:5 (960×1200) minimal 2 gambar","Logo 1:1 dan 4:1","Gambar produk dengan latar bersih + 1 gambar suasana penggunaan"],
+      video:["Minimal 1 video ≥ 10 detik (jika tidak diunggah, Google membuat otomatis dengan kualitas seadanya)","Rekomendasi: 1 video 15 detik horizontal + 1 video 15 detik vertikal"],
+      cta: take(tb.ctas, 1, 1)[0]
+    },
+    display:{
+      audiences:["Remarketing: pengunjung website 30/60/90 hari","Custom segment berdasarkan keyword pencarian","In-market: " + f.category,"Affinity audience terkait gaya hidup target","Similar segments dari daftar pembeli"],
+      placements:["Situs berita & lifestyle nasional","Blog/portal kategori " + f.category.toLowerCase(),"Aplikasi Android populer (kecualikan kategori game bila tidak relevan)","Topik: " + c.interests.slice(0, 3).join(", ")],
+      sizes:["300×250 (Medium Rectangle)","336×280 (Large Rectangle)","728×90 (Leaderboard)","300×600 (Half Page)","320×100 (Large Mobile Banner)","160×600 (Wide Skyscraper)","Responsive Display Ads: 1200×628, 1200×1200, logo 1200×300"],
+      copy:{ head: clip(t(take(tb.heads, 1, 0)[0], v), 30), desc: clip(stripDot(f.usp), 90), cta: take(tb.ctas, 1, 0)[0] },
+      retarget:["Segmentasi durasi keanggotaan: 7 hari (pesan urgensi), 30 hari (manfaat utama), 90 hari (edukasi ulang).","Kecualikan pembeli/lead yang sudah konversi.","Batasi frequency 3–5 impresi per hari per pengguna.","Kecualikan penempatan aplikasi anak-anak dan situs berkualitas rendah lewat Placement Exclusion.","Gunakan banner dinamis (feed produk) bila jumlah SKU banyak."]
+    }
+  };
+}
+
+function buildYoutube(f, v, alloc){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const tb = TONE_BANK[f.tone];
+  const a = alloc.find(x => x.id === "youtube") || { amount:0, daily:0, pct:0 };
+  const fmt = {
+    awareness:["Skippable In-stream (CPV/Target CPM)","Bumper Ads 6 detik untuk pengingat","Shorts Ads untuk jangkauan muda"],
+    traffic:["Skippable In-stream dengan CTA overlay","In-feed Video Ads pada hasil pencarian YouTube"],
+    engagement:["In-feed Video Ads","Shorts Ads"],
+    leads:["Skippable In-stream + Lead Form extension","In-feed Video Ads ke landing page"],
+    whatsapp:["Skippable In-stream dengan CTA ke link WhatsApp"],
+    app:["Skippable In-stream (App Campaign)","Shorts Ads"],
+    sales:["Skippable In-stream (Video Action Campaign)","Shorts Ads dengan product feed"],
+    retargeting:["Skippable In-stream ke audiens video viewers & website","Bumper Ads sebagai pengingat"],
+    launch:["Skippable In-stream 30 detik (teaser)","Bumper Ads 6 detik (countdown)","Shorts Ads"]
+  }[f.objective] || ["Skippable In-stream"];
+  return {
+    pct:a.pct, amount:a.amount, daily:a.daily,
+    objective: f.objective === "sales" ? "Sales / Video Action Campaign" : f.objective === "awareness" ? "Awareness & Reach (Target CPM)" : "Consideration — Video Views / Traffic",
+    campaignName: "YT_" + slugUp(f.brand,2) + "_" + f.objective.toUpperCase() + "_" + tagDate(),
+    formats: fmt,
+    audience: v.LOC + " · usia " + f.ageMin + "–" + f.ageMax + " · " + f.gender,
+    targeting:["In-market: " + f.category,"Custom segment dari keyword: " + c.keywords.slice(0,2).map(k => k.replace("{kw}", firstWords(String(f.product).toLowerCase(),2))).join(", "),"Custom segment dari URL kompetitor & situs kategori","Affinity: " + c.interests.slice(0,3).join(", "),"Placement pada channel review & edukasi kategori terkait"],
+    channels:["Channel review produk kategori " + f.category.toLowerCase(),"Channel edukasi/tips seputar " + v.PAINSS,"Channel lifestyle dan daily vlog dengan demografi sesuai","Topik: " + c.interests.slice(0,3).join(", ")],
+    duration: f.objective === "awareness" ? "6 detik (bumper) + 15 detik (in-stream) + 30 detik (versi bercerita)" : "15–30 detik untuk konversi; siapkan versi 6 detik untuk pengingat.",
+    concept: "Format \"masalah → bukti → penawaran\": buka dengan situasi yang sangat dikenali audiens (" + v.PAINSS + "), tunjukkan " + v.PSHORT + " dipakai secara nyata, tutup dengan penawaran dan langkah berikutnya yang jelas.",
+    hook: "0–5 detik menentukan segalanya (sebelum tombol skip aktif): sebut audiens dan masalahnya langsung — \"Buat Anda yang " + clip(v.PAINS, 40) + ", tonton 20 detik ini.\"",
+    script: "0–5s  Hook: \"" + clip(cap(v.PAINS), 60) + "?\" (visual: situasi masalah, wajah dekat ke kamera)\n" +
+            "6–12s  Solusi: \"" + v.BSHORT + " membuat " + v.PSHORT + " untuk itu. " + clip(stripDot(f.usp), 60) + ".\"\n" +
+            "13–22s  Bukti: tampilkan cara kerja / hasil / testimoni singkat (2 shot cepat + teks di layar)\n" +
+            "23–30s  Penawaran & CTA: \"" + (f.promo ? v.PROMO + ". " : "") + take(tb.ctas, 1, 0)[0] + " lewat tautan di bawah video.\" (logo + tombol CTA)",
+    cta: take(tb.ctas, 2, 1),
+    landing: f.url ? "Gunakan " + f.url + " dengan UTM khusus YouTube; pastikan halaman memuat cepat di mobile dan mengulang janji yang disampaikan di video." : "Siapkan landing page ringan yang mengulang janji video di bagian atas, dengan satu CTA utama.",
+    retarget:["Penonton video 25% / 50% / 75% (durasi keanggotaan 30–60 hari)","Penonton yang menekan tombol like, share, atau subscribe","Pengunjung website dari channel YouTube","Kecualikan yang sudah konversi","Urutkan pesan: video edukasi → video testimoni → video penawaran (sequential campaign)"]
+  };
+}
+
+function buildLinkedin(f, v, alloc){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const tb = TONE_BANK[f.tone];
+  const a = alloc.find(x => x.id === "linkedin") || { amount:0, daily:0, pct:0 };
+  const om = {
+    awareness:"Brand Awareness", traffic:"Website Visits", engagement:"Engagement",
+    leads:"Lead Generation (Lead Gen Form)", whatsapp:"Website Visits (arahkan ke halaman kontak)",
+    app:"Website Conversions", sales:"Website Conversions", retargeting:"Website Conversions (matched audience)",
+    launch:"Brand Awareness → Website Visits"
+  }[f.objective] || "Website Visits";
+  return {
+    pct:a.pct, amount:a.amount, daily:a.daily,
+    objective: om,
+    campaignName: "LI_" + slugUp(f.brand,2) + "_" + f.objective.toUpperCase() + "_" + tagDate(),
+    targeting:{
+      jobs: c.jobs.concat(["Business Development","Marketing Manager"]).slice(0, 5),
+      industries: c.industries.concat(["Business Supplies & Equipment"]).slice(0, 4),
+      size:["11–50 karyawan","51–200 karyawan","201–500 karyawan"],
+      seniority:["Manager","Director","Owner / Partner","VP"],
+      skills:[cap(firstWords(String(f.product).toLowerCase(), 2)), f.category, "Business Strategy", "Digital Marketing"],
+      location: v.LOC + " (gunakan lokasi permanen, bukan lokasi terkini)"
+    },
+    formats:["Single Image Ads — paling efisien untuk uji pesan awal","Document Ads — unggah panduan/checklist PDF, sangat kuat untuk lead B2B","Video Ads — 30–60 detik, penjelasan solusi","Message Ads — hanya untuk audiens sempit dan penawaran spesifik","Lead Gen Form — kumpulkan data tanpa keluar dari LinkedIn"],
+    copy: t(take(tb.hooks, 1, 0)[0], v) + "\n\n" + t(take(tb.bodies, 1, 0)[0], v) + "\n\n" + t(take(tb.closes, 1, 0)[0], v),
+    copyAlt: clip(t(take(tb.hooks, 1, 2)[0], v), 140) + " " + clip(t(take(tb.bodies, 1, 1)[0], v), 120),
+    headline: clip(t(take(tb.heads, 1, 1)[0], v), 70),
+    cta:["Learn More","Download","Register","Contact Us"],
+    leadMagnets:[
+      "Checklist \"" + clip(cap(v.PAINS), 44) + "\" (1 halaman PDF)",
+      "Studi kasus 2 halaman: sebelum–sesudah menggunakan " + v.PSHORT,
+      "Template atau kalkulator sederhana terkait " + f.category.toLowerCase(),
+      "Webinar / sesi konsultasi 30 menit gratis"
+    ],
+    strategy:[
+      "Tahap 1 — bangun kredibilitas: iklan Document Ads berisi panduan, tanpa meminta pembelian.",
+      "Tahap 2 — kumpulkan lead: Lead Gen Form dengan maksimal 4 field (nama, email kantor, perusahaan, jabatan).",
+      "Tahap 3 — retargeting: audiens yang membuka form namun tidak submit + pengunjung website 90 hari.",
+      "Sinkronkan lead ke CRM/spreadsheet dan tetapkan SLA follow-up maksimal 1×24 jam.",
+      "Ukur biaya per lead berkualitas (setelah kualifikasi sales), bukan hanya CPL mentah."
+    ],
+    budgetNote:"LinkedIn memiliki biaya per klik yang jauh lebih tinggi dibanding Meta/TikTok (umumnya beberapa kali lipat) dan minimum sekitar $10 per hari per campaign. Dengan alokasi " + shortMoney(a.daily, f.currency) + "/hari, jalankan maksimal 1–2 campaign agar data tidak terpecah."
+  };
+}
+
+function buildX(f, v, alloc){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const tb = TONE_BANK[f.tone];
+  const a = alloc.find(x => x.id === "x") || { amount:0, daily:0, pct:0 };
+  const om = { awareness:"Reach / Awareness", traffic:"Website Traffic", engagement:"Engagements", leads:"Website Traffic ke landing page lead", whatsapp:"Website Traffic ke link WhatsApp", app:"App Installs", sales:"Website Conversions", retargeting:"Website Conversions (audiens hangat)", launch:"Reach + Engagements" }[f.objective] || "Website Traffic";
+  const kw = firstWords(String(f.product).toLowerCase(), 2);
+  return {
+    pct:a.pct, amount:a.amount, daily:a.daily,
+    objective: om,
+    campaignName: "X_" + slugUp(f.brand,2) + "_" + f.objective.toUpperCase() + "_" + tagDate(),
+    targeting:["Keyword targeting: " + [kw, "rekomendasi " + kw, "cari " + kw].join(", "),"Conversation topics sesuai kategori " + f.category,"Follower look-alikes dari akun kompetitor & media kategori","Interest: " + c.interests.slice(0, 3).join(", "),"Retargeting: pengunjung website & orang yang berinteraksi dengan postingan"],
+    formats:["Promoted Post (image 16:9 atau 1:1)","Video Ads ≤ 60 detik dengan subtitle","Carousel (2–6 kartu)","Text Ads untuk uji pesan berbiaya murah"],
+    copies:[
+      clip(t(take(tb.hooks, 1, 0)[0], v), 180),
+      clip(v.PSHORT + ": " + clip(stripDot(f.usp), 90) + ". " + (f.promo ? v.PROMO + "." : ""), 190),
+      clip(cap(v.PAINS) + "? Ada cara yang lebih ringkas. " + take(tb.ctas, 1, 0)[0] + " →", 180)
+    ],
+    cta: take(tb.ctas, 2, 0),
+    hashtags: c.hashtags.slice(0, 4).concat(["#" + slugUp(f.brand, 1).toLowerCase()]),
+    engagement:[
+      "Balas komentar dalam 1–2 jam pertama; algoritma X sangat menghargai percakapan awal.",
+      "Gunakan thread organik yang diperkuat sebagai iklan (promoted), bukan materi iklan kaku.",
+      "Ikut percakapan yang sedang ramai dan relevan, hindari topik sensitif.",
+      "Maksimal 1–2 hashtag per iklan — terlalu banyak menurunkan kredibilitas.",
+      "Uji versi teks pendek vs teks panjang; di X, perbedaannya sering signifikan."
+    ],
+    budgetNote:"X cocok sebagai platform pelengkap untuk percakapan dan awareness. Dengan alokasi " + shortMoney(a.amount, f.currency) + ", jalankan 1 campaign dengan 2 ad group (keyword dan look-alike)."
+  };
+}
+
+function buildCreative(f, v){
+  const c = CATEGORIES[f.category] || CATEGORIES["Lainnya"];
+  const tb = TONE_BANK[f.tone];
+  const aw = AWARENESS[String(f.awareness)];
+  const bigIdeas = [
+    "\"" + clip(cap(v.PAINS), 40) + " berhenti di sini\" — posisikan " + v.BSHORT + " sebagai titik akhir dari masalah yang berulang.",
+    "\"Cara baru untuk " + clip(v.PAINSS, 30) + "\" — bandingkan cara lama yang melelahkan dengan cara " + v.BSHORT + ".",
+    "\"" + v.BSHORT + " untuk " + v.AUDS + "\" — bangun rasa memiliki lewat identitas audiens, bukan fitur produk."
+  ];
+  return {
+    bigIdea: take(bigIdeas, 1, 0)[0],
+    angle: aw.angle + " Angle utama: " + clip(stripDot(f.usp), 80) + ".",
+    pain: cap(stripDot(f.pain)),
+    value: v.BSHORT + " membantu " + v.AUD + " " + (f.objective === "sales" ? "mendapatkan hasil yang dicari" : "menyelesaikan " + v.PAINSS) + " melalui " + v.PSHORT + " — " + stripDot(f.usp) + ".",
+    triggers: c.triggers,
+    visual: c.visual,
+    palette: c.palette,
+    photoVideo:[
+      "Foto produk utama di atas latar polos (untuk katalog dan Display Ads)",
+      "Foto suasana penggunaan nyata (bukan stock photo) untuk feed",
+      "Video vertikal 15 detik: masalah → produk → hasil",
+      "Video horizontal 30 detik untuk YouTube dan website",
+      "Potongan testimoni pelanggan 10 detik (izin tertulis wajib)"
+    ],
+    contentIdeas:[
+      "Konten masalah: \"" + clip(cap(v.PAINS), 55) + "\" dan 3 penyebab yang jarang disadari.",
+      "Konten perbandingan: cara lama vs " + v.PSHORT + ", disajikan sebagai tabel sederhana di layar.",
+      "Konten bukti: dokumentasi hasil/testimoni pelanggan tanpa klaim berlebihan.",
+      "Konten proses: bagaimana " + v.PSHORT + " dibuat atau bekerja — membangun kepercayaan.",
+      "Konten penawaran: " + (f.promo ? v.PROMO : "penjelasan paket dan harga") + " dengan CTA tunggal yang jelas.",
+      "Konten FAQ: 3 pertanyaan yang paling sering menghambat orang membeli."
+    ],
+    headlines: take(tb.heads, 5, 0).map(h => clip(t(h, v), 45)),
+    ctas: take(tb.ctas, 4, 0).concat([f.objective === "whatsapp" ? "Chat Admin Sekarang" : "Lihat Penawaran"]),
+    shortCaptions: take(tb.hooks, 3, 1).map(h => clip(t(h, v), 110) + (f.promo ? " " + v.PROMO : "")),
+    longCaptions: take(tb.hooks, 3, 0).map((h, i) => t(h, v) + "\n\n" + t(take(tb.bodies, 3, i)[0], v) + "\n\n" + aw.focus.replace(/^Konten /, "Fokus pesan: ") + "\n\n" + t(take(tb.closes, 3, i)[0], v) + (f.promo ? "\n\n" + v.PROMO : "")),
+    hashtags: c.hashtags,
+    toneNote: tb.note
+  };
+}
+
+function buildMediaPlan(f, alloc){
+  const roles = {
+    meta:{ role:"Mesin utama akuisisi & retargeting", fmt:"Video 9:16, Carousel, Single Image", kpi: f.objective === "sales" ? "CPA, ROAS" : f.objective === "leads" ? "CPL" : "CTR, CPM" },
+    tiktok:{ role:"Jangkauan audiens baru & creative native", fmt:"Video vertikal 15–25 detik (Spark Ads)", kpi:"CPM, VTR, CPC" },
+    google:{ role:"Menangkap permintaan aktif (intent tinggi)", fmt:"Search RSA, PMax, Display", kpi: f.objective === "leads" ? "CPL, Conv. Rate" : "CPA, Conv. Rate" },
+    youtube:{ role:"Membangun pemahaman produk & audiens retargeting", fmt:"In-stream 15–30 detik, Shorts, Bumper", kpi:"CPV, View Rate, Reach" },
+    linkedin:{ role:"Menjangkau pengambil keputusan B2B", fmt:"Single Image, Document Ads, Lead Gen Form", kpi:"CPL, Lead Quality" },
+    x:{ role:"Percakapan, momentum, dan awareness pelengkap", fmt:"Promoted Post, Video ≤ 60 detik", kpi:"Engagement Rate, CPC" }
+  };
+  return alloc.map(a => ({
+    id:a.id, name:PF_MAP[a.id].name, role:roles[a.id].role, amount:a.amount, daily:a.daily,
+    pct:a.pct, fmt:roles[a.id].fmt, kpi:roles[a.id].kpi,
+    est: estImpressions(a.amount, a.id, f.currency)
+  }));
+}
+
+function buildAdvice(f, alloc){
+  const out = [];
+  const dur = Number(f.duration) || 30;
+  const dailyIdr = (Number(f.budgetTotal) / dur) * (FX[f.currency] || 1);
+  const n = f.platforms.length;
+  if(dailyIdr < 150000 && n > 2){
+    out.push({ type:"warn", title:"Budget harian relatif kecil untuk " + n + " platform",
+      text:"Estimasi budget harian Anda sekitar " + shortMoney(Number(f.budgetTotal)/dur, f.currency) + ". Membagi jumlah ini ke " + n + " platform membuat setiap platform sulit keluar dari fase pembelajaran. Rekomendasi: mulai dari 1–2 platform teratas (" + alloc.slice(0,2).map(a => PF_MAP[a.id].name).join(" dan ") + "), evaluasi 2 minggu, baru tambah platform berikutnya." });
+  } else if(dailyIdr < 150000){
+    out.push({ type:"info", title:"Fokus pada satu creative pemenang",
+      text:"Dengan budget harian sekitar " + shortMoney(Number(f.budgetTotal)/dur, f.currency) + ", batasi jumlah ad set dan uji creative bergantian (bukan paralel) agar data lebih cepat terkumpul." });
+  }
+  if(f.objective === "sales" || f.objective === "retargeting"){
+    out.push({ type:"ok", title:"Tujuan konversi — prioritaskan intent tinggi",
+      text:"Untuk tujuan penjualan, dahulukan platform dengan intent tinggi: Google Search (menangkap orang yang sudah mencari) dan retargeting Meta (menutup orang yang sudah tertarik). Alokasikan sekitar 20–30% budget khusus untuk retargeting." });
+  }
+  if(f.objective === "awareness" || f.objective === "launch"){
+    out.push({ type:"info", title:"Tujuan awareness — dorong format video pendek",
+      text:"Prioritaskan Meta Reels, TikTok, dan YouTube Shorts. Ukur keberhasilan lewat CPM, jangkauan unik, dan view rate — bukan ROAS pada fase ini." });
+  }
+  if(B2B_CATS.indexOf(f.category) >= 0){
+    out.push({ type:"info", title:"Karakter B2B terdeteksi (" + f.category + ")",
+      text:"Siklus keputusan lebih panjang dan melibatkan lebih dari satu orang. LinkedIn Ads dan Google Search biasanya paling efektif, didukung konten edukatif (studi kasus, panduan) sebelum penawaran langsung." });
+  }
+  if(f.platforms.indexOf("linkedin") >= 0 && B2C_CATS.indexOf(f.category) >= 0){
+    out.push({ type:"warn", title:"LinkedIn untuk kategori konsumen",
+      text:"Kategori " + f.category + " umumnya lebih murah dijangkau lewat Meta/TikTok. Jika LinkedIn tetap dipakai, batasi porsinya dan fokuskan pada segmen korporat (misalnya pembelian dalam jumlah besar atau kerja sama perusahaan)." });
+  }
+  if(!f.url && (f.objective === "traffic" || f.objective === "sales" || f.objective === "leads")){
+    out.push({ type:"warn", title:"Landing page belum diisi",
+      text:"Tujuan " + OBJ_MAP[f.objective].name + " sangat bergantung pada halaman tujuan. Siapkan landing page khusus iklan sebelum campaign dijalankan, dan pasang pixel/tag konversi untuk pengukuran." });
+  }
+  return out;
+}
+
+function buildCalendar(f, alloc){
+  const dur = Math.max(1, Number(f.duration) || 30);
+  const weeks = Math.max(1, Math.ceil(dur / 7));
+  const top = alloc.slice(0, 2).map(a => PF_MAP[a.id].name).join(" & ") || "Semua platform";
+  const all = alloc.map(a => PF_MAP[a.id].name).join(", ");
+  const rows = [];
+  for(let w = 1; w <= weeks; w++){
+    const start = (w - 1) * 7 + 1, end = Math.min(dur, w * 7);
+    const period = "Minggu " + w + " (hari " + start + "–" + end + ")";
+    let r;
+    if(w === 1) r = { act:"Testing audiens & creative — jalankan seluruh ad set awal dengan budget merata", pf:all, focus:"Kumpulkan data awal, jangan ubah apa pun sebelum 3–5 hari", out:"Minimal 1–2 creative dan 1 audiens dengan performa menonjol teridentifikasi" };
+    else if(w === 2) r = { act:"Optimasi — matikan creative & audiens berbiaya tinggi, perkuat yang terbaik", pf:top, focus:"Turunkan pemborosan, perbaiki CTR dan biaya per hasil", out:"Biaya per hasil mulai stabil, struktur campaign lebih ramping" };
+    else if(w === 3) r = { act:"Scale bertahap — naikkan budget 20–30% pada ad set pemenang, tambah 2–3 creative baru", pf:top, focus:"Menambah volume tanpa merusak fase pembelajaran", out:"Volume hasil naik dengan biaya per hasil terjaga" };
+    else if(w === 4 || w === weeks) r = { act:"Retargeting & evaluasi — perkuat audiens hangat, susun laporan campaign", pf:all, focus:"Menutup audiens yang sudah tertarik + menarik pelajaran untuk campaign berikutnya", out:"Laporan performa, daftar creative pemenang, rencana campaign lanjutan" };
+    else if(w % 2 === 1) r = { act:"Creative refresh — ganti 30–50% materi iklan dengan angle baru", pf:all, focus:"Mencegah kejenuhan iklan (frequency naik, CTR turun)", out:"CTR kembali naik, frequency turun ke level sehat" };
+    else r = { act:"Scale & ekspansi audiens — tambah lookalike/segmen baru pada ad set pemenang", pf:top, focus:"Memperluas jangkauan tanpa mengorbankan efisiensi", out:"Audiens baru dengan biaya per hasil setara atau lebih baik" };
+    rows.push({ period:period, act:r.act, pf:r.pf, focus:r.focus, out:r.out });
+  }
+  return rows;
+}
+
+function buildPlan(f){
+  const v = vars(f);
+  const alloc = allocate(f);
+  const aw = AWARENESS[String(f.awareness)];
+  const funnel = [
+    { name:"Awareness", pct:aw.funnel[0], goal:"Mengenalkan brand dan menyadarkan audiens akan masalah yang dihadapi.",
+      content:["Video edukasi 15 detik tentang " + v.PAINSS, "Konten masalah / mitos yang sering dipercaya", "Storytelling latar belakang " + v.BSHORT], tags:["Reels","TikTok","YouTube Shorts","Display"] },
+    { name:"Consideration", pct:aw.funnel[1], goal:"Membuat audiens mempertimbangkan produk sebagai solusi paling masuk akal.",
+      content:["Penjelasan keunggulan: " + clip(stripDot(f.usp), 60), "Testimoni & bukti hasil pelanggan", "Perbandingan dengan cara/alternatif lain", "Demo cara pakai atau cara kerja"], tags:["Carousel","Video demo","Search","Document Ads"] },
+    { name:"Conversion", pct:aw.funnel[2], goal:"Mendorong tindakan: pembelian, pengisian form, atau chat.",
+      content:[(f.promo ? "Penawaran aktif: " + v.PROMO : "Penawaran / paket dengan nilai jelas"), "CTA tunggal dan tegas di setiap materi", "Bundling atau paket hemat", "Jaminan / garansi untuk menurunkan keraguan"], tags:["Search intent tinggi","Retargeting","Landing page","WhatsApp"] },
+    { name:"Retargeting", pct:aw.funnel[3], goal:"Menutup audiens yang sudah berinteraksi namun belum mengambil tindakan.",
+      content:["Pengingat keranjang / form belum selesai", "Testimoni pelanggan yang sempat ragu", "Urgensi: batas waktu penawaran", "Jawaban atas keberatan umum (harga, waktu, kualitas)"], tags:["Frequency cap","Dynamic Ads","Video viewers","Website 30 hari"] }
+  ];
+  const plan = {
+    createdAt: Date.now(),
+    form: f, v: v, alloc: alloc,
+    campaignName: slugUp(f.brand, 2) + "_" + OBJ_MAP[f.objective].name.split(" ")[0].toUpperCase() + "_" + tagDate(),
+    campaignLabel: f.brand + " — " + OBJ_MAP[f.objective].name + " " + tagDate(),
+    objectiveName: OBJ_MAP[f.objective].name,
+    awareness: aw,
+    funnel: funnel,
+    durationRec: recDuration(f),
+    mediaPlan: buildMediaPlan(f, alloc),
+    advice: buildAdvice(f, alloc),
+    calendar: buildCalendar(f, alloc),
+    creative: buildCreative(f, v),
+    metrics: METRIC_GUIDE[f.objective] || METRIC_GUIDE.traffic,
+    platforms: {}
+  };
+  if(f.platforms.indexOf("meta") >= 0) plan.platforms.meta = buildMeta(f, v, alloc);
+  if(f.platforms.indexOf("tiktok") >= 0) plan.platforms.tiktok = buildTiktok(f, v, alloc);
+  if(f.platforms.indexOf("google") >= 0) plan.platforms.google = buildGoogle(f, v, alloc);
+  if(f.platforms.indexOf("youtube") >= 0) plan.platforms.youtube = buildYoutube(f, v, alloc);
+  if(f.platforms.indexOf("linkedin") >= 0) plan.platforms.linkedin = buildLinkedin(f, v, alloc);
+  if(f.platforms.indexOf("x") >= 0) plan.platforms.x = buildX(f, v, alloc);
+  return plan;
+}
+
+function recDuration(f){
+  const d = Number(f.duration) || 30;
+  if(d < 14) return d + " hari — cukup untuk uji cepat, namun terlalu pendek untuk menilai konversi. Idealnya minimal 14 hari agar fase pembelajaran algoritma selesai.";
+  if(d <= 30) return d + " hari — durasi sehat: 1 minggu testing, 1 minggu optimasi, sisanya scale & retargeting.";
+  if(d <= 60) return d + " hari — cukup panjang untuk 2 siklus optimasi. Jadwalkan creative refresh setiap 2 minggu.";
+  return d + " hari — campaign jangka panjang. Bagi menjadi beberapa fase bulanan dengan evaluasi dan pergantian creative terjadwal.";
+}
+
+/* ===================== RENDER HELPERS ===================== */
+let COPY_STORE = [];
+function cb(label, text){
+  const i = COPY_STORE.push(String(text)) - 1;
+  return '<div class="copybox"><span class="lbl">' + esc(label) + '</span>' + esc(text) +
+    '<button class="mini-copy" type="button" data-copy="' + i + '">Salin</button></div>';
+}
+function ul(items){ return '<ul class="ul">' + items.map(x => "<li>" + x + "</li>").join("") + "</ul>"; }
+function ulE(items){ return '<ul class="ul">' + items.map(x => "<li>" + esc(x) + "</li>").join("") + "</ul>"; }
+function blk(title, html){ return '<div class="blk"><h4>' + esc(title) + "</h4>" + html + "</div>"; }
+function tags(items, cls){ return '<div class="ftags">' + items.map(x => '<span class="tag ' + (cls || "") + '">' + esc(x) + "</span>").join("") + "</div>"; }
+function term(word, tip){ return '<span class="term" tabindex="0" data-tip="' + esc(tip) + '">' + esc(word) + "</span>"; }
+const TERMS = {
+  CTR:"Click Through Rate: persentase orang yang mengklik iklan dari total yang melihatnya.",
+  CPC:"Cost Per Click: rata-rata biaya untuk setiap klik iklan.",
+  CPM:"Cost Per Mille: biaya untuk setiap 1.000 tayangan iklan.",
+  CPA:"Cost Per Acquisition: rata-rata biaya iklan untuk mendapat satu hasil (pembelian/lead/chat).",
+  CPL:"Cost Per Lead: rata-rata biaya untuk mendapatkan satu kontak calon pelanggan.",
+  ROAS:"Return on Ad Spend: nilai penjualan yang dihasilkan per satu rupiah biaya iklan.",
+  AOV:"Average Order Value: rata-rata nilai belanja per transaksi.",
+  "Conversion Event":"Aksi spesifik yang dijadikan target optimasi algoritma, misalnya Purchase atau Lead.",
+  Frequency:"Rata-rata berapa kali satu orang melihat iklan Anda dalam periode tertentu.",
+  Reach:"Jumlah orang unik yang melihat iklan Anda.",
+  Impressions:"Total tayangan iklan, termasuk orang yang sama melihat berkali-kali.",
+  VTR:"View Through Rate: persentase penonton yang menonton video sampai titik tertentu."
+};
+function autoTerm(txt){
+  let out = esc(txt);
+  Object.keys(TERMS).forEach(k => {
+    const re = new RegExp("\\b" + k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "g");
+    out = out.replace(re, '<span class="term" tabindex="0" data-tip="' + esc(TERMS[k]) + '">' + k + "</span>");
+  });
+  return out;
+}
+
+/* ===================== RENDER: RESULT ===================== */
+function renderPlan(plan){
+  COPY_STORE = [];
+  const f = plan.form, v = plan.v, cur = f.currency;
+  const secs = [["ringkasan","Ringkasan"],["funnel","Funnel"],["platform","Platform"],["creative","Creative Studio"],["media","Media Plan"],["kalender","Kalender"],["metrik","Metrik & Optimasi"]];
+  let h = "";
+
+  /* head */
+  h += '<div class="res-head">' +
+    '<div class="eyebrow">Campaign Plan · dibuat ' + new Date(plan.createdAt).toLocaleDateString("id-ID", { day:"numeric", month:"long", year:"numeric" }) + "</div>" +
+    "<h1>" + esc(plan.campaignLabel) + "</h1>" +
+    "<p>" + esc(f.product) + " · " + esc(plan.objectiveName) + " · " + f.platforms.length + " platform · " + esc(f.duration) + " hari</p>" +
+    '<div class="res-tools">' +
+      '<button class="btn btn-sm" type="button" id="btnSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Simpan Project</button>' +
+      '<button class="btn btn-sm" type="button" id="btnCopyPlan">Copy Campaign Plan</button>' +
+      '<button class="btn btn-sm" type="button" id="btnDownload">Simpan / Unduh HTML</button>' +
+      '<button class="btn btn-sm" type="button" id="btnPrint">Cetak / PDF</button>' +
+      '<button class="btn btn-sm" type="button" id="btnRegen">Generate Ulang</button>' +
+      '<button class="btn btn-sm" type="button" data-goto="brief">Ubah Brief</button>' +
+    "</div></div>";
+
+  /* secnav */
+  h += '<nav class="secnav">' + secs.map(s => '<a href="#sec-' + s[0] + '">' + s[1] + "</a>").join("") + "</nav>";
+
+  /* A. Ringkasan */
+  const totalEst = plan.mediaPlan.reduce((a, m) => [a[0] + m.est[0], a[1] + m.est[1]], [0, 0]);
+  h += '<section class="sec" id="sec-ringkasan"><div class="sec-head"><h2>Ringkasan Strategi Utama</h2><p>Kerangka besar campaign sebelum masuk ke detail per platform.</p></div>';
+  h += '<div class="kpis" style="margin-bottom:12px">' +
+    kpi("Total Budget", shortMoney(f.budgetTotal, cur), "≈ " + shortMoney(Number(f.budgetTotal) / Math.max(1, Number(f.duration)), cur) + " / hari") +
+    kpi("Durasi", f.duration + " hari", Math.ceil(f.duration / 7) + " minggu campaign") +
+    kpi("Platform", String(f.platforms.length), f.platforms.map(p => PF_MAP[p].name.replace(" Ads", "")).join(", ")) +
+    kpi("Tujuan Utama", plan.objectiveName, "Awareness level " + f.awareness + " — " + plan.awareness.label) +
+    "</div>";
+  h += '<div class="card panel"><dl class="dl">' +
+    dl("Nama campaign", '<span style="font-family:var(--mono);font-size:13px">' + esc(plan.campaignName) + "</span>") +
+    dl("Bisnis / produk", esc(f.brand) + " — " + esc(f.product) + " (" + esc(f.category) + ")") +
+    dl("Tujuan utama", esc(plan.objectiveName) + " · gaya komunikasi " + esc(TONES.find(t2 => t2.id === f.tone).name)) +
+    dl("Target audiens", esc(f.location) + " · usia " + esc(f.ageMin) + "–" + esc(f.ageMax) + " · " + esc(f.gender) + (f.interests ? " · " + esc(f.interests) : "")) +
+    dl("Level awareness", esc(f.awareness) + " — " + esc(plan.awareness.label) + ". " + esc(plan.awareness.angle)) +
+    dl("Rekomendasi durasi", esc(plan.durationRec)) +
+    dl("Funnel", "Awareness → Consideration → Conversion → Retargeting") +
+    (f.targetCPA ? dl("Target " + "CPA", moneyFmt(f.targetCPA, cur) + " per hasil") : "") +
+    "</dl></div>";
+  h += '<div class="card panel" style="margin-top:12px"><h3 style="font-size:15px;font-weight:700;margin-bottom:12px">Rekomendasi alokasi budget per platform</h3><div class="alloc">';
+  plan.alloc.forEach(a => {
+    h += '<div class="alloc-row"><div class="n"><span class="pf-dot"><i style="background:' + PF_MAP[a.id].color + '"></i>' + esc(PF_MAP[a.id].name) + "</span></div>" +
+      '<div class="alloc-bar"><i style="width:' + a.pct + '%"></i></div>' +
+      '<div class="alloc-val">' + a.pct + "% · " + shortMoney(a.amount, cur) + "</div></div>";
+  });
+  h += "</div>";
+  h += '<p class="disc">Estimasi tayangan kasar seluruh platform: <b>' + totalEst[0].toLocaleString("id-ID") + " – " + totalEst[1].toLocaleString("id-ID") + "</b> impresi. Angka ini hanya asumsi perencanaan berdasarkan kisaran " + term("CPM", TERMS.CPM) + " umum industri — bukan jaminan hasil. Biaya sebenarnya dipengaruhi kualitas creative, persaingan lelang, musim, dan relevansi audiens.</p>";
+  h += "</div>";
+  if(plan.advice.length){
+    h += '<div style="display:grid;gap:9px;margin-top:12px">' + plan.advice.map(a =>
+      '<div class="callout ' + a.type + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div><b>' + esc(a.title) + "</b><br>" + esc(a.text) + "</div></div>").join("") + "</div>";
+  }
+  h += "</section>";
+
+  /* B. Funnel */
+  const fcolors = ["linear-gradient(135deg,#1D4FD8,#3B6BE8)","linear-gradient(135deg,#5B41E8,#7C63F0)","linear-gradient(135deg,#1E8FD0,#3FB0E8)","linear-gradient(135deg,#0C8F63,#22B07E)"];
+  h += '<section class="sec" id="sec-funnel"><div class="sec-head"><h2>Campaign Funnel</h2><p>Porsi pesan disesuaikan dengan level awareness audiens Anda (level ' + esc(f.awareness) + ").</p></div><div class=\"funnel\">";
+  plan.funnel.forEach((s, i) => {
+    h += '<div class="fstage"><div class="fbar" style="--w:' + Math.round(120 + s.pct * 1.7) + "px;background:" + fcolors[i] + '"><span class="n">TAHAP ' + (i + 1) + " · " + s.pct + '%</span><span class="t">' + s.name + "</span></div>" +
+      '<div class="fbody"><b>Tujuan</b>' + esc(s.goal) + '<div style="margin-top:7px"><b>Contoh konten</b>' + ulE(s.content) + "</div>" + tags(s.tags, i === 0 ? "b" : i === 1 ? "v" : i === 2 ? "s" : "o") + "</div></div>";
+  });
+  h += "</div></section>";
+
+  /* C. Platform */
+  h += '<section class="sec" id="sec-platform"><div class="sec-head"><h2>Rekomendasi per Platform</h2><p>Klik setiap platform untuk membuka struktur campaign, targeting, dan copy iklan.</p></div>';
+  f.platforms.forEach((pid, idx) => {
+    const p = PF_MAP[pid];
+    const a = plan.alloc.find(x => x.id === pid);
+    h += '<details class="acc"' + (idx === 0 ? " open" : "") + "><summary>" +
+      '<span class="pf-ico" style="background:' + p.color + ';box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)">' + p.mark + "</span>" +
+      '<span><span class="acc-name">' + p.name + '</span><span class="acc-sub">' + a.pct + "% budget · " + shortMoney(a.amount, cur) + " · " + shortMoney(a.daily, cur) + "/hari</span></span>" +
+      '<span class="acc-caret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span></summary>' +
+      '<div class="acc-body">' + PLATFORM_RENDER[pid](plan.platforms[pid], plan) + "</div></details>";
+  });
+  h += "</section>";
+
+  /* D. Creative Studio */
+  h += renderCreative(plan);
+
+  /* E. Media Plan */
+  h += '<section class="sec" id="sec-media"><div class="sec-head"><h2>Media Plan &amp; Pembagian Budget</h2><p>Pembagian budget dihitung dari tujuan campaign, kategori bisnis, dan level awareness audiens.</p></div>';
+  h += '<div class="tbl-wrap"><table><thead><tr><th>Platform</th><th>Tujuan / Peran</th><th>Budget</th><th>%</th><th>Format Iklan</th><th>KPI Utama</th></tr></thead><tbody>';
+  plan.mediaPlan.forEach(m => {
+    h += "<tr><td><span class=\"pf-dot\"><i style=\"background:" + PF_MAP[m.id].color + '"></i>' + esc(m.name) + "</span></td><td>" + esc(m.role) + '</td><td class="num">' + moneyFmt(m.amount, cur) + "<br><span style=\"color:var(--muted);font-size:12px\">" + shortMoney(m.daily, cur) + "/hari</span></td><td class=\"num\">" + m.pct + "%</td><td>" + esc(m.fmt) + "</td><td>" + autoTerm(m.kpi) + "</td></tr>";
+  });
+  h += "</tbody></table></div>";
+  h += '<div class="callout info" style="margin-top:11px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M3 12h18"/></svg><div><b>Prinsip pembagian budget yang dipakai:</b><br>Budget kecil → fokus 1–2 platform lebih dulu. Tujuan penjualan langsung → prioritaskan intent tinggi (Google Search + retargeting Meta). Tujuan awareness → prioritaskan Meta Reels, TikTok, dan YouTube Shorts. Target B2B → prioritaskan LinkedIn Ads dan Google Search.</div></div>';
+  h += "</section>";
+
+  /* F. Kalender */
+  h += '<section class="sec" id="sec-kalender"><div class="sec-head"><h2>Campaign Calendar</h2><p>Rencana kerja mingguan selama ' + esc(f.duration) + " hari campaign.</p></div>";
+  h += '<div class="tbl-wrap"><table><thead><tr><th>Periode</th><th>Aktivitas</th><th>Platform</th><th>Fokus</th><th>Output yang Diharapkan</th></tr></thead><tbody>';
+  plan.calendar.forEach(r => { h += "<tr><td><b>" + esc(r.period) + "</b></td><td>" + esc(r.act) + "</td><td>" + esc(r.pf) + "</td><td>" + esc(r.focus) + "</td><td>" + esc(r.out) + "</td></tr>"; });
+  h += "</tbody></table></div></section>";
+
+  /* G. Metrik */
+  h += '<section class="sec" id="sec-metrik"><div class="sec-head"><h2>Cara Mengukur &amp; Mengoptimasi Campaign</h2><p>Metrik utama untuk tujuan ' + esc(plan.objectiveName) + ", plus checklist optimasi mingguan.</p></div>";
+  h += '<div class="two"><div class="card panel">' + blk("Metrik utama", ul(plan.metrics.primary.map(x => autoTerm(x)))) +
+    blk("Metrik pendukung", ul(plan.metrics.secondary.map(x => autoTerm(x)))) +
+    '<div class="callout info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>' + autoTerm(plan.metrics.note) + "</div></div></div>";
+  h += '<div class="card panel"><h4 style="font-size:13px;font-family:var(--display);font-weight:700;margin-bottom:9px">Checklist optimasi</h4><div class="check-list">' +
+    [ "Uji minimal 3 variasi creative per ad set sebelum menyimpulkan.",
+      "Uji minimal 2 kelompok audiens (misalnya broad vs minat spesifik).",
+      "Jangan menaikkan budget lebih dari 20–30% sekaligus.",
+      "Matikan iklan berperforma lemah hanya setelah data cukup (± 3× target biaya per hasil).",
+      "Scale iklan yang konsisten baik selama minimal 3 hari berturut-turut.",
+      "Pastikan landing page dan CTA konsisten dengan janji di iklan.",
+      "Cek tracking konversi setiap minggu (pixel, tag, atau UTM).",
+      "Segarkan creative saat frequency naik atau CTR turun signifikan."
+    ].map((c2, i) => '<label class="check-item"><input type="checkbox" id="chk' + i + '"><span>' + autoTerm(c2) + "</span></label>").join("") + "</div></div></div>";
+  h += '<p class="disc" style="margin-top:12px"><b>Catatan penting.</b> Seluruh isi campaign plan ini adalah rancangan berbasis rule dan praktik umum periklanan digital, disusun dari brief yang Anda isi — bukan hasil analisis data akun iklan Anda dan bukan jaminan performa. Tidak ada angka di sini yang menjanjikan jumlah penjualan, ' + term("ROAS", TERMS.ROAS) + ", atau biaya per hasil tertentu. Setiap rekomendasi tetap perlu diuji, dipantau, dan dioptimasi dengan data aktual dari platform iklan Anda.</p>";
+  h += "</section>";
+  return h;
+}
+function kpi(k, v2, s){ return '<div class="kpi"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v2) + '</div><div class="s">' + esc(s) + "</div></div>"; }
+function dl(k, v2){ return "<dt>" + esc(k) + "</dt><dd>" + v2 + "</dd>"; }
+
+/* ---------- per-platform renderers ---------- */
+const PLATFORM_RENDER = {
+  meta: function(m, plan){
+    const cur = plan.form.currency;
+    let h = "";
+    h += '<div class="two">';
+    h += "<div>" + blk("Objective & pengaturan", '<dl class="dl">' + dl("Objective", esc(m.objective)) + dl("Conversion event", autoTerm(m.event)) + dl("Budget platform", moneyFmt(m.amount, cur) + " (" + m.pct + "%) · " + shortMoney(m.daily, cur) + "/hari") + dl("Jumlah ad set ideal", m.sets + " ad set") + dl("Jumlah materi iklan", m.creatives + " creative (" + Math.round(m.creatives / m.sets) + " per ad set)") + "</dl><p style=\"font-size:12.5px;color:var(--muted);margin-top:7px\">" + esc(m.sizeNote) + "</p>");
+    h += blk("Struktur campaign", '<div class="struct">' + m.structure.map(s => "<div>" + esc(s) + "</div>").join("") + "</div>") + "</div>";
+    h += "<div>" + blk("Target audiens utama", "<p style=\"font-size:13.5px\">" + esc(m.audience) + "</p>" + tags(m.interests, "b") + '<p style="font-size:12.5px;color:var(--muted);margin-top:8px">Behavior: ' + esc(m.behaviors.join(" · ")) + "</p>");
+    h += blk("Placement yang direkomendasikan", tags(m.placements, "v")) + "</div>";
+    h += "</div>";
+    h += '<div class="two">' + "<div>" + blk("Custom audience yang disarankan", ulE(m.custom)) + "</div><div>" + blk("Lookalike audience yang disarankan", ulE(m.lookalike)) + "</div></div>";
+    h += blk("Format kreatif", tags(m.formats, "s"));
+    h += blk("Ide visual iklan", ulE(m.visualIdeas));
+    h += blk("Primary text (" + m.primary.length + " variasi)", m.primary.map((p, i) => cb("Primary text " + (i + 1), p)).join(""));
+    h += blk("Headline (" + m.headlines.length + " variasi)", m.headlines.map((p, i) => cb("Headline " + (i + 1) + " · " + p.length + " karakter", p)).join(""));
+    h += blk("Description & CTA", cb("Description", m.description) + tags(m.cta, "b"));
+    h += blk("Strategi retargeting Meta Ads", ulE(m.retarget));
+    h += blk("Catatan optimasi awal", ulE(m.optimization));
+    return h;
+  },
+  tiktok: function(m, plan){
+    const cur = plan.form.currency;
+    let h = "";
+    h += '<div class="two"><div>' + blk("Objective & pengaturan", '<dl class="dl">' + dl("Objective", esc(m.objective)) + dl("Tahap funnel", esc(m.funnelStage)) + dl("Campaign name", '<span style="font-family:var(--mono);font-size:12.5px">' + esc(m.campaignName) + "</span>") + dl("Jenis campaign", esc(m.campaignType)) + dl("Budget platform", moneyFmt(m.amount, cur) + " (" + m.pct + "%) · " + shortMoney(m.daily, cur) + "/hari") + "</dl>");
+    h += blk("Target audiens", "<p style=\"font-size:13.5px\">" + esc(m.audience) + "</p>" + tags(m.interests, "b")) + "</div>";
+    h += "<div>" + blk("Interest & behavior targeting", ulE(m.behaviors)) + blk("Placement", "<p style=\"font-size:13.5px\">" + esc(m.placement) + "</p>") + blk("Spark Ads atau Non-Spark", "<p style=\"font-size:13.5px\">" + esc(m.spark) + "</p>") + "</div></div>";
+    h += blk("Format & durasi video", '<dl class="dl">' + dl("Format", esc(m.videoFormat)) + dl("Durasi ideal", esc(m.duration)) + "</dl>");
+    h += blk("Hook 3 detik pertama", ulE(m.hooks));
+    h += blk("Ide konsep video (" + m.concepts.length + ")", m.concepts.map((c, i) => '<div style="margin-bottom:10px"><p style="font-size:13.5px"><b>' + (i + 1) + ". " + esc(c.title) + "</b> — " + esc(c.desc) + "</p>" + cb("Script — " + c.title, c.script) + "</div>").join(""));
+    h += blk("Caption & CTA", cb("Caption TikTok Ads", m.caption) + tags(m.cta, "b"));
+    h += blk("Catatan kreatif khusus TikTok", ulE(m.creativeNote));
+    h += '<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17v.01M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div>' + esc(m.budgetNote) + "</div></div>";
+    return h;
+  },
+  google: function(g, plan){
+    const cur = plan.form.currency, s = g.search, p = g.pmax, d = g.display;
+    let h = '<div class="tabs" role="tablist">' +
+      '<button class="tab-btn active" type="button" data-tab="gs">Search Ads</button>' +
+      '<button class="tab-btn" type="button" data-tab="gp">Performance Max</button>' +
+      '<button class="tab-btn" type="button" data-tab="gd">Display Ads</button></div>';
+    /* search */
+    h += '<div class="tab-pane active" data-pane="gs">';
+    h += blk("Campaign & objective", '<dl class="dl">' + dl("Campaign name", '<span style="font-family:var(--mono);font-size:12.5px">' + esc(s.campaignName) + "</span>") + dl("Objective & bidding", esc(s.objective)) + dl("Budget platform", moneyFmt(g.amount, cur) + " (" + g.pct + "%) · " + shortMoney(g.daily, cur) + "/hari") + "</dl>");
+    h += '<div class="two"><div>' + blk("Keyword utama", ulE(s.main)) + "</div><div>" + blk("Keyword long-tail", ulE(s.longtail)) + "</div></div>";
+    h += '<div class="two"><div>' + blk("Negative keywords", tags(s.negatives)) + "</div><div>" + blk("Rekomendasi match type", '<p style="font-size:13.5px">' + esc(s.matchType) + "</p>") + "</div></div>";
+    h += blk("Contoh ad group", s.adGroups.map(a => '<div class="copybox"><span class="lbl">' + esc(a.name) + "</span>" + esc(a.kws.join(" · ")) + "</div>").join(""));
+    h += blk("Headline RSA (" + s.rsaHeads.length + " variasi, maks 30 karakter)", '<div class="tbl-wrap"><table style="min-width:420px"><thead><tr><th>#</th><th>Headline</th><th>Karakter</th></tr></thead><tbody>' + s.rsaHeads.map((x, i) => "<tr><td class=\"num\">" + (i + 1) + "</td><td>" + esc(x) + '</td><td class="num">' + x.length + "</td></tr>").join("") + "</tbody></table></div>");
+    h += blk("Description RSA (maks 90 karakter)", s.rsaDesc.map((x, i) => cb("Description " + (i + 1) + " · " + x.length + " karakter", x)).join(""));
+    h += '<div class="two"><div>' + blk("Sitelink extension", ulE(s.sitelinks.map(x => x.t + " — " + x.d))) + blk("Callout extension", tags(s.callouts, "b")) + "</div><div>" + blk("Structured snippet", "<p style=\"font-size:13.5px\"><b>" + esc(s.snippet.header) + ":</b> " + esc(s.snippet.values.join(", ")) + "</p>") + blk("CTA", tags(s.cta, "v")) + "</div></div>";
+    h += blk("Landing page recommendation", '<p style="font-size:13.5px">' + esc(s.landing) + "</p>");
+    h += "</div>";
+    /* pmax */
+    h += '<div class="tab-pane" data-pane="gp">';
+    h += blk("Kapan digunakan", '<p style="font-size:13.5px">' + esc(p.when) + "</p>");
+    h += blk("Asset group", '<p style="font-size:13.5px">' + esc(p.assetGroup) + "</p>");
+    h += blk("Audience signal", ulE(p.signals));
+    h += blk("Ide headline (maks 30 karakter)", ulE(p.heads));
+    h += blk("Long headline (maks 90 karakter)", cb("Long headline · " + p.longHead.length + " karakter", p.longHead));
+    h += blk("Description", p.desc.map((x, i) => cb("Description " + (i + 1), x)).join(""));
+    h += '<div class="two"><div>' + blk("Visual asset yang diperlukan", ulE(p.visual)) + "</div><div>" + blk("Video asset yang diperlukan", ulE(p.video)) + blk("CTA", tags([p.cta], "b")) + "</div></div>";
+    h += "</div>";
+    /* display */
+    h += '<div class="tab-pane" data-pane="gd">';
+    h += '<div class="two"><div>' + blk("Jenis audiens", ulE(d.audiences)) + "</div><div>" + blk("Placement / topik relevan", ulE(d.placements)) + "</div></div>";
+    h += blk("Ukuran banner yang direkomendasikan", tags(d.sizes, "s"));
+    h += blk("Copy banner", cb("Headline (maks 30)", d.copy.head) + cb("Description (maks 90)", d.copy.desc) + tags([d.copy.cta], "b"));
+    h += blk("Strategi retargeting display", ulE(d.retarget));
+    h += "</div>";
+    return h;
+  },
+  youtube: function(y, plan){
+    const cur = plan.form.currency;
+    let h = '<div class="two"><div>' + blk("Objective & pengaturan", '<dl class="dl">' + dl("Objective", esc(y.objective)) + dl("Campaign name", '<span style="font-family:var(--mono);font-size:12.5px">' + esc(y.campaignName) + "</span>") + dl("Budget platform", moneyFmt(y.amount, cur) + " (" + y.pct + "%) · " + shortMoney(y.daily, cur) + "/hari") + dl("Durasi video ideal", esc(y.duration)) + "</dl>") +
+      blk("Format iklan yang disarankan", ulE(y.formats)) + "</div><div>" +
+      blk("Target audiens", '<p style="font-size:13.5px">' + esc(y.audience) + "</p>" + ulE(y.targeting)) +
+      blk("Channel / topik relevan", ulE(y.channels)) + "</div></div>";
+    h += blk("Konsep video", '<p style="font-size:13.5px">' + esc(y.concept) + "</p>");
+    h += blk("Hook awal video", '<p style="font-size:13.5px">' + esc(y.hook) + "</p>");
+    h += blk("Script iklan video 15–30 detik", cb("Script video", y.script));
+    h += '<div class="two"><div>' + blk("CTA", tags(y.cta, "b")) + "</div><div>" + blk("Landing page recommendation", '<p style="font-size:13.5px">' + esc(y.landing) + "</p>") + "</div></div>";
+    h += blk("Strategi retargeting penonton video", ulE(y.retarget));
+    return h;
+  },
+  linkedin: function(l, plan){
+    const cur = plan.form.currency, t2 = l.targeting;
+    let h = '<div class="two"><div>' + blk("Objective & pengaturan", '<dl class="dl">' + dl("Objective", esc(l.objective)) + dl("Campaign name", '<span style="font-family:var(--mono);font-size:12.5px">' + esc(l.campaignName) + "</span>") + dl("Budget platform", moneyFmt(l.amount, cur) + " (" + l.pct + "%) · " + shortMoney(l.daily, cur) + "/hari") + "</dl>") +
+      blk("Format iklan", ulE(l.formats)) + "</div><div>" +
+      blk("Targeting", '<dl class="dl">' + dl("Job title", esc(t2.jobs.join(", "))) + dl("Industry", esc(t2.industries.join(", "))) + dl("Company size", esc(t2.size.join(", "))) + dl("Seniority", esc(t2.seniority.join(", "))) + dl("Skills", esc(t2.skills.join(", "))) + dl("Location", esc(t2.location)) + "</dl>") + "</div></div>";
+    h += blk("Copy iklan", cb("Intro text (versi panjang)", l.copy) + cb("Intro text (versi pendek)", l.copyAlt) + cb("Headline · " + l.headline.length + " karakter", l.headline) + tags(l.cta, "b"));
+    h += '<div class="two"><div>' + blk("Rekomendasi lead magnet", ulE(l.leadMagnets)) + "</div><div>" + blk("Strategi lead generation B2B", ulE(l.strategy)) + "</div></div>";
+    h += '<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17v.01M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div>' + esc(l.budgetNote) + "</div></div>";
+    return h;
+  },
+  x: function(x, plan){
+    const cur = plan.form.currency;
+    let h = '<div class="two"><div>' + blk("Objective & pengaturan", '<dl class="dl">' + dl("Objective", esc(x.objective)) + dl("Campaign name", '<span style="font-family:var(--mono);font-size:12.5px">' + esc(x.campaignName) + "</span>") + dl("Budget platform", moneyFmt(x.amount, cur) + " (" + x.pct + "%) · " + shortMoney(x.daily, cur) + "/hari") + "</dl>") +
+      blk("Format iklan", ulE(x.formats)) + "</div><div>" +
+      blk("Target interest / conversation / keyword", ulE(x.targeting)) + "</div></div>";
+    h += blk("Copy pendek (sesuai karakter X)", x.copies.map((c, i) => cb("Copy " + (i + 1) + " · " + c.length + " karakter", c)).join("") + tags(x.cta, "b"));
+    h += '<div class="two"><div>' + blk("Hashtag relevan", tags(x.hashtags, "v")) + "</div><div>" + blk("Strategi engagement", ulE(x.engagement)) + "</div></div>";
+    h += '<div class="callout info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>' + esc(x.budgetNote) + "</div></div>";
+    return h;
+  }
+};
+
+function renderCreative(plan){
+  const c = plan.creative;
+  let h = '<section class="sec" id="sec-creative"><div class="sec-head"><h2>Creative Studio</h2><p>Bahan mentah untuk tim desain dan copywriter — gaya komunikasi: ' + esc(TONES.find(t2 => t2.id === plan.form.tone).name) + ".</p></div>";
+  h += '<div class="card panel">' +
+    blk("Big Idea Campaign", '<p style="font-size:15px;font-weight:600;line-height:1.5">' + esc(c.bigIdea) + "</p>") +
+    '<div class="two">' +
+      "<div>" + blk("Angle komunikasi utama", '<p style="font-size:13.5px">' + esc(c.angle) + "</p>") + blk("Pain point audiens", '<p style="font-size:13.5px">' + esc(c.pain) + "</p>") + "</div>" +
+      "<div>" + blk("Value proposition", '<p style="font-size:13.5px">' + esc(c.value) + "</p>") + blk("Emotional trigger", tags(c.triggers, "v")) + "</div>" +
+    "</div></div>";
+  h += '<div class="two" style="margin-top:12px"><div class="card panel">' +
+    blk("Ide visual", ulE(c.visual)) + blk("Rekomendasi warna & gaya desain", '<p style="font-size:13.5px">' + esc(c.palette) + "</p>") +
+    blk("Ide foto / video", ulE(c.photoVideo)) + "</div>";
+  h += '<div class="card panel">' + blk("5+ ide konten iklan", ulE(c.contentIdeas)) + blk("Catatan gaya komunikasi", '<p style="font-size:13.5px">' + esc(c.toneNote) + "</p>") + "</div></div>";
+  h += '<div class="two" style="margin-top:12px"><div class="card panel">' + blk("5 headline iklan", ulE(c.headlines)) + blk("5 CTA", tags(c.ctas, "b")) + "</div>";
+  h += '<div class="card panel">' + blk("10 hashtag relevan", tags(c.hashtags, "s")) + '<p style="font-size:12.5px;color:var(--muted)">Hashtag dipakai pada platform yang mendukung (Instagram, TikTok, X, LinkedIn). Gunakan 3–5 hashtag paling relevan per postingan, bukan seluruh daftar.</p>' + "</div></div>";
+  h += '<div class="card panel" style="margin-top:12px">' + blk("3 variasi caption pendek", c.shortCaptions.map((x, i) => cb("Caption pendek " + (i + 1), x)).join("")) +
+    blk("3 variasi caption panjang", c.longCaptions.map((x, i) => cb("Caption panjang " + (i + 1), x)).join("")) + "</div>";
+  h += "</section>";
+  return h;
+}
+
+/* ===================== STATE & STORAGE ===================== */
+const LS_PROJ = "adpilot_projects_v1", LS_THEME = "adpilot_theme_v1", LS_SEED = "adpilot_seeded_v1";
+let CURRENT = null;
+let PROJECTS = [];
+function lsGet(k, fb){ try{ const r = localStorage.getItem(k); return r ? JSON.parse(r) : fb; }catch(e){ return fb; } }
+function lsSet(k, val){ try{ localStorage.setItem(k, JSON.stringify(val)); return true; }catch(e){ return false; } }
+
+/* ===================== TOAST & MODAL ===================== */
+let toastT = null;
+function toast(msg){
+  const el = $("#toast"); el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("show"), 2600);
+}
+function openModal(title, desc, text){
+  $("#modalTitle").textContent = title; $("#modalDesc").textContent = desc;
+  $("#modalText").value = text; $("#modal").classList.add("show"); $("#modalText").focus();
+}
+function closeModal(){ $("#modal").classList.remove("show"); }
+async function copyText(text, okMsg){
+  try{
+    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(text); toast(okMsg || "Tersalin ke clipboard"); return true; }
+    throw new Error("no clipboard");
+  }catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try{ ok = document.execCommand("copy"); }catch(err){ ok = false; }
+    document.body.removeChild(ta);
+    if(ok){ toast(okMsg || "Tersalin ke clipboard"); return true; }
+    openModal("Salin manual", "Browser memblokir akses clipboard. Pilih seluruh teks di bawah, lalu salin manual (Ctrl/Cmd + C).", text);
+    return false;
+  }
+}
+
+/* ===================== FORM SETUP ===================== */
+function buildForm(){
+  $("#objGrid").innerHTML = OBJECTIVES.map((o, i) =>
+    '<label class="obj"><input type="radio" name="objective" value="' + o.id + '"' + (i === 6 ? " checked" : "") + '><span><b>' + o.name + "</b><em>" + o.desc + "</em></span></label>").join("");
+  $("#pfGrid").innerHTML = PLATFORMS.map((p, i) =>
+    '<label class="pf"><input type="checkbox" name="platform" value="' + p.id + '"' + (i < 2 ? " checked" : "") + '><span>' +
+    '<span class="pf-ico" style="background:' + p.color + ';box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)">' + p.mark + "</span>" +
+    "<span><b>" + p.name + "</b><em>" + p.sub + "</em></span><span class=\"pf-check\"></span></span></label>").join("");
+  $("#toneChips").innerHTML = TONES.map((t2, i) =>
+    '<label class="chip"><input type="radio" name="tone" value="' + t2.id + '"' + (i === 1 ? " checked" : "") + "><span>" + t2.name + "</span></label>").join("");
+  const ages = [];
+  for(let a = 13; a <= 64; a++) ages.push(String(a));
+  $("#ageMin").innerHTML = ages.map(a => '<option' + (a === "25" ? " selected" : "") + ">" + a + "</option>").join("");
+  $("#ageMax").innerHTML = ages.concat(["65+"]).map(a => '<option' + (a === "44" ? " selected" : "") + ">" + a + "</option>").join("");
+  $("#projFilter").innerHTML = '<option value="">Semua platform</option>' + PLATFORMS.map(p => '<option value="' + p.id + '">' + p.name + "</option>").join("");
+}
+function readForm(){
+  const g = id => { const el = $("#" + id); return el ? String(el.value).trim() : ""; };
+  const objEl = $('input[name="objective"]:checked'), toneEl = $('input[name="tone"]:checked');
+  return {
+    brand:g("brand"), product:g("product"), category:g("category"), desc:g("desc"), usp:g("usp"),
+    price:g("price"), promo:g("promo"), url:g("url"),
+    objective: objEl ? objEl.value : "",
+    location:g("location"), ageMin:g("ageMin"), ageMax:g("ageMax"), gender:g("gender"),
+    interests:g("interests"), pain:g("pain"), persona:g("persona"), awareness:g("awareness"),
+    currency:g("currency"), budgetTotal:g("budgetTotal"), budgetDaily:g("budgetDaily"),
+    duration:g("duration"), targetCPA:g("targetCPA"),
+    platforms: $$('input[name="platform"]:checked').map(i => i.value),
+    tone: toneEl ? toneEl.value : "friendly"
+  };
+}
+function fillForm(f){
+  ["brand","product","category","desc","usp","price","promo","url","location","ageMin","ageMax","gender",
+   "interests","pain","persona","awareness","currency","budgetTotal","budgetDaily","duration","targetCPA"].forEach(k => {
+    const el = $("#" + k); if(el && f[k] !== undefined) el.value = f[k];
+  });
+  const o = $('input[name="objective"][value="' + f.objective + '"]'); if(o) o.checked = true;
+  const t2 = $('input[name="tone"][value="' + f.tone + '"]'); if(t2) t2.checked = true;
+  $$('input[name="platform"]').forEach(i => { i.checked = (f.platforms || []).indexOf(i.value) >= 0; });
+  clearErrors();
+}
+function clearErrors(){
+  $$(".field.invalid").forEach(el => el.classList.remove("invalid"));
+  $$("input.err,select.err,textarea.err").forEach(el => el.classList.remove("err"));
+  $("#objErr").style.display = "none"; $("#pfErr").style.display = "none";
+  $("#formAlert").classList.remove("show");
+}
+function validate(f){
+  clearErrors();
+  const req = [["brand","Nama brand"],["product","Produk"],["category","Kategori bisnis"],["desc","Deskripsi produk"],
+    ["usp","Keunggulan utama"],["location","Lokasi target"],["pain","Masalah utama"],["budgetTotal","Total budget"],["duration","Durasi campaign"]];
+  const miss = [];
+  req.forEach(r => {
+    const val = f[r[0]];
+    const bad = !val || (r[0] === "budgetTotal" && Number(val) <= 0) || (r[0] === "duration" && Number(val) < 1);
+    if(bad){
+      miss.push(r[1]);
+      const el = $("#" + r[0]); if(el){ el.classList.add("err"); const fl = el.closest(".field"); if(fl) fl.classList.add("invalid"); }
+    }
+  });
+  if(!f.objective){ miss.push("Tujuan iklan"); $("#objErr").style.display = "block"; }
+  if(!f.platforms.length){ miss.push("Platform iklan"); $("#pfErr").style.display = "block"; }
+  if(Number(f.ageMin) > (f.ageMax === "65+" ? 65 : Number(f.ageMax))) miss.push("Rentang usia (minimum melebihi maksimum)");
+  if(miss.length){
+    const al = $("#formAlert");
+    al.innerHTML = "Lengkapi dulu bagian berikut sebelum generate: <b>" + miss.map(esc).join(", ") + "</b>.";
+    al.classList.add("show");
+    const first = $(".field.invalid input,.field.invalid select,.field.invalid textarea") || $("#formAlert");
+    first.scrollIntoView({ behavior:"smooth", block:"center" });
+    if(first.focus) setTimeout(() => first.focus(), 350);
+  }
+  return miss.length === 0;
+}
+
+/* ===================== GENERATE FLOW ===================== */
+const LOAD_STEPS = ["Membaca brief bisnis & audiens","Menghitung alokasi budget per platform","Menyusun struktur campaign & funnel","Menulis copy iklan dan ide creative","Menyiapkan media plan & kalender optimasi"];
+function runGenerate(f, reseed){
+  if(reseed) SEED = Math.floor(Math.random() * 9973) + 1;
+  RND = prng(SEED);
+  showView("result");
+  $("#resultEmpty").hidden = true;
+  $("#resultRoot").hidden = true;
+  const loader = $("#loader");
+  loader.classList.add("show");
+  $("#loaderSteps").innerHTML = LOAD_STEPS.map(s => '<div class="lstep"><span class="dot"></span>' + esc(s) + "</div>").join("");
+  const steps = $$(".lstep");
+  let i = 0;
+  const tick = setInterval(() => { if(steps[i]) steps[i].classList.add("on"); i++; if(i >= steps.length) clearInterval(tick); }, 230);
+  setTimeout(() => {
+    clearInterval(tick);
+    try{
+      CURRENT = buildPlan(f);
+      const root = $("#resultRoot");
+      root.innerHTML = renderPlan(CURRENT);
+      root.hidden = false;
+      loader.classList.remove("show");
+      window.scrollTo({ top:0, behavior:"smooth" });
+      bindResult();
+    }catch(err){
+      loader.classList.remove("show");
+      $("#resultEmpty").hidden = false;
+      toast("Terjadi kesalahan saat menyusun campaign. Coba periksa isian brief.");
+      if(window.console) console.error(err);
+    }
+  }, 1450);
+}
+function bindResult(){
+  $$("#resultRoot [data-copy]").forEach(b => b.addEventListener("click", () => copyText(COPY_STORE[Number(b.dataset.copy)], "Teks tersalin")));
+  $$("#resultRoot .tab-btn").forEach(b => b.addEventListener("click", () => {
+    const wrap = b.closest(".acc-body") || document;
+    $$(".tab-btn", wrap).forEach(x => x.classList.remove("active"));
+    $$(".tab-pane", wrap).forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    const pane = $('.tab-pane[data-pane="' + b.dataset.tab + '"]', wrap); if(pane) pane.classList.add("active");
+  }));
+  const s = $("#btnSave"); if(s) s.addEventListener("click", saveProject);
+  const c = $("#btnCopyPlan"); if(c) c.addEventListener("click", () => copyText(planText(), "Campaign plan tersalin"));
+  const d = $("#btnDownload"); if(d) d.addEventListener("click", function(){ downloadPlan(); });
+  const p = $("#btnPrint"); if(p) p.addEventListener("click", () => { openAllDetails(); setTimeout(() => { try{ window.print(); }catch(e){ toast("Cetak diblokir browser. Gunakan tombol Download atau Copy."); } }, 120); });
+  const r = $("#btnRegen"); if(r) r.addEventListener("click", () => { if(CURRENT) runGenerate(CURRENT.form, true); });
+  $$("#resultRoot [data-goto]").forEach(b => b.addEventListener("click", () => showView(b.dataset.goto)));
+}
+function openAllDetails(){ $$("#resultRoot details").forEach(d => d.open = true); }
+
+/* ===================== EXPORT ===================== */
+function planText(){
+  if(!CURRENT) return "";
+  const root = $("#resultRoot").cloneNode(true);
+  $$(".res-tools", root).forEach(e => e.remove());
+  $$(".secnav", root).forEach(e => e.remove());
+  $$(".mini-copy", root).forEach(e => e.remove());
+  const head = "ADPILOT AI — CAMPAIGN PLAN\n" + CURRENT.campaignLabel + "\nDibuat: " + new Date(CURRENT.createdAt).toLocaleString("id-ID") +
+    "\nCatatan: rancangan berbasis rule & praktik umum periklanan digital. Bukan jaminan performa — uji, pantau, dan optimasi dengan data aktual.\n" + "=".repeat(60) + "\n\n";
+  const body = (root.innerText || root.textContent || "").replace(/\n{3,}/g, "\n\n").trim();
+  return head + body;
+}
+function buildPlanDoc(){
+  const css = $$("style").map(s => s.textContent).join("\n");
+  const root = $("#resultRoot").cloneNode(true);
+  $$(".res-tools", root).forEach(e => e.remove());
+  $$(".secnav", root).forEach(e => e.remove());
+  $$(".mini-copy", root).forEach(e => e.remove());
+  $$("details", root).forEach(d => d.setAttribute("open", ""));
+  $$(".tab-pane", root).forEach(d => d.classList.add("active"));
+  return "<!doctype html><html lang=\"id\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
+    "<title>Campaign Plan — " + esc(CURRENT.campaignLabel) + "</title>" +
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">' +
+    "<style>" + css + "body{padding:24px;max-width:1000px;margin:0 auto}.tab-btn{display:none}</style></head><body>" +
+    root.innerHTML +
+    '<p class="disc" style="margin-top:22px">Dokumen ini dihasilkan oleh AdPilot AI — Campaign Generator. Seluruh isi merupakan rancangan strategi, bukan jaminan hasil.</p>' +
+    "</body></html>";
+}
+function downloadPlan(){
+  if(!CURRENT) return;
+  const doc = buildPlanDoc();
+  const filename = "campaign-plan-" + CURRENT.campaignName.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".html";
+  const embedded = !!(window.claude);
+  if(embedded){
+    openModal("Simpan campaign plan sebagai HTML",
+      "Unduhan otomatis tidak tersedia pada tampilan demo ini. Salin seluruh kode di bawah, simpan sebagai file berekstensi .html, lalu buka di browser. Untuk versi cetak, gunakan tombol Cetak / PDF.", doc);
+    return;
+  }
+  try{
+    const blob = new Blob([doc], { type:"text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast("Campaign plan diunduh sebagai file HTML");
+  }catch(e){
+    openModal("Simpan campaign plan sebagai HTML", "Salin seluruh kode di bawah, simpan sebagai file berekstensi .html, lalu buka di browser.", doc);
+  }
+}
+
+/* ===================== PROJECTS ===================== */
+function projName(f){ return f.brand + " — " + OBJ_MAP[f.objective].name; }
+function saveProject(){
+  if(!CURRENT) return;
+  const f = CURRENT.form;
+  const rec = { id:"p" + Date.now() + Math.floor(Math.random() * 99), name:projName(f), brand:f.brand, product:f.product,
+    objective:f.objective, platforms:f.platforms, budget:f.budgetTotal, currency:f.currency, createdAt:Date.now(), form:f };
+  PROJECTS.unshift(rec);
+  if(lsSet(LS_PROJ, PROJECTS)){ toast("Project tersimpan di browser Anda"); renderProjects(); updateCount(); }
+  else { PROJECTS.shift(); toast("Penyimpanan browser tidak tersedia — project tidak bisa disimpan."); }
+}
+function updateCount(){ $("#projCount").textContent = PROJECTS.length; }
+function renderProjects(){
+  const q = ($("#projSearch").value || "").toLowerCase().trim();
+  const pf = $("#projFilter").value;
+  const list = PROJECTS.filter(p => {
+    const hay = (p.name + " " + p.brand + " " + p.product + " " + (p.platforms || []).map(x => PF_MAP[x] ? PF_MAP[x].name : x).join(" ")).toLowerCase();
+    return (!q || hay.indexOf(q) >= 0) && (!pf || (p.platforms || []).indexOf(pf) >= 0);
+  });
+  const grid = $("#projGrid");
+  grid.innerHTML = list.map(p =>
+    '<article class="proj"><h3>' + esc(p.brand) + "</h3>" +
+    '<div class="meta">' + esc(p.product) + "</div>" +
+    '<div class="pfs"><span class="tag b">' + esc(OBJ_MAP[p.objective] ? OBJ_MAP[p.objective].name : p.objective) + "</span>" +
+    (p.platforms || []).map(x => '<span class="tag">' + esc(PF_MAP[x] ? PF_MAP[x].name.replace(" Ads", "") : x) + "</span>").join("") + "</div>" +
+    '<div class="meta">' + shortMoney(p.budget, p.currency) + " · " + new Date(p.createdAt).toLocaleDateString("id-ID", { day:"numeric", month:"short", year:"numeric" }) + "</div>" +
+    '<div class="row"><button class="btn btn-sm" type="button" data-open="' + p.id + '">Buka</button>' +
+    '<button class="btn btn-sm" type="button" data-edit="' + p.id + '">Ubah Brief</button>' +
+    '<button class="btn btn-sm btn-ghost ml-auto" type="button" data-del="' + p.id + '">Hapus</button></div></article>').join("");
+  $("#projEmpty").hidden = list.length > 0;
+  if(!PROJECTS.length) $("#projEmpty").querySelector("h2").textContent = "Belum ada project tersimpan";
+  else if(!list.length) $("#projEmpty").querySelector("h2").textContent = "Tidak ada project yang cocok dengan pencarian";
+  $$("#projGrid [data-open]").forEach(b => b.addEventListener("click", () => {
+    const p = PROJECTS.find(x => x.id === b.dataset.open); if(!p) return;
+    fillForm(p.form); runGenerate(p.form, false);
+  }));
+  $$("#projGrid [data-edit]").forEach(b => b.addEventListener("click", () => {
+    const p = PROJECTS.find(x => x.id === b.dataset.edit); if(!p) return;
+    fillForm(p.form); showView("brief"); toast("Brief dimuat ke form — silakan ubah lalu generate ulang.");
+  }));
+  $$("#projGrid [data-del]").forEach(b => b.addEventListener("click", () => {
+    PROJECTS = PROJECTS.filter(x => x.id !== b.dataset.del);
+    lsSet(LS_PROJ, PROJECTS); renderProjects(); updateCount(); toast("Project dihapus");
+  }));
+}
+
+/* ===================== SAMPLE DATA ===================== */
+const SAMPLE = {
+  brand:"Nusa Kopi Roastery", product:"Paket kopi arabika single origin 250g", category:"Kuliner",
+  desc:"Kopi arabika single origin dari Gayo dan Toraja yang dipanggang setiap minggu, dikemas dalam ukuran 250g untuk penikmat kopi rumahan.",
+  usp:"Dipanggang setiap minggu dan dikirim maksimal 3 hari setelah roasting, sehingga rasa tetap segar dan konsisten",
+  price:"Rp 89.000 – Rp 165.000", promo:"Diskon 25% + gratis ongkir untuk pembelian 2 pack", url:"https://nusakopi.example.com",
+  objective:"sales", location:"Jakarta, Bandung, Surabaya", ageMin:"25", ageMax:"44", gender:"Semua gender",
+  interests:"pekerja kantoran, penyuka manual brew, penggemar kopi specialty",
+  pain:"Sulit menemukan kopi segar dengan rasa yang konsisten untuk diseduh sendiri di rumah",
+  persona:"Suka riset sebelum membeli, aktif di Instagram, menghargai kualitas dibanding harga termurah",
+  awareness:"3", currency:"IDR", budgetTotal:"15000000", budgetDaily:"500000", duration:"30", targetCPA:"60000",
+  platforms:["meta","tiktok","google"], tone:"friendly"
+};
+const SAMPLE2 = {
+  brand:"Sinergi Pajak Konsultan", product:"Layanan pendampingan pajak tahunan untuk UKM", category:"Jasa Profesional",
+  desc:"Pendampingan perhitungan, pelaporan, dan konsultasi pajak tahunan untuk usaha kecil dan menengah, ditangani konsultan bersertifikat.",
+  usp:"Satu konsultan tetap untuk setiap klien, laporan selesai maksimal 7 hari kerja",
+  price:"Mulai Rp 2.500.000 per periode", promo:"Gratis review kepatuhan pajak 30 menit", url:"",
+  objective:"leads", location:"Jakarta dan Tangerang", ageMin:"30", ageMax:"55", gender:"Semua gender",
+  interests:"pemilik usaha, manajer keuangan, wirausaha",
+  pain:"Takut salah lapor pajak dan terkena denda karena tidak paham aturan terbaru",
+  persona:"Hati-hati, butuh kepastian dan bukti kredibilitas sebelum memilih vendor",
+  awareness:"2", currency:"IDR", budgetTotal:"9000000", budgetDaily:"300000", duration:"28", targetCPA:"150000",
+  platforms:["linkedin","google","meta"], tone:"profesional"
+};
+function seedProjects(){
+  if(lsGet(LS_SEED, false)) return;
+  const mk = (f, ago) => ({ id:"p" + (Date.now() - ago), name:projName(f), brand:f.brand, product:f.product, objective:f.objective,
+    platforms:f.platforms, budget:f.budgetTotal, currency:f.currency, createdAt:Date.now() - ago, form:f });
+  if(!PROJECTS.length){
+    PROJECTS = [mk(SAMPLE, 86400000), mk(SAMPLE2, 3 * 86400000)];
+    lsSet(LS_PROJ, PROJECTS);
+  }
+  lsSet(LS_SEED, true);
+}
+
+/* ===================== VIEW / THEME ===================== */
+function showView(name){
+  $$(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+  $$(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+  if(name === "projects") renderProjects();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+const SUN = '<path d="M12 4V2M12 22v-2M4 12H2M22 12h-2M6.3 6.3 4.9 4.9M19.1 19.1l-1.4-1.4M17.7 6.3l1.4-1.4M4.9 19.1l1.4-1.4"/><circle cx="12" cy="12" r="4"/>';
+const MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+function applyTheme(mode){
+  if(mode === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", mode);
+  const dark = mode === "dark" || (mode === "auto" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  $("#themeIcon").innerHTML = dark ? SUN : MOON;
+  $("#btnTheme").setAttribute("title", dark ? "Beralih ke tema terang" : "Beralih ke tema gelap");
+}
+
+/* ===================== INIT ===================== */
+function init(){
+  buildForm();
+  PROJECTS = lsGet(LS_PROJ, []);
+  seedProjects();
+  PROJECTS = lsGet(LS_PROJ, PROJECTS);
+  updateCount();
+  renderProjects();
+
+  const savedTheme = lsGet(LS_THEME, "auto");
+  applyTheme(savedTheme);
+  $("#btnTheme").addEventListener("click", () => {
+    const cur = lsGet(LS_THEME, "auto");
+    const isDark = cur === "dark" || (cur === "auto" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const next = isDark ? "light" : "dark";
+    lsSet(LS_THEME, next); applyTheme(next);
+  });
+  if(window.matchMedia){
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onCh = () => { if(lsGet(LS_THEME, "auto") === "auto") applyTheme("auto"); };
+    if(mq.addEventListener) mq.addEventListener("change", onCh);
+  }
+
+  $$(".nav-btn").forEach(b => b.addEventListener("click", () => showView(b.dataset.view)));
+  $$("[data-goto]").forEach(b => b.addEventListener("click", () => showView(b.dataset.goto)));
+
+  $("#briefForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const f = readForm();
+    if(!validate(f)) return;
+    runGenerate(f, true);
+  });
+  $("#btnReset").addEventListener("click", () => {
+    $("#briefForm").reset();
+    $$('input[name="platform"]').forEach((i, idx) => i.checked = idx < 2);
+    clearErrors(); toast("Form direset");
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+  const fill = () => { fillForm(SAMPLE); showView("brief"); toast("Data contoh dimuat — klik Generate Campaign Strategy"); };
+  $("#btnSample").addEventListener("click", fill);
+  $("#btnSample2").addEventListener("click", () => { fillForm(SAMPLE); runGenerate(SAMPLE, false); });
+
+  const bt = $("#budgetTotal"), du = $("#duration"), bd = $("#budgetDaily");
+  let dailyTouched = false;
+  bd.addEventListener("input", () => { dailyTouched = true; });
+  const recalc = () => {
+    if(dailyTouched) return;
+    const t2 = Number(bt.value), d = Number(du.value);
+    if(t2 > 0 && d > 0) bd.value = Math.round(t2 / d);
+  };
+  bt.addEventListener("input", recalc); du.addEventListener("input", recalc);
+
+  $("#projSearch").addEventListener("input", renderProjects);
+  $("#projFilter").addEventListener("change", renderProjects);
+  $("#btnClearProjects").addEventListener("click", () => {
+    if(!PROJECTS.length) return toast("Belum ada project untuk dihapus");
+    PROJECTS = []; lsSet(LS_PROJ, []); renderProjects(); updateCount(); toast("Semua project dihapus");
+  });
+
+  $("#modalClose").addEventListener("click", closeModal);
+  $("#modalCopy").addEventListener("click", () => { const ta = $("#modalText"); ta.select(); try{ document.execCommand("copy"); toast("Tersalin"); }catch(e){ toast("Silakan salin manual"); } });
+  $("#modal").addEventListener("click", e => { if(e.target === $("#modal")) closeModal(); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") closeModal(); });
+  window.addEventListener("beforeprint", openAllDetails);
+}
+if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+})();
+</script>
+
+</body></html>

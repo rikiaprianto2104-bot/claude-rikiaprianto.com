@@ -1,0 +1,933 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Customer Persona Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#ffffff; --panel:#f4f7fc; --panel-2:#ffffff; --ink:#0b2340; --ink-2:#46586f; --ink-3:#7286a1;
+  --line:#dce4f0; --line-2:#eaf0f8;
+  --navy:#0b2e63; --blue:#12448f; --blue-2:#2e7be8; --blue-soft:#e8f0fd;
+  --t0:#12448f; --t0-bg:#e8f0fd; --t1:#0d7680; --t1-bg:#e2f4f4; --t2:#8a5312; --t2-bg:#fbeedd;
+  --shadow:0 1px 2px rgba(11,35,64,.05), 0 12px 32px -18px rgba(11,35,64,.35);
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#08111f; --panel:#0f1d31; --panel-2:#0d1a2c; --ink:#e7eef8; --ink-2:#a9bad1; --ink-3:#7d90aa;
+    --line:#1e2f49; --line-2:#16263d;
+    --navy:#dbe7fa; --blue:#6fa8ff; --blue-2:#8dbcff; --blue-soft:#132743;
+    --t0:#7fb0ff; --t0-bg:#132743; --t1:#5cc9cf; --t1-bg:#0e2b2d; --t2:#e0aa63; --t2-bg:#2c2114;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 40px -22px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#08111f; --panel:#0f1d31; --panel-2:#0d1a2c; --ink:#e7eef8; --ink-2:#a9bad1; --ink-3:#7d90aa;
+  --line:#1e2f49; --line-2:#16263d;
+  --navy:#dbe7fa; --blue:#6fa8ff; --blue-2:#8dbcff; --blue-soft:#132743;
+  --t0:#7fb0ff; --t0-bg:#132743; --t1:#5cc9cf; --t1-bg:#0e2b2d; --t2:#e0aa63; --t2-bg:#2c2114;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 40px -22px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Plus Jakarta Sans","IBM Plex Sans",sans-serif; margin:0; text-wrap:balance; letter-spacing:-.015em}
+p{margin:0}
+ul,ol{margin:0; padding:0; list-style:none}
+button,input,select,textarea{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--blue-2); outline-offset:2px; border-radius:6px}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--blue); display:block; margin-bottom:6px;
+}
+.wrap{max-width:1280px; margin:0 auto; padding:0 24px}
+
+/* ---------- header ---------- */
+.top{border-bottom:1px solid var(--line); background:var(--bg)}
+.top-in{display:flex; flex-wrap:wrap; align-items:flex-end; gap:20px 32px; padding:34px 0 30px}
+.brand{display:flex; align-items:center; gap:11px; margin-bottom:14px}
+.mark{
+  width:34px; height:34px; border-radius:9px; background:var(--blue); color:#fff;
+  display:grid; place-items:center; font-family:"Plus Jakarta Sans",sans-serif; font-weight:800; font-size:14px; letter-spacing:-.03em;
+}
+:root[data-theme="dark"] .mark, :root:not([data-theme="light"]) .mark{color:#08111f}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .mark{color:#fff}}
+.brand b{font-family:"Plus Jakarta Sans",sans-serif; font-size:14px; display:block; line-height:1.25}
+.brand span{font-size:11.5px; color:var(--ink-3); display:block; line-height:1.25}
+.top h1{font-size:clamp(26px,3.4vw,38px); font-weight:800; line-height:1.14}
+.top .lede{margin-top:10px; color:var(--ink-2); max-width:56ch; font-size:15.5px}
+.badge{
+  display:inline-flex; align-items:center; gap:8px; padding:7px 13px; border-radius:999px;
+  background:var(--blue-soft); color:var(--blue); border:1px solid color-mix(in srgb,var(--blue) 22%, transparent);
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+}
+.badge i{width:6px; height:6px; border-radius:50%; background:currentColor; display:block}
+
+/* ---------- layout ---------- */
+.main{display:grid; grid-template-columns:minmax(0,382px) minmax(0,1fr); gap:32px; padding:32px 0 56px; align-items:start}
+.main>*{min-width:0}
+@media (max-width:1080px){.main{grid-template-columns:minmax(0,1fr); gap:24px}}
+@media (max-width:520px){.wrap{padding:0 16px} .panel{padding:18px} .persona{padding:17px} .strategi{padding:18px} .two,.row-2{grid-template-columns:1fr}}
+
+/* ---------- form ---------- */
+.panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px;
+}
+@media (min-width:1081px){.panel{position:sticky; top:20px; max-height:calc(100vh - 40px); overflow-y:auto}}
+.panel h2{font-size:17px; font-weight:700}
+.panel .hint{color:var(--ink-3); font-size:13px; margin-top:4px}
+.fields{display:flex; flex-direction:column; gap:15px; margin-top:20px}
+.field label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
+.field label .opt{font-weight:400; color:var(--ink-3)}
+.field input,.field select,.field textarea{
+  width:100%; padding:10px 12px; background:var(--panel-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:9px; font-size:14px; transition:border-color .15s, box-shadow .15s;
+}
+.field textarea{resize:vertical; min-height:74px; line-height:1.55}
+.field select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%); background-position:calc(100% - 17px) 19px, calc(100% - 12px) 19px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:34px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue-2); box-shadow:0 0 0 3px color-mix(in srgb,var(--blue-2) 18%, transparent); outline:none}
+.field.err input,.field.err select,.field.err textarea{border-color:#d64545; box-shadow:0 0 0 3px rgba(214,69,69,.14)}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.two.wide{grid-template-columns:1fr}
+fieldset{border:0; padding:0; margin:0}
+legend{font-size:12.5px; font-weight:600; color:var(--ink-2); margin-bottom:8px; padding:0}
+.plats{display:flex; flex-wrap:wrap; gap:7px}
+.plats label{
+  display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border:1px solid var(--line);
+  border-radius:999px; background:var(--panel-2); font-size:13px; cursor:pointer; transition:.15s; user-select:none;
+}
+.plats input{position:absolute; opacity:0; width:0; height:0}
+.plats label:hover{border-color:var(--blue-2)}
+.plats .box{width:14px; height:14px; border:1.5px solid var(--ink-3); border-radius:4px; display:grid; place-items:center; transition:.15s}
+.plats .box::after{content:""; width:6px; height:6px; border-radius:1px; background:transparent; transition:.15s}
+.plats input:checked ~ .box{border-color:var(--blue); background:var(--blue)}
+.plats input:checked ~ .box::after{background:var(--bg)}
+.plats input:checked ~ span:last-child{color:var(--blue); font-weight:600}
+.plats input:focus-visible ~ .box{outline:2px solid var(--blue-2); outline-offset:2px}
+.plats label:has(input:checked){border-color:var(--blue); background:var(--blue-soft)}
+.actions{display:flex; flex-direction:column; gap:9px; margin-top:20px}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 18px;
+  border-radius:9px; border:1px solid transparent; font-size:14px; font-weight:600; cursor:pointer; transition:.15s;
+  font-family:"Plus Jakarta Sans",sans-serif;
+}
+.btn.primary{background:var(--navy); color:var(--bg); border-color:var(--navy)}
+.btn.primary:hover{background:var(--blue); border-color:var(--blue)}
+.btn.ghost{background:transparent; color:var(--ink-2); border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--blue-2); color:var(--blue)}
+.btn.link{background:none; border:0; color:var(--ink-3); text-decoration:underline; text-underline-offset:3px; padding:4px; font-size:13px; font-weight:500}
+.btn.link:hover{color:var(--blue)}
+.row-2{display:grid; grid-template-columns:1fr 1fr; gap:9px}
+
+/* ---------- hasil ---------- */
+.empty{
+  border:1px dashed var(--line); border-radius:var(--radius); background:var(--panel);
+  padding:64px 32px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+.empty svg{width:54px; height:54px; fill:none; stroke:var(--blue); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; opacity:.65}
+.empty h3{font-size:18px; font-weight:700; max-width:24ch}
+.empty p{color:var(--ink-3); font-size:14px; max-width:50ch}
+
+.loading{border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); padding:56px 32px; text-align:center}
+.loading .bar{width:200px; height:4px; border-radius:99px; background:var(--line); margin:0 auto 16px; overflow:hidden}
+.loading .bar i{display:block; width:40%; height:100%; background:var(--blue); border-radius:99px; animation:slide 1s infinite ease-in-out}
+.loading p{color:var(--ink-2); font-size:14px}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+
+.res-head{display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:flex-end; margin-bottom:22px}
+.res-head h2{font-size:23px; font-weight:800}
+.res-meta{color:var(--ink-3); font-size:13.5px; margin-top:5px}
+.res-act{display:flex; gap:8px; flex-wrap:wrap}
+
+.personas{display:flex; flex-direction:column; gap:18px}
+.persona{
+  background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius); padding:22px;
+  box-shadow:var(--shadow); animation:rise .5s var(--d,0ms) both ease-out;
+}
+@keyframes rise{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+@media (prefers-reduced-motion:reduce){.persona{animation:none}.loading .bar i{animation:none;width:100%}}
+.p-head{display:flex; gap:15px; align-items:center; padding-bottom:16px; border-bottom:1px solid var(--line-2)}
+.avatar{
+  width:56px; height:56px; flex:0 0 56px; border-radius:50%; display:grid; place-items:center;
+  font-family:"Plus Jakarta Sans",sans-serif; font-weight:800; font-size:19px; letter-spacing:-.02em;
+}
+.avatar.t0{background:var(--t0-bg); color:var(--t0)} .avatar.t1{background:var(--t1-bg); color:var(--t1)} .avatar.t2{background:var(--t2-bg); color:var(--t2)}
+.p-id h3{font-size:19px; font-weight:700; margin-top:3px}
+.p-sub{color:var(--ink-3); font-size:13.5px}
+.tag{
+  display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:5px;
+}
+.tag.t0{background:var(--t0-bg); color:var(--t0)} .tag.t1{background:var(--t1-bg); color:var(--t1)} .tag.t2{background:var(--t2-bg); color:var(--t2)}
+.p-facts{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line-2); border:1px solid var(--line-2); border-radius:10px; overflow:hidden; margin:16px 0}
+.p-facts div{background:var(--panel-2); padding:11px 13px}
+.p-facts span{display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:3px}
+.p-facts b{font-size:13.5px; font-weight:600; line-height:1.4}
+@media (max-width:620px){.p-facts{grid-template-columns:1fr}}
+.p-ringkas{color:var(--ink-2); font-size:14.5px; max-width:72ch}
+.p-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px 26px; margin-top:20px}
+@media (max-width:760px){.p-grid{grid-template-columns:1fr}}
+.p-grid h4,.p-msg h4{
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:9px; padding-bottom:7px; border-bottom:1px solid var(--line-2);
+}
+ul.kv li{font-size:14px; padding:4px 0; color:var(--ink)}
+ul.kv li span{display:block; font-size:12px; color:var(--ink-3); font-weight:500}
+ul.dot li{position:relative; padding-left:17px; font-size:14px; padding-bottom:6px; color:var(--ink-2)}
+ul.dot li::before{content:""; position:absolute; left:2px; top:9px; width:5px; height:5px; border-radius:50%; background:var(--blue-2)}
+ul.quote li{font-size:14px; color:var(--ink-2); font-style:italic; padding:6px 0 6px 12px; border-left:2px solid var(--line); margin-bottom:5px}
+.p-msg{margin-top:20px; padding-top:16px; border-top:1px solid var(--line-2)}
+.ads{display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-top:14px}
+@media (max-width:620px){.ads{grid-template-columns:1fr}}
+.ad-h,.ad-c{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+.ad-h span,.ad-c span{display:block; font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:5px}
+.ad-h p{font-family:"Plus Jakarta Sans",sans-serif; font-weight:700; font-size:15.5px; line-height:1.35}
+.ad-c p{font-weight:600; font-size:14.5px; color:var(--blue)}
+
+/* ---------- strategi ---------- */
+.strategi{margin-top:32px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px}
+.strategi h2{font-size:21px; font-weight:800; margin-bottom:18px}
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:11px; background:var(--panel-2)}
+table.tbl{width:100%; border-collapse:collapse; min-width:560px}
+table.tbl thead th{
+  text-align:left; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600; padding:11px 16px; border-bottom:1px solid var(--line); background:var(--panel);
+}
+table.tbl tbody th{
+  text-align:left; vertical-align:top; width:170px; padding:15px 16px; font-family:"Plus Jakarta Sans",sans-serif;
+  font-size:14.5px; font-weight:700; color:var(--ink); border-bottom:1px solid var(--line-2); border-right:1px solid var(--line-2);
+}
+table.tbl tbody td{padding:15px 16px; vertical-align:top; border-bottom:1px solid var(--line-2); font-size:14px; color:var(--ink-2)}
+table.tbl tbody tr:last-child th,table.tbl tbody tr:last-child td{border-bottom:0}
+@media (max-width:620px){
+  table.tbl{min-width:0}
+  table.tbl thead{display:none}
+  table.tbl tbody th{display:block; width:auto; border-right:0; border-bottom:0; padding:14px 14px 0; color:var(--blue)}
+  table.tbl tbody td{display:block; padding:6px 14px 14px}
+}
+.insight{margin-top:24px; background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--blue); border-radius:11px; padding:18px 20px}
+.insight h3{font-size:16px; font-weight:800; margin-bottom:12px}
+.insight ol{display:flex; flex-direction:column; gap:11px}
+.insight li{display:flex; gap:12px; align-items:flex-start}
+.insight li span{
+  flex:0 0 22px; height:22px; border-radius:50%; background:var(--blue-soft); color:var(--blue);
+  display:grid; place-items:center; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; margin-top:1px;
+}
+.insight li p{font-size:14.5px; color:var(--ink); max-width:78ch}
+.disclaimer{margin-top:18px; font-size:12.5px; color:var(--ink-3); border-top:1px dashed var(--line); padding-top:14px}
+
+/* ---------- footer & toast ---------- */
+.foot{border-top:1px solid var(--line); padding:22px 0 34px; color:var(--ink-3); font-size:13px; display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:space-between}
+.foot b{color:var(--ink-2); font-weight:600}
+#toast{
+  position:fixed; left:50%; bottom:26px; transform:translate(-50%,16px); z-index:50;
+  background:var(--navy); color:var(--bg); padding:11px 18px; border-radius:10px; font-size:13.5px; font-weight:500;
+  box-shadow:0 12px 30px -10px rgba(11,35,64,.55); opacity:0; pointer-events:none; transition:.25s; max-width:90vw; text-align:center;
+}
+#toast.show{opacity:1; transform:translate(-50%,0)}
+</style>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div style="flex:1 1 460px">
+      <div class="brand">
+        <div class="mark">RM</div>
+        <div><b>Riki MarkeThink</b><span>AI Marketing Strategist</span></div>
+      </div>
+      <h1>Customer Persona Builder</h1>
+      <p class="lede">Bangun profil pelanggan ideal untuk menyusun konten, iklan, dan strategi pemasaran yang lebih tepat sasaran.</p>
+    </div>
+    <div><span class="badge"><i></i>Riki MarkeThink Digital Marketing Tools Lab</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="main">
+    <form class="panel" id="form" novalidate>
+      <span class="eyebrow">Langkah 1</span>
+      <h2>Informasi Bisnis</h2>
+      <p class="hint">Semakin spesifik informasinya, semakin relevan persona yang dihasilkan.</p>
+
+      <div class="fields">
+        <div class="field">
+          <label for="bisnis">Nama bisnis atau produk</label>
+          <input id="bisnis" type="text" placeholder="Contoh: Glowrise Skincare" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="kategori">Kategori bisnis</label>
+          <select id="kategori">
+            <option value="fashion">Fashion &amp; kecantikan</option>
+            <option value="fnb">Makanan &amp; minuman</option>
+            <option value="edu">Pendidikan</option>
+            <option value="health">Kesehatan &amp; kebugaran</option>
+            <option value="properti">Properti</option>
+            <option value="tech">Teknologi</option>
+            <option value="jasa">Jasa profesional</option>
+            <option value="hobi">Hobi &amp; lifestyle</option>
+            <option value="lainnya">Lainnya</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="deskripsi">Deskripsi singkat produk/jasa</label>
+          <textarea id="deskripsi" placeholder="Contoh: rangkaian skincare lokal untuk kulit berjerawat, bahan aktif ringan, sudah bersertifikat BPOM"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="lokasi">Target lokasi</label>
+          <input id="lokasi" type="text" placeholder="Contoh: Jabodetabek" autocomplete="off">
+        </div>
+
+        <div class="two wide">
+          <div class="field">
+            <label for="harga">Rentang harga</label>
+            <select id="harga">
+              <option value="ekonomis">Ekonomis</option>
+              <option value="menengah" selected>Menengah</option>
+              <option value="premium">Premium</option>
+              <option value="bebas">Bebas / fleksibel</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tujuan">Tujuan pemasaran</label>
+            <select id="tujuan">
+              <option value="awareness">Meningkatkan awareness</option>
+              <option value="leads">Mendapatkan leads</option>
+              <option value="penjualan" selected>Meningkatkan penjualan</option>
+              <option value="repeat">Meningkatkan repeat order</option>
+              <option value="komunitas">Membangun komunitas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two">
+          <div class="field">
+            <label for="usia">Target usia awal <span class="opt">(opsional)</span></label>
+            <input id="usia" type="number" min="16" max="65" placeholder="Contoh: 21">
+          </div>
+          <div class="field">
+            <label for="gender">Jenis kelamin <span class="opt">(opsional)</span></label>
+            <select id="gender">
+              <option value="semua">Semua</option>
+              <option value="perempuan">Perempuan</option>
+              <option value="laki">Laki-laki</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="masalah">Masalah pelanggan yang ingin diselesaikan <span class="opt">(opsional)</span></label>
+          <textarea id="masalah" placeholder="Contoh: jerawat yang muncul terus-menerus dan bekasnya sulit hilang"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="unggul">Keunggulan utama dibanding kompetitor <span class="opt">(opsional)</span></label>
+          <textarea id="unggul" placeholder="Contoh: formula ringan tanpa alkohol dengan panduan pemakaian personal"></textarea>
+        </div>
+
+        <fieldset>
+          <legend>Platform yang ingin digunakan</legend>
+          <div class="plats">
+            <label><input class="plat" type="checkbox" value="instagram" checked><span class="box"></span><span>Instagram</span></label>
+            <label><input class="plat" type="checkbox" value="tiktok"><span class="box"></span><span>TikTok</span></label>
+            <label><input class="plat" type="checkbox" value="facebook"><span class="box"></span><span>Facebook</span></label>
+            <label><input class="plat" type="checkbox" value="youtube"><span class="box"></span><span>YouTube</span></label>
+            <label><input class="plat" type="checkbox" value="threads"><span class="box"></span><span>Threads</span></label>
+            <label><input class="plat" type="checkbox" value="x"><span class="box"></span><span>X / Twitter</span></label>
+            <label><input class="plat" type="checkbox" value="whatsapp"><span class="box"></span><span>WhatsApp</span></label>
+            <label><input class="plat" type="checkbox" value="marketplace"><span class="box"></span><span>Marketplace</span></label>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Buat Customer Persona</button>
+        <div class="row-2">
+          <button type="button" class="btn ghost" id="btn-contoh">Isi Contoh</button>
+          <button type="button" class="btn ghost" id="btn-reset">Reset Form</button>
+        </div>
+      </div>
+    </form>
+
+    <main id="hasil" aria-live="polite"></main>
+  </div>
+
+  <footer class="foot">
+    <span>Built for <b>Riki MarkeThink — AI Marketing Strategist</b></span>
+    <span>Hasil berupa estimasi berbasis aturan, bukan data riset pasar aktual.</span>
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   Customer Persona Builder — basis pengetahuan (rule-based)
+   Riki MarkeThink Digital Marketing Tools Lab
+   ============================================================ */
+
+const NAMA_P = ["Anisa Rahmadani","Dinda Pratiwi","Rara Anggraini","Nabila Syifa","Tiara Kusuma","Kirana Maharani","Maya Lestari","Gita Permata","Wulan Sari","Ayu Ramadhani","Fitri Handayani","Laras Wijayanti","Nadia Salsabila","Hanum Aprilia","Sekar Ayu Ningrum","Rani Oktaviani"];
+const NAMA_L = ["Rangga Pratama","Bayu Saputra","Fajar Nugroho","Dimas Anggara","Aldi Kurniawan","Reza Maulana","Yoga Setiawan","Arif Hidayat","Bagas Prasetyo","Satria Wibowo","Hendra Gunawan","Iqbal Ramadhan","Rizky Firmansyah","Galih Purnomo","Panji Alfarizi","Andra Wicaksana"];
+
+const HARGA_INFO = {
+  ekonomis: {
+    label: "Ekonomis",
+    income: ["Rp2–4 juta/bulan", "Rp2,5–4,5 juta/bulan", "Rp3–5 juta/bulan"],
+    objek: ["Kalau harganya semurah ini, apakah kualitasnya bisa dipercaya?", "Apakah ada biaya tambahan yang belum disebutkan?", "Apakah barangnya sama dengan yang ada di foto?", "Apakah penjualnya responsif kalau ada masalah?"],
+    faktor: ["harga total setelah ongkir dan promo", "jumlah ulasan positif dan rating penjual"],
+    nada: "praktis dan apa adanya",
+    konversi: ["Tampilkan harga akhir secara transparan lengkap dengan promo dan ongkir", "Gunakan bukti sosial berupa jumlah pembeli dan rating agar harga murah tidak dicurigai", "Tawarkan paket bundling kecil untuk menaikkan nilai transaksi"],
+    insight: "Segmen ini membandingkan harga dengan cepat, jadi kejelasan angka dan bukti jumlah pembeli lebih menentukan daripada narasi panjang."
+  },
+  menengah: {
+    label: "Menengah",
+    income: ["Rp5–8 juta/bulan", "Rp6–10 juta/bulan", "Rp7–12 juta/bulan"],
+    objek: ["Apakah harganya sebanding dengan manfaat yang saya dapat?", "Apakah ada pilihan yang lebih murah dengan hasil serupa?", "Apakah saya perlu menunggu promo dulu?", "Apakah ini pilihan yang paling masuk akal di kelas harganya?"],
+    faktor: ["perbandingan nilai manfaat dengan harga", "ulasan dari pembeli yang kondisinya mirip"],
+    nada: "edukatif dan meyakinkan",
+    konversi: ["Bandingkan manfaat dengan alternatif yang biasa dipilih agar harga terasa masuk akal", "Tampilkan testimoni pembeli dengan profil yang mirip persona utama", "Berikan garansi atau kebijakan penukaran untuk menurunkan risiko yang dirasakan"],
+    insight: "Segmen menengah tidak mencari yang termurah, tetapi yang paling masuk akal — perbandingan manfaat adalah kunci konversinya."
+  },
+  premium: {
+    label: "Premium",
+    income: ["Rp15–25 juta/bulan", "Rp20–35 juta/bulan", "Rp18–30 juta/bulan"],
+    objek: ["Apakah kualitas dan pelayanannya sesuai dengan harga premium?", "Apakah saya bisa berkonsultasi dulu sebelum memutuskan?", "Apakah ada jaminan kalau hasilnya tidak sesuai?", "Siapa saja yang sudah memakai dan bagaimana hasilnya?"],
+    faktor: ["kredibilitas, sertifikasi, atau rekam jejak", "kualitas layanan dan pendampingan setelah membeli"],
+    nada: "eksklusif namun tetap hangat",
+    konversi: ["Tawarkan sesi konsultasi atau asesmen singkat sebagai pintu masuk, bukan diskon", "Tampilkan bukti kredibilitas: sertifikasi, portofolio, atau studi kasus pelanggan", "Berikan jaminan hasil atau layanan purnajual yang jelas dan tertulis"],
+    insight: "Diskon justru melemahkan posisi premium — perkuat kredibilitas, personalisasi, dan jaminan agar harga terasa wajar."
+  },
+  bebas: {
+    label: "Fleksibel",
+    income: ["Rp4–9 juta/bulan", "Rp5–12 juta/bulan", "Rp6–15 juta/bulan"],
+    objek: ["Pilihan mana yang paling sesuai dengan kebutuhan saya?", "Apakah saya membayar untuk fitur yang sebenarnya tidak saya butuhkan?", "Apakah saya bisa mulai dari paket terkecil dulu?", "Apakah bisa disesuaikan dengan kebutuhan saya?"],
+    faktor: ["kejelasan pilihan paket dan perbedaannya", "rekomendasi yang sesuai dengan kebutuhannya"],
+    nada: "konsultatif dan membantu",
+    konversi: ["Sederhanakan pilihan menjadi maksimal tiga paket dengan perbedaan yang jelas", "Tambahkan panduan 'paket ini cocok untuk siapa' agar pengunjung memilih sendiri", "Sediakan jalur tanya-jawab cepat sebelum pembelian"],
+    insight: "Karena rentang harganya fleksibel, kejelasan paket lebih menentukan daripada besaran harga itu sendiri."
+  }
+};
+
+const PLATFORM_INFO = {
+  instagram: { label:"Instagram", perilaku:"aktif di feed dan Reels, sering menyimpan konten untuk dilihat lagi", format:"Reels pendek dan carousel edukasi", iklan:"Reels ads dan carousel dengan visual bersih serta caption ringkas", konten:"carousel 'sebelum vs sesudah' dan Reels tips 15 detik" },
+  tiktok: { label:"TikTok", perilaku:"menghabiskan waktu di FYP dan mempercayai rekomendasi kreator kecil", format:"video pendek gaya sehari-hari dan storytelling", iklan:"Spark Ads dari konten kreator yang terlihat organik", konten:"video POV masalah pelanggan dan demo cepat tanpa skrip kaku" },
+  facebook: { label:"Facebook", perilaku:"aktif di grup komunitas dan sering membaca kolom komentar", format:"video testimoni dan postingan cerita panjang", iklan:"Advantage+ dengan kreatif testimoni dan penawaran jelas", konten:"cerita pelanggan versi panjang dan tanya-jawab di grup" },
+  youtube: { label:"YouTube", perilaku:"mencari ulasan mendalam sebelum memutuskan pembelian", format:"video ulasan 5–10 menit dan Shorts", iklan:"in-stream skippable dengan 5 detik pertama yang kuat", konten:"video 'cara memilih' dan pembahasan mitos vs fakta" },
+  threads: { label:"Threads", perilaku:"mengikuti diskusi teks dan opini jujur dari pengguna lain", format:"utas pendek dan opini personal", iklan:"belum ideal untuk iklan berbayar, fokus pada bangun percakapan organik", konten:"utas pengalaman jujur dan tanya-jawab singkat" },
+  x: { label:"X / Twitter", perilaku:"mencari informasi cepat, mudah terpicu oleh utas yang ramai", format:"utas informatif dan cuitan berbasis data", iklan:"promoted post pada utas yang sudah terbukti ramai secara organik", konten:"utas insight singkat dan bongkar kesalahan umum" },
+  whatsapp: { label:"WhatsApp", perilaku:"lebih nyaman bertanya langsung sebelum membeli", format:"broadcast singkat, katalog, dan status harian", iklan:"iklan Click-to-WhatsApp dengan pesan pembuka otomatis", konten:"status berisi update stok, promo, dan cerita pelanggan" },
+  marketplace: { label:"Marketplace", perilaku:"membandingkan harga dan membaca ulasan sebelum menekan tombol beli", format:"foto produk lengkap, deskripsi rinci, dan ulasan berfoto", iklan:"iklan pencarian pada kata kunci yang sudah bervolume", konten:"optimasi judul produk, foto varian, dan tanya-jawab etalase" }
+};
+
+const TUJUAN_INFO = {
+  awareness: { label:"Meningkatkan awareness", fokus:"memperkenalkan masalah yang diselesaikan produk kepada orang yang belum sadar kebutuhannya", cta:"Simpan dulu, siapa tahu kamu butuh", ukur:"jangkauan, view rate, dan penambahan pengikut" },
+  leads: { label:"Mendapatkan leads", fokus:"mengumpulkan kontak orang yang tertarik agar bisa ditindaklanjuti secara personal", cta:"Chat untuk konsultasi gratis", ukur:"jumlah chat masuk dan biaya per lead" },
+  penjualan: { label:"Meningkatkan penjualan", fokus:"mendorong keputusan beli dari orang yang sudah mengenal produk", cta:"Pesan sekarang, stok terbatas", ukur:"jumlah transaksi dan biaya per pembelian" },
+  repeat: { label:"Meningkatkan repeat order", fokus:"menjaga pelanggan lama tetap membeli ulang dan menaikkan nilai belanja", cta:"Pesan ulang, ada harga khusus pelanggan", ukur:"tingkat pembelian ulang dan nilai pesanan rata-rata" },
+  komunitas: { label:"Membangun komunitas", fokus:"membuat pelanggan merasa menjadi bagian dari kelompok, bukan sekadar pembeli", cta:"Gabung grupnya, gratis", ukur:"jumlah anggota aktif dan percakapan yang tercipta" }
+};
+
+/* Tiap kategori: pools bersama + 3 tier persona */
+const KATEGORI = {
+  fashion: {
+    label: "Fashion & kecantikan", usia: 22,
+    pains: ["sudah mencoba banyak produk tetapi hasilnya tidak konsisten","bingung memilih karena klaim setiap merek terdengar sama","takut produk justru memperburuk kondisi kulit atau penampilan","produk yang cocok sering harganya di luar anggaran bulanan","tidak punya waktu untuk rutinitas yang terlalu panjang","ragu membeli online karena warna dan ukuran sering meleset"],
+    objek: ["Apakah produk ini benar-benar cocok untuk kondisi saya?","Apakah hasilnya bertahan atau hanya sementara?","Apakah bahannya aman dipakai dalam jangka panjang?","Kalau tidak cocok, apakah bisa ditukar atau dikembalikan?","Apakah ini sekadar tren yang cepat berlalu?"],
+    format: ["video before–after 15–30 detik","testimoni pelanggan asli lengkap dengan ceritanya","carousel edukasi cara memilih sesuai kondisi","live shopping dengan demo pemakaian","ulasan jujur dari kreator mikro","foto detail tekstur, warna, dan ukuran"],
+    momen: ["malam hari sebelum tidur sambil menggulir layar","saat melihat konten orang dengan masalah serupa","menjelang acara penting seperti kondangan atau presentasi","ketika produk lama hampir habis","setelah menerima gaji di awal bulan"],
+    riset: ["membaca kolom komentar dan ulasan berfoto","mencari kata kunci review jujur + nama produk","bertanya di grup atau mengirim pesan ke teman yang sudah memakai","menonton ulasan kreator sebelum memutuskan"],
+    konten: ["Bongkar 3 kesalahan umum yang membuat hasil tidak maksimal","Dokumentasi perubahan 14 hari dengan foto berurutan","Cara memilih varian sesuai kondisi masing-masing orang","Tanya-jawab keluhan pelanggan yang paling sering muncul","Bandingkan cara pakai yang benar dan yang keliru","Cerita satu pelanggan dari ragu sampai puas"],
+    iklan: ["Angkat masalah spesifik di 3 detik pertama, baru perkenalkan produk","Gunakan sudut pandang 'akhirnya ketemu yang cocok' dari pengguna nyata","Tampilkan bukti visual perubahan sebagai kreatif utama","Adu dua pilihan yang biasa dipakai pelanggan lalu tunjukkan bedanya"],
+    kreatif: ["video vertikal before–after","testimoni wajah pelanggan asli","carousel edukasi 5 slide","demo pemakaian tanpa musik berlebihan"],
+    insight: ["Bukti visual mengalahkan klaim — satu foto perubahan yang jujur lebih meyakinkan daripada sepuluh kalimat promosi.","Pelanggan tidak membeli produk, mereka membeli rasa percaya diri saat bercermin."]
+  },
+  fnb: {
+    label: "Makanan & minuman", usia: 21,
+    pains: ["bosan dengan pilihan menu yang itu-itu saja","sering kecewa karena rasa tidak sesuai dengan foto","ragu dengan kebersihan dan kesegaran bahan","harga menjadi mahal setelah ditambah ongkos kirim","tidak sempat menyiapkan makanan sendiri saat sibuk","porsi tidak sebanding dengan harga yang dibayar"],
+    objek: ["Apakah rasanya sesuai dengan ekspektasi saya?","Apakah bahannya segar dan diolah dengan higienis?","Apakah porsinya sepadan dengan harganya?","Apakah masih enak saat sampai di tangan saya?","Apakah ada pilihan untuk yang tidak suka pedas atau punya alergi?"],
+    format: ["video close-up proses masak dan tekstur makanan","ulasan pembeli saat pertama kali mencicipi","konten momen makan bersama teman atau keluarga","promo harian dalam format singkat","behind the scene dapur dan pemilihan bahan","daftar menu favorit versi pelanggan"],
+    momen: ["jam makan siang saat jenuh di kantor","malam hari saat lapar dan malas keluar rumah","akhir pekan ketika mencari tempat baru bersama teman","saat ada promo gajian atau tanggal kembar","ketika ada acara kumpul mendadak"],
+    riset: ["mencari di aplikasi pesan antar dan mengurutkan berdasarkan rating","melihat ulasan berfoto dari pembeli sebelumnya","menonton konten kuliner lokal","bertanya rekomendasi di grup pertemanan"],
+    konten: ["Video ASMR proses pembuatan menu andalan","Reaksi jujur pelanggan saat mencoba pertama kali","Rekomendasi menu sesuai suasana hati atau cuaca","Cerita di balik resep dan pemilihan bahan","Perbandingan porsi asli dengan foto menu","Menu paling laris versi pelanggan minggu ini"],
+    iklan: ["Tampilkan detail makanan dalam 3 detik pertama tanpa basa-basi","Gunakan penawaran waktu terbatas pada jam lapar","Angkat momen konsumsi, bukan sekadar produknya","Tonjolkan kepraktisan pemesanan dan kecepatan pengantaran"],
+    kreatif: ["video close-up makanan tanpa filter berlebihan","foto menu dengan pencahayaan alami","video reaksi pelanggan","kartu promo dengan harga yang terbaca jelas"],
+    insight: ["Keputusan membeli makanan terjadi dalam hitungan detik — visual dan jam tayang lebih menentukan daripada narasi.","Ulasan berfoto dari pembeli asli adalah aset iklan termurah dan paling dipercaya."]
+  },
+  edu: {
+    label: "Pendidikan", usia: 24,
+    pains: ["merasa kemampuannya tidak berkembang meski sudah bekerja lama","bingung memilih materi belajar yang benar-benar terpakai","pernah membeli kelas tetapi tidak sampai selesai","sulit menyisihkan waktu belajar di tengah pekerjaan","takut ilmu yang dipelajari tidak diakui saat melamar kerja","tidak punya tempat bertanya saat menemui kesulitan"],
+    objek: ["Apakah materinya bisa langsung saya praktikkan?","Apakah saya punya waktu untuk menyelesaikannya?","Apakah pengajarnya benar-benar berpengalaman?","Apakah ada sertifikat atau bukti hasil belajar?","Bagaimana kalau saya tertinggal di tengah jalan?"],
+    format: ["potongan materi singkat yang langsung bisa dicoba","cerita alumni sebelum dan sesudah belajar","carousel kerangka belajar atau peta jalan karier","sesi tanya-jawab langsung bersama pengajar","kelas pengantar gratis berdurasi pendek","pembahasan studi kasus nyata"],
+    momen: ["saat merasa tertinggal dibanding rekan seangkatan","menjelang pergantian tahun atau evaluasi kinerja","ketika sedang mencari pekerjaan baru","setelah gagal dalam proses seleksi","saat mendapat tanggung jawab baru di kantor"],
+    riset: ["membandingkan silabus antar penyedia kelas","mencari ulasan alumni di media sosial","menonton konten gratis dari pengajarnya lebih dulu","bertanya di komunitas profesi"],
+    konten: ["Bagikan satu kerangka kerja yang bisa langsung dipakai hari ini","Kisah alumni dari nol sampai mendapat hasil nyata","Bongkar kesalahan pemula yang paling sering terjadi","Peta jalan belajar bertahap dalam satu carousel","Bedah studi kasus nyata secara singkat","Jawaban atas pertanyaan yang paling sering ditanyakan calon peserta"],
+    iklan: ["Mulai dari hasil yang ingin dicapai, bukan dari nama programnya","Gunakan bukti perubahan alumni sebagai kreatif utama","Tawarkan kelas pengantar gratis sebagai langkah pertama","Angkat rasa takut tertinggal secara wajar, bukan menakut-nakuti"],
+    kreatif: ["video pengajar menjelaskan satu konsep dalam 30 detik","testimoni alumni dengan hasil yang konkret","carousel peta jalan belajar","cuplikan materi kelas asli"],
+    insight: ["Yang dibeli bukan materi, melainkan keyakinan bahwa perubahan itu mungkin terjadi pada dirinya.","Kelas pengantar gratis adalah jembatan konversi paling efektif untuk produk pendidikan."]
+  },
+  health: {
+    label: "Kesehatan & kebugaran", usia: 27,
+    pains: ["sudah mencoba berbagai cara tetapi selalu berhenti di tengah jalan","tidak tahu program mana yang aman untuk kondisinya","jadwal kerja membuat pola hidup sehat sulit dijaga","informasi kesehatan di internet saling bertentangan","merasa malu memulai karena kondisi tubuhnya sekarang","takut salah metode dan justru menimbulkan cedera"],
+    objek: ["Apakah program ini aman untuk kondisi tubuh saya?","Berapa lama sampai saya melihat hasilnya?","Apakah ada pendampingan kalau saya kesulitan?","Apakah metodenya punya dasar yang bisa dipertanggungjawabkan?","Bagaimana kalau saya tidak disiplin?"],
+    format: ["dokumentasi perkembangan pelanggan dari waktu ke waktu","penjelasan singkat dari praktisi atau tenaga ahli","panduan langkah-langkah yang mudah diikuti","tanya-jawab keluhan yang paling sering muncul","mitos versus fakta seputar kesehatan","rutinitas harian yang realistis untuk pekerja sibuk"],
+    momen: ["saat hasil pemeriksaan kesehatan mengkhawatirkan","awal bulan atau awal tahun ketika ingin memulai kebiasaan baru","setelah merasa tubuh cepat lelah saat beraktivitas","menjelang acara penting seperti pernikahan","ketika melihat teman berhasil berubah"],
+    riset: ["mencari referensi dari akun praktisi kesehatan","membaca pengalaman orang dengan kondisi serupa","membandingkan program dan durasi pendampingan","bertanya langsung lewat pesan sebelum mendaftar"],
+    konten: ["Luruskan satu mitos kesehatan yang paling sering dipercaya","Dokumentasi perkembangan peserta secara jujur termasuk kendalanya","Rutinitas 15 menit untuk yang jadwalnya padat","Tanda-tanda yang sebaiknya tidak diabaikan","Penjelasan metode secara sederhana oleh praktisi","Kesalahan yang membuat usaha selama ini sia-sia"],
+    iklan: ["Mulai dari keluhan yang dirasakan sehari-hari, bukan dari nama program","Tampilkan sosok praktisi untuk membangun rasa aman","Gunakan cerita perubahan yang realistis, bukan hasil ekstrem","Tawarkan sesi asesmen atau konsultasi awal"],
+    kreatif: ["video praktisi menjelaskan langsung ke kamera","dokumentasi perkembangan peserta","carousel panduan langkah demi langkah","testimoni peserta dengan kondisi awal yang mirip audiens"],
+    insight: ["Rasa aman menjual lebih kuat daripada janji hasil cepat pada kategori kesehatan.","Hindari klaim berlebihan — kredibilitas praktisi adalah aset konversi utama."]
+  },
+  properti: {
+    label: "Properti", usia: 32,
+    pains: ["takut salah memilih lokasi yang nilainya tidak berkembang","bingung dengan proses pengajuan kredit dan legalitas","cicilan terasa berat dibanding penghasilan bulanan","sulit membedakan penawaran yang wajar dan yang berlebihan","khawatir pembangunan tidak selesai sesuai janji","tidak punya waktu untuk survei banyak lokasi"],
+    objek: ["Apakah legalitas dan sertifikatnya aman?","Apakah cicilannya masuk akal dengan penghasilan saya?","Apakah lokasinya akan berkembang dalam beberapa tahun ke depan?","Bagaimana rekam jejak pengembangnya?","Apakah ada biaya tersembunyi di luar harga yang tertulis?"],
+    format: ["video tur lokasi dan unit secara jujur","simulasi cicilan dan skema pembayaran","penjelasan legalitas dengan bahasa sederhana","perbandingan kawasan dan potensi pertumbuhannya","testimoni penghuni yang sudah menempati","dokumentasi perkembangan pembangunan"],
+    momen: ["saat kontrak sewa hampir berakhir","setelah menikah atau merencanakan keluarga","ketika mendapat kenaikan penghasilan atau bonus","saat mempertimbangkan investasi jangka panjang","ketika kebutuhan ruang bertambah"],
+    riset: ["membandingkan harga per meter di beberapa kawasan","mencari informasi rekam jejak pengembang","bertanya ke agen dan meminta simulasi kredit","mengunjungi lokasi pada waktu yang berbeda"],
+    konten: ["Simulasi cicilan berdasarkan rentang penghasilan","Panduan memeriksa legalitas sebelum membayar tanda jadi","Tur lokasi apa adanya termasuk kekurangannya","Perbandingan kawasan dan alasan harganya berbeda","Kesalahan pembeli pertama yang paling mahal","Cerita penghuni setelah satu tahun menempati"],
+    iklan: ["Awali dengan angka simulasi cicilan agar audiens langsung menilai kemampuannya","Gunakan tur lokasi sebagai kreatif utama","Tonjolkan legalitas dan rekam jejak pengembang","Targetkan berdasarkan tahap kehidupan, bukan sekadar usia"],
+    kreatif: ["video tur unit dan lingkungan","kartu simulasi cicilan","carousel perbandingan kawasan","testimoni penghuni"],
+    insight: ["Keputusan properti berjalan lambat — bangun kepercayaan melalui informasi terbuka, bukan tekanan promo.","Simulasi cicilan adalah alat penyaring calon pembeli paling efisien di tahap awal."]
+  },
+  tech: {
+    label: "Teknologi", usia: 26,
+    pains: ["pekerjaan manual memakan waktu yang seharusnya bisa dihemat","pernah memakai alat yang ternyata rumit dan akhirnya ditinggalkan","data tersebar di banyak tempat sehingga sulit dipantau","biaya berlangganan menumpuk tanpa terasa manfaatnya","khawatir keamanan data saat berpindah sistem","tim sulit beradaptasi dengan alat baru"],
+    objek: ["Apakah alat ini mudah dipakai oleh tim saya?","Apakah datanya aman dan bisa diekspor kapan saja?","Berapa lama sampai terasa manfaatnya?","Apakah bisa dicoba dulu sebelum berlangganan?","Bagaimana kalau ternyata tidak sesuai kebutuhan?"],
+    format: ["demo produk singkat yang menunjukkan hasil akhir","perbandingan cara manual dan cara otomatis","studi kasus penghematan waktu atau biaya","panduan pemakaian langkah demi langkah","cuplikan fitur baru dalam 30 detik","sesi tanya-jawab teknis"],
+    momen: ["saat pekerjaan menumpuk dan tim kewalahan","ketika sedang menyusun anggaran periode berikutnya","setelah terjadi kesalahan akibat proses manual","saat perusahaan sedang tumbuh cepat","ketika langganan alat lama akan berakhir"],
+    riset: ["membaca perbandingan alat sejenis","mencoba versi gratis sebelum memutuskan","membaca ulasan pengguna di forum dan komunitas","meminta demo langsung dari tim penjual"],
+    konten: ["Tunjukkan satu pekerjaan manual yang selesai dalam 60 detik","Studi kasus penghematan waktu tim secara terukur","Perbandingan jujur dengan cara kerja lama","Panduan memulai dari nol dalam lima langkah","Fitur yang jarang dipakai padahal paling berguna","Jawaban atas kekhawatiran soal keamanan data"],
+    iklan: ["Tunjukkan hasil akhir lebih dulu, penjelasan fitur belakangan","Gunakan angka penghematan waktu sebagai judul utama","Tawarkan uji coba gratis sebagai langkah pertama","Targetkan berdasarkan jabatan dan ukuran tim"],
+    kreatif: ["rekaman layar berdurasi pendek","carousel sebelum dan sesudah proses kerja","video testimoni pengguna dari tim nyata","kartu angka hasil yang terukur"],
+    insight: ["Pembeli teknologi membeli waktu yang kembali, bukan daftar fitur.","Uji coba tanpa hambatan adalah cara tercepat mengubah keraguan menjadi keputusan."]
+  },
+  jasa: {
+    label: "Jasa profesional", usia: 30,
+    pains: ["pernah dikecewakan penyedia jasa yang tidak menyelesaikan pekerjaan","sulit menilai kualitas jasa sebelum membayar","harga yang ditawarkan sangat bervariasi tanpa penjelasan","proses komunikasi lambat dan tidak jelas","takut hasil akhirnya tidak sesuai dengan yang dibayangkan","tidak punya waktu mengawasi pengerjaan"],
+    objek: ["Apakah hasilnya akan sesuai dengan yang saya bayangkan?","Bagaimana kalau di tengah jalan tidak sesuai kesepakatan?","Apakah harganya sudah termasuk semua kebutuhan?","Apakah ada contoh pekerjaan sebelumnya?","Siapa yang akan menangani pekerjaan saya?"],
+    format: ["portofolio pekerjaan dengan konteks masalah dan hasilnya","penjelasan proses kerja tahap demi tahap","testimoni klien dengan hasil yang terukur","edukasi singkat seputar bidang keahlian","sesi tanya-jawab konsultasi","dokumentasi proses pengerjaan"],
+    momen: ["saat menghadapi masalah yang tidak bisa diselesaikan sendiri","ketika ada tenggat waktu yang mendesak","setelah gagal bekerja sama dengan penyedia jasa sebelumnya","saat bisnisnya sedang berkembang","ketika membutuhkan pendapat ahli sebelum mengambil keputusan"],
+    riset: ["melihat portofolio dan studi kasus","meminta rekomendasi dari rekan atau komunitas","membandingkan penawaran dari beberapa penyedia","mengecek jejak digital dan ulasan"],
+    konten: ["Studi kasus klien dari masalah sampai hasil akhir","Jelaskan proses kerja agar calon klien tahu apa yang dibayar","Kesalahan yang sering terjadi saat memilih penyedia jasa","Edukasi singkat yang menunjukkan penguasaan bidang","Perkiraan biaya dan faktor yang memengaruhinya","Cerita satu proyek yang menantang beserta solusinya"],
+    iklan: ["Awali dengan masalah spesifik klien, bukan dengan profil perusahaan","Gunakan studi kasus sebagai kreatif utama","Tawarkan konsultasi awal tanpa biaya sebagai pintu masuk","Targetkan berdasarkan jabatan, industri, dan skala usaha"],
+    kreatif: ["carousel studi kasus dengan angka hasil","video penjelasan proses kerja","testimoni klien","kartu penawaran konsultasi awal"],
+    insight: ["Jasa dijual lewat bukti proses — semakin transparan alur kerjanya, semakin kecil keraguan calon klien.","Konsultasi awal berfungsi sebagai demonstrasi keahlian sekaligus penyaring calon klien."]
+  },
+  hobi: {
+    label: "Hobi & lifestyle", usia: 24,
+    pains: ["bingung memilih perlengkapan pertama untuk pemula","takut salah beli dan uangnya terbuang","tidak punya teman untuk memulai bersama","informasi yang ada terlalu teknis untuk pemula","harga perlengkapan yang bagus terasa mahal","tidak tahu cara merawat barang yang sudah dibeli"],
+    objek: ["Apakah ini cocok untuk pemula seperti saya?","Apakah saya akan tetap memakainya dalam jangka panjang?","Apakah harganya sepadan dengan kualitasnya?","Apakah ada panduan pemakaian dan perawatan?","Bagaimana kalau ternyata saya tidak cocok dengan hobi ini?"],
+    format: ["konten unboxing dan kesan pertama","panduan pemula dalam format ringkas","perbandingan pilihan sesuai anggaran","dokumentasi perjalanan dari pemula sampai mahir","tips perawatan barang","konten komunitas dan kegiatan bersama"],
+    momen: ["saat sedang mencari kegiatan baru di waktu luang","setelah melihat konten yang menginspirasi","menjelang liburan atau akhir pekan panjang","ketika ingin memberi hadiah untuk orang terdekat","saat perlengkapan lama sudah tidak layak"],
+    riset: ["menonton ulasan pemula di media sosial","bergabung ke komunitas dan membaca diskusi","membandingkan spesifikasi dan harga","bertanya ke penjual sebelum memutuskan"],
+    konten: ["Panduan perlengkapan pertama sesuai anggaran","Kesalahan pemula yang bikin cepat menyerah","Dokumentasi perjalanan 30 hari mencoba hal baru","Perawatan agar barang awet bertahun-tahun","Rekomendasi berdasarkan tiga tingkat anggaran","Cerita komunitas dan kegiatan bersama"],
+    iklan: ["Bicara langsung kepada pemula dengan bahasa yang tidak teknis","Gunakan konten unboxing dan kesan pertama sebagai kreatif","Tonjolkan rasa memiliki dan komunitasnya","Targetkan berdasarkan minat dan akun yang diikuti"],
+    kreatif: ["video unboxing vertikal","carousel panduan pemula","dokumentasi kegiatan komunitas","foto detail produk dengan konteks pemakaian"],
+    insight: ["Pembeli hobi mencari rasa aman untuk memulai — panduan pemula sering lebih penting daripada spesifikasi.","Komunitas mengubah pembeli sekali menjadi pelanggan bertahun-tahun."]
+  },
+  lainnya: {
+    label: "Kategori lainnya", usia: 25,
+    pains: ["belum menemukan solusi yang benar-benar sesuai kebutuhannya","informasi yang tersedia membingungkan dan saling bertentangan","pernah kecewa dengan pilihan sebelumnya","harga dan manfaat sulit dibandingkan secara adil","tidak punya cukup waktu untuk mencari tahu sendiri","ragu memulai karena takut salah pilih"],
+    objek: ["Apakah ini benar-benar menjawab kebutuhan saya?","Apakah harganya sebanding dengan manfaatnya?","Apakah penyedianya aman dan terpercaya?","Bagaimana kalau hasilnya tidak sesuai harapan?","Apakah ada bukti dari pengguna sebelumnya?"],
+    format: ["penjelasan singkat manfaat utama","testimoni pengguna sebelumnya","panduan memilih sesuai kebutuhan","tanya-jawab keberatan yang sering muncul","demonstrasi penggunaan","perbandingan pilihan yang tersedia"],
+    momen: ["saat kebutuhan mulai terasa mendesak","ketika melihat rekomendasi dari orang yang dipercaya","saat sedang membandingkan beberapa pilihan","setelah pilihan sebelumnya mengecewakan","ketika ada anggaran yang bisa dialokasikan"],
+    riset: ["mencari ulasan pengguna sebelumnya","membandingkan beberapa penyedia","bertanya kepada orang terdekat","menonton konten penjelasan sebelum memutuskan"],
+    konten: ["Jelaskan masalah yang diselesaikan dengan bahasa pelanggan","Cerita pengguna sebelum dan sesudah memakai","Panduan memilih sesuai kebutuhan dan anggaran","Jawaban atas keberatan yang paling sering muncul","Bongkar kesalahan umum di kategori ini","Demonstrasi singkat cara kerjanya"],
+    iklan: ["Awali dengan masalah pelanggan, bukan dengan nama produk","Gunakan testimoni pengguna sebagai kreatif utama","Tawarkan langkah pertama yang berisiko rendah","Targetkan berdasarkan minat dan perilaku pembelian"],
+    kreatif: ["video penjelasan singkat","carousel edukasi","testimoni pengguna","kartu penawaran dengan manfaat utama"],
+    insight: ["Kejelasan mengalahkan kreativitas — pelanggan membeli ketika mereka paham persis apa yang mereka dapat.","Satu masalah spesifik yang dibicarakan berulang lebih efektif daripada banyak pesan sekaligus."]
+  }
+};
+
+/* Tier persona: berlaku lintas kategori, memberi peran & konteks berbeda */
+const TIERS = [
+  {
+    key: "utama", label: "Pelanggan Utama", tag: "Prioritas 1",
+    ket: "Paling siap membeli — sudah sadar masalahnya dan aktif mencari solusi.",
+    shift: [0, 6],
+    okupasi: ["karyawan swasta","staf marketing di perusahaan lokal","guru muda","pegawai administrasi","staf operasional retail"],
+    status: ["pekerja muda yang tinggal terpisah dari orang tua","pekerja muda yang baru mandiri secara finansial","karyawan yang mulai punya anggaran pribadi rutin"],
+    tujuan: ["menyelesaikan masalah yang sudah lama mengganggu aktivitas hariannya","mendapatkan hasil yang terlihat tanpa harus mencoba-coba lagi","merasa lebih tenang karena akhirnya menemukan pilihan yang tepat"],
+    alasan: ["sudah lelah mencoba pilihan lain yang hasilnya mengecewakan","melihat orang dengan kondisi serupa berhasil dengan produk ini","kebutuhannya sekarang mendesak dan tidak bisa ditunda lagi"],
+    pesan: ["Solusi yang memang dirancang untuk masalah yang sedang kamu hadapi","Berhenti mencoba-coba, mulai dari pilihan yang sudah terbukti"],
+    headline: ["{m}? {b} dibuat untuk kondisi seperti itu","Sudah coba banyak cara? Lihat kenapa {b} berbeda","{u} — alasan pelanggan {k} memilih {b}"],
+    cta: ["Coba sekarang","Pesan hari ini","Lihat pilihan lengkapnya"]
+  },
+  {
+    key: "potensial", label: "Pelanggan Potensial", tag: "Prioritas 2",
+    ket: "Tertarik tetapi masih membandingkan — butuh bukti dan kejelasan sebelum memutuskan.",
+    shift: [-6, 1],
+    okupasi: ["mahasiswa tingkat akhir","fresh graduate yang baru bekerja","pekerja lepas dengan penghasilan tidak tetap","staf junior di perusahaan rintisan"],
+    status: ["mahasiswa yang mulai punya penghasilan sendiri dari kerja sambilan","pekerja pemula yang mengatur pengeluaran dengan ketat","anak muda yang tinggal bersama orang tua"],
+    tujuan: ["mendapatkan hasil yang baik tanpa mengorbankan anggaran bulanan","memastikan pilihannya tidak salah sebelum mengeluarkan uang","mengikuti pilihan yang sudah dibuktikan orang lain"],
+    alasan: ["terpapar konten dan rekomendasi berulang sampai akhirnya penasaran","mendapat rekomendasi dari teman yang sudah mencoba","menemukan penawaran yang terasa masuk akal untuk kantongnya"],
+    pesan: ["Mulai dari langkah kecil dulu, tanpa risiko besar","Lihat dulu buktinya, baru putuskan"],
+    headline: ["Baru mau mulai? Ini panduan memilih {kat} yang tepat","Kenapa banyak yang beralih ke {b}","{b}: {u}, tanpa harus bingung memilih"],
+    cta: ["Pelajari dulu","Lihat ulasannya","Tanya sebelum beli"]
+  },
+  {
+    key: "sekunder", label: "Peluang Pertumbuhan", tag: "Prioritas 3",
+    ket: "Belum menjadi target utama, tetapi berpotensi menaikkan volume lewat pembelian untuk orang lain, komunitas, atau penjualan ulang.",
+    shift: [8, 16],
+    okupasi: ["pemilik usaha kecil","supervisor di perusahaan menengah","ibu rumah tangga yang mengelola usaha rumahan","penggerak komunitas lokal","reseller produk sejenis"],
+    status: ["pemilik usaha kecil yang mencari produk untuk dijual kembali","orang tua yang membeli untuk kebutuhan keluarga","pengelola komunitas yang membeli dalam jumlah lebih besar"],
+    tujuan: ["mendapatkan nilai lebih dari setiap pembelian, baik untuk dipakai maupun dijual kembali","memberi yang terbaik untuk orang terdekat atau anggota komunitasnya","menemukan mitra produk yang stabil dan bisa diandalkan"],
+    alasan: ["melihat peluang keuntungan atau manfaat kolektif dari produk ini","dipercaya orang sekitar untuk memilihkan produk yang tepat","membutuhkan pemasok yang konsisten kualitas dan ketersediaannya"],
+    pesan: ["Harga khusus dan dukungan penuh untuk pembelian dalam jumlah lebih besar","Pilihan yang aman untuk direkomendasikan kepada orang lain"],
+    headline: ["Peluang kerja sama dengan {b} untuk {k} dan sekitarnya","Beli untuk keluarga atau tim? Ada harga khusus","{u} — cocok untuk dijual kembali maupun dipakai sendiri"],
+    cta: ["Ajukan kerja sama","Tanya harga khusus","Hubungi kami"]
+  }
+];
+
+/* ============================================================
+   Logika pembuatan persona (rule-based, tanpa backend)
+   ============================================================ */
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function pick(arr,r){return arr[Math.floor(r()*arr.length)];}
+function shuffle(arr,r){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function rotate(arr,n){const a=arr.slice();const k=n%a.length;return a.slice(k).concat(a.slice(0,k));}
+function pickN(arr,n,r,offset){return rotate(shuffle(arr,r),offset||0).slice(0,n);}
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+
+function inisial(nama){
+  const p=nama.trim().split(/\s+/);
+  return (p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();
+}
+
+function fill(str,ctx){
+  return str
+    .replace(/\{b\}/g,ctx.bisnis)
+    .replace(/\{k\}/g,ctx.lokasi)
+    .replace(/\{m\}/g,ctx.masalahShort)
+    .replace(/\{u\}/g,ctx.unggulShort)
+    .replace(/\{kat\}/g,ctx.kat.label.toLowerCase())
+    .replace(/\{h\}/g,ctx.harga.label.toLowerCase())
+    .replace(/\{p\}/g,ctx.platUtama.label);
+}
+
+function buatKonteks(form,seed){
+  const kat=KATEGORI[form.kategori]||KATEGORI.lainnya;
+  const harga=HARGA_INFO[form.harga]||HARGA_INFO.menengah;
+  const tujuan=TUJUAN_INFO[form.tujuan]||TUJUAN_INFO.penjualan;
+  const plats=(form.platform.length?form.platform:["instagram"]).map(function(k){return PLATFORM_INFO[k];});
+  const usiaBasis=form.usia?Math.max(16,Math.min(65,parseInt(form.usia,10))):kat.usia;
+  const masalah=form.masalah.trim();
+  const unggul=form.unggul.trim();
+  return {
+    bisnis:form.bisnis.trim()||"Bisnis Anda",
+    kat:kat, harga:harga, tujuan:tujuan,
+    plats:plats, platUtama:plats[0],
+    lokasi:form.lokasi.trim()||"kota besar di Indonesia",
+    deskripsi:form.deskripsi.trim(),
+    usiaBasis:usiaBasis,
+    gender:form.gender,
+    masalah:masalah,
+    masalahShort:masalah?masalah.replace(/\.$/,"").toLowerCase():kat.pains[0],
+    unggul:unggul,
+    unggulShort:unggul?unggul.replace(/\.$/,""):"Solusi yang dirancang sesuai kebutuhan pelanggan",
+    seed:seed
+  };
+}
+
+function namaPersona(ctx,r,idx){
+  if(ctx.gender==="perempuan")return pick(NAMA_P,r);
+  if(ctx.gender==="laki")return pick(NAMA_L,r);
+  const pool=(idx%2===0)?NAMA_P:NAMA_L;
+  return pick(pool,r);
+}
+
+function buatPersona(idx,ctx,r){
+  const t=TIERS[idx], kat=ctx.kat, harga=ctx.harga;
+  const nama=namaPersona(ctx,r,idx);
+  let a=ctx.usiaBasis+t.shift[0], b=ctx.usiaBasis+t.shift[1];
+  a=Math.max(17,a); b=Math.max(a+3,b);
+  const lokasi=[ctx.lokasi, ctx.lokasi+" dan kota sekitarnya", "Luar "+ctx.lokasi+" — pembeli daring"][idx];
+  const income=harga.income[idx]||harga.income[0];
+  const penghasilan=idx===1?"sekitar "+income+" (anggaran terbatas)":idx===2?"sekitar "+income+" dengan pengeluaran untuk banyak orang":"sekitar "+income;
+
+  const pains=[];
+  if(idx===0&&ctx.masalah){pains.push(cap(ctx.masalahShort));}
+  pickN(kat.pains,idx===0&&ctx.masalah?3:4,r,idx*2).forEach(function(p){if(pains.length<4)pains.push(cap(p));});
+
+  const objek=pickN(kat.objek,2,r,idx*2).concat(pickN(harga.objek,2,r,idx*2));
+  const format=[pick(kat.format,r),ctx.platUtama.format].concat(ctx.plats[1]?[ctx.plats[1].format]:[]);
+  const faktor=[harga.faktor[idx%harga.faktor.length],"bukti nyata dari pelanggan lain dengan kondisi serupa","kemudahan bertanya langsung sebelum memutuskan lewat "+ctx.platUtama.label];
+
+  const ringkas=nama.split(" ")[0]+" berusia "+a+"–"+b+" tahun, "+pick(t.okupasi,r)+
+    ", tinggal di "+lokasi.replace(/ — pembeli daring$/,"")+". "+
+    "Ia "+pick(t.status,r)+" dan "+ctx.platUtama.perilaku+". "+
+    (ctx.deskripsi?["Yang sedang ia cari mendekati apa yang Anda tawarkan: ","Ia baru mulai mempertimbangkan pilihan seperti ","Ia menilai peluang dari "][idx]+ctx.deskripsi.replace(/\.$/,"")+[". ",". ", " untuk dipakai bersama atau dijual kembali. "][idx]:"")+
+    "Ia relevan bagi "+ctx.bisnis+" karena "+t.ket.toLowerCase().replace(/\.$/,"")+", terutama pada kategori "+kat.label.toLowerCase()+" dengan rentang harga "+harga.label.toLowerCase()+".";
+
+  return {
+    tier:t, nama:nama, inisial:inisial(nama),
+    usia:a+"–"+b+" tahun", lokasi:lokasi,
+    okupasi:cap(pick(t.okupasi,r)), penghasilan:penghasilan, status:cap(pick(t.status,r)),
+    ringkas:ringkas,
+    tujuan:cap(pick(t.tujuan,r)),
+    alasan:cap(pick(t.alasan,r)),
+    faktor:faktor.map(cap).join("; ")+".",
+    pains:pains,
+    objek:objek.map(function(o){return o;}),
+    digital:{
+      platform:ctx.plats.map(function(p){return p.label;}).join(", "),
+      format:format.map(cap).join(", "),
+      momen:cap(pick(kat.momen,r)),
+      riset:cap(pick(kat.riset,r))+", lalu "+pick(kat.riset,r)+"."
+    },
+    pesan:fill(pick(t.pesan,r),ctx),
+    nada:harga.nada+", "+(idx===0?"langsung ke inti masalah":idx===1?"ringan dan mudah dicerna":"profesional dan berorientasi kerja sama"),
+    headline:cap(fill(pick(t.headline,r),ctx)),
+    cta:pick(t.cta,r)
+  };
+}
+
+function buatStrategi(personas,ctx,r){
+  const kat=ctx.kat, harga=ctx.harga, tujuan=ctx.tujuan, p1=personas[0];
+  const konten=pickN(kat.konten,4,r,0);
+  konten.push(cap(ctx.platUtama.konten)+" untuk "+ctx.platUtama.label+".");
+  const iklan=[
+    pick(kat.iklan,r)+".",
+    "Tipe kreatif: "+pickN(kat.kreatif,2,r,1).join(" dan ")+"; format "+ctx.platUtama.iklan+".",
+    "Targeting awal: usia "+p1.usia.replace(" tahun","")+", "+(ctx.gender==="semua"?"semua jenis kelamin":ctx.gender==="perempuan"?"perempuan":"laki-laki")+", lokasi "+ctx.lokasi+", minat seputar "+kat.label.toLowerCase()+"."
+  ];
+  const konversi=harga.konversi.slice(0,3).concat(["CTA yang disarankan: “"+tujuan.cta+"” — selaras dengan tujuan "+tujuan.label.toLowerCase()+"."]);
+  const prioritas=p1.nama.split(" ")[0]+" ("+p1.tier.label+") — "+p1.tier.ket.toLowerCase().replace(/\.$/,"")+
+    ". Alokasikan sekitar 60% anggaran dan konten untuk persona ini, 30% untuk "+personas[1].tier.label.toLowerCase()+
+    ", dan 10% untuk "+personas[2].tier.label.toLowerCase()+". Fokus utama kampanye: "+tujuan.fokus+".";
+  const insight=[
+    kat.insight[Math.floor(r()*kat.insight.length)],
+    harga.insight,
+    "Karena tujuan utama Anda adalah "+tujuan.label.toLowerCase()+", ukur keberhasilan lewat "+tujuan.ukur+" — bukan sekadar jumlah suka atau komentar."
+  ];
+  return {prioritas:prioritas,konten:konten,iklan:iklan,konversi:konversi,insight:insight};
+}
+
+/* ============================================================
+   Render
+   ============================================================ */
+const $=function(s){return document.querySelector(s);};
+const $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+let LAST=null, SEED=1;
+
+function bacaForm(){
+  return {
+    bisnis:$("#bisnis").value,
+    kategori:$("#kategori").value,
+    deskripsi:$("#deskripsi").value,
+    lokasi:$("#lokasi").value,
+    harga:$("#harga").value,
+    tujuan:$("#tujuan").value,
+    usia:$("#usia").value,
+    gender:$("#gender").value,
+    masalah:$("#masalah").value,
+    unggul:$("#unggul").value,
+    platform:$$(".plat:checked").map(function(c){return c.value;})
+  };
+}
+
+function li(items){return items.map(function(i){return "<li>"+esc(i)+"</li>";}).join("");}
+
+function kartuPersona(p,i){
+  return '<article class="persona" style="--d:'+(i*90)+'ms">'+
+    '<header class="p-head">'+
+      '<div class="avatar t'+i+'">'+esc(p.inisial)+'</div>'+
+      '<div class="p-id">'+
+        '<span class="tag t'+i+'">'+esc(p.tier.tag)+' · '+esc(p.tier.label)+'</span>'+
+        '<h3>'+esc(p.nama)+'</h3>'+
+        '<p class="p-sub">'+esc(p.usia)+' · '+esc(p.lokasi)+'</p>'+
+      '</div>'+
+    '</header>'+
+    '<div class="p-facts">'+
+      '<div><span>Pekerjaan</span><b>'+esc(p.okupasi)+'</b></div>'+
+      '<div><span>Penghasilan</span><b>'+esc(p.penghasilan)+'</b></div>'+
+      '<div><span>Status hidup</span><b>'+esc(p.status)+'</b></div>'+
+    '</div>'+
+    '<p class="p-ringkas">'+esc(p.ringkas)+'</p>'+
+    '<div class="p-grid">'+
+      '<section><h4>Tujuan &amp; motivasi</h4><ul class="kv">'+
+        '<li><span>Ingin dicapai</span>'+esc(p.tujuan)+'</li>'+
+        '<li><span>Alasan membeli</span>'+esc(p.alasan)+'</li>'+
+        '<li><span>Faktor penentu</span>'+esc(p.faktor)+'</li>'+
+      '</ul></section>'+
+      '<section><h4>Pain points</h4><ul class="dot">'+li(p.pains)+'</ul></section>'+
+      '<section><h4>Keberatan sebelum membeli</h4><ul class="quote">'+
+        p.objek.map(function(o){return "<li>“"+esc(o)+"”</li>";}).join("")+'</ul></section>'+
+      '<section><h4>Perilaku digital</h4><ul class="kv">'+
+        '<li><span>Platform utama</span>'+esc(p.digital.platform)+'</li>'+
+        '<li><span>Format favorit</span>'+esc(p.digital.format)+'</li>'+
+        '<li><span>Momen mencari</span>'+esc(p.digital.momen)+'</li>'+
+        '<li><span>Cara riset</span>'+esc(p.digital.riset)+'</li>'+
+      '</ul></section>'+
+    '</div>'+
+    '<div class="p-msg">'+
+      '<h4>Pesan pemasaran yang cocok</h4>'+
+      '<ul class="kv">'+
+        '<li><span>Pesan utama</span>'+esc(p.pesan)+'</li>'+
+        '<li><span>Nada komunikasi</span>'+esc(p.nada)+'</li>'+
+      '</ul>'+
+      '<div class="ads">'+
+        '<div class="ad-h"><span>Contoh headline iklan</span><p>'+esc(p.headline)+'</p></div>'+
+        '<div class="ad-c"><span>CTA</span><p>'+esc(p.cta)+'</p></div>'+
+      '</div>'+
+    '</div>'+
+  '</article>';
+}
+
+function render(personas,st,ctx){
+  const rows=[
+    ["Prioritas audiens",[st.prioritas]],
+    ["Konten",st.konten],
+    ["Iklan",st.iklan],
+    ["Konversi",st.konversi]
+  ];
+  $("#hasil").innerHTML=
+    '<div class="res-head">'+
+      '<div>'+
+        '<span class="eyebrow">Hasil analisis</span>'+
+        '<h2>Customer persona untuk '+esc(ctx.bisnis)+'</h2>'+
+        '<p class="res-meta">'+esc(ctx.kat.label)+' · harga '+esc(ctx.harga.label.toLowerCase())+' · '+esc(ctx.lokasi)+' · tujuan '+esc(ctx.tujuan.label.toLowerCase())+'</p>'+
+      '</div>'+
+      '<div class="res-act">'+
+        '<button type="button" class="btn ghost" id="btn-ulang">Buat Ulang Persona</button>'+
+        '<button type="button" class="btn ghost" id="btn-salin">Salin Ringkasan Strategi</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="personas">'+personas.map(kartuPersona).join("")+'</div>'+
+    '<section class="strategi">'+
+      '<span class="eyebrow">Rekomendasi</span>'+
+      '<h2>Rekomendasi Strategi Berdasarkan Persona</h2>'+
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Area strategi</th><th>Rekomendasi</th></tr></thead><tbody>'+
+      rows.map(function(rw){
+        return '<tr><th scope="row">'+esc(rw[0])+'</th><td>'+
+          (rw[1].length>1?'<ul class="dot">'+li(rw[1])+'</ul>':'<p>'+esc(rw[1][0])+'</p>')+
+          '</td></tr>';
+      }).join("")+
+      '</tbody></table></div>'+
+      '<div class="insight"><h3>Insight Utama</h3><ol>'+
+        st.insight.map(function(x,i){return '<li><span>'+(i+1)+'</span><p>'+esc(x)+'</p></li>';}).join("")+
+      '</ol></div>'+
+      '<p class="disclaimer">Catatan: hasil ini merupakan estimasi berbasis aturan dari informasi yang Anda isi, bukan data riset pasar aktual. Gunakan sebagai titik awal, lalu validasi dengan data pelanggan Anda sendiri.</p>'+
+    '</section>';
+  $("#btn-ulang").addEventListener("click",function(){SEED++;jalankan(true);});
+  $("#btn-salin").addEventListener("click",salinStrategi);
+}
+
+function teksStrategi(){
+  if(!LAST)return "";
+  const st=LAST.st,ctx=LAST.ctx,p=LAST.personas;
+  let t="RINGKASAN STRATEGI — "+ctx.bisnis+"\n";
+  t+=ctx.kat.label+" | Harga "+ctx.harga.label+" | "+ctx.lokasi+" | Tujuan: "+ctx.tujuan.label+"\n\n";
+  t+="PERSONA\n";
+  p.forEach(function(x,i){t+=(i+1)+". "+x.nama+" — "+x.tier.label+" ("+x.usia+", "+x.okupasi+", "+x.lokasi+")\n   Pesan: "+x.pesan+"\n   Headline: "+x.headline+"\n   CTA: "+x.cta+"\n";});
+  t+="\nPRIORITAS AUDIENS\n- "+st.prioritas+"\n";
+  t+="\nKONTEN\n"+st.konten.map(function(x){return "- "+x;}).join("\n")+"\n";
+  t+="\nIKLAN\n"+st.iklan.map(function(x){return "- "+x;}).join("\n")+"\n";
+  t+="\nKONVERSI\n"+st.konversi.map(function(x){return "- "+x;}).join("\n")+"\n";
+  t+="\nINSIGHT UTAMA\n"+st.insight.map(function(x,i){return (i+1)+". "+x;}).join("\n")+"\n";
+  t+="\nDibuat dengan Customer Persona Builder — Riki MarkeThink Digital Marketing Tools Lab.";
+  return t;
+}
+
+function toast(msg){
+  const el=$("#toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(el._t); el._t=setTimeout(function(){el.classList.remove("show");},2400);
+}
+
+function salinStrategi(){
+  const teks=teksStrategi();
+  const ok=function(){toast("Ringkasan strategi berhasil disalin.");};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(teks).then(ok,function(){fallbackSalin(teks,ok);});
+  }else{fallbackSalin(teks,ok);}
+}
+function fallbackSalin(teks,ok){
+  const ta=document.createElement("textarea");
+  ta.value=teks; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.top="-1000px";
+  document.body.appendChild(ta); ta.select();
+  try{document.execCommand("copy");ok();}catch(e){toast("Salin otomatis tidak tersedia. Silakan blok teks dan salin manual.");}
+  document.body.removeChild(ta);
+}
+
+function validasi(f){
+  const err=[];
+  if(!f.bisnis.trim())err.push("bisnis");
+  if(!f.deskripsi.trim())err.push("deskripsi");
+  if(!f.lokasi.trim())err.push("lokasi");
+  $$(".field").forEach(function(el){el.classList.remove("err");});
+  err.forEach(function(id){const el=$("#"+id);if(el&&el.closest(".field"))el.closest(".field").classList.add("err");});
+  return err;
+}
+
+function jalankan(ulang){
+  const f=bacaForm();
+  const err=validasi(f);
+  if(err.length){
+    toast("Lengkapi dulu nama bisnis, deskripsi, dan target lokasi.");
+    const first=$("#"+err[0]); if(first){first.focus();first.scrollIntoView({block:"center",behavior:"smooth"});}
+    return;
+  }
+  const hasil=$("#hasil");
+  hasil.innerHTML='<div class="loading"><div class="bar"><i></i></div><p>Menganalisis informasi bisnis dan menyusun profil pelanggan…</p></div>';
+  if(!ulang)hasil.scrollIntoView({behavior:"smooth",block:"start"});
+  setTimeout(function(){
+    const ctx=buatKonteks(f,SEED);
+    const r=mulberry32(SEED*7919+f.kategori.length*131+f.bisnis.length*17+f.harga.length);
+    const personas=[0,1,2].map(function(i){return buatPersona(i,ctx,r);});
+    const st=buatStrategi(personas,ctx,r);
+    LAST={personas:personas,st:st,ctx:ctx};
+    render(personas,st,ctx);
+    if(ulang)toast("Variasi persona baru berhasil dibuat.");
+  },850);
+}
+
+function isiContoh(){
+  $("#bisnis").value="Glowrise Skincare";
+  $("#kategori").value="fashion";
+  $("#deskripsi").value="Rangkaian skincare lokal untuk kulit berjerawat dengan bahan aktif ringan, aman untuk pemula, dan sudah bersertifikat BPOM";
+  $("#lokasi").value="Jabodetabek";
+  $("#harga").value="menengah";
+  $("#tujuan").value="penjualan";
+  $("#usia").value="21";
+  $("#gender").value="perempuan";
+  $("#masalah").value="Jerawat yang muncul terus-menerus dan bekasnya sulit hilang meski sudah ganti-ganti produk";
+  $("#unggul").value="Formula ringan tanpa alkohol dengan panduan pemakaian personal dari tim skincare consultant";
+  $$(".plat").forEach(function(c){c.checked=(c.value==="instagram"||c.value==="tiktok");});
+  $$(".field").forEach(function(el){el.classList.remove("err");});
+  toast("Contoh data bisnis berhasil diisi. Klik “Buat Customer Persona”.");
+  $("#bisnis").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function resetForm(){
+  $("#form").reset();
+  $$(".plat").forEach(function(c){c.checked=(c.value==="instagram");});
+  $$(".field").forEach(function(el){el.classList.remove("err");});
+  LAST=null; SEED=1;
+  $("#hasil").innerHTML=EMPTY;
+  toast("Form dan hasil telah dikosongkan.");
+  $("#form").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+const EMPTY='<div class="empty">'+
+  '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="22" r="10"/><path d="M12 54c0-11 9-18 20-18s20 7 20 18"/><path d="M50 12l2.5 5 5 2.5-5 2.5L50 29l-2.5-5-5-2.5 5-2.5z"/></svg>'+
+  '<h3>Isi informasi bisnis Anda untuk membangun profil pelanggan ideal.</h3>'+
+  '<p>Hasilnya berupa tiga persona pelanggan berprioritas, lengkap dengan pain points, keberatan, perilaku digital, dan rekomendasi strategi pemasaran.</p>'+
+'</div>';
+
+document.addEventListener("DOMContentLoaded",function(){
+  $("#hasil").innerHTML=EMPTY;
+  $("#form").addEventListener("submit",function(e){e.preventDefault();SEED=Math.floor(Math.random()*900)+1;jalankan(false);});
+  $("#btn-contoh").addEventListener("click",isiContoh);
+  $("#btn-reset").addEventListener("click",resetForm);
+});
+
+</script>
+
+</body></html>

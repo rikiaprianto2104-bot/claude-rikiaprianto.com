@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site-build",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["frontend/serve_build.py"],
+      "port": 4173
+    },
+    {
+      "name": "frontend-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "start"],
+      "port": 3000
+    }
+  ]
+}
