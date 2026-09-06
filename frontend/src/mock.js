@@ -175,6 +175,37 @@ export const skillsCompetencies = [
 
 export const blogPosts = [
   {
+    id: 5,
+    slug: 'ai-visibility-tracking-geo-metrics-2026',
+    title:
+      'AI Visibility Tracking: Cara Mengukur Performa Brand di ChatGPT, Gemini, dan Perplexity',
+    metaTitle:
+      'AI Visibility Tracking 2026: Metrik dan Cara Mengukur Performa Brand di AI Search',
+    excerpt:
+      'GEO tidak berhenti pada strategi konten. Pelajari metrik, cara melacak manual, dan tools yang bisa digunakan untuk mengukur seberapa sering dan seberapa positif brand Anda disebut oleh ChatGPT, Gemini, dan Perplexity.',
+    date: 'Sep 06, 2026',
+    dateISO: '2026-09-06',
+    readTime: '9 min read',
+    tag: 'GEO',
+    image: '/assets/blog-ai-visibility-tracking.svg',
+    keywords: [
+      'AI visibility',
+      'GEO',
+      'Generative Engine Optimization',
+      'AI search tracking',
+      'ChatGPT SEO',
+      'Gemini SEO',
+      'Perplexity SEO',
+      'brand monitoring AI',
+      'AI analytics',
+      'digital marketing',
+    ],
+    author: {
+      name: 'Riki MarkeThink',
+      role: 'AI Marketing Strategist',
+    },
+  },
+  {
     id: 4,
     slug: 'prompt-hacks-ai-template-promosi-customer-service',
     title:
@@ -297,6 +328,183 @@ export const blogPosts = [
 // Each section has id (used for TOC and anchor), heading, and a list of blocks.
 // Block types: 'p' (paragraph), 'list', 'ol', 'quote', 'highlight', 'image', 'h3'.
 export const blogContent = {
+  'ai-visibility-tracking-geo-metrics-2026': {
+    intro:
+      'Sejak GEO (Generative Engine Optimization) mulai dibahas secara luas, banyak tim marketing bertanya-tanya: bagaimana saya tahu strategi GEO yang saya jalankan benar-benar bekerja? Berbeda dengan SEO klasik yang mengandalkan Google Search Console dan posisi kata kunci, performa brand di ChatGPT, Gemini, Perplexity, atau AI Overview tidak muncul begitu saja di dashboard analitik yang biasa kita pakai sehari-hari. Artikel ini membahas cara praktis mengukur AI visibility — mulai dari metrik yang perlu dipantau, cara melacaknya secara manual maupun dengan bantuan tools, hingga kesalahan umum yang perlu dihindari agar data yang dikumpulkan benar-benar bisa dijadikan dasar keputusan.',
+    sections: [
+      {
+        id: 'mengapa-perlu-diukur',
+        title: 'Mengapa AI Visibility Perlu Diukur?',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Seperti dibahas pada artikel sebelumnya, How GEO is Reshaping Search in 2026, search engine perlahan berubah wujud menjadi answer engine. Pengguna semakin sering mendapatkan jawaban langsung dari AI tanpa perlu mengklik satu pun website. Fenomena ini dikenal sebagai zero-click search, dan dampaknya sangat nyata bagi bisnis.',
+          },
+          {
+            type: 'p',
+            text: 'Masalahnya, Google Analytics atau tools tradisional lain tidak dirancang untuk menangkap apakah brand Anda disebut ketika seseorang bertanya kepada ChatGPT, "rekomendasi skincare untuk kulit berminyak" misalnya. Tanpa pengukuran yang tepat, tim marketing bisa kehilangan traffic dan mindshare tanpa pernah menyadarinya.',
+          },
+          {
+            type: 'list',
+            items: [
+              'Kompetitor bisa lebih sering disebut AI meskipun peringkat website-nya kalah di Google.',
+              'Traffic organik bisa menurun perlahan tanpa penyebab yang terlihat di laporan bulanan.',
+              'Persepsi brand yang dibentuk AI bisa berbeda dari yang diinginkan, tanpa tim marketing menyadarinya.',
+              'Keputusan strategi konten menjadi kurang tepat sasaran karena minim data nyata dari AI search.',
+            ],
+          },
+          {
+            type: 'highlight',
+            text: 'Anda tidak bisa memperbaiki apa yang tidak pernah diukur. Prinsip ini berlaku sama persis di era AI search seperti pada era SEO klasik.',
+          },
+        ],
+      },
+      {
+        id: 'metrik-utama',
+        title: 'Metrik Utama dalam AI Visibility',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Sebelum mulai melacak, penting untuk memahami metrik apa saja yang relevan. Berikut lima metrik inti yang dapat dijadikan acuan.',
+          },
+          { type: 'h3', text: '1. AI Share of Voice' },
+          {
+            type: 'p',
+            text: 'Mengukur seberapa sering brand Anda muncul dibandingkan kompetitor ketika AI menjawab pertanyaan seputar kategori produk atau layanan Anda.',
+          },
+          { type: 'h3', text: '2. Citation Frequency' },
+          {
+            type: 'p',
+            text: 'Seberapa sering halaman atau domain Anda dikutip sebagai sumber jawaban. Semakin sering dikutip, semakin kuat sinyal otoritas domain Anda di mata AI.',
+          },
+          { type: 'h3', text: '3. Sentiment & Konteks Penyebutan' },
+          {
+            type: 'p',
+            text: 'Tidak cukup hanya disebut. Perhatikan juga konteksnya — apakah brand disebut sebagai rekomendasi utama, alternatif, atau justru dalam konteks negatif seperti komplain.',
+          },
+          { type: 'h3', text: '4. Source Diversity' },
+          {
+            type: 'p',
+            text: 'AI cenderung merangkum dari berbagai sumber. Perhatikan dari mana saja AI mengutip informasi tentang brand Anda — website resmi, media, forum, atau review pihak ketiga.',
+          },
+          { type: 'h3', text: '5. AI Referral Traffic' },
+          {
+            type: 'p',
+            text: 'Sebagian platform AI mulai menyertakan tautan sumber. Traffic yang datang dari domain seperti chatgpt.com, perplexity.ai, atau gemini.google.com bisa dipantau sebagai indikator kuantitatif tambahan.',
+          },
+        ],
+      },
+      {
+        id: 'cara-melacak-manual',
+        title: 'Cara Melacak AI Visibility Secara Manual',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Mengukur AI visibility tidak selalu membutuhkan tools berbayar. Berikut langkah sederhana yang bisa langsung diterapkan tim kecil sekalipun.',
+          },
+          {
+            type: 'ol',
+            items: [
+              'Susun 15-20 pertanyaan seed yang benar-benar ditanyakan calon pelanggan, misalnya "rekomendasi [kategori produk] terbaik untuk [target audiens]".',
+              'Jalankan pertanyaan tersebut secara rutin — idealnya mingguan — di ChatGPT, Gemini, Perplexity, dan Copilot.',
+              'Catat apakah brand Anda disebut, di posisi keberapa dalam jawaban, dan sumber apa yang dikutip AI.',
+              'Simpan hasilnya dalam spreadsheet sederhana dengan kolom: tanggal, platform, pertanyaan, disebut/tidak, sumber kutipan, dan sentimen.',
+              'Bandingkan hasil dari minggu ke minggu untuk melihat tren, bukan hanya potret satu waktu.',
+            ],
+          },
+          {
+            type: 'example',
+            title: 'Contoh Baris Tracking Sheet',
+            text: 'Tanggal: 01 Sep 2026 | Platform: Perplexity | Pertanyaan: "agency digital marketing terpercaya di Yogyakarta" | Disebut: Ya (posisi 2) | Sumber dikutip: Artikel blog resmi | Sentimen: Positif, direkomendasikan sebagai spesialis SEO/GEO.',
+          },
+        ],
+      },
+      {
+        id: 'tools-ai-monitoring',
+        title: 'Tools untuk Monitoring AI Visibility',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Untuk tim yang membutuhkan skala lebih besar dan otomatisasi, beberapa kategori tools berikut dapat dipertimbangkan.',
+          },
+          {
+            type: 'list',
+            items: [
+              'Tools khusus AI monitoring seperti Profound, Otterly.AI, atau Semrush AI Toolkit yang secara otomatis menjalankan ratusan prompt dan merangkum hasilnya.',
+              'Fitur Brand Radar dari platform SEO besar yang mulai menambahkan modul pelacakan AI Overview dan AI search.',
+              'Segmentasi referral traffic di GA4 dengan menambahkan filter khusus untuk domain AI seperti chatgpt.com, perplexity.ai, dan gemini.google.com.',
+              'Uji coba API resmi (jika tersedia) untuk menjalankan pertanyaan seed secara terjadwal dan konsisten tanpa bias sesi percakapan sebelumnya.',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'Apa pun tools yang dipilih, pastikan proses pengujian dilakukan secara konsisten — waktu, jumlah pertanyaan, dan cara pencatatan yang sama — agar data antar periode benar-benar bisa dibandingkan.',
+          },
+        ],
+      },
+      {
+        id: 'kesalahan-umum',
+        title: 'Kesalahan Umum saat Mengukur AI Visibility',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Menguji hanya satu kali lalu menyimpulkan performa brand secara keseluruhan.',
+              'Mengabaikan variasi jawaban AI antar sesi, padahal model generatif bisa memberi jawaban berbeda untuk pertanyaan yang sama.',
+              'Hanya fokus pada apakah brand disebut, tanpa memperhatikan kualitas konteks dan sentimen penyebutannya.',
+              'Tidak menghubungkan hasil tracking dengan strategi konten, sehingga data hanya menjadi laporan tanpa tindak lanjut.',
+              'Membandingkan hasil antar platform AI secara langsung padahal karakter dan sumber data tiap platform berbeda.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'menutup-lingkaran',
+        title: 'Menutup Lingkaran: Dari Data ke Strategi Konten',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Data AI visibility hanya bernilai jika ditindaklanjuti. Seperti dijelaskan pada tahap performance analysis dalam artikel A Practical Framework for AI-Assisted Content Workflows, hasil pengukuran sebaiknya menjadi input untuk siklus konten berikutnya — bukan sekadar laporan bulanan yang berhenti di slide presentasi.',
+          },
+          {
+            type: 'p',
+            text: 'Jika sebuah topik ternyata jarang mengutip brand Anda, itu adalah sinyal untuk memperkuat konten pada topik tersebut dengan data, struktur yang lebih jelas, dan otoritas penulis yang lebih kuat. Sebaliknya, topik yang sudah sering dikutip dapat dijadikan model untuk topik lain.',
+          },
+        ],
+      },
+      {
+        id: 'faq',
+        title: 'FAQ Seputar AI Visibility Tracking',
+        blocks: [
+          { type: 'h3', text: '1. Apakah AI visibility sama dengan ranking di Google?' },
+          {
+            type: 'p',
+            text: 'Tidak sepenuhnya. Ranking Google berbasis posisi di halaman hasil pencarian, sedangkan AI visibility mengukur seberapa sering dan seberapa positif brand disebut dalam jawaban yang dihasilkan AI generatif.',
+          },
+          { type: 'h3', text: '2. Berapa sering sebaiknya AI visibility dipantau?' },
+          {
+            type: 'p',
+            text: 'Idealnya mingguan untuk bisnis yang aktif memproduksi konten, atau minimal dua minggu sekali untuk tim dengan sumber daya terbatas, agar tren tetap dapat terlihat.',
+          },
+          { type: 'h3', text: '3. Apakah wajib menggunakan tools berbayar?' },
+          {
+            type: 'p',
+            text: 'Tidak wajib. Tracking manual dengan spreadsheet sudah cukup untuk bisnis kecil-menengah. Tools berbayar lebih relevan ketika jumlah pertanyaan dan kompetitor yang dipantau semakin banyak.',
+          },
+          { type: 'h3', text: '4. Bagaimana jika brand belum pernah disebut AI sama sekali?' },
+          {
+            type: 'p',
+            text: 'Itu adalah titik awal yang wajar. Fokuskan energi pada membangun konten yang terstruktur, otoritatif, dan menjawab pertanyaan spesifik audiens, lalu pantau perubahannya secara berkala.',
+          },
+        ],
+      },
+    ],
+    conclusion:
+      'Mengukur AI visibility bukan lagi opsional bagi brand yang ingin tetap relevan di era answer engine. Dengan memantau share of voice, citation frequency, sentimen, source diversity, dan AI referral traffic secara konsisten, tim marketing dapat mengambil keputusan berbasis data, bukan asumsi. Yang terpenting, jadikan hasil pengukuran ini sebagai umpan balik untuk memperkuat strategi konten — karena pada akhirnya, brand yang paling layak dipercaya AI adalah brand yang benar-benar layak dipercaya audiensnya.',
+    cta:
+      'Ingin membangun strategi GEO yang terukur untuk brand Anda? Mari diskusikan bagaimana menyusun tracking AI visibility yang sesuai dengan skala bisnis dan sumber daya tim Anda.',
+  },
+
   'prompt-hacks-ai-template-promosi-customer-service': {
     intro:
       'Di era digital saat ini, penggunaan Artificial Intelligence (AI) semakin banyak membantu pelaku bisnis dalam membuat konten. Mulai dari menulis deskripsi produk, membuat skrip video promosi, menyusun caption media sosial, hingga membalas pesan pelanggan — semuanya bisa dilakukan dengan lebih cepat menggunakan AI. Namun, hasil dari AI sangat bergantung pada cara kita memberikan perintah atau yang biasa disebut prompt. Semakin jelas dan spesifik prompt yang diberikan, semakin baik pula hasil yang akan dihasilkan oleh AI. Artikel ini membahas berbagai prompt hacks AI dan template prompt yang bisa digunakan untuk kebutuhan bisnis, terutama untuk membuat deskripsi produk, skrip video promosi, dan balasan customer service.',
