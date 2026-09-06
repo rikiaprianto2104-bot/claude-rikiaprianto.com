@@ -1,0 +1,88 @@
+name: Deploy to Hostinger
+
+# Trigger otomatis setiap ada push ke branch main, plus tombol manual di tab Actions.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Cegah dua deploy jalan bersamaan (misal dua push beruntun).
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      # Document root domain rikiaprianto.com di server Hostinger.
+      # BUKAN rahasia — ubah di sini kalau docroot pindah.
+      # (metode & kredensial upload mengikuti deploy.sh: SSH/SFTP port 65002, auth password)
+      SFTP_REMOTE_PATH: /home/u295189530/domains/rikiaprianto.com/public_html
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies (frontend)
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Build React
+        working-directory: frontend
+        env:
+          CI: "false"                 # CRA menganggap warning = error kalau CI=true
+          GENERATE_SOURCEMAP: "false"
+        run: npm run build
+
+      - name: Pastikan .htaccess ikut & build valid
+        run: |
+          set -euo pipefail
+          if [ -f frontend/public/.htaccess ]; then
+            cp -f frontend/public/.htaccess frontend/build/.htaccess
+          fi
+          test -f frontend/build/index.html
+          echo "build OK — $(find frontend/build -type f | wc -l) file"
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Upload frontend/build ke server (SSH/SFTP, port 65002)
+        env:
+          SSHPASS:   ${{ secrets.SFTP_PASSWORD }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+        run: |
+          set -euo pipefail
+          : "${SSHPASS:?secret SFTP_PASSWORD belum di-set di repo}"
+          : "${SFTP_HOST:?secret SFTP_HOST belum di-set di repo}"
+          : "${SFTP_PORT:?secret SFTP_PORT belum di-set di repo}"
+          : "${SFTP_USER:?secret SFTP_USER belum di-set di repo}"
+
+          SSH_OPTS="-p ${SFTP_PORT} \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=no \
+            -o PreferredAuthentications=password \
+            -o ConnectTimeout=20"
+          REMOTE="${SFTP_USER}@${SFTP_HOST}"
+
+          echo "==> Cek koneksi ke ${REMOTE}:${SFTP_PORT}"
+          sshpass -e ssh ${SSH_OPTS} "${REMOTE}" \
+            "echo connected as \$(whoami); mkdir -p '${SFTP_REMOTE_PATH}'"
+
+          # Sama seperti deploy.sh: stream tar dari build/ lalu extract di server.
+          # Menimpa file yang namanya sama, TIDAK menghapus file lain (tanpa --delete).
+          echo "==> Upload frontend/build  ->  ${REMOTE}:${SFTP_REMOTE_PATH}"
+          tar -C frontend/build -czf - . \
+            | sshpass -e ssh ${SSH_OPTS} "${REMOTE}" \
+                "tar -C '${SFTP_REMOTE_PATH}' -xzf - && echo 'ekstrak selesai'"
+
+          echo "==> Selesai. https://rikiaprianto.com/"
