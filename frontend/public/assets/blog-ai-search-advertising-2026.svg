@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="55%" stop-color="#0a3a63"/>
+      <stop offset="100%" stop-color="#0d9eff"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0d9eff"/>
+      <stop offset="100%" stop-color="#8fe0ff"/>
+    </linearGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg2)"/>
+
+  <!-- dot grid -->
+  <g fill="#ffffff" opacity="0.08">
+    <g id="dotrow2">
+      <circle cx="40" cy="40" r="3"/><circle cx="90" cy="40" r="3"/><circle cx="140" cy="40" r="3"/>
+      <circle cx="190" cy="40" r="3"/><circle cx="240" cy="40" r="3"/><circle cx="290" cy="40" r="3"/>
+      <circle cx="340" cy="40" r="3"/><circle cx="390" cy="40" r="3"/><circle cx="440" cy="40" r="3"/>
+      <circle cx="490" cy="40" r="3"/><circle cx="540" cy="40" r="3"/><circle cx="590" cy="40" r="3"/>
+    </g>
+    <use href="#dotrow2" y="50"/>
+    <use href="#dotrow2" y="100"/>
+    <use href="#dotrow2" y="150"/>
+    <use href="#dotrow2" y="200"/>
+    <use href="#dotrow2" y="250"/>
+    <use href="#dotrow2" y="300"/>
+    <use href="#dotrow2" y="350"/>
+    <use href="#dotrow2" y="400"/>
+    <use href="#dotrow2" y="450"/>
+    <use href="#dotrow2" y="500"/>
+    <use href="#dotrow2" y="550"/>
+    <use href="#dotrow2" y="600"/>
+  </g>
+
+  <circle cx="980" cy="160" r="260" fill="url(#glow2)"/>
+
+  <!-- three divergent paths representing ChatGPT / Google / Perplexity -->
+  <g opacity="0.95" stroke-linecap="round" fill="none">
+    <path d="M 470 340 C 620 300, 720 220, 900 150" stroke="#ffffff" stroke-width="4" opacity="0.85"/>
+    <path d="M 470 340 C 620 340, 760 340, 940 340" stroke="#8fe0ff" stroke-width="4" opacity="0.85"/>
+    <path d="M 470 340 C 620 400, 720 480, 900 540" stroke="#ffffff" stroke-width="4" opacity="0.4" stroke-dasharray="2 10"/>
+  </g>
+  <circle cx="470" cy="340" r="10" fill="#ffffff"/>
+  <circle cx="900" cy="150" r="8" fill="#ffffff"/>
+  <circle cx="940" cy="340" r="8" fill="#8fe0ff"/>
+  <circle cx="900" cy="540" r="8" fill="#ffffff" opacity="0.5"/>
+
+  <!-- labeled sponsored chip -->
+  <g>
+    <rect x="700" y="105" width="230" height="52" rx="14" fill="#ffffff" opacity="0.10"/>
+    <rect x="718" y="121" width="52" height="18" rx="9" fill="#0d9eff" opacity="0.9"/>
+    <text x="726" y="134" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" fill="#ffffff">ADS</text>
+    <rect x="782" y="126" width="120" height="9" rx="4" fill="#ffffff" opacity="0.5"/>
+  </g>
+
+  <!-- neutral organic chip -->
+  <g>
+    <rect x="770" y="300" width="230" height="52" rx="14" fill="#ffffff" opacity="0.10"/>
+    <rect x="788" y="316" width="70" height="18" rx="9" fill="none" stroke="#8fe0ff" stroke-width="2"/>
+    <text x="796" y="329" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" fill="#8fe0ff">ORGANIC</text>
+    <rect x="870" y="321" width="100" height="9" rx="4" fill="#ffffff" opacity="0.5"/>
+  </g>
+
+  <!-- bar chart -->
+  <g>
+    <rect x="120" y="480" width="50" height="100" rx="8" fill="url(#bar2)" opacity="0.55"/>
+    <rect x="190" y="440" width="50" height="140" rx="8" fill="url(#bar2)" opacity="0.75"/>
+    <rect x="260" y="390" width="50" height="190" rx="8" fill="url(#bar2)"/>
+  </g>
+
+  <!-- megaphone icon (advertising) -->
+  <g transform="translate(360,470)" fill="#ffffff">
+    <path d="M0 10 L40 -10 L40 30 L0 10 Z" opacity="0.95"/>
+    <rect x="-10" y="0" width="12" height="20" rx="3" opacity="0.95"/>
+    <path d="M40 -10 C 60 -10, 60 30, 40 30" stroke="#ffffff" stroke-width="6" fill="none" opacity="0.6"/>
+  </g>
+
+  <text x="120" y="230" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="800" fill="#ffffff">AI SEARCH ADS</text>
+  <text x="120" y="278" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600" fill="#c9ecff">ChatGPT, Google AI Mode &amp; Perplexity in 2026</text>
+</svg>

@@ -175,6 +175,37 @@ export const skillsCompetencies = [
 
 export const blogPosts = [
   {
+    id: 6,
+    slug: 'ai-search-advertising-2026-chatgpt-google-perplexity',
+    title:
+      'AI Search Advertising 2026: Peta Strategi Iklan di ChatGPT, Google AI Mode, dan Alasan Perplexity Menolaknya',
+    metaTitle:
+      'AI Search Advertising 2026: ChatGPT Ads, Google AI Mode, dan Kenapa Perplexity Menolak Iklan',
+    excerpt:
+      'ChatGPT resmi membuka Ads Manager mandiri, Google menguji format iklan baru di AI Mode, sementara Perplexity justru menghentikan iklannya demi menjaga kepercayaan pengguna. Simak peta strategi iklan AI search 2026 dan langkah praktis yang perlu diambil marketer.',
+    date: 'Sep 09, 2026',
+    dateISO: '2026-09-09',
+    readTime: '7 min read',
+    tag: 'Digital Advertising',
+    image: '/assets/blog-ai-search-advertising-2026.svg',
+    keywords: [
+      'AI search advertising',
+      'ChatGPT ads',
+      'Google AI Mode ads',
+      'Perplexity ads',
+      'iklan AI search',
+      'GEO',
+      'digital marketing 2026',
+      'AI marketing',
+      'answer engine advertising',
+      'consumer trust AI',
+    ],
+    author: {
+      name: 'Riki MarkeThink',
+      role: 'AI Marketing Strategist',
+    },
+  },
+  {
     id: 5,
     slug: 'ai-visibility-tracking-geo-metrics-2026',
     title:
@@ -328,6 +359,110 @@ export const blogPosts = [
 // Each section has id (used for TOC and anchor), heading, and a list of blocks.
 // Block types: 'p' (paragraph), 'list', 'ol', 'quote', 'highlight', 'image', 'h3'.
 export const blogContent = {
+  'ai-search-advertising-2026-chatgpt-google-perplexity': {
+    intro:
+      'Sepanjang 2026, tiga pemain utama di ranah AI search — ChatGPT, Google, dan Perplexity — mengambil jalan yang saling bertolak belakang soal monetisasi lewat iklan. OpenAI resmi membuka Ads Manager mandiri untuk ChatGPT, Google menguji format iklan baru di AI Mode, sementara Perplexity justru menghentikan program sponsornya karena khawatir merusak kepercayaan pengguna. Bagi tim marketing, perbedaan sikap ini bukan sekadar berita industri — ini menentukan ke mana budget iklan sebaiknya dialokasikan, platform mana yang masih murni mengandalkan GEO organik, dan bagaimana menjaga kepercayaan konsumen di tengah kanal baru yang belum punya aturan main yang mapan. Artikel ini memetakan perkembangan iklan AI search terbaru dan menyusun strategi praktis yang bisa langsung diterapkan.',
+    sections: [
+      {
+        id: 'tiga-jalan-berbeda',
+        title: 'Lanskap Iklan AI Search di 2026: Tiga Jalan yang Berbeda',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Tidak seperti era awal SEO ketika hampir semua mesin pencari mengikuti model bisnis yang mirip, platform AI search di 2026 justru berjalan ke arah yang berlawanan satu sama lain. Berikut posisi tiga pemain utama saat artikel ini ditulis.',
+          },
+          { type: 'h3', text: '1. ChatGPT: Dari Uji Coba ke Ads Manager Mandiri' },
+          {
+            type: 'p',
+            text: 'OpenAI mengonfirmasi rencana menghadirkan iklan di ChatGPT pada pertengahan Januari 2026, lalu mulai menampilkan iklan berlabel jelas kepada pengguna dewasa di paket Free dan ChatGPT Go di Amerika Serikat awal Februari. Awal Mei, OpenAI membuka Ads Manager swalayan untuk bisnis AS — awalnya dengan CPM sekitar 60 dolar AS dan minimum belanja 200 ribu dolar AS, sebelum minimum tersebut dihapus dan CPM turun ke kisaran 25 dolar AS agar lebih terjangkau bagi bisnis kecil-menengah. Pertengahan Agustus, jangkauannya sudah meluas ke Inggris, Meksiko, Brasil, Jepang, dan Korea Selatan. Satu hal yang perlu dicatat: paket berbayar seperti Plus, Pro, Business, Enterprise, dan Education tetap bebas iklan, sehingga audiens yang terekspos iklan cenderung adalah pengguna gratisan.',
+          },
+          { type: 'h3', text: '2. Google AI Mode: Format Iklan Baru yang Masih Diuji' },
+          {
+            type: 'p',
+            text: "Pada Google Marketing Live pertengahan Mei 2026, Google memperkenalkan dua format iklan baru untuk AI Mode: Conversational Discovery Ads dan Highlighted Answers, keduanya ditenagai Gemini. Kreatif pada Conversational Discovery Ads bahkan disusun secara real-time oleh Gemini untuk menjawab pertanyaan spesifik pengguna, bukan aset statis yang disiapkan lebih dulu — dan setiap iklan tetap membawa label \"Sponsored\" yang jelas. Uji coba ini masih terbatas pada pengiklan AS dengan kueri berbahasa Inggris, terhubung ke kampanye Performance Max, AI Max, Shopping, dan broad match. Google sendiri melaporkan bahwa mayoritas pembeli merasa AI Mode membantu mereka mengambil keputusan pembelian lebih cepat dan lebih percaya diri — sinyal bahwa tekanan untuk memonetisasi kanal ini akan terus bertambah.",
+          },
+          { type: 'h3', text: '3. Perplexity: Memilih Mundur Demi Menjaga Kepercayaan' },
+          {
+            type: 'p',
+            text: 'Perplexity sebenarnya sudah lebih dulu mencoba iklan lewat format Sponsored Questions sejak akhir 2024, bekerja sama dengan sejumlah brand besar. Namun perusahaan berhenti menerima pengiklan baru sejak Oktober 2025, dan awal 2026 mengonfirmasi pivot penuh menjauh dari iklan menuju model berbasis langganan. Alasannya eksplisit: manajemen khawatir penempatan bersponsor — sekalipun diberi label — akan mengikis kepercayaan yang menjadi fondasi produknya sebagai answer engine.',
+          },
+          {
+            type: 'quote',
+            text: 'Tantangan dengan iklan adalah, begitu ada, pengguna akan mulai meragukan semuanya — disampaikan salah satu eksekutif Perplexity kepada Financial Times saat menjelaskan keputusan menghentikan iklan.',
+          },
+        ],
+      },
+      {
+        id: 'kenapa-trust-jadi-taruhan',
+        title: 'Mengapa Trust Menjadi Taruhan Utama di Balik Keputusan Ini',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Perbedaan sikap ini sebenarnya mencerminkan model bisnis yang berbeda. ChatGPT dan Google AI Mode punya basis pengguna masif yang sebagian besar memakai paket gratis, sehingga iklan menjadi jalan monetisasi yang wajar — mirip televisi atau mesin pencari klasik. Perplexity, sebaliknya, membangun proposisi nilai di atas objektivitas jawaban sebagai pembeda utama dari Google. Ketika objektivitas itu sendiri yang dipertaruhkan, kalkulasinya berbeda.',
+          },
+          {
+            type: 'highlight',
+            text: 'Survei Quad/Harris Poll 2026 menemukan bahwa 75% masyarakat Amerika mengaku akan lebih tidak percaya pada rekomendasi AI apabila mengetahui hasil tersebut dipengaruhi oleh dana sponsor — dan persentase yang sama juga menyatakan akan lebih tidak percaya pada brand yang membayar untuk memengaruhi AI agent.',
+          },
+          {
+            type: 'p',
+            text: "Angka ini menjelaskan mengapa Perplexity memilih mundur: bagi platform yang identitasnya bertumpu pada jawaban yang \"bersih\" dari kepentingan komersial, risiko kehilangan kepercayaan pengguna dinilai lebih mahal daripada potensi pendapatan iklan.",
+          },
+        ],
+      },
+      {
+        id: 'data-kepercayaan-konsumen',
+        title: 'Apa Kata Data Kepercayaan Konsumen Soal Iklan di AI Search?',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Di luar sikap masing-masing platform, riset terbaru soal persepsi konsumen memberi gambaran yang lebih bernuansa — konsumen tidak menolak iklan AI secara mutlak, tetapi sangat sensitif terhadap cara eksekusinya.',
+          },
+          {
+            type: 'list',
+            items: [
+              'Hanya sekitar 34% konsumen di Amerika Utara menilai iklan di chatbot AI secara positif, menurut survei DoubleVerify — sebagian besar keberatan terkait keamanan brand dan transparansi penempatan.',
+              '36% konsumen yang tergolong skeptis terhadap AI mengaku kepercayaan mereka pada sebuah brand menurun begitu tahu konten pemasarannya dihasilkan AI.',
+              'Brand yang secara terbuka melabeli konten atau iklan hasil AI justru cenderung mempertahankan skor kepercayaan dan favorabilitas yang lebih tinggi dibanding brand yang mencoba menyembunyikan keterlibatan AI.',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'Pola ini sejalan dengan yang dibahas pada artikel sebelumnya, Manipulasi Review dan Rating di Google Maps: Persoalan Etika Bisnis dalam Kepercayaan Digital — konsumen jauh lebih toleran terhadap keterbukaan dibandingkan kesan disembunyikan atau dimanipulasi. Prinsip yang sama kini berlaku untuk iklan di ruang AI search.',
+          },
+        ],
+      },
+      {
+        id: 'strategi-marketer',
+        title: 'Strategi Praktis: Cara Marketer Menyikapi Fragmentasi Ini',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Karena setiap platform mengambil arah berbeda, strategi "satu resep untuk semua kanal" tidak akan berjalan. Berikut langkah praktis yang bisa mulai diterapkan tim marketing.',
+          },
+          {
+            type: 'ol',
+            items: [
+              'Uji ChatGPT Ads dengan budget kecil dan terukur. Dengan minimum belanja yang sudah dihapus dan CPM yang turun signifikan sejak peluncuran, kanal ini kini jauh lebih terjangkau untuk uji coba dibanding saat pertama diluncurkan.',
+              'Pantau uji coba Google AI Mode meski belum tersedia luas. Karena formatnya terhubung ke kampanye Performance Max dan AI Max yang mungkin sudah berjalan, tim ads yang sudah memakai kampanye tersebut berpeluang mendapat akses lebih awal begitu rollout diperluas.',
+              'Jangan hentikan investasi GEO organik. Perplexity adalah bukti nyata bahwa tidak semua platform AI search akan membuka jalur berbayar — memperkuat sinyal otoritas dan struktur konten tetap wajib.',
+              'Pastikan setiap materi iklan atau konten AI diberi label transparan. Data konsumen konsisten menunjukkan bahwa keterbukaan mempertahankan trust, sementara upaya menyamarkan keterlibatan AI justru menurunkannya.',
+              'Bangun dashboard pemantauan lintas kanal. Ukur performa AI search advertising berdampingan dengan AI visibility organik agar keputusan alokasi budget didasarkan pada data, bukan asumsi kanal mana yang lebih "ramai".',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'Langkah kelima ini sebenarnya melanjutkan pembahasan pada artikel AI Visibility Tracking: Cara Mengukur Performa Brand di ChatGPT, Gemini, dan Perplexity — metrik yang sama untuk memantau penyebutan organik brand Anda juga relevan untuk mengevaluasi efektivitas iklan berbayar di kanal yang sama.',
+          },
+        ],
+      },
+    ],
+    conclusion:
+      'Iklan di AI search bukan tren tunggal yang bisa didekati dengan satu playbook. ChatGPT membuktikan monetisasi lewat iklan bisa berjalan pada skala pengguna gratis yang besar, Google masih berhati-hati menguji formatnya, sementara Perplexity menunjukkan bahwa kepercayaan pengguna kadang lebih bernilai dibanding pendapatan jangka pendek. Bagi tim marketing, respons yang paling masuk akal bukan memilih satu kanal secara eksklusif, melainkan membangun portofolio: uji iklan berbayar secara terukur di platform yang membukanya, sambil tetap memperkuat fondasi GEO organik di platform yang tidak. Yang menyatukan ketiganya adalah satu prinsip yang sama: transparansi akan selalu jadi mata uang kepercayaan paling berharga di ruang AI search, apa pun model bisnis platformnya.',
+    cta:
+      'Sedang menyusun alokasi budget untuk kanal AI search di brand Anda? Mari diskusikan portofolio strategi yang sesuai dengan tahap kematangan digital dan risiko yang bisa diterima bisnis Anda.',
+  },
+
   'ai-visibility-tracking-geo-metrics-2026': {
     intro:
       'Sejak GEO (Generative Engine Optimization) mulai dibahas secara luas, banyak tim marketing bertanya-tanya: bagaimana saya tahu strategi GEO yang saya jalankan benar-benar bekerja? Berbeda dengan SEO klasik yang mengandalkan Google Search Console dan posisi kata kunci, performa brand di ChatGPT, Gemini, Perplexity, atau AI Overview tidak muncul begitu saja di dashboard analitik yang biasa kita pakai sehari-hari. Artikel ini membahas cara praktis mengukur AI visibility — mulai dari metrik yang perlu dipantau, cara melacaknya secara manual maupun dengan bantuan tools, hingga kesalahan umum yang perlu dihindari agar data yang dikumpulkan benar-benar bisa dijadikan dasar keputusan.',
