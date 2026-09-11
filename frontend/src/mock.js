@@ -1386,7 +1386,7 @@ export const research = {
 };
 
 // Kategori filter di halaman My Projects
-export const projectCategories = ['All', 'AI Marketing', 'Interactive Game', 'Arcade Game'];
+export const projectCategories = ['All', 'AI Marketing', 'Mobile Apps', 'Interactive Game', 'Arcade Game'];
 
 // Semua proyek adalah aplikasi web/game HTML yang dibuat bersama Claude AI.
 // File-nya di-host sendiri di /public/projects/ dan dibuka di tab baru.
@@ -1585,6 +1585,18 @@ export const projects = [
     tags: ['Arcade', 'Flappy Bird', 'Canvas'],
     url: '/projects/sky-hopper.html',
     image: '/projects/thumbs/sky-hopper.png',
+  },
+
+  // ---------- Mobile Apps ----------
+  {
+    id: 20,
+    title: 'Distribusi App',
+    category: 'Mobile Apps',
+    description:
+      'Aplikasi mobile untuk membuat surat jalan pengiriman barang: pilih toko tujuan, isi driver dan pengirim, pindai barcode SKU lewat kamera, lalu unduh surat jalan siap pakai dalam format Excel (.xlsx).',
+    tags: ['Mobile Apps', 'Barcode Scanner', 'Surat Jalan'],
+    url: '/projects/distribusi-app.html',
+    image: '/projects/thumbs/distribusi-app.png',
   },
 ];
 

@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GudangFlow — Distribusi Barang (Demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#111827; --ink-2:#42506b; --muted:#64748b; --muted-2:#8593ad;
+    --brand:#0F6E5E; --brand-2:#159A80; --brand-deep:#0A2622;
+    --bg:#F4F7F6; --line:#e1e8e5; --line-2:#cfd8d4;
+    --err:#C0392B; --err-bg:#FBEAE8; --ok:#0F8A5F; --ok-bg:#E3F5EC;
+    --chip:#E6F3EF; --accent:#D97706;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#e7ece9;
+    font-family:Inter,system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+  }
+  input,select,button,textarea{font-family:inherit}
+  input:focus,select:focus{outline:2px solid var(--brand);outline-offset:-2px}
+  [hidden]{display:none !important}
+
+  .app{
+    position:relative;
+    width:100%; max-width:440px;
+    min-height:100vh; min-height:100dvh;
+    margin:0 auto;
+    background:var(--bg);
+    overflow:hidden;
+  }
+  @media (min-width:460px){
+    body{padding:24px 0}
+    .app{
+      min-height:calc(100dvh - 48px);
+      border-radius:22px;
+      box-shadow:0 12px 40px rgba(10,38,34,.18);
+    }
+  }
+
+  .screen{position:absolute; inset:0; display:flex; flex-direction:column;}
+  .screen[hidden]{display:none !important}
+
+  /* ---------- shared ---------- */
+  .field{display:flex;flex-direction:column;gap:7px}
+  .field-label{font:500 12px/1.2 Inter,sans-serif;color:var(--ink-2);letter-spacing:.3px}
+  .req{color:var(--err)}
+  input[type=text],input[type=password],input[type=number]{
+    height:48px;border:1px solid var(--line-2);border-radius:10px;background:#fff;
+    padding:0 12px;font-size:15px;color:var(--ink);width:100%;
+  }
+  .select-wrap{position:relative;display:block}
+  .select-wrap::after{
+    content:"";position:absolute;right:14px;top:50%;width:8px;height:8px;
+    border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+    transform:translateY(-70%) rotate(45deg);pointer-events:none;
+  }
+  select{
+    height:48px;width:100%;border:1px solid var(--line-2);border-radius:10px;background:#fff;
+    padding:0 34px 0 12px;font-size:15px;color:var(--ink);appearance:none;-webkit-appearance:none;
+  }
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .alert{font:400 12px/1.4 Inter,sans-serif;border-radius:8px;padding:10px 12px}
+  .alert--err{color:var(--err);background:var(--err-bg)}
+
+  .btn{
+    border:none;border-radius:12px;font:600 15px Sora,sans-serif;cursor:pointer;
+    height:50px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:.2px;
+  }
+  .btn--primary{background:var(--brand);color:#fff}
+  .btn--primary:active{background:#0B5145}
+  .btn--primary[disabled]{opacity:.6;cursor:default}
+  .btn--ghost{background:#fff;color:var(--ink);border:1px solid #c7d0cc}
+  .btn--soft{background:var(--chip);color:var(--brand);width:100%}
+  .btn--tall{height:52px}
+  .btn--grow{flex:1.6}
+  .btn--ghost.btn--tall{width:100%}
+
+  /* ---------- login ---------- */
+  .screen--login{background:var(--brand-deep)}
+  .login-top{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 28px 34px}
+  .brand-badge{width:52px;height:52px;border-radius:14px;background:var(--brand-2);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+  .brand-square{width:20px;height:20px;border:2.5px solid #fff;border-radius:3px}
+  .brand-title{font:700 26px/1.2 Sora,sans-serif;color:#fff;letter-spacing:-.3px}
+  .brand-sub{font:400 13px/1.5 Inter,sans-serif;color:#9FB8B0;margin-top:8px}
+  .login-card{
+    background:var(--bg);border-radius:26px 26px 0 0;
+    padding:30px 24px calc(24px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:16px;
+  }
+  .login-card input{height:50px;border-radius:12px}
+  #btn-login{margin-top:4px}
+  .login-ver{text-align:center;font:400 11px/1.4 Inter,sans-serif;color:var(--muted-2);margin-top:2px}
+  .login-hint{
+    display:flex;flex-direction:column;gap:3px;background:var(--chip);border:1px solid #cfe6dd;
+    border-radius:10px;padding:10px 12px;
+  }
+  .login-hint-title{font:600 11px/1 Sora,sans-serif;color:var(--brand);letter-spacing:.3px;text-transform:uppercase}
+  .login-hint-value{font:400 12.5px/1.4 Inter,sans-serif;color:var(--ink-2)}
+
+  .pass-wrap{position:relative}
+  .pass-wrap input{padding-right:48px}
+  .eye{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    width:38px;height:38px;border:none;background:transparent;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--muted);
+  }
+  .eye:active{background:#eaf0ee}
+  .eye-ico{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .eye .eye-shut{display:none}
+  .eye.is-on{color:var(--brand)}
+  .eye.is-on .eye-shut{display:block}
+
+  /* ---------- topbar / form ---------- */
+  .topbar{
+    background:var(--brand-deep);padding:14px 16px;display:flex;align-items:center;gap:12px;flex:none;
+    padding-top:calc(14px + env(safe-area-inset-top));
+  }
+  .iconbtn{
+    width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.12);
+    color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;
+  }
+  .topbar-titles{flex:1;min-width:0}
+  .topbar-title{font:600 16px/1.2 Sora,sans-serif;color:#fff}
+  .topbar-crumb{font:400 11px/1.3 Inter,sans-serif;color:#9FB8B0;margin-top:2px}
+  .avatar{
+    width:32px;height:32px;border-radius:50%;background:var(--brand-2);color:#fff;
+    font:600 12px Sora,sans-serif;display:flex;align-items:center;justify-content:center;flex:none;
+  }
+  .scroll{flex:1;overflow:auto;padding:16px 14px 12px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+
+  .scan-cta{
+    height:58px;border:1.5px dashed var(--brand-2);border-radius:12px;background:var(--chip);
+    color:var(--brand);display:flex;align-items:center;gap:12px;padding:0 14px;cursor:pointer;text-align:left;width:100%;
+  }
+  .scan-cta:active{background:#DAEEE7}
+  .scan-cta-ico{width:34px;height:34px;border-radius:9px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex:none}
+  .scan-cta-ico-inner{width:15px;height:11px;border:2px solid #fff;border-radius:2px;display:block}
+  .scan-cta-txt{flex:1;min-width:0}
+  .scan-cta-main{display:block;font:600 14px/1.2 Sora,sans-serif}
+  .scan-cta-sub{display:block;font:400 11px/1.3 Inter,sans-serif;color:#4f7c70;margin-top:3px}
+  .scan-cta-arrow{font-size:18px;color:var(--accent)}
+
+  .list-head{display:flex;align-items:baseline;justify-content:space-between;padding:2px 4px}
+  .list-head-title{font:600 13px/1 Sora,sans-serif;color:var(--ink)}
+  .list-head-count{font:400 12px/1 Inter,sans-serif;color:var(--muted)}
+  .empty{
+    background:#fff;border:1px dashed var(--line-2);border-radius:14px;padding:30px 20px;text-align:center;
+    font:400 13px/1.5 Inter,sans-serif;color:var(--muted-2);
+  }
+
+  .item{
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 12px 14px;
+    display:flex;flex-direction:column;gap:10px;margin-bottom:10px;
+  }
+  .item-top{display:flex;gap:10px;align-items:flex-start}
+  .item-no{width:26px;height:26px;border-radius:7px;background:var(--chip);color:var(--brand);font:600 12px/26px Sora,sans-serif;text-align:center;flex:none}
+  .item-sku{flex:1;min-width:0;font:500 15px/1.2 'JetBrains Mono',monospace;color:var(--ink);letter-spacing:.5px;word-break:break-all}
+  .item-del{width:36px;height:36px;border:none;border-radius:9px;background:var(--err-bg);color:var(--err);font-size:15px;cursor:pointer;flex:none}
+  .item-del:active{background:#F6D3CE}
+  .item-row{display:flex;gap:10px}
+  .item-row .field{flex:1}
+  .item-row .field-label{font:400 11px/1.2 Inter,sans-serif;color:var(--muted)}
+  .item-row input{height:44px;border-radius:10px}
+
+  .footbar{
+    flex:none;background:#fff;border-top:1px solid var(--line);
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;
+  }
+  .footbar .btn--ghost{flex:1}
+
+  /* ---------- scan ---------- */
+  .screen--scan{background:#0a120f}
+  .scan-topbar{flex:none;padding:14px 16px;display:flex;align-items:center;gap:12px;padding-top:calc(14px + env(safe-area-inset-top))}
+  .iconbtn--dark{background:rgba(255,255,255,.14)}
+  .scan-topbar-title{font:600 15px/1.2 Sora,sans-serif;color:#fff}
+  .scan-stage{position:relative;height:300px;flex:none;background:#12201b;overflow:hidden}
+  #scan-video{width:100%;height:100%;object-fit:cover;display:block;background:#12201b}
+  .scan-frame-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .scan-frame{
+    width:74%;height:56%;border-radius:14px;position:relative;
+    box-shadow:0 0 0 2000px rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.85);
+  }
+  .scan-line{position:absolute;left:8%;right:8%;height:2px;background:#FFC069;box-shadow:0 0 10px #FFC069;animation:scanline 1.6s ease-in-out infinite alternate}
+  @keyframes scanline{0%{top:8%}100%{top:88%}}
+  .scan-engine{
+    position:absolute;left:12px;bottom:10px;font:500 10px/1 Inter,sans-serif;color:#cfe3da;
+    background:rgba(0,0,0,.5);padding:5px 8px;border-radius:6px;letter-spacing:.4px;
+  }
+  .cam-fallback{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;background:#12201b;padding:24px;text-align:center;
+  }
+  .cam-fallback-title{font:600 14px/1.3 Sora,sans-serif;color:#fff}
+  .cam-fallback-sub{font:400 12px/1.5 Inter,sans-serif;color:#9FB8B0;max-width:280px}
+  #btn-open-scanner{margin-top:4px;height:44px}
+  .scan-sheet{
+    flex:1;overflow:auto;background:var(--bg);border-radius:20px 20px 0 0;margin-top:-16px;
+    padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;
+  }
+  .scan-hint{font:400 12px/1.4 Inter,sans-serif;color:var(--muted)}
+  .scan-manual{display:flex;gap:8px}
+  .scan-manual input{flex:1;min-width:0;height:48px}
+  .scan-manual .btn{height:48px;padding:0 18px;font-size:14px}
+
+  /* ---------- detail (isi qty & dus) ---------- */
+  .screen--detail{background:#0a120f}
+  .detail-top{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:8px;padding:24px;text-align:center;
+  }
+  .detail-cap{font:600 11px/1 Sora,sans-serif;letter-spacing:2px;color:#8fb3a4}
+  .detail-code{font:500 24px/1.25 'JetBrains Mono',monospace;color:#fff;letter-spacing:1px;word-break:break-all;max-width:100%}
+  .detail-note{font:400 12px/1.4 Inter,sans-serif;color:#9FB8B0;margin-top:4px}
+  .detail-sheet{
+    flex:none;background:var(--bg);border-radius:20px 20px 0 0;
+    padding:20px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;
+  }
+  .detail-row{display:flex;gap:10px}
+  .detail-row .field{flex:1}
+  .detail-primary{width:100%;font-size:16px}
+  .detail-actions-sec{display:flex;gap:8px}
+  .btn--sm{height:38px;font-size:12.5px;padding:0 10px}
+  .detail-actions-sec .btn{flex:1}
+
+  /* ---------- done ---------- */
+  .screen--done{background:var(--bg);padding:24px;padding-top:calc(24px + env(safe-area-inset-top))}
+  .done-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+  .done-check{width:66px;height:66px;border-radius:50%;background:var(--ok-bg);display:flex;align-items:center;justify-content:center}
+  .done-check-mark{width:22px;height:12px;border-left:3px solid var(--ok);border-bottom:3px solid var(--ok);transform:rotate(-45deg);margin-top:-5px}
+  .done-title{font:600 18px/1.3 Sora,sans-serif;color:var(--ink);text-align:center}
+  .done-summary{font:400 13px/1.6 Inter,sans-serif;color:var(--muted);text-align:center;max-width:280px;white-space:pre-line}
+  .done-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-top:2px}
+  .done-chip-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+  #done-chip-text{font:400 12px/1.4 Inter,sans-serif;color:var(--ink-2)}
+  .done-actions{flex:none;display:flex;flex-direction:column;gap:10px;padding-bottom:env(safe-area-inset-bottom)}
+
+  /* ---------- busy / toast ---------- */
+  .busy{position:absolute;inset:0;background:rgba(10,18,15,.55);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px}
+  .busy-box{background:#fff;border-radius:16px;padding:22px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:280px;text-align:center}
+  .busy-text{font:400 13px/1.5 Inter,sans-serif;color:var(--ink-2)}
+  .spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--chip);border-top-color:var(--brand);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .toast{
+    position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:30;
+    background:#0A2622;color:#fff;font:400 12px/1.4 Inter,sans-serif;padding:10px 16px;border-radius:10px;
+    max-width:86%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+</style>
+</head>
+<body>
+<div id="app" class="app">
+
+  <!-- ============ 1 · LOGIN ============ -->
+  <section class="screen screen--login" data-screen="login">
+    <div class="login-top">
+      <div class="brand-badge"><span class="brand-square"></span></div>
+      <div class="brand-title">GudangFlow<br>Distribusi Barang</div>
+      <div class="brand-sub">Masuk untuk menyiapkan surat jalan pengiriman.</div>
+    </div>
+    <div class="login-card">
+      <label class="field">
+        <span class="field-label">USER</span>
+        <input id="in-user" type="text" autocomplete="username" placeholder="Masukkan username">
+      </label>
+      <div class="field">
+        <span class="field-label">PASSWORD</span>
+        <div class="pass-wrap">
+          <input id="in-pass" type="password" autocomplete="current-password" placeholder="Masukkan password">
+          <button type="button" id="toggle-pass" class="eye" aria-label="Lihat password" aria-pressed="false">
+            <svg viewBox="0 0 24 24" class="eye-ico" aria-hidden="true">
+              <path class="eye-open" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+              <circle class="eye-open" cx="12" cy="12" r="3.2"/>
+              <path class="eye-shut" d="M3 3l18 18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="login-hint">
+        <span class="login-hint-title">Kredensial demo</span>
+        <span class="login-hint-value">User: <b>User</b> &nbsp;·&nbsp; Password: <b>User12345</b></span>
+      </div>
+      <div id="login-error" class="alert alert--err" hidden>User dan Password wajib diisi.</div>
+      <button id="btn-login" class="btn btn--primary btn--tall">Masuk</button>
+      <div class="login-ver">Demo Portofolio · Standalone Build</div>
+    </div>
+  </section>
+
+  <!-- ============ 2 · FORM DISTRIBUSI ============ -->
+  <section class="screen screen--form" data-screen="form" hidden>
+    <header class="topbar">
+      <button class="iconbtn" data-nav="login" aria-label="Kembali">&larr;</button>
+      <div class="topbar-titles">
+        <div class="topbar-title">Form Distribusi</div>
+        <div class="topbar-crumb">Beranda / Distribusi / Form</div>
+      </div>
+      <div class="avatar" id="avatar">DI</div>
+    </header>
+
+    <div class="scroll">
+      <div class="card">
+        <label class="field">
+          <span class="field-label">Toko <span class="req">*</span></span>
+          <span class="select-wrap">
+            <select id="in-toko">
+              <option value="">Pilih toko …</option>
+              <option value="Toko A">Toko A</option>
+              <option value="Toko B">Toko B</option>
+              <option value="Toko C">Toko C</option>
+            </select>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field-label">Driver <span class="req">*</span></span>
+          <input id="in-driver" type="text" placeholder="Nama driver">
+        </label>
+        <label class="field">
+          <span class="field-label">Nama Pengirim <span class="req">*</span></span>
+          <input id="in-pengirim" type="text" placeholder="Nama pengirim" autocomplete="name">
+        </label>
+        <div class="field">
+          <span class="field-label">Scan SKU</span>
+          <button class="scan-cta" data-nav="scan">
+            <span class="scan-cta-ico"><span class="scan-cta-ico-inner"></span></span>
+            <span class="scan-cta-txt">
+              <span class="scan-cta-main">Pindai barcode SKU</span>
+              <span class="scan-cta-sub">Gunakan kamera, atau input manual</span>
+            </span>
+            <span class="scan-cta-arrow">&rsaquo;</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="list-head">
+        <div class="list-head-title">Daftar Barang</div>
+        <div class="list-head-count" id="item-count">0 SKU</div>
+      </div>
+
+      <div id="items-empty" class="empty">
+        Belum ada SKU.<br>Tekan &ldquo;Pindai barcode SKU&rdquo; untuk menambah barang.
+      </div>
+
+      <div id="items"></div>
+
+      <div id="form-error" class="alert alert--err" hidden>Lengkapi Toko, Driver, Nama Pengirim, dan minimal satu SKU.</div>
+    </div>
+
+    <footer class="footbar">
+      <button class="btn btn--ghost" data-nav="login">Kembali</button>
+      <button id="btn-kirim" class="btn btn--primary btn--grow">Kirim</button>
+    </footer>
+  </section>
+
+  <!-- ============ 3 · SCAN / INPUT SKU ============ -->
+  <section class="screen screen--scan" data-screen="scan" hidden>
+    <div class="scan-topbar">
+      <button class="iconbtn iconbtn--dark" data-nav="form" aria-label="Tutup">&#10005;</button>
+      <div class="scan-topbar-title">Scan SKU</div>
+    </div>
+
+    <div class="scan-stage" id="scan-stage">
+      <video id="scan-video" autoplay playsinline muted></video>
+      <div class="scan-frame-wrap" id="scan-frame-wrap" hidden>
+        <div class="scan-frame" id="scan-frame"><div class="scan-line"></div></div>
+      </div>
+      <div id="scan-engine" class="scan-engine" hidden></div>
+      <div id="cam-fallback" class="cam-fallback">
+        <div class="cam-fallback-title">Kamera</div>
+        <div class="cam-fallback-sub" id="cam-fallback-sub">Menyiapkan kamera…</div>
+        <button id="btn-open-scanner" class="btn btn--primary" hidden>Buka Pemindai Kamera</button>
+      </div>
+    </div>
+
+    <div class="scan-sheet">
+      <div class="scan-hint">Arahkan kamera ke barcode. Tidak terbaca? Ketik kode SKU-nya, atau pakai alat scan (mode ketik).</div>
+      <div class="scan-manual">
+        <input id="in-manual" type="text" placeholder="Kode SKU manual" autocomplete="off" autocapitalize="characters" enterkeyhint="go">
+        <button id="btn-add-manual" class="btn btn--primary">Tambah</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4 · ISI QTY & DUS ============ -->
+  <section class="screen screen--detail" data-screen="detail" hidden>
+    <div class="detail-top">
+      <div class="detail-cap">BARCODE TERBACA</div>
+      <div class="detail-code" id="detail-code">—</div>
+      <div class="detail-note" id="detail-note" hidden></div>
+    </div>
+    <div class="detail-sheet">
+      <div class="detail-row">
+        <label class="field">
+          <span class="field-label">Qty (pcs) <span class="req">*</span></span>
+          <input id="in-qty" type="text" inputmode="numeric" enterkeyhint="done" placeholder="0">
+        </label>
+        <label class="field">
+          <span class="field-label">Kode Dus</span>
+          <input id="in-dus" type="text" placeholder="D00" autocapitalize="characters">
+        </label>
+      </div>
+      <div id="detail-error" class="alert alert--err" hidden>Qty harus angka lebih dari 0.</div>
+      <button id="btn-detail-again" class="btn btn--primary btn--tall detail-primary">Simpan &amp; Scan Lagi</button>
+      <div class="detail-actions-sec">
+        <button id="btn-detail-cancel" class="btn btn--ghost btn--sm">Batal</button>
+        <button id="btn-detail-save" class="btn btn--ghost btn--sm">Simpan (selesai scan)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5 · TERKIRIM ============ -->
+  <section class="screen screen--done" data-screen="done" hidden>
+    <div class="done-body">
+      <div class="done-check"><span class="done-check-mark"></span></div>
+      <div class="done-title">Data distribusi terkirim</div>
+      <div class="done-summary" id="done-summary">Surat jalan siap dibuat untuk pengiriman berikutnya.</div>
+      <div class="done-chip">
+        <span class="done-chip-dot"></span>
+        <span id="done-chip-text">File .xlsx siap diunduh</span>
+      </div>
+    </div>
+    <div class="done-actions">
+      <button id="btn-download" class="btn btn--soft btn--tall">&#8681; Download Surat Jalan (.xlsx)</button>
+      <button id="btn-new" class="btn btn--primary btn--tall">Buat Surat Jalan</button>
+      <button id="btn-logout" class="btn btn--ghost btn--tall">Log Out</button>
+    </div>
+  </section>
+
+  <div id="busy" class="busy" hidden>
+    <div class="busy-box">
+      <div class="spinner"></div>
+      <div class="busy-text">Menyiapkan file .xlsx surat jalan…</div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+</div>
+
+<script>
+  // ====================================================================
+  // KONFIGURASI — isi sebelum upload ke hosting.
+  // ====================================================================
+  // Demo ini 100% berjalan di browser: login pakai kredensial tetap, dan
+  // "Kirim" langsung membuat file .xlsx di sisi klien (tidak ada backend/
+  // Google Drive yang diperlukan) — cocok untuk dicoba pengunjung website
+  // tanpa perlu setup apa pun.
+  window.WMS_CONFIG = {
+    // Kredensial demo (ditampilkan juga di halaman login sebagai petunjuk).
+    DEMO_USER: 'User',
+    DEMO_PASS: 'User12345',
+
+    // (Opsional) URL halaman pemindai kamera eksternal — biarkan kosong;
+    // kamera bawaan (inline) akan langsung dipakai selama situs diakses
+    // lewat HTTPS. Lihat Code.gs > CONFIG.SCANNER_URL kalau tetap ingin
+    // memakai popup pemindai terpisah.
+    SCANNER_URL: ''
+  };
+
+  window.WMS_SCANNER_URL = window.WMS_CONFIG.SCANNER_URL || '';
+
+  // Sumber library ZXing (fallback BarcodeDetector untuk kamera inline).
+  window.WMS_ZXING_SRC = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+/**
+ * WMSScanner — pemindai barcode INLINE (di dalam halaman).
+ *
+ * Dua jalur kamera:
+ *   1. BarcodeDetector API bawaan browser.
+ *   2. Fallback ZXing-js (lazy-load dari CDN) untuk browser/WebView lama.
+ *
+ * Setiap frame di-CROP dulu ke area bingkai pemindai (kalau elemen stage/frame-nya
+ * dikasih) sebelum dikirim ke detector mana pun — supaya bingkai yang terlihat di
+ * layar itu benar membatasi area deteksi, bukan sekadar visual sementara detect()
+ * jalan di seluruh frame kamera.
+ *
+ * API:
+ *   WMSScanner.start(videoEl, onResult, onStatus, opts) -> Promise
+ *     opts (opsional): { stageEl, frameEl } — kalau diisi, deteksi di-crop ke
+ *     area frameEl (relatif terhadap stageEl). Kalau tidak diisi, deteksi
+ *     jalan di seluruh frame video (perilaku lama, tanpa crop).
+ *   WMSScanner.stop()
+ */
+window.WMSScanner = (function () {
+  var CAMERA_TIMEOUT_MS = 8000;    // batas tunggu getUserMedia/video: sebagian browser
+                                   // membiarkan promise-nya menggantung tanpa resolve/reject
+  var DETECT_PROBE_MS = 4000;      // batas uji pertama BarcodeDetector.detect()
+  var DETECT_LOOP_MS = 3000;       // batas tiap panggilan detect() berikutnya
+  var active = false, stream = null, detector = null, reader = null;
+  var pollTimer = null, nativeFailStreak = 0, readyWaitStreak = 0;
+  var lastText = '', lastAt = 0;
+  var cbResult = null, cbStatus = null, videoEl = null, stageEl = null, frameEl = null;
+  var cropCanvas = null, cropCtx = null;
+
+  function status(info) { try { cbStatus && cbStatus(info); } catch (e) {} }
+
+  function withTimeout(promise, ms, label) {
+    return new Promise(function (resolve, reject) {
+      var settled = false;
+      var t = setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        reject(new Error('Timeout: ' + label + ' tidak merespon dalam ' + (ms / 1000) + ' detik.'));
+      }, ms);
+      promise.then(function (v) {
+        if (settled) return; settled = true; clearTimeout(t); resolve(v);
+      }, function (e) {
+        if (settled) return; settled = true; clearTimeout(t); reject(e);
+      });
+    });
+  }
+
+  function emit(text) {
+    text = String(text || '').trim();
+    if (!text || !active) return;
+    var now = Date.now();
+    if (text === lastText && now - lastAt < 2000) return;
+    lastText = text; lastAt = now;
+    if (navigator.vibrate) { try { navigator.vibrate(60); } catch (e) {} }
+    try { cbResult && cbResult(text); } catch (e) {}
+  }
+
+  function loadZxing() {
+    return new Promise(function (resolve, reject) {
+      if (window.ZXing && window.ZXing.BrowserMultiFormatReader) return resolve();
+      var s = document.createElement('script');
+      s.src = window.WMS_ZXING_SRC || 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+      s.async = true;
+      s.onload = function () {
+        (window.ZXing && window.ZXing.BrowserMultiFormatReader)
+          ? resolve() : reject(new Error('ZXing tidak lengkap.'));
+      };
+      s.onerror = function () { reject(new Error('Gagal memuat ZXing dari CDN.')); };
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ---------- crop ke area bingkai pemindai (kalau stageEl/frameEl diisi) ---------- */
+  function getCropRectInVideoSpace() {
+    var vw = videoEl.videoWidth, vh = videoEl.videoHeight;
+    if (!vw || !vh) return null;
+    var stageRect = stageEl.getBoundingClientRect();
+    var boxRect = frameEl.getBoundingClientRect();
+    if (!stageRect.width || !stageRect.height || !boxRect.width || !boxRect.height) return null;
+
+    var scale = Math.max(stageRect.width / vw, stageRect.height / vh); // object-fit: cover
+    var dispW = vw * scale, dispH = vh * scale;
+    var offX = (stageRect.width - dispW) / 2;
+    var offY = (stageRect.height - dispH) / 2;
+
+    var boxX = boxRect.left - stageRect.left;
+    var boxY = boxRect.top - stageRect.top;
+
+    var srcX = (boxX - offX) / scale;
+    var srcY = (boxY - offY) / scale;
+    var srcW = boxRect.width / scale;
+    var srcH = boxRect.height / scale;
+
+    srcX = Math.max(0, Math.min(srcX, vw - 1));
+    srcY = Math.max(0, Math.min(srcY, vh - 1));
+    srcW = Math.max(1, Math.min(srcW, vw - srcX));
+    srcH = Math.max(1, Math.min(srcH, vh - srcY));
+    return { x: srcX, y: srcY, w: srcW, h: srcH };
+  }
+
+  // Kembalikan canvas berisi HANYA area bingkai (kalau stageEl/frameEl diisi),
+  // atau seluruh frame video kalau tidak (fallback tanpa crop). null = belum siap.
+  function captureFrame() {
+    if (!videoEl || videoEl.readyState < 2) return null;
+    if (!cropCanvas) { cropCanvas = document.createElement('canvas'); cropCtx = cropCanvas.getContext('2d', { willReadFrequently: true }); }
+
+    var rect = null;
+    if (stageEl && frameEl) rect = getCropRectInVideoSpace();
+    if (!rect) {
+      var vw = videoEl.videoWidth, vh = videoEl.videoHeight;
+      if (!vw || !vh) return null;
+      rect = { x: 0, y: 0, w: vw, h: vh };
+    }
+    var cw = Math.round(rect.w), ch = Math.round(rect.h);
+    if (cw < 2 || ch < 2) return null;
+    if (cropCanvas.width !== cw) cropCanvas.width = cw;
+    if (cropCanvas.height !== ch) cropCanvas.height = ch;
+    try { cropCtx.drawImage(videoEl, rect.x, rect.y, rect.w, rect.h, 0, 0, cw, ch); }
+    catch (e) { return null; }
+    return cropCanvas;
+  }
+
+  // Jaring pengaman: kalau detector mengembalikan beberapa barcode sekaligus
+  // dalam satu frame, pilih yang bounding box-nya PALING DEKAT ke titik tengah
+  // area yang di-crop (≈ tengah bingkai), bukan asal ambil hasil pertama.
+  function pickClosestToCenter(codes, cw, ch) {
+    if (!codes || !codes.length) return null;
+    if (codes.length === 1) return codes[0];
+    var cx = cw / 2, cy = ch / 2, best = null, bestDist = Infinity;
+    codes.forEach(function (c) {
+      var bb = c.boundingBox || {};
+      var bx = (bb.x != null) ? bb.x + (bb.width || 0) / 2 : cx;
+      var by = (bb.y != null) ? bb.y + (bb.height || 0) / 2 : cy;
+      var d = (bx - cx) * (bx - cx) + (by - cy) * (by - cy);
+      if (d < bestDist) { bestDist = d; best = c; }
+    });
+    return best;
+  }
+
+  /**
+   * detect() DIBUNGKUS TIMEOUT: di sebagian Android tanpa Google Play Services penuh,
+   * BarcodeDetector.detect() bisa MENGGANTUNG selamanya (bukan resolve/reject) karena
+   * API ini bergantung pada modul deteksi barcode dari Play Services / ML Kit yang
+   * tidak terpasang di perangkat tsb. Dijalankan pada crop bingkai, bukan frame video utuh.
+   */
+  function detectOnce(ms) {
+    if (!detector) return Promise.reject(new Error('detector tidak aktif'));
+    var cv = captureFrame();
+    if (!cv) return Promise.reject(new Error('area pindai belum siap'));
+    return withTimeout(detector.detect(cv), ms, 'BarcodeDetector.detect()').then(function (codes) {
+      var pick = pickClosestToCenter(codes, cv.width, cv.height);
+      return pick ? [pick] : [];
+    });
+  }
+
+  // Uji sekali dengan timeout pendek sebelum benar-benar dipakai terus-menerus.
+  function probeNative() {
+    return detectOnce(DETECT_PROBE_MS);
+  }
+
+  function nativeLoop() {
+    if (!active) return;
+    if (!videoEl || videoEl.readyState < 2) {
+      readyWaitStreak++;
+      if (readyWaitStreak > 40) {   // ~8s menunggu video tanpa pernah dapat frame
+        active = false;
+        status({ engine: null, blocked: true, message: 'Stream kamera didapat tapi video tidak pernah menyala.' });
+        return;
+      }
+      pollTimer = setTimeout(nativeLoop, 200);
+      return;
+    }
+    readyWaitStreak = 0;
+    detectOnce(DETECT_LOOP_MS).then(function (codes) {
+      nativeFailStreak = 0;
+      if (codes && codes.length) emit(codes[0].rawValue);
+      if (active) pollTimer = setTimeout(nativeLoop, 350);
+    }).catch(function (e) {
+      nativeFailStreak++;
+      var isTimeout = /^Timeout/i.test((e && e.message) || '');
+      // timeout = bukti kuat API rusak di device ini -> pindah sekarang juga;
+      // rejection biasa (jarang, transient) -> coba beberapa kali dulu.
+      if (isTimeout || nativeFailStreak >= 5) {
+        detector = null;
+        startZxing().catch(function (e2) { status({ engine: 'zxing', blocked: false, message: e2.message }); });
+        return;
+      }
+      if (active) pollTimer = setTimeout(nativeLoop, 350);
+    });
+  }
+
+  // Decode ZXing dari crop bingkai. decodeBitmap() sepenuhnya sinkron (bukan
+  // native/async) jadi tidak berisiko menggantung seperti BarcodeDetector.
+  function decodeZxingOnce() {
+    var cv = captureFrame();
+    if (!cv) return null;
+    try {
+      var src = new window.ZXing.HTMLCanvasElementLuminanceSource(cv);
+      var bitmap = new window.ZXing.BinaryBitmap(new window.ZXing.HybridBinarizer(src));
+      var result = reader.decodeBitmap(bitmap);
+      return result && (result.getText ? result.getText() : result.text);
+    } catch (e) {
+      return null; // NotFoundException dkk = wajar, tidak ada barcode di crop kali ini
+    }
+  }
+
+  function zxingLoop() {
+    if (!active) return;
+    var text = decodeZxingOnce();
+    if (text) emit(text);
+    if (active) pollTimer = setTimeout(zxingLoop, 300);
+  }
+
+  function startZxing() {
+    status({ engine: 'zxing', starting: true });
+    return loadZxing().then(function () {
+      if (!active) return;
+      reader = new window.ZXing.BrowserMultiFormatReader();
+      status({ engine: 'zxing' });
+      zxingLoop();
+    });
+  }
+
+  function getStream() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return Promise.reject(new Error('Kamera tidak didukung browser ini.'));
+    }
+    var attempt = navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false
+    }).catch(function () {
+      return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    });
+    // Sebagian browser bisa membiarkan promise getUserMedia menggantung tanpa
+    // resolve/reject walau dialog izin sudah ditekan "izinkan" — beri batas
+    // waktu supaya selalu berakhir di onStatus({blocked:true}).
+    return withTimeout(attempt, CAMERA_TIMEOUT_MS, 'Akses kamera (getUserMedia)');
+  }
+
+  function start(video, onResult, onStatus, opts) {
+    stop();
+    opts = opts || {};
+    active = true; videoEl = video; cbResult = onResult; cbStatus = onStatus;
+    stageEl = opts.stageEl || null; frameEl = opts.frameEl || null;
+    nativeFailStreak = 0; readyWaitStreak = 0;
+    status({ engine: null, starting: true });
+
+    return getStream().then(function (s) {
+      if (!active) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
+      stream = s;
+      videoEl.srcObject = s;
+      videoEl.muted = true;
+      videoEl.setAttribute('playsinline', '');
+      videoEl.playsInline = true;
+      var pp = videoEl.play();
+      if (pp && pp.catch) pp.catch(function () { /* autoplay ditolak: deteksi tetap dicoba, video mungkin diam */ });
+
+      if ('BarcodeDetector' in window) {
+        try {
+          detector = new window.BarcodeDetector({
+            formats: ['code_128', 'code_39', 'code_93', 'codabar', 'itf',
+                      'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix', 'pdf417']
+          });
+        } catch (e1) {
+          try { detector = new window.BarcodeDetector(); } catch (e2) { detector = null; }
+        }
+      }
+
+      if (detector) {
+        return probeNative().then(function () {
+          if (!active) return 'native';
+          status({ engine: 'native' });
+          nativeLoop();
+          return 'native';
+        }).catch(function () {
+          if (!active) return 'native';
+          // BarcodeDetector ada tapi tidak merespon (mis. tanpa Play Services) -> ZXing
+          detector = null;
+          return startZxing().then(function () { return 'zxing'; });
+        });
+      }
+      return startZxing().then(function () { return 'zxing'; });
+    }).catch(function (err) {
+      active = false;
+      status({ engine: null, blocked: true, message: err && err.message ? err.message : String(err) });
+      throw err;
+    });
+  }
+
+  function stop() {
+    active = false;
+    if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
+    detector = null; nativeFailStreak = 0; readyWaitStreak = 0;
+    try { if (reader) reader.reset(); } catch (e) {}
+    reader = null;
+    if (stream) { try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} stream = null; }
+    if (videoEl) { try { videoEl.srcObject = null; } catch (e) {} }
+    stageEl = null; frameEl = null;
+    lastText = ''; lastAt = 0;
+  }
+
+  return { start: start, stop: stop };
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  var DEMO_USER = (window.WMS_CONFIG && window.WMS_CONFIG.DEMO_USER) || 'User';
+  var DEMO_PASS = (window.WMS_CONFIG && window.WMS_CONFIG.DEMO_PASS) || 'User12345';
+
+  var SCANNER_URL = (window.WMS_SCANNER_URL || '').trim();
+  var SCANNER_ORIGIN = '';
+  try { if (SCANNER_URL) SCANNER_ORIGIN = new URL(SCANNER_URL).origin; } catch (e) { SCANNER_URL = ''; }
+
+  var state = {
+    screen: 'login',
+    user: '',
+    pengirim: '',
+    toko: '',
+    driver: '',
+    items: [],                 // { sku, qty, dus, scannedAt }
+    pending: null,             // { sku } sedang diisi qty/dus di layar detail
+    sending: false,
+    lastWorkbook: null,        // workbook .xlsx surat jalan terakhir (siap diunduh)
+    lastFileName: ''
+  };
+
+  var scanWin = null;          // popup pemindai kamera eksternal
+
+  var $  = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  /* ---------------- navigation ---------------- */
+  function show(screen) {
+    if (state.screen === 'scan' && screen !== 'scan') stopScan();
+    state.screen = screen;
+    $$('.screen').forEach(function (el) {
+      el.hidden = el.getAttribute('data-screen') !== screen;
+    });
+    if (screen === 'form') renderItems();
+    if (screen === 'scan') startScan();
+    var app = $('#app'); if (app) app.scrollTop = 0;
+  }
+
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.hidden = true; }, 2600);
+  }
+
+  /* ---------------- daftar barang ---------------- */
+  function upsertItem(sku, qty, dus) {
+    sku = String(sku || '').trim().toUpperCase();
+    qty = parseInt(qty, 10); if (isNaN(qty) || qty < 0) qty = 0;
+    dus = String(dus || '').trim();
+
+    var ex = state.items.filter(function (it) { return it.sku === sku; })[0];
+    if (ex) {
+      ex.qty = String((parseInt(ex.qty, 10) || 0) + qty);
+      if (dus) {
+        var parts = ex.dus ? ex.dus.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : [];
+        if (parts.indexOf(dus) === -1) parts.push(dus);
+        ex.dus = parts.join(', ');
+      }
+      ex.scannedAt = new Date().toISOString();
+      return { merged: true, qty: ex.qty };
+    }
+    state.items.push({ sku: sku, qty: String(qty), dus: dus, scannedAt: new Date().toISOString() });
+    return { merged: false, qty: String(qty) };
+  }
+
+  function renderItems() {
+    $('#item-count').textContent = state.items.length + ' SKU';
+    $('#items-empty').hidden = state.items.length !== 0;
+    $('#items').innerHTML = state.items.map(function (it, i) {
+      return '<div class="item" data-i="' + i + '">' +
+        '<div class="item-top">' +
+          '<div class="item-no">' + (i + 1) + '</div>' +
+          '<div class="item-sku">' + esc(it.sku) + '</div>' +
+          '<button class="item-del" data-act="del" aria-label="Hapus">&#128465;</button>' +
+        '</div>' +
+        '<div class="item-row">' +
+          '<label class="field"><span class="field-label">Qty (pcs)</span>' +
+            '<input data-act="qty" inputmode="numeric" value="' + esc(it.qty) + '"></label>' +
+          '<label class="field"><span class="field-label">Kode Dus</span>' +
+            '<input data-act="dus" placeholder="D00" value="' + esc(it.dus) + '"></label>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---------------- layar detail (isi qty & dus) ---------------- */
+  function openDetail(code, opts) {
+    opts = opts || {};
+    var sku = String(code || '').trim().toUpperCase();
+    if (!sku) return;
+    state.pending = { sku: sku };
+
+    $('#detail-code').textContent = sku;
+    $('#detail-error').hidden = true;
+    $('#in-qty').value = '';
+    $('#in-dus').value = '';
+
+    var note = $('#detail-note');
+    var ex = state.items.filter(function (it) { return it.sku === sku; })[0];
+    if (ex) {
+      note.hidden = false;
+      note.textContent = 'SKU sudah ada (Qty ' + ex.qty + '). Qty & Kode Dus akan ditambahkan.';
+    } else {
+      note.hidden = true;
+    }
+
+    show('detail');
+    setTimeout(function () { try { $('#in-qty').focus(); } catch (e) {} }, 60);
+  }
+
+  function commitDetail() {
+    if (!state.pending) return null;
+    var qtyRaw = $('#in-qty').value.trim();
+    var qty = parseInt(qtyRaw, 10);
+    if (isNaN(qty) || qty <= 0) { $('#detail-error').hidden = false; return null; }
+    $('#detail-error').hidden = true;
+    var res = upsertItem(state.pending.sku, qty, $('#in-dus').value);
+    var sku = state.pending.sku;
+    state.pending = null;
+    toast(res.merged ? (sku + ' digabung → Qty ' + res.qty) : (sku + ' ditambahkan'));
+    return { sku: sku };
+  }
+
+  /* ---------------- pemindai kamera ---------------- */
+  function startScan() {
+    var video = $('#scan-video');
+    var frame = $('#scan-frame-wrap');
+    var engine = $('#scan-engine');
+    var fb = $('#cam-fallback');
+    var fbSub = $('#cam-fallback-sub');
+    var fbBtn = $('#btn-open-scanner');
+
+    // Bingkai ditampilkan dari awal (masih tertutup panel "Menyiapkan kamera…"
+    // di atasnya) supaya punya ukuran/layout NYATA saat area crop dihitung —
+    // elemen yang masih `hidden` selalu berukuran 0.
+    video.hidden = false; frame.hidden = false; engine.hidden = true;
+    fb.hidden = false; fbBtn.hidden = true;
+    fbSub.textContent = 'Menyiapkan kamera…';
+
+    WMSScanner.start(video, function (code) {
+      stopScan();
+      openDetail(code, { viaCamera: true });
+    }, function (info) {
+      if (info && info.blocked) {
+        video.hidden = true; frame.hidden = true; engine.hidden = true;
+        fb.hidden = false;
+        if (SCANNER_URL) {
+          fbSub.textContent = 'Kamera tidak bisa jalan di sini. Buka pemindai di tab baru:';
+          fbBtn.hidden = false;
+        } else {
+          fbSub.textContent = 'Kamera tidak tersedia di sini. Ketik kode SKU di bawah, atau pakai alat scan barcode (mode ketik / HID).';
+          fbBtn.hidden = true;
+        }
+        return;
+      }
+      if (info && info.engine) {
+        fb.hidden = true;
+        video.hidden = false; frame.hidden = false;
+        engine.hidden = false;
+        engine.textContent = info.engine === 'native' ? 'Kamera: BarcodeDetector' : 'Kamera: ZXing';
+      }
+    }, {
+      stageEl: $('#scan-stage'),
+      frameEl: $('#scan-frame')   // area di dalam bingkai — inilah yang membatasi deteksi
+    }).catch(function () { /* status handler sudah menampilkan fallback */ });
+  }
+  function stopScan() { try { WMSScanner.stop(); } catch (e) {} }
+
+  function openExternalScanner() {
+    if (!SCANNER_URL) { toast('URL pemindai belum diatur.'); return; }
+    try { if (scanWin && !scanWin.closed) { scanWin.focus(); return; } } catch (e) {}
+    var u = SCANNER_URL + (SCANNER_URL.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now();
+    scanWin = window.open(u, 'wmsscan', 'width=460,height=780');
+    if (!scanWin) toast('Popup diblokir. Izinkan popup untuk situs ini, lalu coba lagi.');
+  }
+  function closeExternalScanner() {
+    try { if (scanWin && !scanWin.closed) scanWin.close(); } catch (e) {}
+    scanWin = null;
+  }
+
+  window.addEventListener('message', function (ev) {
+    if (SCANNER_ORIGIN && ev.origin !== SCANNER_ORIGIN) return;
+    var d = ev.data;
+    if (!d || typeof d !== 'object') return;
+    if (d.type === 'wms-sku' && d.sku) {
+      closeExternalScanner();
+      stopScan();
+      openDetail(String(d.sku), { viaCamera: true });
+    }
+  });
+
+  /* ---------------- kirim (buat file .xlsx di sisi klien) ---------------- */
+  function sanitizeFileName(s) {
+    return String(s)
+      .replace(/[\\\/:*?"<>|\r\n\t]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 180);
+  }
+
+  // Susun workbook .xlsx persis seperti format surat jalan aslinya —
+  // dibangun langsung di browser lewat SheetJS (tidak ada backend/Drive).
+  function buildSuratJalanWorkbook(payload) {
+    var totalQty = payload.items.reduce(function (a, it) { return a + (Number(it.qty) || 0); }, 0);
+    var data = [
+      ['SURAT JALAN DISTRIBUSI', '', '', '', ''],
+      ['No. Surat Jalan', payload.noSuratJalan, '', '', ''],
+      ['Tanggal Kirim', payload.tanggalKirim, '', '', ''],
+      ['Waktu Kirim', payload.waktuKirim, '', '', ''],
+      ['Toko Tujuan', payload.toko, '', '', ''],
+      ['Driver', payload.driver, '', '', ''],
+      ['Nama Pengirim', payload.pengirim, '', '', ''],
+      ['Akun (login)', payload.user || '-', '', '', ''],
+      ['', '', '', '', ''],
+      ['No', 'SKU', 'Qty (pcs)', 'Kode Dus', 'Waktu Scan']
+    ];
+    payload.items.forEach(function (it, i) {
+      var q = Number(it.qty);
+      data.push([i + 1, it.sku, isNaN(q) ? (it.qty || '') : q, it.kodeDus || '', it.scannedAt || '']);
+    });
+    data.push(['', '', '', '', '']);
+    data.push(['Total SKU', payload.items.length, '', '', '']);
+    data.push(['Total Qty', totalQty, '', '', '']);
+
+    var ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [{ wch: 10 }, { wch: 26 }, { wch: 10 }, { wch: 18 }, { wch: 20 }];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Surat Jalan');
+    return { wb: wb, totalQty: totalQty };
+  }
+
+  function doKirim() {
+    if (state.sending) return;
+    var pengirim = state.pengirim.trim();
+    var toko = state.toko.trim();
+    var driver = state.driver.trim();
+    var items = state.items.filter(function (it) { return it.sku; });
+
+    if (!toko || !driver || !pengirim || !items.length) {
+      $('#form-error').textContent = 'Lengkapi Toko, Driver, Nama Pengirim, dan minimal satu SKU.';
+      $('#form-error').hidden = false;
+      return;
+    }
+    $('#form-error').hidden = true;
+
+    var now = new Date();
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    var noSJ = 'SJ-' + now.getFullYear() + p(now.getMonth() + 1) + p(now.getDate()) +
+               '-' + p(now.getHours()) + p(now.getMinutes()) + p(now.getSeconds());
+    var payload = {
+      user: state.user,
+      noSuratJalan: noSJ,
+      pengirim: pengirim,
+      toko: toko,
+      driver: driver,
+      tanggalKirim: now.getFullYear() + '-' + p(now.getMonth() + 1) + '-' + p(now.getDate()),
+      waktuKirim: p(now.getHours()) + ':' + p(now.getMinutes()) + ':' + p(now.getSeconds()),
+      items: items.map(function (it) {
+        return { sku: it.sku, qty: it.qty, kodeDus: it.dus, scannedAt: it.scannedAt };
+      })
+    };
+
+    state.sending = true;
+    $('#busy').hidden = false;
+    $('#btn-kirim').disabled = true;
+
+    // Sedikit delay hanya untuk kesan "diproses" — pembuatan file sebenarnya instan.
+    setTimeout(function () {
+      try {
+        var built = buildSuratJalanWorkbook(payload);
+        var fileName = sanitizeFileName(
+          p(now.getDate()) + '-' + p(now.getMonth() + 1) + '-' + now.getFullYear() +
+          '_' + pengirim + '_' + toko + '_' + driver
+        ) + '.xlsx';
+
+        state.lastWorkbook = built.wb;
+        state.lastFileName = fileName;
+
+        onKirimOk({
+          noSuratJalan: noSJ,
+          fileName: fileName,
+          totalSku: items.length,
+          totalQty: built.totalQty,
+          toko: toko, driver: driver, pengirim: pengirim,
+          waktu: now.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB'
+        });
+      } catch (err) {
+        onKirimErr(err);
+      }
+    }, 500);
+  }
+
+  function onKirimOk(res) {
+    state.sending = false;
+    $('#busy').hidden = true;
+    $('#btn-kirim').disabled = false;
+    res = res || {};
+
+    var count = (res.totalSku != null) ? res.totalSku : state.items.length;
+    var qty = (res.totalQty != null) ? res.totalQty : '';
+    var lines = [
+      count + ' SKU' + (qty !== '' ? ' · ' + qty + ' pcs' : ''),
+      state.toko + ' · Driver ' + state.driver,
+      'Pengirim ' + state.pengirim,
+      res.waktu || '',
+      res.noSuratJalan ? 'No. ' + res.noSuratJalan : ''
+    ].filter(Boolean);
+    $('#done-summary').textContent = lines.join('\n');
+
+    $('#done-chip-text').textContent = res.fileName
+      ? (res.fileName + ' siap diunduh')
+      : 'File .xlsx siap diunduh';
+
+    // reset form
+    state.toko = ''; state.driver = ''; state.items = []; state.pending = null;
+    $('#in-toko').value = ''; $('#in-driver').value = '';
+    // Nama Pengirim sengaja DIPERTAHANKAN (biasanya orang yang sama lanjut input).
+    $('#in-pengirim').value = state.pengirim;
+
+    show('done');
+  }
+
+  function onKirimErr(err) {
+    state.sending = false;
+    $('#busy').hidden = true;
+    $('#btn-kirim').disabled = false;
+    var msg = (err && err.message) ? err.message : 'Gagal membuat file. Coba lagi.';
+    $('#form-error').textContent = msg;
+    $('#form-error').hidden = false;
+    toast(msg);
+  }
+
+  function downloadSuratJalan() {
+    if (!state.lastWorkbook || !state.lastFileName) { toast('Belum ada file untuk diunduh.'); return; }
+    XLSX.writeFile(state.lastWorkbook, state.lastFileName);
+  }
+
+  /* ---------------- login ---------------- */
+  function doLogin() {
+    var u = $('#in-user').value.trim();
+    var pw = $('#in-pass').value;
+    if (!u || !pw) { $('#login-error').textContent = 'User dan Password wajib diisi.'; $('#login-error').hidden = false; return; }
+    $('#login-error').hidden = true;
+
+    var proceed = function (name) {
+      state.user = name || u;
+      $('#in-pass').value = '';
+      $('#in-pass').type = 'password';
+      $('#toggle-pass').classList.remove('is-on');
+      show('form');
+      setTimeout(function () { try { $('#in-driver').focus(); } catch (e) {} }, 60);
+    };
+
+    if (u.toLowerCase() === DEMO_USER.toLowerCase() && pw === DEMO_PASS) return proceed(u);
+    $('#login-error').textContent = 'User atau Password salah. Gunakan kredensial demo di atas.';
+    $('#login-error').hidden = false;
+  }
+
+  function doLogout() {
+    stopScan(); closeExternalScanner();
+    state = {
+      screen: 'login', user: '', pengirim: '', toko: '', driver: '', items: [], pending: null,
+      sending: false, lastWorkbook: null, lastFileName: ''
+    };
+    ['in-user', 'in-pass', 'in-toko', 'in-driver', 'in-pengirim', 'in-manual', 'in-qty', 'in-dus'].forEach(function (id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    show('login');
+  }
+
+  /* ---------------- wiring ---------------- */
+  function init() {
+    $$('[data-nav]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var target = el.getAttribute('data-nav');
+        // Kalau pemindai eksternal sudah dikonfigurasi, langsung buka popup-nya —
+        // skip layar percobaan kamera internal (di banyak browser mobile kamera
+        // inline di sini bisa gagal, jadi layar itu cuma langkah sia-sia).
+        if (target === 'scan' && SCANNER_URL) { openExternalScanner(); return; }
+        show(target);
+      });
+    });
+
+    // login
+    $('#btn-login').addEventListener('click', doLogin);
+    $('#in-pass').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+    $('#toggle-pass').addEventListener('click', function () {
+      var inp = $('#in-pass');
+      var showText = inp.type === 'password';
+      inp.type = showText ? 'text' : 'password';
+      this.classList.toggle('is-on', showText);
+      this.setAttribute('aria-pressed', String(showText));
+      try { inp.focus(); } catch (e) {}
+    });
+
+    // form fields
+    $('#in-toko').addEventListener('change', function (e) { state.toko = e.target.value; });
+    $('#in-driver').addEventListener('input', function (e) { state.driver = e.target.value; });
+    $('#in-pengirim').addEventListener('input', function (e) { state.pengirim = e.target.value; });
+    $('#btn-kirim').addEventListener('click', doKirim);
+
+    // daftar barang (edit inline)
+    $('#items').addEventListener('input', function (e) {
+      var row = e.target.closest('.item'); if (!row) return;
+      var i = +row.getAttribute('data-i');
+      var act = e.target.getAttribute('data-act');
+      if (act === 'qty') state.items[i].qty = e.target.value;
+      if (act === 'dus') state.items[i].dus = e.target.value;
+    });
+    $('#items').addEventListener('click', function (e) {
+      if (!e.target.closest('[data-act="del"]')) return;
+      var i = +e.target.closest('.item').getAttribute('data-i');
+      state.items.splice(i, 1);
+      renderItems();
+    });
+
+    // scan screen
+    $('#btn-open-scanner').addEventListener('click', openExternalScanner);
+    $('#btn-add-manual').addEventListener('click', function () {
+      var v = $('#in-manual').value.trim();
+      if (!v) return;
+      $('#in-manual').value = '';
+      stopScan();
+      openDetail(v, { manual: true });
+    });
+    $('#in-manual').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var v = e.target.value.trim();
+      if (!v) return;
+      e.target.value = '';
+      stopScan();
+      openDetail(v, { manual: true });
+    });
+    // detail screen
+    $('#btn-detail-cancel').addEventListener('click', function () {
+      state.pending = null;
+      show('form');
+    });
+    $('#btn-detail-save').addEventListener('click', function () {
+      if (commitDetail()) show('form');
+    });
+    $('#btn-detail-again').addEventListener('click', function () {
+      if (!commitDetail()) return;
+      if (SCANNER_URL) { show('form'); openExternalScanner(); }
+      else show('scan');
+    });
+    $('#in-dus').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { if (commitDetail()) show('form'); }
+    });
+
+    // done screen
+    $('#btn-download').addEventListener('click', downloadSuratJalan);
+    $('#btn-new').addEventListener('click', function () { $('#form-error').hidden = true; show('form'); });
+    $('#btn-logout').addEventListener('click', doLogout);
+
+    window.addEventListener('pagehide', function () { stopScan(); });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && state.screen === 'scan') stopScan();
+      else if (!document.hidden && state.screen === 'scan') startScan();
+    });
+
+    show('login');
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>
