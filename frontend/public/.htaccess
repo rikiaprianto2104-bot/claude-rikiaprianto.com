@@ -1,6 +1,27 @@
 Options -MultiViews
+
+# Folder fisik /projects/ (berisi file .html aplikasi & game) punya nama yang sama
+# dengan route React /projects. Tanpa baris ini Apache mengalihkan /projects ke
+# /projects/ lalu menolaknya dengan 403 karena folder itu tidak punya index.
+DirectorySlash Off
+
 RewriteEngine On
 RewriteBase /
+
+# Route React /projects selalu dilayani SPA, bukan folder fisiknya.
+# File di dalamnya (mis. /projects/distribusi-app.html) tidak cocok pola ini
+# sehingga tetap dilayani langsung.
+RewriteRule ^projects/?$ /index.html [L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
+
+# index.html harus selalu divalidasi ulang. Nama file bundle JS/CSS mengandung
+# hash, jadi kalau index.html ikut ter-cache browser akan terus memuat bundle lama
+# dan perubahan terbaru seolah belum ter-publish.
+<IfModule mod_headers.c>
+  <FilesMatch "^(index\.html|asset-manifest\.json)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
