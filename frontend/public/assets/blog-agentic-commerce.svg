@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="55%" stop-color="#0a3a63"/>
+      <stop offset="100%" stop-color="#0d9eff"/>
+    </linearGradient>
+    <linearGradient id="cart" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8fe0ff"/>
+      <stop offset="100%" stop-color="#0d9eff"/>
+    </linearGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg2)"/>
+
+  <!-- dot grid -->
+  <g fill="#ffffff" opacity="0.08">
+    <g id="dotrow2">
+      <circle cx="40" cy="40" r="3"/><circle cx="90" cy="40" r="3"/><circle cx="140" cy="40" r="3"/>
+      <circle cx="190" cy="40" r="3"/><circle cx="240" cy="40" r="3"/><circle cx="290" cy="40" r="3"/>
+      <circle cx="340" cy="40" r="3"/><circle cx="390" cy="40" r="3"/><circle cx="440" cy="40" r="3"/>
+      <circle cx="490" cy="40" r="3"/><circle cx="540" cy="40" r="3"/><circle cx="590" cy="40" r="3"/>
+    </g>
+    <use href="#dotrow2" y="50"/>
+    <use href="#dotrow2" y="100"/>
+    <use href="#dotrow2" y="150"/>
+    <use href="#dotrow2" y="200"/>
+    <use href="#dotrow2" y="250"/>
+    <use href="#dotrow2" y="300"/>
+    <use href="#dotrow2" y="350"/>
+    <use href="#dotrow2" y="400"/>
+    <use href="#dotrow2" y="450"/>
+    <use href="#dotrow2" y="500"/>
+    <use href="#dotrow2" y="550"/>
+    <use href="#dotrow2" y="600"/>
+  </g>
+
+  <circle cx="960" cy="170" r="260" fill="url(#glow2)"/>
+
+  <!-- chat bubble giving an instruction to the agent -->
+  <g opacity="0.95">
+    <rect x="700" y="95" width="260" height="80" rx="20" fill="#ffffff" opacity="0.12"/>
+    <rect x="724" y="118" width="180" height="10" rx="5" fill="#ffffff" opacity="0.6"/>
+    <rect x="724" y="140" width="130" height="10" rx="5" fill="#ffffff" opacity="0.4"/>
+  </g>
+
+  <!-- arrow from instruction to agent action -->
+  <path d="M830,180 C830,230 830,250 830,270" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.6" stroke-dasharray="2 10"/>
+  <path d="M818,258 L830,278 L842,258" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+
+  <!-- robot / agent head -->
+  <g transform="translate(760,300)">
+    <rect x="0" y="0" width="150" height="110" rx="24" fill="#ffffff" opacity="0.12"/>
+    <circle cx="45" cy="50" r="12" fill="#8fe0ff"/>
+    <circle cx="105" cy="50" r="12" fill="#8fe0ff"/>
+    <rect x="45" y="82" width="60" height="10" rx="5" fill="#ffffff" opacity="0.6"/>
+    <rect x="60" y="-22" width="30" height="24" rx="8" fill="#ffffff" opacity="0.3"/>
+  </g>
+
+  <!-- shopping cart representing checkout completed by the agent -->
+  <g transform="translate(150,360)">
+    <path d="M0,0 L28,0 L46,120 L190,120 L212,30 L58,30" fill="none" stroke="url(#cart)" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="72" cy="155" r="16" fill="url(#cart)"/>
+    <circle cx="168" cy="155" r="16" fill="url(#cart)"/>
+  </g>
+
+  <!-- checkmark badge = transaction completed -->
+  <g transform="translate(330,240)">
+    <circle cx="0" cy="0" r="34" fill="#0d9eff"/>
+    <path d="M-14,0 L-4,12 L18,-14" stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="120" y="150" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="800" fill="#ffffff">AGENTIC COMMERCE</text>
+  <text x="120" y="200" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="600" fill="#c9ecff">When AI agents shop on behalf of consumers</text>
+</svg>

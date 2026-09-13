@@ -175,6 +175,37 @@ export const skillsCompetencies = [
 
 export const blogPosts = [
   {
+    id: 6,
+    slug: 'agentic-commerce-ai-shopping-agent-2026',
+    title:
+      'Agentic Commerce: Ketika AI Agent Mulai Berbelanja untuk Konsumen Anda',
+    metaTitle:
+      'Agentic Commerce 2026: Strategi Marketing Saat AI Agent Berbelanja untuk Konsumen',
+    excerpt:
+      'Belanja online tidak lagi selalu dilakukan oleh manusia. ChatGPT, Perplexity, dan asisten AI lain kini bisa membandingkan, memilih, bahkan menyelesaikan transaksi atas nama pengguna. Pelajari apa itu agentic commerce, bagaimana ia mengubah perilaku konsumen, dan langkah konkret agar produk Anda tetap terlihat dan dipilih oleh AI agent.',
+    date: 'Sep 13, 2026',
+    dateISO: '2026-09-13',
+    readTime: '8 min read',
+    tag: 'Digital Transformation',
+    image: '/assets/blog-agentic-commerce.svg',
+    keywords: [
+      'agentic commerce',
+      'AI shopping agent',
+      'GEO',
+      'digital transformation',
+      'consumer behavior',
+      'AI marketing',
+      'ChatGPT Instant Checkout',
+      'Perplexity Shopping',
+      'agent payments protocol',
+      'ecommerce AI',
+    ],
+    author: {
+      name: 'Riki MarkeThink',
+      role: 'AI Marketing Strategist',
+    },
+  },
+  {
     id: 5,
     slug: 'ai-visibility-tracking-geo-metrics-2026',
     title:
@@ -328,6 +359,150 @@ export const blogPosts = [
 // Each section has id (used for TOC and anchor), heading, and a list of blocks.
 // Block types: 'p' (paragraph), 'list', 'ol', 'quote', 'highlight', 'image', 'h3'.
 export const blogContent = {
+  'agentic-commerce-ai-shopping-agent-2026': {
+    intro:
+      'Selama ini, pembahasan tentang AI dan pencarian banyak berfokus pada bagaimana brand tampil dalam jawaban chatbot atau AI Overview — topik yang pernah dibahas dalam How GEO is Reshaping Search in 2026 dan AI Visibility Tracking: Cara Mengukur Performa Brand di ChatGPT, Gemini, dan Perplexity. Namun, perkembangan terbaru melangkah lebih jauh. AI generatif tidak lagi berhenti pada tahap menjawab pertanyaan, tetapi mulai mengambil alih proses pengambilan keputusan pembelian itu sendiri. Fenomena ini dikenal sebagai agentic commerce: konsumen memberi instruksi kepada AI agent, lalu AI yang membandingkan, memilih, dan bahkan menyelesaikan transaksi atas nama mereka. Bagi pelaku bisnis dan marketer, ini bukan sekadar tren teknologi, melainkan pergeseran fundamental tentang siapa sebenarnya yang menjadi "pelanggan" yang perlu diyakinkan.',
+    sections: [
+      {
+        id: 'apa-itu-agentic-commerce',
+        title: 'Apa Itu Agentic Commerce?',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Agentic commerce merujuk pada transaksi jual-beli yang sebagian atau seluruh prosesnya dijalankan oleh AI agent atas nama pengguna — mulai dari riset produk, perbandingan harga, hingga checkout dan pembayaran. Alih-alih membuka belasan tab browser, konsumen kini cukup memberi satu instruksi singkat, misalnya "carikan sepatu lari untuk trail running dengan budget di bawah Rp1 juta, lalu pesankan yang ratingnya paling bagus".',
+          },
+          {
+            type: 'list',
+            items: [
+              'ChatGPT dengan fitur Instant Checkout yang memungkinkan pengguna menyelesaikan pembelian langsung di dalam percakapan, tanpa berpindah ke situs lain.',
+              'Perplexity Shopping yang merangkum hasil riset produk sekaligus menyediakan opsi pembelian di halaman jawaban.',
+              'Agent Payments Protocol (AP2), inisiatif Google bersama sejumlah jaringan pembayaran global, yang dirancang agar AI agent dapat memverifikasi identitas dan menyelesaikan transaksi secara aman atas nama pengguna.',
+              'Asisten belanja bawaan marketplace, seperti Rufus di Amazon, yang membantu membandingkan spesifikasi dan ulasan produk sebelum pengguna memutuskan membeli.',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'Kesamaan dari semua contoh di atas: peran manusia bergeser dari "pencari" menjadi "pemberi instruksi", sementara AI agent mengambil alih sebagian besar proses eksplorasi dan evaluasi yang dulunya dilakukan manusia secara manual.',
+          },
+        ],
+      },
+      {
+        id: 'perubahan-perilaku-konsumen',
+        title: 'Bagaimana Ini Mengubah Perilaku Konsumen',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Ketika keputusan belanja didelegasikan ke AI, tahapan funnel klasik — awareness, consideration, conversion — tidak lagi berjalan linear seperti dulu. Konsumen tidak perlu lagi membuka banyak marketplace, membaca ulasan satu per satu, atau membandingkan spesifikasi secara manual, karena AI agent melakukan sebagian besar pekerjaan itu dalam hitungan detik.',
+          },
+          {
+            type: 'highlight',
+            text: 'Ketika keputusan pembelian didelegasikan kepada AI, loyalitas konsumen terhadap sebuah brand bisa jadi kalah penting dibandingkan seberapa "terpercaya" brand tersebut di mata algoritma AI agent.',
+          },
+          {
+            type: 'p',
+            text: 'Dampaknya, iklan visual yang selama ini mengandalkan daya tarik emosional berisiko kurang efektif jika produk tidak lolos tahap penyaringan otomatis oleh AI. Konsumen juga cenderung lebih percaya pada rekomendasi "netral" dari AI dibandingkan pesan promosi langsung dari brand, mirip dengan pergeseran kepercayaan yang terjadi pada rating dan review di platform seperti Google Maps.',
+          },
+        ],
+      },
+      {
+        id: 'cara-ai-agent-memilih-produk',
+        title: 'Bagaimana AI Agent Memilih dan Membeli Produk',
+        blocks: [
+          {
+            type: 'p',
+            text: 'AI agent tidak memilih produk berdasarkan tampilan visual atau kreativitas iklan, melainkan berdasarkan data yang dapat dibaca dan diverifikasi mesin. Berikut faktor utama yang biasanya menjadi pertimbangan.',
+          },
+          {
+            type: 'ol',
+            items: [
+              'Data produk terstruktur — markup schema.org seperti Product, Offer, dan harga yang jelas. Produk tanpa data terstruktur berisiko sama sekali tidak terdeteksi oleh AI agent.',
+              'Konsistensi harga dan ketersediaan stok secara real-time di seluruh kanal penjualan.',
+              'Sinyal kepercayaan, seperti rating, jumlah ulasan, dan kebijakan pengembalian yang ditulis dalam teks yang dapat dibaca AI — bukan hanya gambar atau infografis.',
+              'Kecepatan dan keandalan proses checkout, termasuk kesiapan API atau protokol pembayaran yang kompatibel dengan agentic commerce.',
+              'Konsistensi informasi produk di berbagai sumber, sejalan dengan prinsip source diversity dalam pengukuran AI visibility.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'strategi-agent-readiness',
+        title: 'Strategi Agent-Readiness: Dari SEO/GEO ke Optimasi untuk AI Shopping Agent',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Prinsip dasarnya sama dengan GEO: AI hanya bisa merekomendasikan apa yang bisa dipahaminya dengan baik. Berikut langkah konkret yang bisa mulai diterapkan, baik oleh bisnis besar maupun UMKM.',
+          },
+          {
+            type: 'list',
+            items: [
+              'Terapkan structured data schema.org (Product, Offer, AggregateRating, MerchantReturnPolicy) di setiap halaman produk.',
+              'Pastikan feed produk — baik di Google Merchant Center, marketplace, maupun sistem internal — selalu sinkron dengan stok dan harga aktual.',
+              'Tuliskan kebijakan pengiriman, garansi, dan retur dalam format teks yang mudah dibaca AI, bukan hanya dalam gambar atau PDF hasil pindai.',
+              'Pantau secara berkala bagaimana AI agent merepresentasikan produk Anda, menggunakan pendekatan tracking yang sama seperti pada pengukuran AI visibility.',
+              'Jajaki integrasi API atau protokol agentic commerce begitu tersedia untuk kategori bisnis Anda, agar tidak tertinggal saat adopsi konsumen meluas.',
+              'Jaga konsistensi nama produk, harga, dan spesifikasi di seluruh platform agar AI tidak salah merangkum atau membandingkan produk Anda dengan kompetitor.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'tanggung-jawab-etis',
+        title: 'Tanggung Jawab Etis di Balik AI yang Berbelanja',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Semakin besar kewenangan yang diberikan konsumen kepada AI agent, semakin besar pula tanggung jawab yang melekat pada data yang digunakan AI untuk mengambil keputusan. Bisnis yang tergoda memanipulasi data produk atau ulasan agar lebih sering direkomendasikan AI pada dasarnya melakukan pelanggaran etika yang sama dengan praktik manipulasi review yang pernah dibahas dalam Manipulasi Review dan Rating di Google Maps — hanya dengan target audiens yang berbeda, yaitu mesin, bukan manusia.',
+          },
+          {
+            type: 'list',
+            items: [
+              'Jangan memanipulasi data produk, harga, atau ulasan hanya agar lebih disukai algoritma AI agent.',
+              'Berikan transparansi kepada konsumen bahwa sebagian proses pembelian dijalankan otomatis oleh AI, termasuk potensi biaya tambahan atau perubahan harga.',
+              'Pastikan kebijakan retur dan layanan pelanggan tetap dapat diandalkan ketika AI agent membuat kekeliruan dalam memilih produk atas nama pengguna.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'faq',
+        title: 'FAQ Seputar Agentic Commerce',
+        blocks: [
+          { type: 'h3', text: '1. Apakah agentic commerce hanya relevan untuk bisnis besar?' },
+          {
+            type: 'p',
+            text: 'Tidak. UMKM justru bisa mulai dari langkah sederhana dan berbiaya rendah, seperti merapikan data produk, harga, dan kebijakan toko dalam format yang jelas dan mudah dibaca AI.',
+          },
+          { type: 'h3', text: '2. Apakah agentic commerce akan menggantikan iklan digital konvensional?' },
+          {
+            type: 'p',
+            text: 'Belum sepenuhnya, tetapi porsi anggaran dan strategi marketing perlu mulai bergeser sebagian ke agent-readiness, sejalan dengan menurunnya peran klik manual pada hasil pencarian.',
+          },
+          { type: 'h3', text: '3. Bagaimana mengukur keberhasilan strategi agentic commerce?' },
+          {
+            type: 'p',
+            text: 'Pantau seberapa sering dan seberapa akurat produk Anda direpresentasikan ketika AI agent diminta membandingkan atau merekomendasikan kategori produk tertentu, mirip metodologi pada AI visibility tracking.',
+          },
+          { type: 'h3', text: '4. Apa risiko terbesar bila mengabaikan tren ini?' },
+          {
+            type: 'p',
+            text: 'Produk berisiko menjadi "tidak terlihat" oleh AI agent meskipun sudah teroptimasi dengan baik untuk pembaca manusia, karena mesin membutuhkan data terstruktur yang berbeda dari sekadar tampilan halaman yang menarik secara visual.',
+          },
+        ],
+      },
+    ],
+    conclusion:
+      'Agentic commerce menandai babak baru dalam transformasi digital, di mana AI tidak lagi hanya menjawab pertanyaan, tetapi ikut mengambil keputusan pembelian atas nama konsumen. Bagi pelaku bisnis, ini berarti kompetisi tidak lagi berhenti pada siapa yang paling menarik di mata manusia, tetapi juga siapa yang paling mudah dipahami dan dipercaya oleh mesin. Brand yang mulai merapikan data produk, menjaga konsistensi informasi, dan membangun kepercayaan secara jujur hari ini, akan berada pada posisi yang jauh lebih siap ketika agentic commerce menjadi kebiasaan belanja yang umum di masa depan.',
+    references: [
+      'OpenAI, pengumuman fitur Instant Checkout pada ChatGPT.',
+      'Perplexity AI, peluncuran fitur Perplexity Shopping.',
+      'Google, dokumentasi Agent Payments Protocol (AP2).',
+      'Amazon, dokumentasi asisten belanja Rufus.',
+      'Schema.org, dokumentasi markup Product, Offer, dan MerchantReturnPolicy.',
+    ],
+    cta:
+      'Ingin memastikan produk dan layanan Anda tetap terlihat dan dipercaya ketika konsumen mulai berbelanja lewat AI agent? Mari diskusikan langkah agent-readiness yang sesuai dengan skala dan kategori bisnis Anda.',
+  },
+
   'ai-visibility-tracking-geo-metrics-2026': {
     intro:
       'Sejak GEO (Generative Engine Optimization) mulai dibahas secara luas, banyak tim marketing bertanya-tanya: bagaimana saya tahu strategi GEO yang saya jalankan benar-benar bekerja? Berbeda dengan SEO klasik yang mengandalkan Google Search Console dan posisi kata kunci, performa brand di ChatGPT, Gemini, Perplexity, atau AI Overview tidak muncul begitu saja di dashboard analitik yang biasa kita pakai sehari-hari. Artikel ini membahas cara praktis mengukur AI visibility — mulai dari metrik yang perlu dipantau, cara melacaknya secara manual maupun dengan bantuan tools, hingga kesalahan umum yang perlu dihindari agar data yang dikumpulkan benar-benar bisa dijadikan dasar keputusan.',
