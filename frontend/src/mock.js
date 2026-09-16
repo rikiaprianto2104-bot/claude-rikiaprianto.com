@@ -1539,7 +1539,7 @@ export const projects = [
     title: 'Labirin Harta Karun',
     category: 'Interactive Game',
     description:
-      'Game kelas multiplayer untuk belajar menyusun prompt: guru membuat kode kelas, siswa gabung lewat HP lalu dibagi jadi kelompok Merah & Biru. Telusuri labirin sambil menghindari bom, buka 4 peti harta karun dengan menjawab kuis, dan susun potongan SIAPA-APA-GIMANA-DI MANA jadi satu prompt utuh. Usia 6–12 tahun.',
+      'Game labirin multiplayer untuk kelas: guru membuat kode kelas, siswa gabung lewat HP, lalu dua kelompok berlomba membuka 4 peti berisi potongan prompt. Usia 6–12 tahun.',
     tags: ['Interactive Game', 'Multiplayer', 'Prompt Learning'],
     url: '/projects/labirin-harta-karun.html',
     image: '/projects/thumbs/labirin-harta-karun.png',
