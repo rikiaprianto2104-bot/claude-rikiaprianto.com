@@ -1444,13 +1444,21 @@ function animPlayer(pl,dt){const rig=pl.rig,walk=pl.walk||0;
 }
 function downed(pl){if(mode===2&&players.some(o=>o!==pl&&o.active&&o.ko<=0&&o.hp>0)){pl.ko=6;pl.hp=0;pl.inv=0;floatText(pl.pos.clone().setY(pl.pos.y+2.5),'K.O.','hurt');hint(HEROES[pl.hero].name+' pingsan! Bangun lagi dalam 6 detik.',3);sfx('hurt');}
   else{pl.hp=0;gameOver();}}
+function safeSpotNear(mate){
+  const sd=mate.pos.x>0?-1:1,tries=[[sd*1.6,-.6],[-sd*1.6,-.6],[0,-1.4],[sd*1.1,.9],[-sd*1.1,.9],[0,0]];
+  for(const pass of [0,1])for(const [ox,oz] of tries){const x=mate.pos.x+ox,z=mate.pos.z+oz;const s=groundAt(x,z);
+    if(!s||s.top<-50||Math.abs(s.top-mate.pos.y)>.6)continue;if(pass===0&&(s.mv||s.cr))continue;
+    const m=Math.min(.35,(s.x1-s.x0)/2),n=Math.min(.35,(s.z1-s.z0)/2);return {x:clamp(x,s.x0+m,s.x1-m),z:clamp(z,s.z0+n,s.z1-n),y:s.top,s};}
+  return null;}
+function placeNear(pl,mate){if(!mate||!mate.onGround)return false;const spot=safeSpotNear(mate);if(!spot)return false;
+  pl.pos.set(spot.x,spot.y,spot.z);bounds(pl.pos);pl.vy=0;pl.kb.set(0,0,0);pl.onGround=true;pl.ground=spot.s;pl.coyote=.1;pl.dbl=false;pl.nearT=time;return true;}
 function revive(pl){const mate=players.find(o=>o!==pl&&o.active&&o.ko<=0);pl.ko=0;pl.hp=50;pl.inv=2;pl.rig.root.rotation.set(0,pl.rot,0);pl.rig.root.visible=true;
-  if(mate){pl.pos.set(mate.pos.x+(mate.pos.x>0?-1.6:1.6),mate.pos.y+.3,mate.pos.z-.5);bounds(pl.pos);pl.vy=0;}
+  if(!placeNear(pl,mate)){const z=LV.cps[cpIndex].z;pl.pos.set(pl.idx?1.6:-1.6,0,z+1);pl.vy=0;pl.kb.set(0,0,0);pl.nearT=-99;}
   floatText(pl.pos.clone().setY(pl.pos.y+2.5),'Bangkit!','heal');sfx('heal');burst(pl.pos.clone().setY(1),0x7cf29a,14,3,.18,.5);}
-function warpTo(pl,mate){burst(pl.pos.clone().setY(pl.pos.y+1),0xb98cff,12,3,.2,.5,2,1);pl.pos.set(mate.pos.x+(mate.pos.x>0?-1.6:1.6),mate.pos.y+.3,mate.pos.z-.6);bounds(pl.pos);pl.vy=0;pl.kb.set(0,0,0);pl.inv=Math.max(pl.inv,.8);
-  burst(pl.pos.clone().setY(pl.pos.y+1),0xb98cff,12,3,.2,.5,2,1);sfx('tele');}
+function warpTo(pl,mate){const from=pl.pos.clone();if(!placeNear(pl,mate))return false;burst(from.setY(from.y+1),0xb98cff,12,3,.2,.5,2,1);pl.inv=Math.max(pl.inv,.8);
+  burst(pl.pos.clone().setY(pl.pos.y+1),0xb98cff,12,3,.2,.5,2,1);sfx('tele');return true;}
 function coopCheck(){if(mode!==2)return;const [a,b]=players;if(!a.active||!b.active||a.ko>0||b.ko>0)return;const d=Math.hypot(a.pos.x-b.pos.x,a.pos.z-b.pos.z);
-  if(d>20){const ld=a.pos.z>=b.pos.z?a:b,lag=ld===a?b:a;if(ld.onGround)warpTo(lag,ld);}}
+  if(d>20){const ld=a.pos.z>=b.pos.z?a:b,lag=ld===a?b:a;if(ld.onGround&&ld.ground&&!ld.ground.mv&&!ld.ground.cr&&(ld.ground.x1-ld.ground.x0)>20&&lag.onGround)warpTo(lag,ld);}}
 function fellInWater(pl){P=pl;const kind=LV.fallKind(pl.pos.z);const dmg=kind==='lava'?20:15;
   if(kind==='water'){sfx('splash');burst(new V3(pl.pos.x,-1.1,pl.pos.z),0xdff6ff,24,4,.25,.7,7,16);ring(new V3(pl.pos.x,-1.25,pl.pos.z),0xffffff,.5,3,.6);}
   else if(kind==='lava'){sfx('boom');burst(new V3(pl.pos.x,-1,pl.pos.z),0xff7a1a,26,4,.25,.7,7,12);ring(new V3(pl.pos.x,-1.35,pl.pos.z),0xffc23a,.5,3,.6);}
@@ -1459,8 +1467,9 @@ function fellInWater(pl){P=pl;const kind=LV.fallKind(pl.pos.z);const dmg=kind===
   hint(kind==='water'?`Byur! ${nm} jatuh ke air.`:kind==='lava'?`Aduh, panas! ${nm} kena lava.`:`Aaa! ${nm} jatuh ke jurang.`,3);
   if(pl.hp<=0)downed(pl);}
 function respawnPlayer(pl){const mate=mode===2?players.find(o=>o!==pl&&o.active&&o.ko<=0&&o.onGround):null;
-  if(mate){pl.pos.set(mate.pos.x+(mate.pos.x>0?-1.6:1.6),mate.pos.y,mate.pos.z-.6);bounds(pl.pos);}
-  else{const z=LV.cps[cpIndex].z;pl.pos.set(mode===2?(pl.idx?1.6:-1.6):0,0,z+1);if(mode===1){pl.rot=0;camYaw=0;if(bossStarted&&victoryT<0)resetBoss();}}
+  const recent=pl.nearT!=null&&time-pl.nearT<4;
+  if(mate&&!recent&&placeNear(pl,mate)){}
+  else{pl.nearT=-99;const z=LV.cps[cpIndex].z;pl.pos.set(mode===2?(pl.idx?1.6:-1.6):0,0,z+1);if(mode===1){pl.rot=0;camYaw=0;if(bossStarted&&victoryT<0)resetBoss();}}
   pl.vy=0;pl.kb.set(0,0,0);pl.inv=1.3;pl.hidden=0;pl.onGround=false;pl.ground=null;pl.dbl=false;pl.rig.root.visible=true;pl.rig.root.rotation.set(0,pl.rot,0);if(mode===1)snapCam();}
 function respawnAll(){const z=LV.cps[cpIndex].z;if(bossStarted&&victoryT<0)resetBoss();
   activePlayers().forEach(pl=>{pl.pos.set(mode===2?(pl.idx?1.6:-1.6):0,0,z+1);pl.vy=0;pl.kb.set(0,0,0);pl.rot=0;pl.inv=1.3;pl.hidden=0;pl.ko=0;pl.onGround=false;pl.ground=null;pl.dbl=false;pl.rig.root.visible=true;pl.rig.root.rotation.set(0,0,0);});
