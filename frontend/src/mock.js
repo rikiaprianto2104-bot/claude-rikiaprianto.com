@@ -1544,6 +1544,16 @@ export const projects = [
     url: '/projects/labirin-harta-karun.html',
     image: '/projects/thumbs/labirin-harta-karun.png',
   },
+  {
+    id: 22,
+    title: 'Petualangan Pixi & Moko',
+    category: 'Interactive Game',
+    description:
+      'Game petualangan 3D dua sahabat: Pixi si robot kuning (Petir, Pedang, Teleport) dan Moko si anjing robot (Cakar, Klon). Lewati sungai, jembatan, dan lautan lava di 3 level untuk mengalahkan Rocky dan menyelamatkan teman-teman mereka. Bisa main sendiri atau berdua (satu layar maupun online).',
+    tags: ['Game 3D', 'Petualangan', '2 Pemain'],
+    url: '/projects/petualangan-pixi-moko.html',
+    image: '/projects/thumbs/petualangan-pixi-moko.png',
+  },
 
   // ---------- Arcade Game ----------
   {
