@@ -107,6 +107,20 @@ jobs:
           fi
           chmod 600 ~/.ssh/known_hosts
 
+          # --- Diagnostik --------------------------------------------------
+          # Run #12 gagal dengan exit 255 (galat SSH) dan log Actions tidak bisa
+          # dibaca tanpa login, jadi perbandingan ini dicetak langsung ke log:
+          # kalau kunci yang DI-PIN berbeda dari yang DISODORKAN server ke
+          # runner, itulah penyebabnya — dan selisihnya kelihatan di sini.
+          # Kunci publik bukan rahasia, aman dicetak.
+          echo "--- kunci yang DI-PIN (dipakai untuk verifikasi) ---"
+          ssh-keygen -lf ~/.ssh/known_hosts 2>/dev/null | sed 's/^/  /' || echo "  (kosong)"
+          echo "--- kunci yang DISODORKAN server ke runner saat ini ---"
+          ssh-keyscan -p "$SFTP_PORT" "$SFTP_HOST" > /tmp/live_keys 2>/dev/null || true
+          ssh-keygen -lf /tmp/live_keys 2>/dev/null | sed 's/^/  /' \
+            || echo "  (keyscan tidak mengembalikan kunci — port SSH mungkin diblokir dari runner)"
+          echo "-----------------------------------------------------"
+
       - name: Upload frontend/build ke server (SSH/SFTP, port 65002)
         env:
           SSHPASS:   ${{ secrets.SFTP_PASSWORD }}
@@ -134,8 +148,18 @@ jobs:
           REMOTE="${SFTP_USER}@${SFTP_HOST}"
 
           echo "==> Cek koneksi ke ${REMOTE}:${SFTP_PORT}"
+          # Tanpa blok `|| { ... }` ini, kegagalan ssh hanya muncul di ringkasan
+          # Actions sebagai "exit code 255" tanpa keterangan apa pun.
           sshpass -e ssh ${SSH_OPTS} "${REMOTE}" \
-            "echo connected as \$(whoami); mkdir -p '${SFTP_REMOTE_PATH}'"
+            "echo connected as \$(whoami); mkdir -p '${SFTP_REMOTE_PATH}'" || {
+              rc=$?
+              echo "::error::Koneksi SSH gagal (exit $rc)."
+              echo "::error::Kalau pesan di atas menyebut 'host key verification failed' atau"
+              echo "::error::'REMOTE HOST IDENTIFICATION HAS CHANGED', berarti kunci yang di-pin"
+              echo "::error::tidak cocok dengan yang disodorkan server ke runner — bandingkan"
+              echo "::error::sidik jari yang dicetak di langkah 'Siapkan known_hosts'."
+              exit $rc
+            }
 
           # Sama seperti deploy.sh: stream tar dari build/ lalu extract di server.
           # Menimpa file yang namanya sama, TIDAK menghapus file lain (tanpa --delete).
