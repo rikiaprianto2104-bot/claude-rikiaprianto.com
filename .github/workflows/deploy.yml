@@ -93,20 +93,42 @@ jobs:
           # pernah dikirim ke mana pun. Kalau belum ada, jatuh ke password
           # seperti sebelumnya supaya deploy tidak putus saat transisi.
           if [ -n "${SFTP_SSH_KEY:-}" ]; then
-            # `tr -d '\r'` WAJIB: menyalin private key lewat clipboard Windows
-            # mengubah akhir baris LF menjadi CRLF, dan OpenSSH menolak private
-            # key ber-CRLF ("invalid format") tanpa menjelaskan sebabnya.
-            # Dibersihkan di sini supaya secret yang sudah terlanjur tersimpan
-            # tidak perlu di-paste ulang.
-            printf '%s\n' "$SFTP_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+            # Menyalin private key lewat clipboard Windows merusaknya dengan dua
+            # cara: LF berubah jadi CRLF, dan sering tersisip baris kosong.
+            # OpenSSH menolak keduanya dengan pesan "invalid format" yang tidak
+            # menjelaskan apa pun. Dinormalkan di sini — buang CR, spasi di ujung
+            # baris, dan baris kosong — supaya secret yang sudah tersimpan tetap
+            # terpakai tanpa perlu di-paste ulang.
+            printf '%s\n' "$SFTP_SSH_KEY" \
+              | tr -d '\r' \
+              | sed 's/[[:space:]]*$//' \
+              | grep -v '^[[:space:]]*$' > ~/.ssh/deploy_key || true
+
+            # Jalur cadangan: kalau isinya tidak memuat penanda PEM sama sekali,
+            # anggap secret diisi dalam bentuk base64 (lihat pesan galat di bawah)
+            # dan coba dekode. Bentuk base64 kebal terhadap mangling spasi.
+            if ! grep -q "BEGIN .*PRIVATE KEY" ~/.ssh/deploy_key; then
+              if tr -d '[:space:]' < ~/.ssh/deploy_key | base64 -d > ~/.ssh/deploy_key.dec 2>/dev/null \
+                 && grep -q "BEGIN .*PRIVATE KEY" ~/.ssh/deploy_key.dec; then
+                mv ~/.ssh/deploy_key.dec ~/.ssh/deploy_key
+                echo "SFTP_SSH_KEY terbaca sebagai base64 dan berhasil didekode."
+              fi
+              rm -f ~/.ssh/deploy_key.dec
+            fi
+
             chmod 600 ~/.ssh/deploy_key
-            # Gagalkan lebih awal dengan pesan jelas kalau isi secret bukan
-            # private key yang utuh (paling sering: baris terpotong saat paste).
+            # Gagalkan lebih awal dengan pesan jelas kalau isi secret tetap bukan
+            # private key yang utuh.
             ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1 || {
               echo "::error::Isi secret SFTP_SSH_KEY bukan private key yang valid."
-              echo "::error::Pastikan seluruh isi file disalin, termasuk baris"
-              echo "::error::-----BEGIN OPENSSH PRIVATE KEY----- dan -----END ...-----."
-              echo "::error::Jumlah baris yang terbaca: $(wc -l < ~/.ssh/deploy_key) (seharusnya 8)."
+              echo "::error::Terbaca $(wc -l < ~/.ssh/deploy_key) baris setelah dinormalkan (seharusnya 8)."
+              echo "::error::Baris pertama : $(head -1 ~/.ssh/deploy_key | cut -c1-40)"
+              echo "::error::Baris terakhir: $(tail -1 ~/.ssh/deploy_key | cut -c1-40)"
+              echo "::error::Cara paling aman kalau paste biasa terus gagal: simpan kuncinya"
+              echo "::error::dalam bentuk base64 satu baris. Di PowerShell jalankan —"
+              echo "::error::  [Convert]::ToBase64String([IO.File]::ReadAllBytes(\"\$env:USERPROFILE\\.ssh\\rikiaprianto_deploy\")) | Set-Clipboard"
+              echo "::error::lalu tempel hasilnya ke secret SFTP_SSH_KEY. Workflow mendeteksi"
+              echo "::error::bentuk base64 secara otomatis."
               exit 1
             }
             echo "AUTH=key" >> "$GITHUB_ENV"
