@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import KelasFutureMakers from './pages/KelasFutureMakers';
 import Profile from './pages/Profile';
 import Research from './pages/Research';
 import Projects from './pages/Projects';
@@ -19,6 +20,10 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/blog" element={<Blog />} />
+            <Route
+              path="/blog/kelas-future-makers"
+              element={<KelasFutureMakers />}
+            />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/research" element={<Research />} />

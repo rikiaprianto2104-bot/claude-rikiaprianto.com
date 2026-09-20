@@ -1626,3 +1626,131 @@ export const socials = [
   { name: 'YouTube', url: 'https://youtube.com', icon: 'youtube' },
   { name: 'Email', url: 'mailto:riki.markethink@rikiaprianto.com', icon: 'mail' },
 ];
+
+// ---------- Landing page: Kelas Offline Future Makers ----------
+export const futureMakersClass = {
+  slug: 'kelas-future-makers',
+  brand: 'Future Makers',
+  tagline: 'AI untuk Anak, Masa Depan Lebih Cerah',
+  title: 'Kelas Offline Future Makers',
+  subtitle: 'Belajar Bikin Game & Website Pakai AI',
+  audience: 'Untuk Anak Usia 6–12 Tahun',
+  price: '100% GRATIS',
+  quota: 'Khusus 8 anak tercepat',
+  quotaCount: 8,
+  period: '4 pertemuan di bulan Oktober 2026',
+  location: 'Offline Yogyakarta',
+  locationNote:
+    'Alamat lokasi akan diinformasikan lebih lanjut setelah pendaftaran.',
+  time: 'Pukul 15.00 WIB — Selesai',
+  age: '6–12 Tahun',
+  image: '/projects/thumbs/petualangan-pixi-moko.png',
+  excerpt:
+    'Kelas offline gratis di Yogyakarta untuk anak usia 6–12 tahun. Empat pertemuan di bulan Oktober 2026 untuk belajar membuat game dan website sendiri dengan bantuan AI, ditutup dengan Demo Day di depan orang tua.',
+  whatsapp: {
+    display: '0888-0923-4347',
+    number: '6288809234347',
+    message:
+      'Halo Kak Riki, saya mau pesan seat untuk Kelas Offline Future Makers (Oktober 2026).\n\nNama anak:\nUsia anak:\nNama orang tua:\nDomisili:',
+  },
+  schedule: [
+    {
+      week: 'Minggu 1',
+      date: '04',
+      month: 'Okt',
+      title: 'Puzzle Prompt Ajaib',
+      description: 'Mengenal AI dengan cara seru',
+      icon: 'puzzle',
+    },
+    {
+      week: 'Minggu 2',
+      date: '11',
+      month: 'Okt',
+      title: 'Labirin Digital',
+      description: 'Membuat game sederhana',
+      icon: 'gamepad',
+    },
+    {
+      week: 'Minggu 3',
+      date: '18',
+      month: 'Okt',
+      title: 'Bangun Portofolio',
+      description: 'Membuat website sendiri',
+      icon: 'code',
+    },
+    {
+      week: 'Minggu 4',
+      date: '25',
+      month: 'Okt',
+      title: 'Demo Day!',
+      description: 'Pamer karya di depan orang tua',
+      icon: 'flag',
+    },
+  ],
+  benefits: [
+    {
+      icon: 'lightbulb',
+      title: 'Praktik Langsung',
+      description:
+        'Anak tidak hanya mendengarkan teori. Setiap pertemuan pulang membawa karya digital buatannya sendiri.',
+    },
+    {
+      icon: 'brain',
+      title: 'Melatih Logika dan Problem Solving',
+      description:
+        'Membuat game melatih anak memecah masalah besar menjadi langkah-langkah kecil yang runtut.',
+    },
+    {
+      icon: 'users',
+      title: 'Pendampingan oleh Mentor',
+      description:
+        'Kelas kecil maksimal 8 anak, sehingga setiap peserta mendapat perhatian dan bantuan langsung.',
+    },
+    {
+      icon: 'star',
+      title: 'Sertifikat',
+      description:
+        'Peserta yang menyelesaikan 4 pertemuan mendapat sertifikat dan portofolio digital pertamanya.',
+    },
+    {
+      icon: 'heart',
+      title: 'Ramah untuk Orang Tua',
+      description:
+        'Materi dirancang aman dan mudah dipahami. Orang tua diundang hadir saat Demo Day di pertemuan terakhir.',
+    },
+  ],
+  demoGame: {
+    title: 'Petualangan Pixi & Moko',
+    description:
+      'Inilah contoh game yang dibuat dengan bantuan AI. Anak-anak akan belajar membuat game sederhana seperti ini di kelas Minggu 2. Silakan coba mainkan bersama si kecil.',
+    url: '/projects/petualangan-pixi-moko.html',
+    image: '/projects/thumbs/petualangan-pixi-moko.png',
+  },
+  faq: [
+    {
+      q: 'Apakah kelas ini benar-benar gratis?',
+      a: 'Ya, 100% gratis tanpa biaya pendaftaran maupun biaya materi. Kuota dibatasi hanya untuk 8 anak tercepat yang mendaftar agar pendampingan tetap maksimal.',
+    },
+    {
+      q: 'Anak saya belum bisa mengetik cepat, apakah boleh ikut?',
+      a: 'Boleh. Kelas ini dirancang untuk pemula usia 6–12 tahun. Semua langkah dipandu mentor, dan anak yang lebih kecil tetap bisa berkarya dengan bantuan pendampingan.',
+    },
+    {
+      q: 'Apakah anak perlu membawa laptop sendiri?',
+      a: 'Jika memiliki laptop, sangat disarankan membawanya agar anak terbiasa dengan perangkatnya sendiri. Jika tidak ada, sampaikan saat mendaftar lewat WhatsApp supaya kami siapkan solusinya.',
+    },
+    {
+      q: 'Di mana lokasi tepatnya?',
+      a: 'Kelas diadakan secara offline di Yogyakarta. Alamat lengkap dan titik lokasi akan dikirimkan lewat WhatsApp setelah pendaftaran dikonfirmasi.',
+    },
+    {
+      q: 'Bolehkah orang tua menemani selama kelas?',
+      a: 'Boleh, terutama untuk peserta usia 6–8 tahun. Pada pertemuan terakhir (Demo Day), orang tua justru kami undang untuk menyaksikan karya anak.',
+    },
+  ],
+  host: {
+    name: 'Riki MarkeThink',
+    role: 'AI Marketing Strategist',
+    website: 'rikiaprianto.com',
+  },
+};

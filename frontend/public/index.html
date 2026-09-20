@@ -2,6 +2,59 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+
+        <!-- ============================================================
+             Meta Pixel — satu-satunya tempat mengubah ID:
+             frontend/.env  →  REACT_APP_META_PIXEL_ID
+             Nilainya disisipkan saat build (CRA) ke script di bawah
+             dan ke tag <noscript> di awal <body>.
+             ============================================================ -->
+        <script>
+            window.META_PIXEL_ID = "%REACT_APP_META_PIXEL_ID%";
+            (function () {
+                var id = window.META_PIXEL_ID;
+                // Kalau env belum diisi, placeholder-nya tidak tergantikan.
+                if (!/^[0-9]+$/.test(id)) {
+                    console.warn(
+                        "[Meta Pixel] REACT_APP_META_PIXEL_ID belum diisi — pixel tidak dijalankan.",
+                    );
+                    return;
+                }
+                // Jaga-jaga kalau snippet ini ikut ter-render dua kali:
+                // init + PageView hanya boleh sekali per pemuatan halaman.
+                if (window.__metaPixelLoaded) return;
+                window.__metaPixelLoaded = true;
+
+                !(function (f, b, e, v, n, t, s) {
+                    if (f.fbq) return;
+                    n = f.fbq = function () {
+                        n.callMethod
+                            ? n.callMethod.apply(n, arguments)
+                            : n.queue.push(arguments);
+                    };
+                    if (!f._fbq) f._fbq = n;
+                    n.push = n;
+                    n.loaded = !0;
+                    n.version = "2.0";
+                    n.queue = [];
+                    t = b.createElement(e);
+                    t.async = !0;
+                    t.src = v;
+                    s = b.getElementsByTagName(e)[0];
+                    s.parentNode.insertBefore(t, s);
+                })(
+                    window,
+                    document,
+                    "script",
+                    "https://connect.facebook.net/en_US/fbevents.js",
+                );
+
+                fbq("init", id);
+                fbq("track", "PageView");
+            })();
+        </script>
+        <!-- End Meta Pixel Code -->
+
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
         <meta name="description" content="Official website of Riki MarkeThink, AI Marketing Strategist." />
@@ -25,6 +78,17 @@
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
     </head>
     <body>
+        <!-- Meta Pixel (fallback tanpa JavaScript) — ID dari REACT_APP_META_PIXEL_ID -->
+        <noscript
+            ><img
+                height="1"
+                width="1"
+                style="display: none"
+                alt=""
+                src="https://www.facebook.com/tr?id=%REACT_APP_META_PIXEL_ID%&ev=PageView&noscript=1"
+        /></noscript>
+        <!-- End Meta Pixel (noscript) -->
+
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
         <!--
