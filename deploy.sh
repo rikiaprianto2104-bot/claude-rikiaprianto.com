@@ -43,6 +43,13 @@ echo "==> [1/3] Build frontend (npm run build)…"
 if [[ -f "$FRONTEND_DIR/public/.htaccess" ]]; then
   cp -f "$FRONTEND_DIR/public/.htaccess" "$BUILD_DIR/.htaccess"
 fi
+# Folder /projects/ punya CSP sendiri yang lebih longgar (halaman game memakai
+# skrip inline). Tanpa file ini, ke-22 game mewarisi CSP ketat dari root dan
+# semuanya berhenti jalan.
+if [[ -f "$FRONTEND_DIR/public/projects/.htaccess" ]]; then
+  mkdir -p "$BUILD_DIR/projects"
+  cp -f "$FRONTEND_DIR/public/projects/.htaccess" "$BUILD_DIR/projects/.htaccess"
+fi
 
 if [[ ! -f "$BUILD_DIR/index.html" ]]; then
   echo "ERROR: build gagal — $BUILD_DIR/index.html tidak ada." >&2

@@ -166,11 +166,44 @@ Di akun GitHub **dan** hPanel Hostinger. Keduanya bisa mengganti isi situs.
 - Pakai user MongoDB dengan hak minimum, bukan user admin.
 - Beri autentikasi pada `POST /api/status`, atau hapus kalau tidak dipakai.
 
-### E. Opsional: perkuat CSP lebih jauh
+### ~~E. Perkuat CSP lebih jauh~~ — SUDAH DIKERJAKAN
 
-`script-src` masih memuat `'unsafe-inline'` karena snippet Meta Pixel dan
-PostHog ditulis inline di `public/index.html`. Kalau keduanya dipindah ke file
-`.js` terpisah, `'unsafe-inline'` bisa dihapus dan CSP menjadi jauh lebih kuat.
+Snippet Meta Pixel, PostHog, dan peredam `DataCloneError` sudah dipindah dari
+`public/index.html` ke [frontend/public/analytics.js](frontend/public/analytics.js),
+sehingga `index.html` kini **nol skrip inline** dan `script-src` di root tidak
+lagi memuat `'unsafe-inline'`. Skrip yang disuntikkan ke HTML sekarang ditolak
+browser, bukan dijalankan — inilah yang membuat CSP benar-benar berfungsi
+sebagai pertahanan XSS, bukan sekadar hiasan.
+
+Meta Pixel ID tetap diatur dari satu tempat (`frontend/.env`); nilainya
+diteruskan lewat atribut `data-pixel-id` pada tag script, karena file di
+`public/` disalin apa adanya tanpa substitusi variabel.
+
+**Pengecualian yang disengaja: folder `/projects/`.** Ke-22 halaman aplikasi
+dan game di sana ditulis sebagai HTML mandiri dengan total 36 blok skrip inline
+dan sejumlah atribut `onclick`. Memberlakukan aturan ketat di sana akan membuat
+semuanya berhenti jalan, jadi folder itu punya
+[.htaccess sendiri](frontend/public/projects/.htaccess) dengan `script-src`
+yang masih mengizinkan `'unsafe-inline'`. Seluruh perlindungan lain (anti-iframe,
+`object-src 'none'`, batasan `connect-src`/`form-action`) tetap sama dengan root.
+
+Kompromi ini terbatas dan sadar: halaman di folder itu tidak memegang sesi,
+tidak punya backend, dan tidak menampilkan data pengguna lain. **Kalau suatu
+saat ada halaman di sana yang menangani data sensitif atau menerima kiriman
+dari orang lain, halaman itu harus dipindah keluar dari `/projects/` atau skrip
+inline-nya dipindah ke file `.js` tersendiri.**
+
+Dua pengaman dipasang di pipeline supaya ini tidak rusak diam-diam — keduanya
+sudah diuji benar-benar menolak:
+
+- deploy **gagal** kalau `build/index.html` memuat skrip inline lagi;
+- deploy **gagal** kalau `build/projects/.htaccess` hilang (tanpa file itu,
+  semua game mewarisi CSP ketat dan berhenti jalan — kegagalan yang tidak
+  terlihat dari halaman depan).
+
+Catatan: `style-src` **tetap** memuat `'unsafe-inline'` dan memang harus begitu.
+React, Tailwind, dan framer-motion menulis style lewat atribut `style` secara
+langsung; menghapusnya akan merusak tampilan seluruh situs.
 
 ### F. Opsional: HSTS untuk subdomain
 

@@ -1,0 +1,31 @@
+# ============================================================================
+#  .htaccess KHUSUS folder /projects/ — halaman aplikasi & game mandiri.
+#
+#  KENAPA ADA FILE TERPISAH DI SINI?
+#  CSP di root sudah TIDAK memuat 'unsafe-inline' pada script-src, supaya
+#  skrip yang disuntikkan ke halaman SPA ditolak browser. Tapi 22 halaman di
+#  folder ini ditulis sebagai HTML mandiri dengan total 36 blok script inline
+#  dan sejumlah atribut onclick — memberlakukan aturan ketat itu di sini akan
+#  membuat SEMUA game berhenti jalan.
+#
+#  Jadi folder ini memakai script-src yang lebih longgar, sementara SELURUH
+#  perlindungan lain tetap sama dengan root: tetap tidak boleh di-iframe
+#  domain lain, tetap tidak boleh memuat plugin, tetap dibatasi tujuan
+#  koneksi dan form.
+#
+#  Kompromi ini sadar dan terbatas: halaman di sini tidak memegang sesi,
+#  tidak punya backend, dan tidak menampilkan data pengguna lain — input
+#  pengguna hanya kembali ke browser pengguna itu sendiri.
+#
+#  KALAU SUATU SAAT sebuah halaman di sini menangani data sensitif atau
+#  menerima kiriman dari orang lain, halaman itu harus dipindah keluar dari
+#  folder ini atau skrip inline-nya dipindah ke file .js tersendiri.
+# ============================================================================
+
+<IfModule mod_headers.c>
+
+  # Sama persis dengan CSP root KECUALI script-src yang memuat 'unsafe-inline'.
+  # Kalau CSP root diubah, ubah juga baris ini agar keduanya tidak menyimpang.
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://www.facebook.com; script-src 'self' 'unsafe-inline' https://connect.facebook.net https://us-assets.i.posthog.com https://us.i.posthog.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.sheetjs.com https://unpkg.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' https://www.facebook.com; manifest-src 'self'; connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.i.posthog.com https://www.facebook.com https://connect.facebook.net https://0.peerjs.com wss://0.peerjs.com https://*.firebaseio.com wss://*.firebaseio.com; upgrade-insecure-requests"
+
+</IfModule>

@@ -4,56 +4,21 @@
         <meta charset="utf-8" />
 
         <!-- ============================================================
-             Meta Pixel — satu-satunya tempat mengubah ID:
-             frontend/.env  →  REACT_APP_META_PIXEL_ID
-             Nilainya disisipkan saat build (CRA) ke script di bawah
-             dan ke tag <noscript> di awal <body>.
+             Analytics (Meta Pixel + PostHog) — lihat public/analytics.js.
+             Skrip sengaja TIDAK ditulis inline: selama ada tag script inline,
+             CSP wajib memuat 'unsafe-inline' pada script-src, dan itu membuat
+             CSP hampir tidak berguna terhadap skrip suntikan.
+
+             JANGAN menambah tag script inline baru di file ini — CSP produksi
+             akan memblokirnya (lihat frontend/public/.htaccess).
+
+             Meta Pixel ID diteruskan lewat data-pixel-id. Satu-satunya tempat
+             mengubah nilainya tetap frontend/.env -> REACT_APP_META_PIXEL_ID.
              ============================================================ -->
-        <script>
-            window.META_PIXEL_ID = "%REACT_APP_META_PIXEL_ID%";
-            (function () {
-                var id = window.META_PIXEL_ID;
-                // Kalau env belum diisi, placeholder-nya tidak tergantikan.
-                if (!/^[0-9]+$/.test(id)) {
-                    console.warn(
-                        "[Meta Pixel] REACT_APP_META_PIXEL_ID belum diisi — pixel tidak dijalankan.",
-                    );
-                    return;
-                }
-                // Jaga-jaga kalau snippet ini ikut ter-render dua kali:
-                // init + PageView hanya boleh sekali per pemuatan halaman.
-                if (window.__metaPixelLoaded) return;
-                window.__metaPixelLoaded = true;
-
-                !(function (f, b, e, v, n, t, s) {
-                    if (f.fbq) return;
-                    n = f.fbq = function () {
-                        n.callMethod
-                            ? n.callMethod.apply(n, arguments)
-                            : n.queue.push(arguments);
-                    };
-                    if (!f._fbq) f._fbq = n;
-                    n.push = n;
-                    n.loaded = !0;
-                    n.version = "2.0";
-                    n.queue = [];
-                    t = b.createElement(e);
-                    t.async = !0;
-                    t.src = v;
-                    s = b.getElementsByTagName(e)[0];
-                    s.parentNode.insertBefore(t, s);
-                })(
-                    window,
-                    document,
-                    "script",
-                    "https://connect.facebook.net/en_US/fbevents.js",
-                );
-
-                fbq("init", id);
-                fbq("track", "PageView");
-            })();
-        </script>
-        <!-- End Meta Pixel Code -->
+        <script
+            src="%PUBLIC_URL%/analytics.js"
+            data-pixel-id="%REACT_APP_META_PIXEL_ID%"
+        ></script>
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
@@ -75,7 +40,6 @@
         Learn how to configure a non-root public URL by running `npm run build`.
         -->
         <title>Riki MarkeThink</title>
-        <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
     </head>
     <body>
         <!-- Meta Pixel (fallback tanpa JavaScript) — ID dari REACT_APP_META_PIXEL_ID -->
@@ -101,86 +65,5 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-        <script>
-            !(function (t, e) {
-                var o, n, p, r;
-                e.__SV ||
-                    ((window.posthog = e),
-                    (e._i = []),
-                    (e.init = function (i, s, a) {
-                        function g(t, e) {
-                            var o = e.split(".");
-                            2 == o.length && ((t = t[o[0]]), (e = o[1])),
-                                (t[e] = function () {
-                                    t.push(
-                                        [e].concat(
-                                            Array.prototype.slice.call(
-                                                arguments,
-                                                0,
-                                            ),
-                                        ),
-                                    );
-                                });
-                        }
-                        ((p = t.createElement("script")).type =
-                            "text/javascript"),
-                            (p.crossOrigin = "anonymous"),
-                            (p.async = !0),
-                            (p.src =
-                                s.api_host.replace(
-                                    ".i.posthog.com",
-                                    "-assets.i.posthog.com",
-                                ) + "/static/array.js"),
-                            (r =
-                                t.getElementsByTagName(
-                                    "script",
-                                )[0]).parentNode.insertBefore(p, r);
-                        var u = e;
-                        for (
-                            void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
-                                u.people = u.people || [],
-                                u.toString = function (t) {
-                                    var e = "posthog";
-                                    return (
-                                        "posthog" !== a && (e += "." + a),
-                                        t || (e += " (stub)"),
-                                        e
-                                    );
-                                },
-                                u.people.toString = function () {
-                                    return u.toString(1) + ".people (stub)";
-                                },
-                                o =
-                                    "init me ws ys ps bs capture je Di ks register register_once register_for_session unregister unregister_for_session Ps getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Es $s createPersonProfile Is opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing Ss debug xs getPageViewId captureTraceFeedback captureTraceMetric".split(
-                                        " ",
-                                    ),
-                                n = 0;
-                            n < o.length;
-                            n++
-                        )
-                            g(u, o[n]);
-                        e._i.push([i, s, a]);
-                    }),
-                    (e.__SV = 1));
-            })(document, window.posthog || []);
-            posthog.init("phc_xAvL2Iq4tFmANRE7kzbKwaSqp1HJjN7x48s3vr0CMjs", {
-                api_host: "https://us.i.posthog.com",
-                person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well,
-                session_recording: {
-                    // Dimatikan (dulu true). Opsi ini membuat PostHog ikut
-                    // merekam ISI iframe dari domain lain. Situs ini tidak
-                    // punya iframe lintas-domain (game di /projects/ same-origin),
-                    // jadi opsi ini tidak memberi manfaat apa pun — yang tersisa
-                    // hanya risikonya: begitu suatu hari ada widget pihak ketiga
-                    // yang di-embed, isinya ikut terekam tanpa disadari.
-                    recordCrossOriginIframes: false,
-                    capturePerformance: false,
-                    // Jangan pernah kirim isi input ke PostHog. Halaman /contact
-                    // punya field nama/email/pesan; maskAllInputs memastikan
-                    // yang terekam hanya bentuk halamannya, bukan yang diketik.
-                    maskAllInputs: true,
-                },
-            });
-        </script>
     </body>
 </html>

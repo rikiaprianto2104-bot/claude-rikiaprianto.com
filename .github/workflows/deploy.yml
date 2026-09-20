@@ -73,6 +73,24 @@ jobs:
           test -f frontend/build/.htaccess || { echo "ERROR: .htaccess tidak ada di build/"; exit 1; }
           grep -q "Content-Security-Policy" frontend/build/.htaccess \
             || { echo "ERROR: .htaccess di build/ tidak memuat header keamanan"; exit 1; }
+
+          # Folder /projects/ punya CSP sendiri yang lebih longgar. Kalau file
+          # ini hilang, ke-22 halaman game mewarisi CSP ketat dari root dan
+          # SEMUANYA berhenti jalan — kegagalan yang tidak kelihatan dari
+          # halaman depan, jadi harus dijaga di sini.
+          test -f frontend/build/projects/.htaccess \
+            || { echo "ERROR: projects/.htaccess tidak ada di build/ — halaman game akan rusak"; exit 1; }
+
+          # Kunci utama CSP ketat: index.html harus nol skrip inline. Kalau ada
+          # yang menambahkannya lagi, skrip itu akan diblokir diam-diam di
+          # produksi — lebih baik ketahuan di sini daripada di situs live.
+          if grep -oE '<script[^>]*>' frontend/build/index.html | grep -qv 'src='; then
+            echo "ERROR: build/index.html memuat script inline, padahal CSP produksi"
+            echo "       tidak mengizinkannya. Pindahkan skripnya ke public/analytics.js"
+            echo "       atau file .js tersendiri."
+            exit 1
+          fi
+
           echo "build OK — $(find frontend/build -type f | wc -l) file"
 
       - name: Install sshpass

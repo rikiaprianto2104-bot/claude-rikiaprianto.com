@@ -94,9 +94,15 @@ RewriteRule . /index.html [L]
   # Daftar putih sumber yang boleh dimuat. Menahan sebagian besar serangan
   # injeksi: skrip dari domain asing akan ditolak browser.
   #
-  # 'unsafe-inline' pada script-src masih diperlukan karena snippet Meta Pixel
-  # dan PostHog di public/index.html ditulis inline. Kalau suatu saat keduanya
-  # dipindah ke file .js terpisah, hapus 'unsafe-inline' agar CSP jauh lebih kuat.
+  # script-src TIDAK lagi memuat 'unsafe-inline': seluruh skrip sudah pindah ke
+  # public/analytics.js sehingga index.html nol skrip inline. Dampaknya besar —
+  # skrip apa pun yang berhasil disuntikkan ke HTML akan DITOLAK browser, bukan
+  # dijalankan. Konsekuensinya: menambah satu saja tag script inline baru di
+  # index.html akan membuatnya diblokir diam-diam di produksi.
+  #
+  # Folder /projects/ punya .htaccess sendiri dengan script-src lebih longgar,
+  # karena 22 halaman game di sana ditulis dengan skrip inline. Kalau daftar
+  # domain di bawah diubah, samakan juga di frontend/public/projects/.htaccess.
   #
   # Kalau menambah layanan pihak ketiga baru (chat widget, analytics lain),
   # domainnya HARUS didaftarkan di sini atau resource-nya akan diblokir.
@@ -105,7 +111,7 @@ RewriteRule . /index.html [L]
   # mengirim event lewat <form> POST di dalam <iframe> tersembunyi ke
   # facebook.com/tr/ saat transport lain tidak tersedia. Tanpa dua izin itu
   # pixel berhenti melapor tanpa error yang kelihatan di halaman.
-  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://www.facebook.com; script-src 'self' 'unsafe-inline' https://connect.facebook.net https://us-assets.i.posthog.com https://us.i.posthog.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.sheetjs.com https://unpkg.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' https://www.facebook.com; manifest-src 'self'; connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.i.posthog.com https://www.facebook.com https://connect.facebook.net https://0.peerjs.com wss://0.peerjs.com https://*.firebaseio.com wss://*.firebaseio.com; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://www.facebook.com; script-src 'self' https://connect.facebook.net https://us-assets.i.posthog.com https://us.i.posthog.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.sheetjs.com https://unpkg.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' https://www.facebook.com; manifest-src 'self'; connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.i.posthog.com https://www.facebook.com https://connect.facebook.net https://0.peerjs.com wss://0.peerjs.com https://*.firebaseio.com wss://*.firebaseio.com; upgrade-insecure-requests"
 
   # -- Jangan bocorkan versi software --------------------------------------
   Header always unset X-Powered-By
