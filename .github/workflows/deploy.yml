@@ -93,7 +93,12 @@ jobs:
           # pernah dikirim ke mana pun. Kalau belum ada, jatuh ke password
           # seperti sebelumnya supaya deploy tidak putus saat transisi.
           if [ -n "${SFTP_SSH_KEY:-}" ]; then
-            printf '%s\n' "$SFTP_SSH_KEY" > ~/.ssh/deploy_key
+            # `tr -d '\r'` WAJIB: menyalin private key lewat clipboard Windows
+            # mengubah akhir baris LF menjadi CRLF, dan OpenSSH menolak private
+            # key ber-CRLF ("invalid format") tanpa menjelaskan sebabnya.
+            # Dibersihkan di sini supaya secret yang sudah terlanjur tersimpan
+            # tidak perlu di-paste ulang.
+            printf '%s\n' "$SFTP_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
             chmod 600 ~/.ssh/deploy_key
             # Gagalkan lebih awal dengan pesan jelas kalau isi secret bukan
             # private key yang utuh (paling sering: baris terpotong saat paste).
@@ -101,6 +106,7 @@ jobs:
               echo "::error::Isi secret SFTP_SSH_KEY bukan private key yang valid."
               echo "::error::Pastikan seluruh isi file disalin, termasuk baris"
               echo "::error::-----BEGIN OPENSSH PRIVATE KEY----- dan -----END ...-----."
+              echo "::error::Jumlah baris yang terbaca: $(wc -l < ~/.ssh/deploy_key) (seharusnya 8)."
               exit 1
             }
             echo "AUTH=key" >> "$GITHUB_ENV"
@@ -114,7 +120,10 @@ jobs:
             # Jalur aman: kunci server sudah dipin sebagai secret. Kalau ada
             # yang menyamar sebagai server Hostinger (MITM), koneksi ditolak
             # SEBELUM password dikirim.
-            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            # tr -d '\r': alasan yang sama seperti pada private key di atas —
+            # CR yang terbawa dari clipboard Windows membuat baris known_hosts
+            # tidak pernah cocok, dan verifikasi host gagal tanpa sebab jelas.
+            printf '%s\n' "$SSH_KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts
             echo "STRICT=yes" >> "$GITHUB_ENV"
             echo "known_hosts diambil dari secret SSH_KNOWN_HOSTS (host key di-pin)."
           else
