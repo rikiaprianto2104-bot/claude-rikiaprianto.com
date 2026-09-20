@@ -688,7 +688,14 @@ table.cal td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabu
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<!-- integrity/crossorigin = Subresource Integrity. Browser menghitung hash file
+     yang diunduh dan MENOLAK menjalankannya kalau tidak sama persis. Jadi kalau
+     CDN-nya diretas dan isinya diganti skrip pencuri data, skrip itu tidak jalan.
+     Kalau versi library dinaikkan, hash di bawah WAJIB dihitung ulang:
+       curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A  -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"
+        integrity="sha384-Pqp51FUN2/qzfxZxBCtF0stpc9ONI6MYZpVqmo8m20SoaQCzf+arZvACkLkirlPz"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 "use strict";
 

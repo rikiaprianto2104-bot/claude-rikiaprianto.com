@@ -167,8 +167,18 @@
                 api_host: "https://us.i.posthog.com",
                 person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well,
                 session_recording: {
-                    recordCrossOriginIframes: true,
+                    // Dimatikan (dulu true). Opsi ini membuat PostHog ikut
+                    // merekam ISI iframe dari domain lain. Situs ini tidak
+                    // punya iframe lintas-domain (game di /projects/ same-origin),
+                    // jadi opsi ini tidak memberi manfaat apa pun — yang tersisa
+                    // hanya risikonya: begitu suatu hari ada widget pihak ketiga
+                    // yang di-embed, isinya ikut terekam tanpa disadari.
+                    recordCrossOriginIframes: false,
                     capturePerformance: false,
+                    // Jangan pernah kirim isi input ke PostHog. Halaman /contact
+                    // punya field nama/email/pesan; maskAllInputs memastikan
+                    // yang terekam hanya bentuk halamannya, bukan yang diketik.
+                    maskAllInputs: true,
                 },
             });
         </script>

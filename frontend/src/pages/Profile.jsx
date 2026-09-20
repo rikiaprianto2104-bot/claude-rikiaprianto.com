@@ -64,7 +64,7 @@ const Profile = () => {
                   href="/assets/CV_Riki_Aprianto.pdf"
                   download="CV_Riki_Aprianto.pdf"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0d9eff] text-white font-medium shadow-lg shadow-[#0d9eff]/25 hover:bg-[#0a8de5] transition-colors duration-200"
                 >
                   <Download size={18} />
@@ -213,7 +213,7 @@ const Profile = () => {
                   <a
                     href={a.link}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#0d9eff] hover:underline"
                   >
                     <Award size={16} />

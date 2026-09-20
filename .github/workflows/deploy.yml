@@ -6,6 +6,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Hak minimum untuk GITHUB_TOKEN. Default GitHub memberi hak TULIS ke repo;
+# workflow ini hanya perlu membaca kode. Kalau ada langkah yang disusupi
+# (mis. lewat dependency npm), token-nya tidak bisa dipakai menulis ke repo.
+permissions:
+  contents: read
+
 # Cegah dua deploy jalan bersamaan (misal dua push beruntun).
 concurrency:
   group: deploy-production
@@ -24,6 +30,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Jangan tinggalkan kredensial git di runner setelah checkout —
+          # langkah berikutnya (termasuk skrip npm pihak ketiga) tidak perlu
+          # dan tidak boleh bisa push ke repo ini.
+          persist-credentials: false
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -32,7 +43,16 @@ jobs:
 
       - name: Install dependencies (frontend)
         working-directory: frontend
-        run: npm install --no-audit --no-fund --legacy-peer-deps
+        # `npm ci` memasang PERSIS versi yang tercatat di package-lock.json dan
+        # memverifikasi hash setiap paket. `npm install` boleh menaikkan versi
+        # sendiri, jadi paket yang baru saja disusupi bisa ikut terpasang tanpa
+        # ada perubahan di repo. Fallback ke `npm install` supaya deploy tidak
+        # mati total kalau lockfile sedang tidak sinkron — perbaiki lockfile-nya
+        # kalau pesan fallback ini muncul.
+        run: |
+          npm ci --no-audit --no-fund --legacy-peer-deps \
+            || { echo "::warning::npm ci gagal (lockfile tidak sinkron?) — fallback ke npm install"; \
+                 npm install --no-audit --no-fund --legacy-peer-deps; }
 
       - name: Build React
         working-directory: frontend
@@ -48,10 +68,44 @@ jobs:
             cp -f frontend/public/.htaccess frontend/build/.htaccess
           fi
           test -f frontend/build/index.html
+          # .htaccess memuat seluruh header keamanan situs. Kalau file ini tidak
+          # ikut ter-upload, situs live kehilangan CSP/HSTS tanpa ada yang sadar.
+          test -f frontend/build/.htaccess || { echo "ERROR: .htaccess tidak ada di build/"; exit 1; }
+          grep -q "Content-Security-Policy" frontend/build/.htaccess \
+            || { echo "ERROR: .htaccess di build/ tidak memuat header keamanan"; exit 1; }
           echo "build OK — $(find frontend/build -type f | wc -l) file"
 
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Siapkan known_hosts (pinning kunci server)
+        env:
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+
+          if [ -n "${SSH_KNOWN_HOSTS:-}" ]; then
+            # Jalur aman: kunci server sudah dipin sebagai secret. Kalau ada
+            # yang menyamar sebagai server Hostinger (MITM), koneksi ditolak
+            # SEBELUM password dikirim.
+            printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+            echo "STRICT=yes" >> "$GITHUB_ENV"
+            echo "known_hosts diambil dari secret SSH_KNOWN_HOSTS (host key di-pin)."
+          else
+            # Jalur sementara: ambil kunci host saat ini. Ini TIDAK melindungi
+            # dari MITM pada run pertama — lihat instruksi di bawah.
+            echo "::warning::Secret SSH_KNOWN_HOSTS belum di-set. Password SFTP dikirim ke host yang identitasnya belum diverifikasi."
+            echo "::warning::Cara menutup celah ini: jalankan 'ssh-keyscan -p <PORT> <HOST>' dari jaringan yang Anda percaya, lalu simpan hasilnya sebagai repository secret bernama SSH_KNOWN_HOSTS."
+            # `|| true`: kalau keyscan gagal (jaringan runner), jangan matikan
+            # deploy — accept-new tetap bisa menerima kunci saat koneksi.
+            ssh-keyscan -p "$SFTP_PORT" -H "$SFTP_HOST" > ~/.ssh/known_hosts 2>/dev/null || true
+            touch ~/.ssh/known_hosts
+            echo "STRICT=accept-new" >> "$GITHUB_ENV"
+          fi
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Upload frontend/build ke server (SSH/SFTP, port 65002)
         env:
@@ -66,9 +120,14 @@ jobs:
           : "${SFTP_PORT:?secret SFTP_PORT belum di-set di repo}"
           : "${SFTP_USER:?secret SFTP_USER belum di-set di repo}"
 
+          # SEBELUMNYA: StrictHostKeyChecking=no + UserKnownHostsFile=/dev/null.
+          # Artinya runner menerima server MANA PUN yang menjawab di alamat itu
+          # lalu mengirimkan password SFTP ke sana — siapa pun yang bisa
+          # membelokkan rute/DNS mendapat kredensial penuh ke public_html.
+          # Sekarang identitas server diverifikasi lewat known_hosts.
           SSH_OPTS="-p ${SFTP_PORT} \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
+            -o StrictHostKeyChecking=${STRICT} \
+            -o UserKnownHostsFile=$HOME/.ssh/known_hosts \
             -o PubkeyAuthentication=no \
             -o PreferredAuthentications=password \
             -o ConnectTimeout=20"
@@ -86,3 +145,28 @@ jobs:
                 "tar -C '${SFTP_REMOTE_PATH}' -xzf - && echo 'ekstrak selesai'"
 
           echo "==> Selesai. https://rikiaprianto.com/"
+
+      - name: Verifikasi header keamanan di situs live
+        # Gagalkan deploy kalau header penting hilang — mis. karena hosting
+        # menolak salah satu direktif .htaccess dan file-nya diabaikan diam-diam.
+        run: |
+          set -euo pipefail
+          # Coba beberapa kali: cache/propagasi di sisi hosting kadang butuh
+          # beberapa detik, dan deploy tidak boleh gagal hanya karena itu.
+          headers=""
+          for attempt in 1 2 3 4 5; do
+            sleep 5
+            headers="$(curl -sSI --max-time 30 https://rikiaprianto.com/ | tr 'A-Z' 'a-z')"
+            grep -q "^content-security-policy:.*default-src" <<<"$headers" && break
+            echo "percobaan $attempt: header belum muncul, menunggu…"
+          done
+          echo "$headers"
+          missing=0
+          for h in content-security-policy strict-transport-security x-content-type-options x-frame-options referrer-policy; do
+            if ! grep -q "^$h:" <<<"$headers"; then
+              echo "::error::Header keamanan hilang di situs live: $h"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+          echo "Semua header keamanan terpasang."

@@ -170,7 +170,7 @@ const ShareButtons = ({ url, title }) => {
           key={l.name}
           href={l.href}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           aria-label={`Share to ${l.name}`}
           className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-[#0d9eff] hover:text-white flex items-center justify-center transition-colors"
         >

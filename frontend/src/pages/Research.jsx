@@ -64,7 +64,7 @@ const Research = () => {
                   <a
                     href={p.link}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="block text-base md:text-lg font-semibold text-slate-900 dark:text-white hover:text-[#0d9eff] cursor-pointer leading-snug transition-colors duration-200"
                   >
                     {p.title}

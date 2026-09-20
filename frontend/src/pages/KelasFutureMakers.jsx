@@ -62,7 +62,7 @@ const SeatButton = ({
   <a
     href={waLink}
     target="_blank"
-    rel="noreferrer"
+    rel="noopener noreferrer"
     onClick={() => onLead(position)}
     className={`group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#25D366] font-bold text-white shadow-lg shadow-[#25D366]/30 hover:bg-[#1eb455] hover:shadow-xl hover:shadow-[#25D366]/40 hover:-translate-y-0.5 transition-all duration-300 ${
       size === 'lg' ? 'px-8 py-4 text-lg' : 'px-6 py-3 text-base'
@@ -128,7 +128,7 @@ const GameDemo = () => {
         <a
           href={kelas.demoGame.url}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0d9eff] hover:underline flex-shrink-0"
         >
           Buka layar penuh <ArrowUpRight size={16} />

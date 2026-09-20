@@ -913,29 +913,51 @@ var NET = {
   _peer:null, _conns:{}, _hostConn:null, _fb:null, _fbRefs:[]
 };
 
-function loadScript(urls, cb){
+/* Memuat library dari daftar CDN cadangan.
+   `integrity` = hash Subresource Integrity. Kalau diisi, browser menolak
+   menjalankan file yang isinya tidak persis sama dengan hash itu — jadi CDN
+   yang diretas tidak bisa menyuntikkan skrip pencuri data ke halaman ini.
+   Semua URL dalam satu daftar HARUS berisi file yang identik (versi yang
+   dipatok persis), karena hash-nya cuma satu.
+   Cara menghitung ulang kalau versinya dinaikkan:
+     curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A */
+function loadScript(urls, cb, integrity){
   var i=0;
   (function next(){
     if(i>=urls.length){ cb(new Error('gagal memuat library')); return; }
     var s=document.createElement('script');
     s.src=urls[i++]; s.async=true;
+    if(integrity){
+      s.integrity=integrity;
+      s.crossOrigin='anonymous';      // wajib, kalau tidak SRI diabaikan
+      s.referrerPolicy='no-referrer';
+    }
     s.onload=function(){ cb(null); };
+    // Hash tidak cocok juga memicu onerror -> otomatis coba mirror berikutnya.
     s.onerror=function(){ s.remove(); next(); };
     document.head.appendChild(s);
   })();
 }
+/* Mirror peerjs 1.5.4 — ketiganya berkas yang sama persis, jadi satu hash
+   berlaku untuk semuanya. Entri lama 'peerjs@1' (versi mengambang) DIHAPUS:
+   isinya bisa berubah sewaktu-waktu sehingga tidak mungkin dipatok hash, dan
+   artinya kita menjalankan kode yang belum pernah diperiksa. */
 var PEERJS_URLS = [
   'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js',
   'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js',
-  'https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js'
 ];
+var PEERJS_SRI = 'sha384-nlUQ8ZqCbvStErob+biJNzSgltf6urV3VGqhfIfzhmg9RXmpeRm76ELw0pYnKlTR';
+
 var FB_URLS_APP = [
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js'
 ];
+var FB_APP_SRI = 'sha384-AQ3POAMqIhwS81FrUH95ekxqBZHeP5tG2JfEL3+7GuTtfRLWnrRh32UxwzM+//A9';
+
 var FB_URLS_DB = [
   'https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js'
 ];
+var FB_DB_SRI = 'sha384-1/m+A1jVWbD3yiK3/vtFvm1+LjK1WLpSoDY+Kaxppwn/yP9BVSgdHTNQVOjrzUO5';
 function peerId(code){ return 'lhkp2-' + code; }
 
 /* ---------- MODE LOKAL ---------- */
@@ -971,8 +993,8 @@ NET.startFirebase = function(code, isHost, cb){
       }
       NET.onStatus('firebase');
       cb(null);
-    });
-  });
+    }, FB_DB_SRI);
+  }, FB_APP_SRI);
 };
 NET._fbEmit = function(){
   if(!NET._fbPub) return;
@@ -1025,7 +1047,7 @@ NET.startPeerHost = function(code, cb){
       conn.on('error', function(){});
     });
     p.on('disconnected', function(){ NET.onStatus('menyambung…'); try{ p.reconnect(); }catch(_){} });
-  });
+  }, PEERJS_SRI);
 };
 NET.startPeerClient = function(code, cb){
   loadScript(PEERJS_URLS, function(e){
@@ -1057,7 +1079,7 @@ NET.startPeerClient = function(code, cb){
       cb(new Error(err && err.type==='peer-unavailable' ? 'Kode kelas tidak ditemukan.' : 'Gagal menyambung: '+(err&&err.type||err)));
     });
     p.on('disconnected', function(){ NET.onStatus('menyambung…'); try{ p.reconnect(); }catch(_){} });
-  });
+  }, PEERJS_SRI);
 };
 
 /* kunci jawaban hanya untuk guru: buang 'ans' dari salinan milik siswa */

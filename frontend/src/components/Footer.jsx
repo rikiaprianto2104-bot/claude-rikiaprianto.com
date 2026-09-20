@@ -45,7 +45,7 @@ const Footer = () => {
                     key={s.name}
                     href={s.url}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     aria-label={s.name}
                     className="w-10 h-10 rounded-lg bg-[#eaf6ff] dark:bg-white/5 flex items-center justify-center text-[#0d9eff] hover:bg-[#0d9eff] hover:text-white transition-colors duration-200"
                   >

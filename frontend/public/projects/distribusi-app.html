@@ -469,7 +469,20 @@
   // Sumber library ZXing (fallback BarcodeDetector untuk kamera inline).
   window.WMS_ZXING_SRC = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- integrity/crossorigin = Subresource Integrity. Browser menghitung hash file
+     yang diunduh dan MENOLAK menjalankannya kalau tidak sama persis. Jadi kalau
+     CDN-nya diretas dan isinya diganti skrip pencuri data, skrip itu tidak jalan.
+     Kalau versi library dinaikkan, hash di bawah WAJIB dihitung ulang:
+       curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A  -->
+<!-- Dinaikkan dari xlsx 0.18.5 (cdnjs) ke SheetJS 0.20.3. Versi 0.18.5 kena
+     CVE-2023-30533 (prototype pollution saat MEM-BACA file .xlsx) dan tidak
+     pernah di-patch di cdnjs. Halaman ini sebenarnya hanya MENULIS file
+     (aoa_to_sheet/book_new/writeFile) sehingga jalur rentan itu tidak
+     terpanggil, tapi tidak ada alasan menahan versi yang sudah ditandai
+     rentan. API yang dipakai identik di 0.20.3. -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+        integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
 /**

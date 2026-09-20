@@ -47,7 +47,7 @@ const Projects = () => {
             key={p.id}
             href={p.url}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="group flex flex-col rounded-2xl overflow-hidden border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.03] hover:border-[#0d9eff]/60 hover:shadow-xl hover:shadow-[#0d9eff]/10 hover:-translate-y-1 transition-all duration-300"
           >
             <div className="relative h-44 overflow-hidden bg-slate-100 dark:bg-white/5">

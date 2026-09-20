@@ -36,8 +36,25 @@ dist
 /.env
 /.env.*
 !/.env.example
+
+# Backend: MONGO_URL akan berisi kredensial database begitu pindah dari
+# localhost. Jangan di-commit — pakai backend/.env.example sebagai template.
+/backend/.env
+/backend/.env.*
+!/backend/.env.example
+
+# CATATAN soal frontend/.env: file itu SENGAJA tetap di-commit karena isinya
+# hanya nilai publik (Meta Pixel ID, URL backend) yang toh ikut ter-bundle ke
+# JavaScript dan bisa dibaca siapa pun lewat "View Source". JANGAN PERNAH
+# menaruh rahasia (API key, token, password) di variabel REACT_APP_*.
+
 *token.json*
 *credentials.json*
+*.key
+*.p12
+*.pfx
+id_rsa*
+.npmrc
 
 # Logs and debug files
 npm-debug.log*
