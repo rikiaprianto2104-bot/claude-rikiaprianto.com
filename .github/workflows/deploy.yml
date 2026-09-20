@@ -78,14 +78,37 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Siapkan known_hosts (pinning kunci server)
+      - name: Siapkan kredensial & known_hosts SSH
         env:
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SFTP_SSH_KEY: ${{ secrets.SFTP_SSH_KEY }}
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_PORT: ${{ secrets.SFTP_PORT }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
+
+          # --- Metode autentikasi -----------------------------------------
+          # Kalau secret SFTP_SSH_KEY ada, pakai kunci SSH dan password tidak
+          # pernah dikirim ke mana pun. Kalau belum ada, jatuh ke password
+          # seperti sebelumnya supaya deploy tidak putus saat transisi.
+          if [ -n "${SFTP_SSH_KEY:-}" ]; then
+            printf '%s\n' "$SFTP_SSH_KEY" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            # Gagalkan lebih awal dengan pesan jelas kalau isi secret bukan
+            # private key yang utuh (paling sering: baris terpotong saat paste).
+            ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1 || {
+              echo "::error::Isi secret SFTP_SSH_KEY bukan private key yang valid."
+              echo "::error::Pastikan seluruh isi file disalin, termasuk baris"
+              echo "::error::-----BEGIN OPENSSH PRIVATE KEY----- dan -----END ...-----."
+              exit 1
+            }
+            echo "AUTH=key" >> "$GITHUB_ENV"
+            echo "Autentikasi: kunci SSH (password tidak dipakai)."
+          else
+            echo "::warning::Secret SFTP_SSH_KEY belum di-set — deploy masih memakai password SFTP."
+            echo "AUTH=password" >> "$GITHUB_ENV"
+          fi
 
           if [ -n "${SSH_KNOWN_HOSTS:-}" ]; then
             # Jalur aman: kunci server sudah dipin sebagai secret. Kalau ada
@@ -129,7 +152,6 @@ jobs:
           SFTP_USER: ${{ secrets.SFTP_USER }}
         run: |
           set -euo pipefail
-          : "${SSHPASS:?secret SFTP_PASSWORD belum di-set di repo}"
           : "${SFTP_HOST:?secret SFTP_HOST belum di-set di repo}"
           : "${SFTP_PORT:?secret SFTP_PORT belum di-set di repo}"
           : "${SFTP_USER:?secret SFTP_USER belum di-set di repo}"
@@ -139,18 +161,37 @@ jobs:
           # lalu mengirimkan password SFTP ke sana — siapa pun yang bisa
           # membelokkan rute/DNS mendapat kredensial penuh ke public_html.
           # Sekarang identitas server diverifikasi lewat known_hosts.
-          SSH_OPTS="-p ${SFTP_PORT} \
-            -o StrictHostKeyChecking=${STRICT} \
-            -o UserKnownHostsFile=$HOME/.ssh/known_hosts \
-            -o PubkeyAuthentication=no \
-            -o PreferredAuthentications=password \
-            -o ConnectTimeout=20"
+          #
+          # Array, bukan string: opsi tetap utuh sebagai argumen terpisah tanpa
+          # bergantung pada word splitting.
+          SSH_BASE=(
+            -p "${SFTP_PORT}"
+            -o StrictHostKeyChecking="${STRICT}"
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
+            -o ConnectTimeout=20
+          )
+
+          if [ "${AUTH}" = "key" ]; then
+            # IdentitiesOnly=yes: jangan coba kunci lain yang kebetulan ada di
+            # agent runner — hanya kunci deploy ini.
+            SSH=(ssh "${SSH_BASE[@]}"
+                 -i "$HOME/.ssh/deploy_key"
+                 -o IdentitiesOnly=yes
+                 -o PubkeyAuthentication=yes
+                 -o PreferredAuthentications=publickey)
+          else
+            : "${SSHPASS:?secret SFTP_PASSWORD belum di-set di repo}"
+            SSH=(sshpass -e ssh "${SSH_BASE[@]}"
+                 -o PubkeyAuthentication=no
+                 -o PreferredAuthentications=password)
+          fi
+
           REMOTE="${SFTP_USER}@${SFTP_HOST}"
 
-          echo "==> Cek koneksi ke ${REMOTE}:${SFTP_PORT}"
+          echo "==> Cek koneksi ke ${REMOTE}:${SFTP_PORT} (auth: ${AUTH})"
           # Tanpa blok `|| { ... }` ini, kegagalan ssh hanya muncul di ringkasan
           # Actions sebagai "exit code 255" tanpa keterangan apa pun.
-          sshpass -e ssh ${SSH_OPTS} "${REMOTE}" \
+          "${SSH[@]}" "${REMOTE}" \
             "echo connected as \$(whoami); mkdir -p '${SFTP_REMOTE_PATH}'" || {
               rc=$?
               echo "::error::Koneksi SSH gagal (exit $rc)."
@@ -165,7 +206,7 @@ jobs:
           # Menimpa file yang namanya sama, TIDAK menghapus file lain (tanpa --delete).
           echo "==> Upload frontend/build  ->  ${REMOTE}:${SFTP_REMOTE_PATH}"
           tar -C frontend/build -czf - . \
-            | sshpass -e ssh ${SSH_OPTS} "${REMOTE}" \
+            | "${SSH[@]}" "${REMOTE}" \
                 "tar -C '${SFTP_REMOTE_PATH}' -xzf - && echo 'ekstrak selesai'"
 
           echo "==> Selesai. https://rikiaprianto.com/"
