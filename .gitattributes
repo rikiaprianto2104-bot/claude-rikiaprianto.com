@@ -1,0 +1,16 @@
+# Repo ini memakai LF. Tanpa aturan ini, editor/skrip di Windows gampang
+# menulis ulang file dengan CRLF sehingga seluruh isi file terlihat berubah
+# di diff, padahal yang diedit cuma beberapa baris.
+* text=auto eol=lf
+
+# File biner jangan disentuh sama sekali.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.xlsx binary
+*.woff binary
+*.woff2 binary
