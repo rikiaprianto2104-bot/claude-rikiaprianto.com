@@ -19,6 +19,9 @@ import {
   Heart,
   CheckCircle2,
   Globe,
+  Laptop,
+  Wallet,
+  Info,
 } from 'lucide-react';
 import WhatsAppCTA from '../components/WhatsAppCTA';
 import GameDemo from '../components/GameDemo';
@@ -46,6 +49,11 @@ const benefitIcons = {
   users: Users,
   star: Star,
   heart: Heart,
+};
+
+const requirementIcons = {
+  laptop: Laptop,
+  wallet: Wallet,
 };
 
 const waLink = `https://wa.me/${kelas.whatsapp.number}?text=${encodeURIComponent(
@@ -261,7 +269,34 @@ const KelasFutureMakers = () => {
                   </div>
                 ))}
               </div>
-              <p className="mt-6 pt-5 border-t border-slate-100 dark:border-white/5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              <div className="mt-6 pt-5 border-t border-slate-100 dark:border-white/5">
+                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  <Info size={13} /> Yang perlu disiapkan
+                </p>
+                <ul className="mt-3 space-y-2">
+                  {kelas.requirements.map((r) => (
+                    <li
+                      key={r.title}
+                      className="flex gap-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed"
+                    >
+                      <span className="mt-1.5 w-1 h-1 rounded-full bg-amber-500 flex-shrink-0" />
+                      <span>
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          {r.title}
+                        </span>{' '}
+                        — {r.highlight}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="#yang-perlu-disiapkan"
+                  className="mt-3 inline-block text-xs font-medium text-[#0d9eff] hover:underline"
+                >
+                  Lihat penjelasan lengkapnya
+                </a>
+              </div>
+              <p className="mt-4 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 {kelas.locationNote}
               </p>
             </div>
@@ -396,9 +431,15 @@ const KelasFutureMakers = () => {
                   {kelas.price}
                 </h3>
                 <p className="mt-2 text-white/90 text-sm leading-relaxed">
-                  Tanpa biaya pendaftaran maupun biaya materi. {kelas.quota},
-                  supaya setiap anak benar-benar terdampingi.
+                  Tanpa biaya kelas maupun biaya materi. {kelas.quota}, supaya
+                  setiap anak benar-benar terdampingi.
                 </p>
+                <a
+                  href="#yang-perlu-disiapkan"
+                  className="mt-3 inline-block text-sm font-medium text-white/90 underline underline-offset-2 hover:text-white"
+                >
+                  Cek dulu yang perlu disiapkan
+                </a>
               </div>
               <SeatButton
                 size="sm"
@@ -458,6 +499,61 @@ const KelasFutureMakers = () => {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Yang perlu disiapkan */}
+      <section
+        id="yang-perlu-disiapkan"
+        className="scroll-mt-24 bg-white dark:bg-[#0b1220] py-16"
+      >
+        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-400/10 px-3 py-1 rounded-full">
+              <Info size={12} /> Baca sebelum mendaftar
+            </span>
+            <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Yang Perlu Disiapkan
+            </h2>
+            <p className="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
+              Kelasnya gratis — tidak ada biaya kelas maupun biaya materi. Tapi
+              ada dua hal yang kami sampaikan terbuka sejak awal supaya tidak
+              ada kejutan di tengah jalan.
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {kelas.requirements.map((r) => {
+              const Icon = requirementIcons[r.icon] || Info;
+              return (
+                <div
+                  key={r.title}
+                  className="rounded-2xl border-2 border-amber-200 dark:border-amber-400/20 bg-amber-50/50 dark:bg-amber-400/[0.06] p-7"
+                >
+                  <span className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-400/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                    <Icon size={22} />
+                  </span>
+                  <h3 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">
+                    {r.title}
+                  </h3>
+                  <p className="mt-2 inline-block text-sm font-bold text-amber-800 dark:text-amber-300 bg-amber-200/60 dark:bg-amber-400/15 px-3 py-1 rounded-lg">
+                    {r.highlight}
+                  </p>
+                  <p className="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {r.detail}
+                  </p>
+                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                    {r.note}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="mt-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Di luar dua hal itu, semuanya kami tanggung: ruang kelas, konsumsi,
+            akun AI berbayar, modul, sertifikat, dan dokumentasi karya anak.
+          </p>
         </div>
       </section>
 

@@ -1647,11 +1647,31 @@ export const futureMakersClass = {
   image: '/projects/thumbs/petualangan-pixi-moko.png',
   excerpt:
     'Kelas offline gratis di Yogyakarta untuk anak usia 6–12 tahun. Empat pertemuan di bulan Oktober 2026 untuk belajar membuat game dan website sendiri dengan bantuan AI, ditutup dengan Demo Day di depan orang tua.',
+  // Dua syarat yang WAJIB tampil sebelum orang tua menghubungi WhatsApp, supaya
+  // tidak jadi kejutan di tengah percakapan. Ubah angkanya di sini saja.
+  requirements: [
+    {
+      icon: 'laptop',
+      title: 'Anak membawa laptop',
+      detail:
+        'Setiap anak praktik di layarnya sendiri sepanjang kelas, bukan menonton. Karena itu laptop wajib dibawa.',
+      note: 'Belum punya laptop? Kami sediakan unit sewa. Harga sewanya Rp 60.000 per pertemuan, kami subsidi Rp 35.000, jadi Anda cukup membayar Rp 25.000 per pertemuan.',
+      highlight: 'Rp 25.000 / pertemuan (disubsidi dari Rp 60.000)',
+    },
+    {
+      icon: 'wallet',
+      title: 'Uang jaminan Rp 50.000',
+      detail:
+        'Dikembalikan 100% saat anak hadir di pertemuan pertama. Ini bukan biaya kelas — kelasnya tetap gratis.',
+      note: 'Kursinya hanya 8 dan biaya ruang kelas sudah kami keluarkan di depan, jadi jaminan ini memastikan kursi yang sudah dipesan benar-benar terpakai. Jaminan hangus hanya bila peserta tidak hadir tanpa kabar.',
+      highlight: 'Kembali penuh saat hadir',
+    },
+  ],
   whatsapp: {
     display: '0888-0923-4347',
     number: '6288809234347',
     message:
-      'Halo Kak Riki, saya mau pesan seat untuk Kelas Offline Future Makers (Oktober 2026).\n\nNama anak:\nUsia anak:\nNama orang tua:\nDomisili:',
+      'Halo Kak Riki, saya mau pesan seat untuk Kelas Offline Future Makers (Oktober 2026).\n\nNama anak:\nUsia anak:\nNama orang tua:\nDomisili:\n\nSaya sudah membaca syarat laptop dan uang jaminan Rp 50.000 yang dikembalikan saat hadir.',
   },
   schedule: [
     {
@@ -1729,15 +1749,19 @@ export const futureMakersClass = {
   faq: [
     {
       q: 'Apakah kelas ini benar-benar gratis?',
-      a: 'Ya, 100% gratis tanpa biaya pendaftaran maupun biaya materi. Kuota dibatasi hanya untuk 8 anak tercepat yang mendaftar agar pendampingan tetap maksimal.',
+      a: 'Ya, tidak ada biaya kelas maupun biaya materi. Yang perlu disiapkan hanya dua: anak membawa laptop (ada opsi sewa bersubsidi Rp 25.000 per pertemuan), dan uang jaminan Rp 50.000 yang dikembalikan penuh saat anak hadir di pertemuan pertama.',
+    },
+    {
+      q: 'Kenapa ada uang jaminan kalau kelasnya gratis?',
+      a: 'Karena kursinya hanya 8 dan biaya ruang kelas, konsumsi, serta dokumentasi sudah kami keluarkan di depan. Satu kursi yang dipesan lalu ditinggalkan membuat anak lain kehilangan kesempatan. Jaminan Rp 50.000 dikembalikan utuh saat anak hadir di pertemuan pertama, dan hanya hangus bila peserta tidak datang tanpa kabar.',
     },
     {
       q: 'Anak saya belum bisa mengetik cepat, apakah boleh ikut?',
       a: 'Boleh. Kelas ini dirancang untuk pemula usia 6–12 tahun. Semua langkah dipandu mentor, dan anak yang lebih kecil tetap bisa berkarya dengan bantuan pendampingan.',
     },
     {
-      q: 'Apakah anak perlu membawa laptop sendiri?',
-      a: 'Jika memiliki laptop, sangat disarankan membawanya agar anak terbiasa dengan perangkatnya sendiri. Jika tidak ada, sampaikan saat mendaftar lewat WhatsApp supaya kami siapkan solusinya.',
+      q: 'Apakah anak wajib membawa laptop sendiri?',
+      a: 'Ya, wajib. Anak praktik di layarnya sendiri sepanjang kelas, jadi satu anak satu laptop. Kalau belum punya, kami sediakan unit sewa: harga sewanya Rp 60.000 per pertemuan, kami subsidi Rp 35.000, sehingga Anda cukup membayar Rp 25.000 per pertemuan. Sampaikan saat mendaftar lewat WhatsApp supaya unitnya kami siapkan.',
     },
     {
       q: 'Di mana lokasi tepatnya?',
