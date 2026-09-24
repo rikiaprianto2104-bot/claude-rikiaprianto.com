@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
     <head>
         <meta charset="utf-8" />
 
@@ -22,24 +22,36 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content="Official website of Riki MarkeThink, AI Marketing Strategist." />
+
+        <!-- ============================================================
+             Metadata bisnis.
+
+             Deskripsi sengaja menyebut layanan secara konkret, bukan kalimat
+             generik. Perayap yang tidak menjalankan JavaScript (termasuk
+             OAI-AdsBot milik OpenAI, yang dipakai meninjau akun & halaman
+             iklan ChatGPT Ads) hanya membaca <head> dan HTML statis di bawah.
+             ============================================================ -->
+        <title>Riki MarkeThink — AI Marketing Strategist | SEO, GEO & Analitik</title>
+        <meta
+            name="description"
+            content="Riki MarkeThink, AI Marketing Strategist di Indonesia. Layanan SEO & GEO, AI marketing, analitik data, dan strategi pemasaran full-funnel yang terukur, plus kelas Belajar AI (Claude & ChatGPT)."
+        />
+        <link rel="canonical" href="https://rikiaprianto.com/" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Riki MarkeThink" />
+        <meta property="og:url" content="https://rikiaprianto.com/" />
+        <meta property="og:title" content="Riki MarkeThink — AI Marketing Strategist" />
+        <meta
+            property="og:description"
+            content="Strategi pemasaran berbasis data: SEO & GEO, AI marketing, analitik, dan kelas Belajar AI (Claude & ChatGPT)."
+        />
+        <meta property="og:image" content="https://rikiaprianto.com/assets/riki-profile.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
-        <!--
-        manifest.json provides metadata used when your web app is installed on a
-        user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-        -->
-        <!--
-        Notice the use of %PUBLIC_URL% in the tags above.
-        It will be replaced with the URL of the `public` folder during the build.
-        Only files inside the `public` folder can be referenced from the HTML.
-
-        Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-        work correctly both with client-side routing and a non-root public URL.
-        Learn how to configure a non-root public URL by running `npm run build`.
-        -->
-        <title>Riki MarkeThink</title>
     </head>
     <body>
         <!-- Meta Pixel (fallback tanpa JavaScript) — ID dari REACT_APP_META_PIXEL_ID -->
@@ -53,17 +65,92 @@
         /></noscript>
         <!-- End Meta Pixel (noscript) -->
 
-        <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div id="root"></div>
-        <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+        <!-- ============================================================
+             #root diisi konten statis, BUKAN dibiarkan kosong.
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+             Alasannya: situs ini SPA React murni. Sebelum ini server hanya
+             mengirim <div id="root"></div> kosong (992 byte), sehingga setiap
+             pembaca yang tidak mengeksekusi JavaScript — perayap peninjau
+             iklan, pratinjau tautan, pembaca teks — tidak menemukan satu pun
+             informasi bisnis. Peninjauan akun OpenAI Ads gagal dengan
+             "We couldn't access your business website" meski server membalas
+             HTTP 200 untuk semua UA perayap.
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+             Aman terhadap React: src/index.js memakai
+             createRoot(...).render(), yang MENGGANTI seluruh isi container
+             saat mount. Jadi blok di bawah hanya terlihat sebelum bundel JS
+             jalan, dan tidak pernah menggandakan tampilan aplikasi.
+
+             Isinya harus tetap cocok dengan src/mock.js (profile & skills).
+             Kalau data di sana berubah, samakan juga di sini.
+             ============================================================ -->
+        <div id="root">
+            <main>
+                <h1>Riki MarkeThink</h1>
+                <p><strong>AI Marketing Strategist</strong> — Indonesia</p>
+                <p>
+                    Merancang strategi pemasaran berbasis data yang hasilnya terukur.
+                    Spesialisasi di SEO dan GEO, content marketing, serta analitik digital.
+                </p>
+
+                <h2>Layanan</h2>
+                <ul>
+                    <li>
+                        <strong>SEO &amp; GEO</strong> — peringkat di Google sekaligus tetap
+                        terlihat di mesin pencari AI seperti ChatGPT dan Perplexity.
+                    </li>
+                    <li>
+                        <strong>AI Marketing</strong> — alur kerja konten dan otomasi berbasis
+                        LLM yang bisa diperbesar skalanya tanpa mengorbankan kualitas.
+                    </li>
+                    <li>
+                        <strong>Analitik</strong> — atribusi, dasbor, dan keputusan yang
+                        mengubah data mentah menjadi pendapatan.
+                    </li>
+                    <li>
+                        <strong>Strategi</strong> — strategi full-funnel yang selaras dengan
+                        hasil bisnis yang terukur.
+                    </li>
+                </ul>
+
+                <h2>Kelas Belajar AI</h2>
+                <p>
+                    Kelas berbayar penggunaan AI praktis dengan Claude dan ChatGPT untuk
+                    pekerjaan sehari-hari dan pemasaran.
+                </p>
+                <ul>
+                    <li><a href="/blog/kelas-belajar-ai-anak">Kelas Belajar AI untuk Anak</a></li>
+                    <li><a href="/blog/kelas-future-makers">Kelas Future Makers</a></li>
+                </ul>
+
+                <h2>Keahlian</h2>
+                <p>
+                    SEO &amp; GEO Optimization, Content Marketing, Data Analytics,
+                    Social Media Strategy, AI Marketing Tools, Marketing Automation.
+                </p>
+
+                <h2>Kontak</h2>
+                <ul>
+                    <li>Email: <a href="mailto:riki.markethink@rikiaprianto.com">riki.markethink@rikiaprianto.com</a></li>
+                    <li>Telepon: +62 888 0923 4347</li>
+                    <li>Lokasi: Indonesia</li>
+                </ul>
+
+                <h2>Halaman lain</h2>
+                <ul>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/profile">Profil</a></li>
+                    <li><a href="/research">Riset</a></li>
+                    <li><a href="/projects">Proyek</a></li>
+                    <li><a href="/contact">Kontak</a></li>
+                </ul>
+            </main>
+            <noscript>
+                <p>
+                    Halaman ini menampilkan versi lengkap dan interaktif setelah JavaScript
+                    diaktifkan. Seluruh informasi utama tetap tersedia di atas.
+                </p>
+            </noscript>
+        </div>
     </body>
 </html>
