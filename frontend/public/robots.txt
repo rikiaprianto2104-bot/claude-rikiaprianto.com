@@ -1,0 +1,42 @@
+# ============================================================================
+#  robots.txt — rikiaprianto.com
+#  CRA menyalin seluruh isi public/ ke build/, jadi file ini ikut ter-deploy
+#  ke public_html oleh deploy.sh & GitHub Actions.
+#
+#  Kenapa file ini perlu ada: tanpa robots.txt, catch-all SPA di .htaccess
+#  membalas permintaan /robots.txt dengan index.html (HTTP 200, text/html).
+#  Crawler yang mengharap text/plain menerima HTML. Aturan !-f di .htaccess
+#  membuat file fisik ini dilayani apa adanya.
+#
+#  Referensi UA: https://developers.openai.com/api/docs/bots
+# ============================================================================
+
+# -- OAI-AdsBot: WAJIB untuk peninjauan ChatGPT Ads -------------------------
+# Memvalidasi keamanan & relevansi halaman yang didaftarkan sebagai iklan.
+# Datanya TIDAK dipakai melatih model. Tanpa akses bot ini, peninjauan akun
+# dan iklan gagal ("situs web bisnis tidak tersedia").
+User-agent: OAI-AdsBot
+Allow: /
+
+# -- OAI-SearchBot: disarankan OpenAI ---------------------------------------
+# Indeks pencarian ChatGPT; membantu OpenAI memahami konten publik situs.
+User-agent: OAI-SearchBot
+Allow: /
+
+# -- ChatGPT-User: kunjungan atas permintaan pengguna ------------------------
+# Bukan perayapan otomatis — dipicu saat pengguna ChatGPT membuka tautan ini.
+User-agent: ChatGPT-User
+Allow: /
+
+# -- Semua perayap lain ------------------------------------------------------
+# CATATAN: aturan wildcard ini juga mengizinkan GPTBot, yaitu perayap yang
+# mengumpulkan konten untuk PELATIHAN model — dan itu TIDAK dibutuhkan untuk
+# beriklan. Kalau konten situs ini tidak ingin dipakai melatih model, tambahkan
+# blok berikut di atas baris User-agent: * —
+#
+#   User-agent: GPTBot
+#   Disallow: /
+#
+# Menghapus blok GPTBot saja tidak cukup; wildcard di bawah tetap mengizinkan.
+User-agent: *
+Allow: /
