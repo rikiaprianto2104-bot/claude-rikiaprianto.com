@@ -10,7 +10,11 @@ import {
   Users,
   ArrowRight,
 } from 'lucide-react';
-import { blogPosts, futureMakersClass } from '../mock';
+import {
+  blogPosts,
+  futureMakersClass,
+  futureMakersPaidClass,
+} from '../mock';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
 const Blog = () => {
@@ -38,15 +42,64 @@ const Blog = () => {
         </p>
       </div>
 
-      {/* Banner kelas gratis */}
-      <Link
-        to={`/blog/${futureMakersClass.slug}`}
-        className="group mt-10 block rounded-3xl overflow-hidden bg-gradient-to-br from-[#0d9eff] to-[#0a7dd1] text-white p-7 md:p-9 relative hover:shadow-2xl hover:shadow-[#0d9eff]/25 transition-all duration-300"
-      >
-        <div className="absolute -right-14 -top-14 w-48 h-48 rounded-full bg-white/10" />
-        <div className="absolute -left-10 -bottom-16 w-40 h-40 rounded-full bg-white/10" />
-        <div className="relative flex flex-col lg:flex-row lg:items-center gap-7">
-          <div className="flex-1">
+      {/* Kartu promo kelas — kelas berbayar & kelas gratis */}
+      <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Kelas berbayar */}
+        <Link
+          to={`/blog/${futureMakersPaidClass.slug}`}
+          className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white p-7 hover:shadow-2xl hover:shadow-[#2563eb]/25 transition-all duration-300 flex flex-col"
+        >
+          <div className="absolute -right-12 -top-12 w-40 h-40 rounded-full bg-white/10" />
+          <div className="relative flex flex-col flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2563eb] bg-white px-3 py-1.5 rounded-full">
+                <Sparkles size={12} /> Kelas Berbayar
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-300 px-3 py-1.5 rounded-full">
+                <Users size={12} /> {futureMakersPaidClass.quotaCount} Seat
+              </span>
+            </div>
+            <h2 className="mt-4 text-2xl font-extrabold leading-tight">
+              Belajar Artificial Intelligence (Claude &amp; ChatGPT)
+            </h2>
+            <p className="mt-3 text-white/90 leading-relaxed">
+              {futureMakersPaidClass.audience}.{' '}
+              {futureMakersPaidClass.period}, ditutup Demo Day di depan orang
+              tua.
+            </p>
+            <div className="mt-5 flex items-end gap-3">
+              <span className="text-base text-white/60 line-through">
+                Rp {futureMakersPaidClass.price.normal.toLocaleString('id-ID')}
+              </span>
+              <span className="text-3xl font-extrabold leading-none">
+                Rp {futureMakersPaidClass.price.promo.toLocaleString('id-ID')}
+              </span>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/85">
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin size={14} /> {futureMakersPaidClass.location}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar size={14} /> November 2026
+              </span>
+            </div>
+            <span className="mt-6 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-white text-[#2563eb] font-bold self-start group-hover:bg-slate-100 transition-colors">
+              Lihat Detail &amp; Daftar
+              <ArrowRight
+                size={18}
+                className="group-hover:translate-x-0.5 transition-transform duration-300"
+              />
+            </span>
+          </div>
+        </Link>
+
+        {/* Kelas gratis */}
+        <Link
+          to={`/blog/${futureMakersClass.slug}`}
+          className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d9eff] to-[#0a7dd1] text-white p-7 hover:shadow-2xl hover:shadow-[#0d9eff]/25 transition-all duration-300 flex flex-col"
+        >
+          <div className="absolute -right-12 -top-12 w-40 h-40 rounded-full bg-white/10" />
+          <div className="relative flex flex-col flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0d9eff] bg-white px-3 py-1.5 rounded-full">
                 <Sparkles size={12} /> Kelas Offline
@@ -55,35 +108,39 @@ const Blog = () => {
                 <Gift size={12} /> {futureMakersClass.price}
               </span>
             </div>
-            <h2 className="mt-4 text-2xl md:text-3xl font-extrabold leading-tight">
+            <h2 className="mt-4 text-2xl font-extrabold leading-tight">
               {futureMakersClass.title} — {futureMakersClass.subtitle}
             </h2>
-            <p className="mt-3 text-white/90 leading-relaxed max-w-2xl">
+            <p className="mt-3 text-white/90 leading-relaxed">
               {futureMakersClass.audience}. {futureMakersClass.period}, dengan
-              Demo Day di pertemuan terakhir. Coba dulu contoh gamenya di
-              halaman kelas.
+              Demo Day di pertemuan terakhir.
             </p>
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/85">
+            <div className="mt-5 flex items-end gap-2">
+              <span className="text-3xl font-extrabold leading-none">
+                Gratis
+              </span>
+              <span className="text-sm text-white/80 mb-0.5">
+                · {futureMakersClass.quota}
+              </span>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/85">
               <span className="inline-flex items-center gap-1.5">
                 <MapPin size={14} /> {futureMakersClass.location}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Users size={14} /> {futureMakersClass.quota}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Calendar size={14} /> Oktober 2026
               </span>
             </div>
+            <span className="mt-6 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-white text-[#0d9eff] font-bold self-start group-hover:bg-slate-100 transition-colors">
+              Lihat Detail &amp; Pesan Seat
+              <ArrowRight
+                size={18}
+                className="group-hover:translate-x-0.5 transition-transform duration-300"
+              />
+            </span>
           </div>
-          <span className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-white text-[#0d9eff] font-bold flex-shrink-0 self-start lg:self-center group-hover:bg-slate-100 transition-colors">
-            Lihat Detail &amp; Pesan Seat
-            <ArrowRight
-              size={18}
-              className="group-hover:translate-x-0.5 transition-transform duration-300"
-            />
-          </span>
-        </div>
-      </Link>
+        </Link>
+      </div>
 
       {/* Featured */}
       {featured && (

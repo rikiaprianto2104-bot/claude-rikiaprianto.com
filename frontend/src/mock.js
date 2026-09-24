@@ -1754,3 +1754,169 @@ export const futureMakersClass = {
     website: 'rikiaprianto.com',
   },
 };
+
+// ---------- Landing page: Kelas Berbayar Belajar AI (Claude & ChatGPT) ----------
+export const futureMakersPaidClass = {
+  slug: 'kelas-belajar-ai-anak',
+  brand: 'Future Makers',
+  tagline: 'AI untuk Anak, Masa Depan Lebih Cerah',
+  title: 'Belajar Artificial Intelligence',
+  subtitle: 'Claude & ChatGPT untuk Anak',
+  audience: 'Untuk Anak Usia 6–15 Tahun',
+  heroNote: 'Anak Bisa Berkarya dengan AI!',
+  motto: 'Small Learners, Big Future',
+  pillars: ['Ideas', 'Games', 'Websites', 'A Brighter You'],
+  quota: 'Kelas kecil, hanya 8 anak',
+  quotaCount: 8,
+  period: '4 pertemuan di bulan November 2026',
+  location: 'Offline Yogyakarta',
+  locationNote:
+    'Alamat lokasi akan diinformasikan lebih lanjut setelah pendaftaran.',
+  time: 'Pukul 15.00 WIB — Selesai',
+  age: '6–15 Tahun',
+  image: '/projects/thumbs/petualangan-pixi-moko.png',
+  excerpt:
+    'Kelas offline di Yogyakarta untuk anak usia 6–15 tahun. Empat pertemuan di bulan November 2026 belajar memakai Claude dan ChatGPT untuk membuat game dan website sendiri, ditutup dengan Demo Day di depan orang tua.',
+  // Harga: 2.500.000 adalah tarif normal kelas ini; 1.500.000 berlaku untuk
+  // batch perdana sampai tanggal di promoDeadline atau sampai 8 seat terisi.
+  // Ubah dua angka di bawah kalau tarifnya berubah.
+  price: {
+    normal: 2500000,
+    promo: 1500000,
+    currency: 'IDR',
+    unit: 'untuk 4 pertemuan',
+    label: 'Harga batch perdana',
+    normalLabel: 'Harga normal',
+    promoDeadline: '31 Oktober 2026',
+    promoDeadlineISO: '2026-10-31',
+    promoNote: 'Berlaku sampai 31 Oktober 2026 atau sampai 8 seat terisi — mana yang lebih dulu.',
+  },
+  whatsapp: {
+    display: '0888-0923-4347',
+    number: '6288809234347',
+    message:
+      'Halo Kak Riki, saya mau daftar Kelas Belajar AI untuk Anak (Claude & ChatGPT) batch November 2026.\n\nNama anak:\nUsia anak:\nNama orang tua:\nDomisili:',
+  },
+  schedule: [
+    {
+      week: 'Pertemuan 1',
+      date: '08',
+      month: 'Nov',
+      title: 'Kenalan dengan AI',
+      description:
+        'Cara ngobrol dengan Claude dan ChatGPT, menyusun prompt yang jelas, dan aturan aman memakai AI.',
+      icon: 'sparkles',
+    },
+    {
+      week: 'Pertemuan 2',
+      date: '15',
+      month: 'Nov',
+      title: 'Bikin Game Sendiri',
+      description:
+        'Dari ide di kepala jadi game yang benar-benar bisa dimainkan, dibantu AI langkah demi langkah.',
+      icon: 'gamepad',
+    },
+    {
+      week: 'Pertemuan 3',
+      date: '22',
+      month: 'Nov',
+      title: 'Bangun Website & Portofolio',
+      description:
+        'Membuat halaman web pribadi untuk memajang seluruh karya yang sudah dibuat anak.',
+      icon: 'code',
+    },
+    {
+      week: 'Pertemuan 4',
+      date: '29',
+      month: 'Nov',
+      title: 'Demo Day',
+      description:
+        'Anak mempresentasikan karyanya di depan orang tua, lalu menerima sertifikat.',
+      icon: 'flag',
+    },
+  ],
+  includes: [
+    '4 sesi kelas offline bersama mentor, bukan kelas rekaman',
+    'Pendampingan intensif — maksimal 8 anak dalam satu kelas',
+    'Modul dan lembar kerja yang bisa dibawa pulang',
+    'Website portofolio pribadi berisi karya anak',
+    'Sertifikat penyelesaian kelas',
+    'Demo Day bersama orang tua di pertemuan terakhir',
+  ],
+  benefits: [
+    {
+      icon: 'lightbulb',
+      title: 'Praktik Langsung',
+      description:
+        'Setiap pertemuan anak pulang membawa karya digital buatannya sendiri, bukan sekadar catatan.',
+    },
+    {
+      icon: 'brain',
+      title: 'Melatih Logika dan Problem Solving',
+      description:
+        'Membuat game melatih anak memecah masalah besar menjadi langkah-langkah kecil yang runtut.',
+    },
+    {
+      icon: 'users',
+      title: 'Kelas Kecil, Mentor Dekat',
+      description:
+        'Hanya 8 anak per kelas, jadi setiap peserta benar-benar terpantau dan dibantu saat kesulitan.',
+    },
+    {
+      icon: 'star',
+      title: 'Sertifikat & Portofolio',
+      description:
+        'Anak menutup kelas dengan sertifikat dan portofolio digital pertama yang bisa dibagikan.',
+    },
+    {
+      icon: 'shield',
+      title: 'Penggunaan AI yang Aman',
+      description:
+        'Anak diajari batas dan etika memakai AI: apa yang boleh dibagikan, apa yang harus ditanyakan ke orang tua.',
+    },
+    {
+      icon: 'heart',
+      title: 'Ramah untuk Orang Tua',
+      description:
+        'Materi mudah diikuti tanpa latar belakang teknis, dan orang tua diundang hadir saat Demo Day.',
+    },
+  ],
+  demoGame: {
+    title: 'Petualangan Pixi & Moko',
+    description:
+      'Inilah contoh game yang dibuat dengan bantuan AI. Anak-anak akan belajar membuat game seperti ini di pertemuan kedua. Silakan coba mainkan bersama si kecil.',
+    url: '/projects/petualangan-pixi-moko.html',
+    image: '/projects/thumbs/petualangan-pixi-moko.png',
+  },
+  faq: [
+    {
+      q: 'Bagaimana cara pembayarannya?',
+      a: 'Pembayaran lewat transfer bank. Setelah Anda konfirmasi seat lewat WhatsApp, kami kirimkan detail rekening dan instruksinya. Seat baru terkunci setelah pembayaran diterima.',
+    },
+    {
+      q: 'Apa bedanya dengan kelas gratis yang kemarin?',
+      a: 'Kelas gratis adalah sesi perkenalan singkat dengan kuota terbatas. Kelas berbayar ini materinya lebih dalam, mencakup Claude dan ChatGPT sekaligus, rentang usianya sampai 15 tahun, dan setiap anak menyelesaikan website portofolio pribadi.',
+    },
+    {
+      q: 'Anak saya belum pernah coding, apakah boleh ikut?',
+      a: 'Boleh. Kelas ini memang dirancang untuk pemula. Semua langkah dipandu mentor, dan materinya disesuaikan dengan usia masing-masing anak.',
+    },
+    {
+      q: 'Usia 6 dan 15 tahun digabung dalam satu kelas?',
+      a: 'Satu kelas, tapi tingkat tantangan tiap anak disesuaikan. Karena pesertanya hanya 8, mentor bisa memberi materi yang pas untuk anak yang lebih kecil maupun yang lebih besar.',
+    },
+    {
+      q: 'Apakah anak perlu membawa laptop sendiri?',
+      a: 'Sangat disarankan agar anak terbiasa dengan perangkatnya sendiri. Kalau tidak ada, sampaikan saat mendaftar lewat WhatsApp supaya kami siapkan solusinya.',
+    },
+    {
+      q: 'Kalau anak berhalangan hadir di salah satu pertemuan?',
+      a: 'Sampaikan ke mentor sebelum hari H. Kami bantu anak menyusul materinya di pertemuan berikutnya supaya karyanya tetap selesai sebelum Demo Day.',
+    },
+  ],
+  host: {
+    name: 'Riki MarkeThink',
+    role: 'AI Marketing Strategist',
+    website: 'rikiaprianto.com',
+  },
+};

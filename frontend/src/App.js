@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import KelasFutureMakers from './pages/KelasFutureMakers';
+import KelasBelajarAI from './pages/KelasBelajarAI';
 import Profile from './pages/Profile';
 import Research from './pages/Research';
 import Projects from './pages/Projects';
@@ -23,6 +24,10 @@ function App() {
             <Route
               path="/blog/kelas-future-makers"
               element={<KelasFutureMakers />}
+            />
+            <Route
+              path="/blog/kelas-belajar-ai-anak"
+              element={<KelasBelajarAI />}
             />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/profile" element={<Profile />} />
