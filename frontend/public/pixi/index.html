@@ -39,7 +39,12 @@
   #teksPixi{background:rgba(243,240,255,.96);border:3px solid var(--lavender);border-radius:30px 30px 30px 8px;padding:14px 22px;
     font-size:clamp(16px,2.9vw,24px);font-weight:700;line-height:1.35;
     box-shadow:0 5px 0 var(--lavender),0 10px 24px rgba(42,34,112,.18);
-    min-height:2.6em;display:flex;align-items:center;justify-content:center}
+    min-height:2.6em;display:grid;place-items:center;
+    /* Grid dipakai, bukan flex: isi grid boleh menyusut sampai muat, sedangkan
+       isi flex menolak menyusut di bawah lebar kata terpanjang lalu meluber.
+       overflow-wrap menjaga kalau ada satu kata yang memang lebih lebar dari
+       gelembungnya. */
+    overflow-wrap:anywhere}
   /* Teks anak & catatan diberi alas sendiri: tanpa itu keduanya hilang di atas
      langit biru dan awan putih pada gambar latar. */
   #teksAnak{margin-top:8px;font-size:clamp(14px,2.4vw,16px);font-weight:600;color:var(--ungu);min-height:1.4em}
@@ -607,11 +612,34 @@ function bicaraBrowser(teks, selesai){
   };
   lanjut();
 }
-async function bicaraServer(teks){
+// Meminta suara untuk SELURUH jawaban sekaligus membuat anak menunggu sekitar
+// 8 detik sambil menatap teks yang sudah muncul. Lamanya pembuatan mengikuti
+// panjang kalimat, jadi jawaban dipecah per kalimat: potongan pertama yang
+// pendek selesai jauh lebih cepat, dan Pixi bisa mulai bicara duluan.
+// Potongan berikutnya disiapkan sementara potongan sekarang masih diputar,
+// sehingga tidak muncul jeda baru di tengah kalimat.
+function potongKalimat(teks){
+  const kalimat = (teks.match(/[^.!?]+[.!?]*/g) || [teks]).map(k => k.trim()).filter(Boolean);
+  const bagian = [];
+  for(const k of kalimat){
+    const akhir = bagian[bagian.length - 1];
+    // Kalimat pendek digabung supaya tidak terlalu banyak permintaan, tetapi
+    // potongan pertama sengaja dibiarkan pendek supaya cepat terdengar.
+    if(akhir && bagian.length > 1 && (akhir + ' ' + k).length <= 140) bagian[bagian.length - 1] = akhir + ' ' + k;
+    else bagian.push(k);
+  }
+  return bagian;
+}
+
+async function ambilSuara(teks){
   const r = await fetch(CONFIG.TTS_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:teks})});
   // Server membalas JSON hanya kalau gagal; kalau berhasil isinya audio.
   if(!r.ok || !(r.headers.get('content-type') || '').includes('audio')) throw new Error('tts');
-  const url = URL.createObjectURL(await r.blob());
+  return r.blob();
+}
+
+async function putarSuara(blob){
+  const url = URL.createObjectURL(blob);
   try{
     const a = new Audio(url);
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
@@ -625,6 +653,23 @@ async function bicaraServer(teks){
     await new Promise(res => { a.onended = res; a.onerror = res; });
   } finally {
     penganalisis = null; URL.revokeObjectURL(url);
+  }
+}
+
+async function bicaraServer(teks){
+  const bagian = potongKalimat(teks);
+  let berikut = ambilSuara(bagian[0]);
+  for(let i = 0; i < bagian.length; i++){
+    let suara = null;
+    try{ suara = await berikut; }
+    catch(e){
+      // Gagal di potongan pertama: seluruh jawaban dibacakan suara browser.
+      // Gagal di tengah: berhenti saja, jangan mengulang dari awal.
+      if(i === 0) throw e;
+    }
+    if(!suara) break;
+    if(i + 1 < bagian.length) berikut = ambilSuara(bagian[i + 1]).catch(() => null);
+    await putarSuara(suara);
   }
 }
 function ucap(teks, gaya = 'talking'){

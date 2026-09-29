@@ -56,6 +56,24 @@
 Options -Indexes
 
 
+# JANGAN biarkan LiteSpeed menyimpan halaman folder ini.
+#
+# Server ini menyimpan salinan tiap halaman dan menyajikannya ke semua
+# pengunjung. Salinan untuk /pixi/ pernah terbentuk dari versi paling awal, lalu
+# terus disajikan walau berkasnya sudah berkali-kali diganti: pengunjung
+# menerima halaman lama yang belum mengenal TTS_URL, sehingga Pixi bicara dengan
+# suara bawaan perangkat, bukan suara Gemini. Gejalanya menyesatkan karena
+# menambahkan tanda tanya di alamat (mis. /pixi/?x=1) selalu memberi versi baru,
+# jadi seolah-olah masalahnya ada di browser masing-masing.
+#
+# Halamannya hanya 40 KB dan isinya berubah tiap deploy, jadi tidak ada untungnya
+# disimpan. Model 3D dan gambar latar tetap disimpan lama oleh browser lewat
+# aturan Cache-Control di atas; yang dimatikan di sini hanya simpanan di server.
+<IfModule LiteSpeed>
+  RewriteEngine On
+  RewriteRule .* - [E=Cache-Control:no-cache]
+</IfModule>
+
 # Tipe file yang benar untuk model 3D. Tanpa baris ini server menyajikannya
 # sebagai text/plain, lalu memperlakukannya seperti teks yang perlu dikompres.
 AddType model/gltf-binary .glb
