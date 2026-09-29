@@ -138,9 +138,12 @@
    ===================================================================== */
 const CONFIG = {
   CHAT_URL: '/pixi/pixi-chat.php',          // alamat perantara otak Claude, contoh: '/pixi/pixi-chat.php'. Kosong = MODE DEMO.
-  TTS_URL:  '',          // (tahap berikutnya) alamat perantara suara imut. Kosong = suara bawaan browser.
+  TTS_URL:  '/pixi/pixi-tts.php',   // suara tetap dari Gemini. Kosong = pakai suara bawaan browser.
   BAHASA:   'id-ID',
-  PITCH:    1.9,         // 0-2. Makin tinggi makin imut. Suara browser terbatas, nanti diganti TTS khusus.
+  // PITCH dan RATE HANYA berlaku untuk suara bawaan browser, yaitu saat TTS_URL
+  // kosong atau saat servernya sedang gagal. Suara dari TTS_URL tidak
+  // terpengaruh keduanya; nada dan gayanya diatur di pixi-tts.php.
+  PITCH:    1.9,         // 0-2. Makin tinggi makin imut.
   RATE:     1.05,        // kecepatan bicara
   MAX_PERTANYAAN: 25     // batas pertanyaan per kunjungan
 };
@@ -601,16 +604,23 @@ function bicaraBrowser(teks, selesai){
 }
 async function bicaraServer(teks){
   const r = await fetch(CONFIG.TTS_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:teks})});
-  if(!r.ok) throw new Error('tts');
+  // Server membalas JSON hanya kalau gagal; kalau berhasil isinya audio.
+  if(!r.ok || !(r.headers.get('content-type') || '').includes('audio')) throw new Error('tts');
   const url = URL.createObjectURL(await r.blob());
-  const a = new Audio(url);
-  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-  const src = audioCtx.createMediaElementSource(a);
-  penganalisis = audioCtx.createAnalyser(); penganalisis.fftSize = 256;
-  src.connect(penganalisis); penganalisis.connect(audioCtx.destination);
-  await a.play();
-  await new Promise(res => { a.onended = res; a.onerror = res; });
-  penganalisis = null; URL.revokeObjectURL(url);
+  try{
+    const a = new Audio(url);
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    // Browser memulai AudioContext dalam keadaan tertidur sampai ada ketukan dari
+    // pengguna. Tanpa dibangunkan, audionya jalan tapi tidak terdengar sama sekali.
+    if(audioCtx.state === 'suspended'){ try{ await audioCtx.resume(); }catch(e){} }
+    const src = audioCtx.createMediaElementSource(a);
+    penganalisis = audioCtx.createAnalyser(); penganalisis.fftSize = 256;
+    src.connect(penganalisis); penganalisis.connect(audioCtx.destination);
+    await a.play();
+    await new Promise(res => { a.onended = res; a.onerror = res; });
+  } finally {
+    penganalisis = null; URL.revokeObjectURL(url);
+  }
 }
 function ucap(teks, gaya = 'talking'){
   return new Promise(res => {

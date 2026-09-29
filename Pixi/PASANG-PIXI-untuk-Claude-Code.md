@@ -119,6 +119,53 @@ Tujuan: kalau anak atau orang tua bertanya "Siapa Riki MarkeThink?", Pixi menjaw
 - Batas pemakaian (`LIMIT_IP_HARI`, `LIMIT_TOTAL_HARI`, `MAX_TOKEN`).
 - Isi kepribadian Pixi (`$PIXI_SYSTEM`), aturan pemakaian pengetahuan (`$PIXI_PENGETAHUAN_ATURAN`), dan aturan keamanan anak di dalamnya.
 
+## Suara tetap (TTS Gemini)
+
+Halaman ini tidak lagi mengandalkan suara bawaan browser sebagai pilihan utama.
+Suara bawaan dipinjam dari perangkat, jadi berbeda-beda: di Windows terdengar
+dewasa, di Android lebih ringan, di iPhone lain lagi, dan di perangkat tanpa
+suara Indonesia bisa beraksen Inggris. Mengatur PITCH dan RATE tidak menolong,
+karena titik awal tiap perangkat memang berbeda.
+
+Sekarang suaranya dibuat di server lewat `pixi-tts.php`, memakai Gemini TTS
+dari Google AI Studio. Hasilnya satu suara yang sama di semua perangkat.
+
+- Model: `gemini-3.8-flash-tts` (versi hemat: `gemini-3.8-flash-lite-tts`)
+- Suara: `Leda`, yang oleh Google dideskripsikan "Youthful"
+- Gaya bicara diatur lewat anotasi `speech_metadata`
+
+### Menambahkan kunci Gemini
+
+Tambahkan satu baris ke file rahasia yang SUDAH ADA, jangan membuat file baru:
+
+```
+/home/u295189530/domains/rikiaprianto.com/pixi-secret.php
+```
+
+Isinya menjadi dua baris kunci:
+
+```php
+<?php
+define('ANTHROPIC_KEY', 'sk-ant-...');
+define('GEMINI_KEY',    'AIza...');
+```
+
+Kunci Gemini diambil dari Google AI Studio, menu API Keys, tombol Create API key.
+Atur juga batas pengeluaran di sana.
+
+### Kalau kunci belum ada
+
+Halaman tetap jalan. `pixi-tts.php` membalas error, dan halaman Pixi otomatis
+kembali memakai suara bawaan browser. Jadi Pixi tidak pernah bisu, hanya
+suaranya kembali berbeda-beda antar perangkat.
+
+### Suara yang sama tidak dibayar dua kali
+
+Sapaan pembuka Pixi identik di setiap kunjungan. `pixi-tts.php` menyimpan hasil
+suara di `~/pixi-tts-cache/` (di luar public_html) dengan nama dari sidik jari
+teksnya, jadi kalimat yang sama hanya sekali dibuatkan suara. Berkas terlama
+dibuang otomatis setelah 400 berkas.
+
 ## Catatan untuk tahap berikutnya
 
-Suara imut (TTS) akan dipasang di tahap berikutnya lewat endpoint terpisah (`TTS_URL`). Model 3D Pixi sudah terpasang, lengkap dengan tangan yang bisa bergerak serta mata dan mulut yang bisa berkedip, melirik, dan membuka saat bicara (semuanya sudah ada di dalam `pixi.html`, tidak perlu diubah).
+Suara tetap sudah dipasang (lihat bagian "Suara tetap" di atas). Model 3D Pixi sudah terpasang, lengkap dengan tangan yang bisa bergerak serta mata dan mulut yang bisa berkedip, melirik, dan membuka saat bicara (semuanya sudah ada di dalam `pixi.html`, tidak perlu diubah).
