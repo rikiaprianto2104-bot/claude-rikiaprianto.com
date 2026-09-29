@@ -24,7 +24,23 @@
 */
 
 // ---------------- PENGATURAN ----------------
-const MODEL = 'gemini-3.8-flash-tts';  // lebih hemat: 'gemini-3.8-flash-lite-tts'
+// MESIN: dua jalur suara, tinggal ganti satu kata di bawah.
+//
+//   'cloud'  Google Cloud Text-to-Speech, suara Chirp 3 HD. Jauh lebih cepat
+//            menjawab. Nama suaranya kebetulan sama persis dengan Gemini
+//            (Leda, Puck, Kore), jadi karakternya mirip.
+//            Catatan: Chirp 3 HD tidak menerima arahan gaya, pitch, maupun
+//            kecepatan, jadi GAYA di bawah diabaikan pada jalur ini.
+//
+//   'gemini' Gemini TTS. Lebih ekspresif karena bisa diarahkan lewat GAYA,
+//            tetapi tiap permintaan memakan waktu tetap sekitar 7 detik,
+//            berapa pun panjang kalimatnya (sudah diukur).
+//
+// Ganti nilainya lalu deploy. Suara tersimpan tidak tercampur karena nama mesin
+// ikut menentukan sidik jari penyimpanannya.
+const MESIN = 'cloud';
+
+const MODEL = 'gemini-3.8-flash-lite-tts';  // dipakai hanya kalau MESIN = 'gemini'
 
 // SUARA: Google memberi tiap suara satu kata sifat. 'Leda' disebut "Youthful",
 // paling dekat dengan suara anak. Kalau mau dicoba yang lain:
@@ -33,7 +49,8 @@ const MODEL = 'gemini-3.8-flash-tts';  // lebih hemat: 'gemini-3.8-flash-lite-tt
 //   'Achird'    - Friendly, lebih kalem dan bersahabat
 // Ganti satu kata di bawah, lalu deploy. Suara lama yang tersimpan tidak
 // terpakai lagi karena nama suara ikut menentukan sidik jari cache.
-const SUARA = 'Leda';
+const SUARA = 'Leda';                       // dipakai hanya kalau MESIN = 'gemini'
+const SUARA_CLOUD = 'id-ID-Chirp3-HD-Leda'; // dipakai hanya kalau MESIN = 'cloud'
 
 // GAYA: inilah yang membuat suaranya terdengar seperti anak Indonesia, bukan
 // seperti pembaca berita. Model mengikuti arahan ini saat membacakan kalimat,
@@ -81,7 +98,7 @@ $teks = mb_substr($teks, 0, MAX_HURUF);
 // membuat tagihan untuk kalimat yang bunyinya sama.
 $dirCache = $home . '/pixi-tts-cache';
 if (!is_dir($dirCache)) @mkdir($dirCache, 0700, true);
-$kunciCache = $dirCache . '/' . sha1(MODEL . '|' . SUARA . '|' . GAYA . '|' . $teks) . '.wav';
+$kunciCache = $dirCache . '/' . sha1(MESIN . '|' . MODEL . '|' . SUARA . '|' . SUARA_CLOUD . '|' . GAYA . '|' . $teks) . '.wav';
 if (is_file($kunciCache) && filesize($kunciCache) > 44) {
     @touch($kunciCache);
     kirimWav((string)file_get_contents($kunciCache));
@@ -91,7 +108,17 @@ if (is_file($kunciCache) && filesize($kunciCache) > 44) {
 $rahasia = $home . '/pixi-secret.php';
 if (!is_file($rahasia)) keluar(500, ['error' => 'Suara Pixi belum disetel']);
 require_once $rahasia;
-if (!defined('GEMINI_KEY') || !GEMINI_KEY) keluar(500, ['error' => 'Suara Pixi belum disetel']);
+// Dua layanan, dua kunci. Kunci Gemini ditolak Cloud TTS dengan 401, jadi jalur
+// cloud memakai kuncinya sendiri: GOOGLE_TTS_KEY. Kalau baris itu belum ada di
+// pixi-secret.php, jalur cloud akan memakai kunci Gemini sebagai cadangan, yang
+// biasanya gagal - dan halaman otomatis kembali ke suara bawaan browser.
+if (MESIN === 'cloud') {
+    $KUNCI = defined('GOOGLE_TTS_KEY') && GOOGLE_TTS_KEY ? GOOGLE_TTS_KEY
+           : (defined('GEMINI_KEY') ? GEMINI_KEY : '');
+} else {
+    $KUNCI = defined('GEMINI_KEY') ? GEMINI_KEY : '';
+}
+if (!$KUNCI) keluar(500, ['error' => 'Suara Pixi belum disetel']);
 
 // ---------------- Batas pemakaian harian ----------------
 $dirLimit = $home . '/pixi-limit';
@@ -112,7 +139,21 @@ if (!boleh("$dirLimit/$hari-tts-total", LIMIT_TOTAL_HARI) || !boleh("$dirLimit/$
     keluar(429, ['error' => 'Suara Pixi istirahat dulu']);
 }
 
-// ---------------- Panggil Gemini ----------------
+// ---------------- Panggil Google ----------------
+if (MESIN === 'cloud') {
+    // Cloud TTS menolak kunci yang dikirim lewat header x-goog-api-key (401).
+    // Layanan ini menerimanya sebagai parameter alamat, sesuai contoh resminya.
+    // Kuncinya tetap aman: panggilan ini server ke server lewat HTTPS, tidak
+    // pernah menyentuh browser anak.
+    $alamat = 'https://texttospeech.googleapis.com/v1/text:synthesize?key=' . urlencode($KUNCI);
+    // LINEAR16 dikembalikan lengkap dengan header WAV, jadi langsung bisa diputar.
+    $payload = json_encode([
+        'input' => ['text' => $teks],
+        'voice' => ['languageCode' => 'id-ID', 'name' => SUARA_CLOUD],
+        'audioConfig' => ['audioEncoding' => 'LINEAR16', 'sampleRateHertz' => SAMPEL],
+    ], JSON_UNESCAPED_UNICODE);
+} else {
+$alamat = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 $payload = json_encode([
     'model' => MODEL,
     'input' => [[
@@ -126,30 +167,55 @@ $payload = json_encode([
     'response_format' => ['type' => 'audio', 'mime_type' => 'audio/wav', 'sample_rate' => SAMPEL],
     'generation_config' => ['speech_config' => [['voice' => SUARA]]],
 ], JSON_UNESCAPED_UNICODE);
+}
 
-$ch = curl_init('https://generativelanguage.googleapis.com/v1beta/interactions');
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 25,
-    CURLOPT_HTTPHEADER => [
-        'content-type: application/json',
-        'x-goog-api-key: ' . GEMINI_KEY,
-    ],
-    CURLOPT_POSTFIELDS => $payload,
+// Google sesekali menolak permintaan yang sah, terutama saat beberapa
+// permintaan datang beruntun. Sekali gagal berarti anak mendengar suara bawaan
+// perangkat di tengah percakapan, jadi dicoba ulang beberapa kali dengan jeda
+// yang makin panjang sebelum benar-benar menyerah. Jedanya pendek supaya tidak
+// terasa oleh anak.
+$res = false; $kode = 0;
+foreach ([0, 400000, 1200000] as $i => $tunda) {
+    if ($tunda) usleep($tunda);
+    $ch = curl_init($alamat);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 25,
+        CURLOPT_HTTPHEADER => [
+            'content-type: application/json',
+            'x-goog-api-key: ' . $KUNCI,
+        ],
+        CURLOPT_POSTFIELDS => $payload,
+    ]);
+    $res = curl_exec($ch);
+    $kode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($res !== false && $kode === 200) break;
+    // 400 dan 401 tidak akan berubah kalau diulang: itu salah permintaan atau
+    // salah kunci, bukan gangguan sesaat.
+    if ($kode === 400 || $kode === 401 || $kode === 403) break;
+}
+
+// ===== SEMENTARA - dicabut setelah jalur suara terbukti stabil =====
+if ($res === false || $kode !== 200) keluar(502, [
+    'error'   => 'Suara Pixi lagi gangguan',
+    'd_http'  => (int)$kode,
+    'd_mesin' => MESIN,
+    'd_suara' => MESIN === 'cloud' ? SUARA_CLOUD : SUARA,
 ]);
-$res = curl_exec($ch);
-$kode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+// ===== AKHIR BAGIAN SEMENTARA =====
 
-if ($res === false || $kode !== 200) keluar(502, ['error' => 'Suara Pixi lagi gangguan']);
-
-// Audio base64 ada di steps[].content[].data
 $data = json_decode($res, true);
 $b64 = '';
-foreach (($data['steps'] ?? []) as $langkah) {
-    foreach (($langkah['content'] ?? []) as $bagian) {
-        if (!empty($bagian['data'])) { $b64 = $bagian['data']; break 2; }
+if (MESIN === 'cloud') {
+    $b64 = (string)($data['audioContent'] ?? '');
+} else {
+    // Audio base64 ada di steps[].content[].data
+    foreach (($data['steps'] ?? []) as $langkah) {
+        foreach (($langkah['content'] ?? []) as $bagian) {
+            if (!empty($bagian['data'])) { $b64 = $bagian['data']; break 2; }
+        }
     }
 }
 if ($b64 === '') keluar(502, ['error' => 'Suara Pixi tidak terdengar']);
