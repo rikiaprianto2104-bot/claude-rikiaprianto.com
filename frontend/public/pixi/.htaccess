@@ -35,13 +35,27 @@
   # Sama persis dengan Permissions-Policy root KECUALI microphone=(self).
   Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=(), interest-cohort=(), fullscreen=(self), gamepad=(self), autoplay=(self)"
 
-  # Halaman ini satu file 3,4 MB berisi model 3D. Tanpa cache, tiap kunjungan
-  # mengunduh ulang seluruhnya. Divalidasi ulang tiap hari.
+  # Halamannya sendiri kecil (sekitar 40 KB), jadi cukup divalidasi ulang terus
+  # supaya perubahan langsung terlihat setelah deploy.
   <FilesMatch "^index\.html$">
-    Header set Cache-Control "public, max-age=86400, must-revalidate"
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+
+  # Model 3D dan gambar latar jarang berubah dan ukurannya besar. Disimpan lama
+  # di browser supaya kunjungan kedua terasa seketika.
+  # CATATAN: nama filenya tidak mengandung hash. Kalau modelnya diganti, ganti
+  # juga namanya (mis. pixi-v2.glb) atau pengunjung lama akan tetap memakai
+  # versi tersimpan sampai 30 hari.
+  <FilesMatch "\.(glb|webp)$">
+    Header set Cache-Control "public, max-age=2592000"
   </FilesMatch>
 
 </IfModule>
 
 # Jangan tampilkan daftar isi folder.
 Options -Indexes
+
+
+# Tipe file yang benar untuk model 3D. Tanpa baris ini server menyajikannya
+# sebagai text/plain, lalu memperlakukannya seperti teks yang perlu dikompres.
+AddType model/gltf-binary .glb
