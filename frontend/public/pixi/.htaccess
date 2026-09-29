@@ -1,0 +1,47 @@
+# ============================================================================
+#  .htaccess KHUSUS folder /pixi/ — halaman "Ngobrol dengan Pixi".
+#
+#  KENAPA ADA FILE TERPISAH DI SINI?
+#  Halaman ini butuh DUA pengecualian dari aturan root, dan tanpa keduanya
+#  halaman mati total (bukan sekadar berkurang fiturnya):
+#
+#  1. MIKROFON. Permissions-Policy di root memakai  microphone=()  yang
+#     mematikan mikrofon untuk SELURUH situs. Tombol "Tahan & bicara" memakai
+#     Web Speech Recognition, dan Chrome menutupnya mengikuti izin mikrofon.
+#     Di sini mikrofon dibuka HANYA untuk halaman ini sendiri: microphone=(self).
+#     Sisa daftar dibiarkan sama dengan root — kamera tetap mati.
+#
+#  2. SKRIP INLINE. script-src di root sudah tidak memuat 'unsafe-inline'.
+#     Halaman ini satu file mandiri dengan model 3D Pixi tertanam di dalamnya
+#     sebagai data base64, jadi skripnya memang inline dan akan ditolak browser
+#     tanpa pengecualian ini. Pola dan alasannya sama dengan projects/.htaccess.
+#
+#  Perlindungan lain TETAP sama dengan root: tidak boleh di-iframe domain lain,
+#  tidak boleh memuat plugin, tujuan koneksi dan form tetap dibatasi.
+#
+#  Kompromi ini terbatas: halaman ini tidak memegang sesi dan tidak menampilkan
+#  data pengguna lain. Satu-satunya tujuan koneksinya adalah pixi-chat.php di
+#  domain ini sendiri, yang sudah tercakup oleh  connect-src 'self'.
+#
+#  KALAU CSP DI ROOT DIUBAH, samakan juga baris CSP di bawah agar tidak
+#  menyimpang — sama seperti catatan di projects/.htaccess.
+# ============================================================================
+
+<IfModule mod_headers.c>
+
+  # Sama persis dengan CSP root KECUALI script-src yang memuat 'unsafe-inline'.
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self' https://www.facebook.com; script-src 'self' 'unsafe-inline' https://connect.facebook.net https://us-assets.i.posthog.com https://us.i.posthog.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://cdn.sheetjs.com https://unpkg.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' https://www.facebook.com; manifest-src 'self'; connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com https://*.i.posthog.com https://www.facebook.com https://connect.facebook.net https://0.peerjs.com wss://0.peerjs.com https://*.firebaseio.com wss://*.firebaseio.com; upgrade-insecure-requests"
+
+  # Sama persis dengan Permissions-Policy root KECUALI microphone=(self).
+  Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=(), interest-cohort=(), fullscreen=(self), gamepad=(self), autoplay=(self)"
+
+  # Halaman ini satu file 3,4 MB berisi model 3D. Tanpa cache, tiap kunjungan
+  # mengunduh ulang seluruhnya. Divalidasi ulang tiap hari.
+  <FilesMatch "^index\.html$">
+    Header set Cache-Control "public, max-age=86400, must-revalidate"
+  </FilesMatch>
+
+</IfModule>
+
+# Jangan tampilkan daftar isi folder.
+Options -Indexes

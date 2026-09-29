@@ -50,6 +50,14 @@ RewriteRule (?i)(^|/)(package(-lock)?\.json|yarn\.lock|composer\.(json|lock)|Doc
 # sehingga tetap dilayani langsung.
 RewriteRule ^projects/?$ /index.html [L]
 
+# Folder fisik /pixi/ berisi halaman mandiri "Ngobrol dengan Pixi" (model 3D
+# tertanam di dalamnya). Karena DirectorySlash Off di atas, permintaan ke /pixi
+# tanpa garis miring TIDAK dialihkan ke /pixi/ dan Apache menolaknya -- masalah
+# yang sama dengan /projects. Baris ini melayani halamannya langsung.
+# Catch-all SPA di bawah tidak menyentuh folder ini karena /pixi cocok dengan -d
+# dan file di dalamnya cocok dengan -f.
+RewriteRule ^pixi/?$ /pixi/index.html [L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]

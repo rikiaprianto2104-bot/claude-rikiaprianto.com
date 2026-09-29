@@ -8,6 +8,7 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import KelasFutureMakers from './pages/KelasFutureMakers';
 import KelasBelajarAI from './pages/KelasBelajarAI';
+import FutureMakers from './pages/FutureMakers';
 import Profile from './pages/Profile';
 import Research from './pages/Research';
 import Projects from './pages/Projects';
@@ -33,6 +34,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/research" element={<Research />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/future-maker" element={<FutureMakers />} />
             <Route path="/contact" element={<Contact />} />
           </Route>
         </Routes>

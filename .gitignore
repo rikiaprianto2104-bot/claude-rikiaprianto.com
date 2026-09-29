@@ -101,3 +101,15 @@ memory/test_credentials.md
 
 # Mobile development
 android-sdk/
+# Model 3D sumber Pixi (60 MB). Tidak dipakai saat halaman jalan: versinya yang
+# sudah dikompres sudah tertanam sebagai base64 di dalam frontend/public/pixi/index.html.
+# GitHub menolak file di atas 100 MB dan memperingatkan di atas 50 MB.
+Pixi/*.glb
+
+# Salinan kerja Pixi. Versi yang dipakai situs ada di frontend/public/pixi/ dan
+# itulah satu-satunya yang di-deploy. Dua file di bawah adalah salinan awal yang
+# sudah tertinggal; melacak keduanya cuma mengundang dua versi yang berbeda diam-diam.
+# Yang TETAP dilacak di folder Pixi/: dokumen pemasangan dan file pengetahuan,
+# karena pengetahuan memang tidak boleh ikut masuk ke public_html.
+Pixi/pixi.html
+Pixi/pixi-chat.php

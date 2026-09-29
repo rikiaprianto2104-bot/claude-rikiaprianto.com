@@ -25,6 +25,7 @@ export const navItems = [
   { label: 'Profile', path: '/profile' },
   { label: 'Research', path: '/research' },
   { label: 'My Projects', path: '/projects' },
+  { label: 'Future Maker', path: '/future-maker' },
   { label: 'Contact', path: '/contact' },
 ];
 

@@ -50,6 +50,13 @@ if [[ -f "$FRONTEND_DIR/public/projects/.htaccess" ]]; then
   mkdir -p "$BUILD_DIR/projects"
   cp -f "$FRONTEND_DIR/public/projects/.htaccess" "$BUILD_DIR/projects/.htaccess"
 fi
+# Folder /pixi/ juga punya .htaccess sendiri: membuka mikrofon (dimatikan untuk
+# seluruh situs oleh Permissions-Policy root) dan mengizinkan skrip inline.
+# Tanpa file ini, tombol "Tahan & bicara" mati dan halaman Pixi tidak jalan.
+if [[ -f "$FRONTEND_DIR/public/pixi/.htaccess" ]]; then
+  mkdir -p "$BUILD_DIR/pixi"
+  cp -f "$FRONTEND_DIR/public/pixi/.htaccess" "$BUILD_DIR/pixi/.htaccess"
+fi
 
 if [[ ! -f "$BUILD_DIR/index.html" ]]; then
   echo "ERROR: build gagal — $BUILD_DIR/index.html tidak ada." >&2
