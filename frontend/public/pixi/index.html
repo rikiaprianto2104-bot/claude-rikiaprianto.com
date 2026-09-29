@@ -259,11 +259,16 @@ bayangan.rotation.x = -Math.PI / 2; bayangan.position.y = -1.32; scene.add(bayan
 // ---- Model 3D asli Pixi (GLB): badan + 2 tangan terpisah, mata & mulut digambar ulang dengan kode ----
 let glbG = null, glbParts = null;
 (function(){
-  const tombol = document.getElementById('btnMulai');
-  const siap = () => { tombol.disabled = false; tombol.textContent = 'Mulai'; };
-  const cadangan = () => { pixi.children.forEach(ch => { ch.visible = true; }); pixi.visible = true; glbG = null; glbParts = null; siap(); };
+  // Pixi versi sederhana (dirakit dari bentuk dasar di atas) langsung tampil dan
+  // tombolnya langsung bisa ditekan. Model 3D yang detail menyusul di belakang
+  // layar, lalu menggantikannya begitu siap.
+  //
+  // Sebelumnya Pixi disembunyikan dan tombol dimatikan sampai model selesai
+  // diunduh. Model itu 2,5 MB, jadi di HP anak menatap layar kosong bertuliskan
+  // "Pixi lagi bangun..." selama beberapa detik dan mengira halamannya rusak.
+  // Sekarang tidak ada yang perlu ditunggu sebelum mulai mengobrol.
+  const cadangan = () => { glbG = null; glbParts = null; };
   if(!THREE.GLTFLoader){ return; }
-  pixi.visible = false; tombol.disabled = true; tombol.textContent = 'Pixi lagi bangun...';
 
   const kanvas = (w, hh, gambar) => {
     const c = document.createElement('canvas'); c.width = w; c.height = hh; gambar(c.getContext('2d'), w, hh);
@@ -382,7 +387,7 @@ let glbG = null, glbParts = null;
       glbG = new THREE.Group(); glbG.position.y = .28; glbG.add(m);
       glbParts = {pivot, mataL, mataR, mulutM, dasar:{L:[-.0492, .1977], R:[.0190, .1974]}};
       pixi.children.slice().forEach(ch => { ch.visible = false; });   // sembunyikan Pixi buatan kode
-      pixi.add(glbG); glbG.visible = true; pixi.visible = true; siap();
+      pixi.add(glbG); glbG.visible = true; pixi.visible = true;
     }, undefined, err => { console.error(err); cadangan(); });
   }catch(e){ console.error(e); cadangan(); }
 })();
