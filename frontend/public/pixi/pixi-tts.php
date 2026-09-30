@@ -51,24 +51,6 @@ const MODEL = 'gemini-3.8-flash-lite-tts';  // dipakai hanya kalau MESIN = 'gemi
 // terpakai lagi karena nama suara ikut menentukan sidik jari cache.
 const SUARA = 'Leda';                       // dipakai hanya kalau MESIN = 'gemini'
 const SUARA_CLOUD = 'id-ID-Chirp3-HD-Autonoe'; // dipakai hanya kalau MESIN = 'cloud'
-
-// IMUT: seberapa tinggi nada suara Pixi dinaikkan.
-//
-// Chirp 3 HD tidak menerima pengaturan nada dari Google, jadi nadanya dinaikkan
-// di sini, pada berkas suaranya langsung: angka sample rate di dalam header WAV
-// ditulis ulang lebih tinggi, sehingga browser memutarnya sedikit lebih cepat
-// dan lebih tinggi. Itu persis yang membuat suara terdengar seperti anak kecil.
-//
-//   1.00  apa adanya dari Google
-//   1.08  sedikit lebih ceria
-//   1.14  imut, masih terdengar wajar
-//   1.20  sangat imut, mulai terasa dipercepat
-//   di atas 1.25 biasanya mulai terdengar seperti kaset dipercepat
-//
-// Berkas yang tersimpan menyimpan suara aslinya, dan angka ini diterapkan saat
-// dikirim. Jadi mengubahnya tidak membuang suara yang sudah dibuat.
-const IMUT = 1.14;
-
 // GAYA: inilah yang membuat suaranya terdengar seperti anak Indonesia, bukan
 // seperti pembaca berita. Model mengikuti arahan ini saat membacakan kalimat,
 // jadi tulis sedetail mungkin: umur, perasaan, tempo, dan logatnya.
@@ -95,25 +77,19 @@ function keluar(int $kode, array $isi): void {
     exit;
 }
 
-// Menulis ulang sample rate di dalam header WAV. Isinya tidak disentuh sama
-// sekali, hanya keterangan kecepatan putarnya yang diubah, jadi biayanya nol.
-function naikkanNada(string $wav, float $faktor): string {
-    if ($faktor <= 1.001 || strlen($wav) < 44) return $wav;
-    $f = strpos($wav, 'fmt ');
-    if ($f === false || strlen($wav) < $f + 20) return $wav;
-    $rate = unpack('V', substr($wav, $f + 12, 4))[1];
-    $byte = unpack('V', substr($wav, $f + 16, 4))[1];
-    if (!$rate) return $wav;
-    $wav = substr_replace($wav, pack('V', (int)round($rate * $faktor)), $f + 12, 4);
-    $wav = substr_replace($wav, pack('V', (int)round($byte * $faktor)), $f + 16, 4);
-    return $wav;
-}
-
-function kirimWav(string $wav): void {
-    header('Content-Type: audio/wav');
-    header('Content-Length: ' . strlen($wav));
+// MP3, bukan WAV. WAV 24 kHz mentah berukuran sekitar 48 KB per detik audio,
+// jadi satu jawaban lima detik menjadi 250 KB dan pengunduhannya di jaringan HP
+// memakan beberapa detik sendiri - itulah jeda yang terasa, bukan pembuatannya.
+// MP3 dengan isi yang sama sekitar 33 KB, tujuh kali lebih ringan.
+//
+// Nada suara TIDAK lagi dinaikkan di sini. Dulu caranya menyunting angka sample
+// rate di header WAV, dan MP3 tidak punya header semacam itu. Sekarang halaman
+// yang menaikkannya saat memutar, lewat CONFIG.IMUT.
+function kirimAudio(string $audio): void {
+    header('Content-Type: audio/mpeg');
+    header('Content-Length: ' . strlen($audio));
     header('Cache-Control: private, max-age=86400');
-    echo $wav;
+    echo $audio;
     exit;
 }
 
@@ -128,10 +104,10 @@ $teks = mb_substr($teks, 0, MAX_HURUF);
 // membuat tagihan untuk kalimat yang bunyinya sama.
 $dirCache = $home . '/pixi-tts-cache';
 if (!is_dir($dirCache)) @mkdir($dirCache, 0700, true);
-$kunciCache = $dirCache . '/' . sha1(MESIN . '|' . MODEL . '|' . SUARA . '|' . SUARA_CLOUD . '|' . GAYA . '|' . $teks) . '.wav';
+$kunciCache = $dirCache . '/' . sha1(MESIN . '|' . MODEL . '|' . SUARA . '|' . SUARA_CLOUD . '|' . GAYA . '|' . $teks) . '.mp3';
 if (is_file($kunciCache) && filesize($kunciCache) > 44) {
     @touch($kunciCache);
-    kirimWav(naikkanNada((string)file_get_contents($kunciCache), IMUT));
+    kirimAudio((string)file_get_contents($kunciCache));
 }
 
 // ---------------- Kunci ----------------
@@ -180,7 +156,7 @@ if (MESIN === 'cloud') {
     $payload = json_encode([
         'input' => ['text' => $teks],
         'voice' => ['languageCode' => 'id-ID', 'name' => SUARA_CLOUD],
-        'audioConfig' => ['audioEncoding' => 'LINEAR16', 'sampleRateHertz' => SAMPEL],
+        'audioConfig' => ['audioEncoding' => 'MP3', 'sampleRateHertz' => SAMPEL],
     ], JSON_UNESCAPED_UNICODE);
 } else {
 $alamat = 'https://generativelanguage.googleapis.com/v1beta/interactions';
@@ -248,10 +224,10 @@ if ($wav === false || strlen($wav) < 45) keluar(502, ['error' => 'Suara Pixi rus
 
 // Simpan untuk dipakai lagi, lalu buang yang paling lama kalau sudah terlalu banyak.
 @file_put_contents($kunciCache, $wav, LOCK_EX);
-$berkas = glob($dirCache . '/*.wav') ?: [];
+$berkas = glob($dirCache . '/*.mp3') ?: [];
 if (count($berkas) > MAX_CACHE) {
     usort($berkas, fn($a, $b) => filemtime($a) <=> filemtime($b));
     foreach (array_slice($berkas, 0, count($berkas) - MAX_CACHE) as $tua) @unlink($tua);
 }
 
-kirimWav(naikkanNada($wav, IMUT));
+kirimAudio($wav);

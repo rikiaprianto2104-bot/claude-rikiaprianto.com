@@ -40,6 +40,9 @@
     font-size:clamp(16px,2.9vw,24px);font-weight:700;line-height:1.35;
     box-shadow:0 5px 0 var(--lavender),0 10px 24px rgba(42,34,112,.18);
     min-height:2.6em;display:grid;place-items:center;
+    /* Jawaban panjang dulu tumbuh sampai menimpa tombol di bawahnya. Sekarang
+       tingginya dibatasi dan boleh digulir kalau isinya memang panjang. */
+    max-height:min(46vh,340px);overflow-y:auto;
     /* Grid dipakai, bukan flex: isi grid boleh menyusut sampai muat, sedangkan
        isi flex menolak menyusut di bawah lebar kata terpanjang lalu meluber.
        overflow-wrap menjaga kalau ada satu kata yang memang lebih lebar dari
@@ -111,12 +114,6 @@
 </div>
 
 <div id="dock">
-  <div id="chips">
-    <button class="chip" data-q="Siapa namamu?">Siapa namamu?</button>
-    <button class="chip" data-q="AI itu apa sih?">AI itu apa sih?</button>
-    <button class="chip" data-q="Prompt itu apa?">Prompt itu apa?</button>
-    <button class="chip" data-q="Ceritakan lelucon dong!">Lelucon dong!</button>
-  </div>
   <div id="baris">
     <button id="mic" type="button" aria-pressed="false"><span class="ikon">🎤</span><span id="micLabel">Mulai ngobrol</span></button>
     <button id="tombolKetik">⌨️ Ketik</button>
@@ -150,6 +147,11 @@ const CONFIG = {
   // terpengaruh keduanya; nada dan gayanya diatur di pixi-tts.php.
   PITCH:    1.9,         // 0-2. Makin tinggi makin imut.
   RATE:     1.05,        // kecepatan bicara
+  // IMUT: nada suara dari server dinaikkan saat diputar, karena suara Chirp 3 HD
+  // tidak bisa diatur nadanya dari Google. Memutar lebih cepat sekaligus
+  // menaikkan nada, dan perpaduan itulah yang terdengar seperti anak.
+  //   1.00 apa adanya   1.08 sedikit ceria   1.14 imut   1.20 sangat imut
+  IMUT:     1.14,
   MAX_PERTANYAAN: 25     // batas pertanyaan per kunjungan
 };
 
@@ -619,13 +621,17 @@ function bicaraBrowser(teks, selesai){
 // Potongan berikutnya disiapkan sementara potongan sekarang masih diputar,
 // sehingga tidak muncul jeda baru di tengah kalimat.
 function potongKalimat(teks){
+  // Jawaban pendek TIDAK dipecah. Dulu semua dipecah, sehingga potongan pertama
+  // bisa sependek "Halo!" lalu berhenti sejenak menunggu potongan berikutnya -
+  // terdengar seperti Pixi tersendat. Sejak memakai MP3 satu jawaban utuh pun
+  // sudah ringan, jadi memecah hanya berguna untuk jawaban yang panjang.
+  if(teks.length <= 220) return [teks];
   const kalimat = (teks.match(/[^.!?]+[.!?]*/g) || [teks]).map(k => k.trim()).filter(Boolean);
   const bagian = [];
   for(const k of kalimat){
     const akhir = bagian[bagian.length - 1];
-    // Kalimat pendek digabung supaya tidak terlalu banyak permintaan, tetapi
-    // potongan pertama sengaja dibiarkan pendek supaya cepat terdengar.
-    if(akhir && bagian.length > 1 && (akhir + ' ' + k).length <= 140) bagian[bagian.length - 1] = akhir + ' ' + k;
+    // Potongan dijaga tidak terlalu pendek supaya tidak terdengar terputus.
+    if(akhir && akhir.length < 120) bagian[bagian.length - 1] = akhir + ' ' + k;
     else bagian.push(k);
   }
   return bagian;
@@ -638,42 +644,68 @@ async function ambilSuara(teks){
   return r.blob();
 }
 
-async function putarSuara(blob){
+// Tiap kali Pixi mulai bicara, nomornya naik satu. Suara yang sedang berjalan
+// memeriksa nomor ini dan berhenti kalau ternyata sudah ada ucapan yang lebih
+// baru. Tanpa ini, menekan tombol saat Pixi masih bicara membuat dua suara
+// berbunyi bersamaan.
+let nomorUcapan = 0, audioBerjalan = null;
+function hentikanSuara(){
+  nomorUcapan++;
+  if(audioBerjalan){ try{ audioBerjalan.pause(); }catch(e){} audioBerjalan = null; }
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  penganalisis = null;
+}
+
+async function putarSuara(blob, nomor){
   const url = URL.createObjectURL(blob);
   try{
     const a = new Audio(url);
+    // Nada dinaikkan di sini. preservesPitch harus dimatikan lebih dulu, karena
+    // browser secara bawaan menjaga nada tetap sama saat kecepatan diubah -
+    // padahal naiknya nada itulah yang kita inginkan.
+    a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false;
+    a.playbackRate = CONFIG.IMUT || 1;
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     // Browser memulai AudioContext dalam keadaan tertidur sampai ada ketukan dari
     // pengguna. Tanpa dibangunkan, audionya jalan tapi tidak terdengar sama sekali.
     if(audioCtx.state === 'suspended'){ try{ await audioCtx.resume(); }catch(e){} }
+    if(nomor !== nomorUcapan) return;
     const src = audioCtx.createMediaElementSource(a);
     penganalisis = audioCtx.createAnalyser(); penganalisis.fftSize = 256;
     src.connect(penganalisis); penganalisis.connect(audioCtx.destination);
+    audioBerjalan = a;
     await a.play();
     await new Promise(res => { a.onended = res; a.onerror = res; });
   } finally {
+    audioBerjalan = null;
     penganalisis = null; URL.revokeObjectURL(url);
   }
 }
 
 async function bicaraServer(teks){
+  const nomor = ++nomorUcapan;
   const bagian = potongKalimat(teks);
-  let berikut = ambilSuara(bagian[0]);
+  // Potongan kedua diminta bersamaan dengan yang pertama, bukan menunggu yang
+  // pertama selesai diputar, supaya tidak ada jeda di tengah kalimat.
+  const antre = [ambilSuara(bagian[0])];
+  if(bagian.length > 1) antre.push(ambilSuara(bagian[1]).catch(() => null));
   for(let i = 0; i < bagian.length; i++){
+    if(nomor !== nomorUcapan) return;
     let suara = null;
-    try{ suara = await berikut; }
+    try{ suara = await antre[i]; }
     catch(e){
       // Gagal di potongan pertama: seluruh jawaban dibacakan suara browser.
       // Gagal di tengah: berhenti saja, jangan mengulang dari awal.
       if(i === 0) throw e;
     }
     if(!suara) break;
-    if(i + 1 < bagian.length) berikut = ambilSuara(bagian[i + 1]).catch(() => null);
-    await putarSuara(suara);
+    if(i + 2 < bagian.length) antre[i + 2] = ambilSuara(bagian[i + 2]).catch(() => null);
+    await putarSuara(suara, nomor);
   }
 }
 function ucap(teks, gaya = 'talking'){
   return new Promise(res => {
+    hentikanSuara();                 // apa pun yang sedang berbunyi, hentikan dulu
     tampilPixi(teks); setKeadaan(gaya); sedangBicara = true;
     const selesai = () => { sedangBicara = false; penganalisis = null; setKeadaan('idle'); res(); };
     if(bisu){ setTimeout(selesai, Math.min(7000, 1500 + teks.length * 45)); return; }
@@ -761,7 +793,6 @@ addEventListener('keydown', e => {
 });
 
 // ---- Tombol lain ----
-document.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => tanyaPixi(b.dataset.q)));
 el('tombolKetik').addEventListener('click', () => { el('formKetik').classList.toggle('buka'); el('isiKetik').focus(); });
 el('formKetik').addEventListener('submit', e => { e.preventDefault(); const i = el('isiKetik'); const t = i.value; i.value = ''; tanyaPixi(t); });
 el('tombolSuara').addEventListener('click', () => {
