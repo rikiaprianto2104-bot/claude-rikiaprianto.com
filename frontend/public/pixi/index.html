@@ -740,15 +740,47 @@ let rec = null, mendengar = false, dengarNyala = false, jedaDengar = false;
 // Jadi potongan-potongan itu ditumpuk dulu, dan baru dikirim setelah anak
 // benar-benar diam selama CONFIG.JEDA_SELESAI. Tiap suara baru menunda lagi
 // pengirimannya, sehingga anak boleh berpikir sejenak di tengah kalimat.
-let terkumpul = '', jamKirim = null;
+// Dua penampung, dan pembagiannya penting:
+//
+//   sesiIni   kalimat lengkap menurut pengenal suara yang SEDANG berjalan.
+//             Android mengirim ulang seluruh kalimat tiap kali, makin panjang,
+//             jadi isinya DIGANTI, bukan ditambah. Menambahkannya membuat
+//             "Saya lagi nonton TV" menumpuk jadi "Saya Saya lagi Saya lagi
+//             nonton Saya lagi nonton TV".
+//
+//   sudahJadi kalimat dari pengenal suara SEBELUMNYA, yang sudah berhenti lalu
+//             dijalankan ulang oleh Android di tengah anak bicara. Tanpa ini,
+//             bagian yang sudah diucapkan hilang tiap kali Android menyalakan
+//             ulang pengenalnya.
+let sesiIni = '', sudahJadi = '', jamKirim = null;
 
+// Menyambung dua bagian sambil membuang tumpang tindih di sambungannya.
+// Perlu karena saat Android menyalakan ulang pengenal suara, kadang kalimat yang
+// sudah terdengar diucapkan ulang dari awal. Tanpa ini, "Saya lagi" + "Saya lagi
+// nonton TV" menjadi "Saya lagi Saya lagi nonton TV".
+function sambung(awal, akhir){
+  awal = awal.trim(); akhir = akhir.trim();
+  if(!awal) return akhir;
+  if(!akhir) return awal;
+  const a = awal.split(/\s+/), b = akhir.split(/\s+/);
+  const maks = Math.min(a.length, b.length, 12);
+  for(let k = maks; k > 0; k--){
+    const ekor = a.slice(a.length - k).join(' ').toLowerCase();
+    const kepala = b.slice(0, k).join(' ').toLowerCase();
+    if(ekor === kepala) return a.concat(b.slice(k)).join(' ');
+  }
+  return awal + ' ' + akhir;
+}
+
+function ucapanPenuh(){ return sambung(sudahJadi, sesiIni); }
+function lupakanUcapan(){ sesiIni = ''; sudahJadi = ''; }
 function batalkanKirim(){ clearTimeout(jamKirim); jamKirim = null; }
 
 function jadwalkanKirim(){
   batalkanKirim();
   jamKirim = setTimeout(() => {
-    const ucapan = terkumpul.trim();
-    terkumpul = '';
+    const ucapan = ucapanPenuh();
+    lupakanUcapan();
     if(ucapan) tanyaPixi(ucapan);
   }, CONFIG.JEDA_SELESAI);
 }
@@ -766,14 +798,15 @@ function jalankanDengar(){
   rec = new SR();
   rec.lang = CONFIG.BAHASA; rec.interimResults = true; rec.continuous = true;
   rec.onresult = e => {
-    let sementara = '';
-    for(let i = e.resultIndex; i < e.results.length; i++){
-      const potongan = e.results[i][0].transcript;
-      if(e.results[i].isFinal) terkumpul += potongan + ' '; else sementara += potongan;
-    }
-    tampilAnak((terkumpul + sementara).trim());
-    // Setiap suara baru menunda pengiriman. Kalimat baru dikirim setelah anak
-    // diam beberapa saat, jadi kalimat panjang tidak terpotong di kata pertama.
+    // Seluruh daftar dibaca ulang dari awal, bukan hanya yang baru, lalu hasilnya
+    // MENGGANTI isi sesiIni. Daftar ini memang kumulatif: isinya kalimat yang
+    // sama yang sedang tumbuh, bukan potongan-potongan terpisah.
+    let teks = '';
+    for(let i = 0; i < e.results.length; i++) teks += e.results[i][0].transcript + ' ';
+    sesiIni = teks.trim();
+    tampilAnak(ucapanPenuh());
+    // Setiap suara baru menunda pengiriman, jadi kalimat panjang tidak terpotong
+    // di kata pertama dan anak boleh berpikir sejenak di tengah kalimat.
     jadwalkanKirim();
   };
   rec.onerror = e => {
@@ -784,14 +817,21 @@ function jalankanDengar(){
   };
   // Browser menghentikan sendiri pengenal suara setelah hening beberapa detik.
   // Selama saklar masih nyala, langsung dijalankan lagi supaya terasa menyambung.
-  rec.onend = () => { mendengar = false; setTimeout(jalankanDengar, 250); };
+  rec.onend = () => {
+    mendengar = false;
+    // Android sering menghentikan pengenal suara di tengah anak bicara. Bagian
+    // yang sudah terdengar dipindahkan dulu, supaya tidak hilang saat pengenal
+    // berikutnya mulai dari daftar kosong.
+    if(sesiIni){ sudahJadi = ucapanPenuh(); sesiIni = ''; }
+    setTimeout(jalankanDengar, 250);
+  };
   try{ rec.start(); mendengar = true; }
   catch(e){ mendengar = false; }
 }
 
 function hentikanDengar(){
   jedaDengar = true;
-  batalkanKirim(); terkumpul = '';
+  batalkanKirim(); lupakanUcapan();
   if(rec && mendengar){ try{ rec.abort(); }catch(e){} }
 }
 function lanjutkanDengar(){
