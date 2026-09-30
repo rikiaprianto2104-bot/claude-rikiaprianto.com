@@ -155,7 +155,7 @@ const CONFIG = {
   // JEDA_SELESAI: berapa lama hening (milidetik) sebelum ucapan anak dianggap
   // selesai dan dikirim ke Pixi. Terlalu pendek, kalimat terpotong di tengah.
   // Terlalu panjang, Pixi terasa lambat menanggapi.
-  JEDA_SELESAI: 1300,
+  JEDA_SELESAI: 900,
   MAX_PERTANYAAN: 25     // batas pertanyaan per kunjungan
 };
 
@@ -798,12 +798,21 @@ function jalankanDengar(){
   rec = new SR();
   rec.lang = CONFIG.BAHASA; rec.interimResults = true; rec.continuous = true;
   rec.onresult = e => {
-    // Seluruh daftar dibaca ulang dari awal, bukan hanya yang baru, lalu hasilnya
-    // MENGGANTI isi sesiIni. Daftar ini memang kumulatif: isinya kalimat yang
-    // sama yang sedang tumbuh, bukan potongan-potongan terpisah.
-    let teks = '';
-    for(let i = 0; i < e.results.length; i++) teks += e.results[i][0].transcript + ' ';
-    sesiIni = teks.trim();
+    // Daftar dibaca ulang dari awal tiap kali, dan tiap bagian DILIPAT masuk
+    // dengan membuang tumpang tindih, bukan sekadar disambung.
+    //
+    // Menyambung begitu saja masih menumpuk, karena Android kerap mengirim
+    // potongan "final" yang isinya mengulang kalimat sebelumnya dalam bentuk
+    // lebih panjang, dan mengirim tebakan sementara yang juga mengulang seluruh
+    // kalimat. Melipat dengan pemotong tumpang tindih menutup kedua jalur itu.
+    let pasti = '', tebakan = '';
+    for(let i = 0; i < e.results.length; i++){
+      const potongan = (e.results[i][0].transcript || '').trim();
+      if(!potongan) continue;
+      if(e.results[i].isFinal) pasti = sambung(pasti, potongan);
+      else tebakan = potongan;              // hanya tebakan TERAKHIR yang dipakai
+    }
+    sesiIni = sambung(pasti, tebakan);
     tampilAnak(ucapanPenuh());
     // Setiap suara baru menunda pengiriman, jadi kalimat panjang tidak terpotong
     // di kata pertama dan anak boleh berpikir sejenak di tengah kalimat.
