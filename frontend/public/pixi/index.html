@@ -441,11 +441,36 @@ const kursor = {x:0, y:0};
 addEventListener('pointermove', e => { kursor.x = e.clientX / innerWidth * 2 - 1; kursor.y = e.clientY / innerHeight * 2 - 1; });
 function setKeadaan(k){ keadaan = k; mulaiKeadaan = jam.elapsedTime; }
 
-let seret = null, ekstra = 0;
-renderer.domElement.style.touchAction = 'pan-y';
-renderer.domElement.addEventListener('pointerdown', e => { seret = {x:e.clientX, e0:ekstra}; });
-addEventListener('pointermove', e => { if(seret) ekstra = seret.e0 + (e.clientX - seret.x) * .012; });
-addEventListener('pointerup', () => { seret = null; });
+// Pixi bisa diputar dan ditengokkan dengan menyeret badannya, lalu kembali
+// sendiri menghadap depan saat dilepas.
+//
+// Sudutnya SENGAJA dibatasi. Model 3D-nya detail di bagian depan, sedangkan
+// punggungnya polos dan sambungan tangannya terlihat dari belakang. Dengan batas
+// ini anak tetap merasa Pixi benda tiga dimensi sungguhan, tanpa pernah
+// terjebak menatap sisi yang kurang bagus.
+const BATAS_PUTAR = 1.22;   // sekitar 70 derajat ke kiri dan ke kanan
+const BATAS_TENGOK = 0.32;  // sekitar 18 derajat ke atas dan ke bawah
+const jepit = (nilai, batas) => Math.max(-batas, Math.min(batas, nilai));
+
+let seret = null, ekstra = 0, tengok = 0;
+renderer.domElement.style.touchAction = 'none';   // seret tegak dipakai untuk menengok
+renderer.domElement.addEventListener('pointerdown', e => {
+  seret = {x:e.clientX, y:e.clientY, e0:ekstra, t0:tengok, jauh:0, mulai:performance.now()};
+});
+addEventListener('pointermove', e => {
+  if(!seret) return;
+  const dx = e.clientX - seret.x, dy = e.clientY - seret.y;
+  seret.jauh = Math.max(seret.jauh, Math.abs(dx) + Math.abs(dy));
+  ekstra = jepit(seret.e0 + dx * .012, BATAS_PUTAR);
+  tengok = jepit(seret.t0 + dy * .006, BATAS_TENGOK);
+});
+addEventListener('pointerup', () => {
+  // Sentuhan singkat tanpa menyeret dianggap colekan: Pixi melompat kegirangan.
+  if(seret && seret.jauh < 8 && performance.now() - seret.mulai < 500 && !sibuk){
+    setKeadaan('happy');
+  }
+  seret = null;
+});
 
 const v = {naik:0, miring:0, condong:0, tanganA:.35, tanganB:-.35, mataY:1, lirikX:0, lirikY:0, putar:.6, skala:1, putarBadan:0, mulut:0, mulutS:.8};
 const halus = (k, target, laju, dt) => { v[k] += (target - v[k]) * (1 - Math.exp(-dt * laju)); };
@@ -466,7 +491,10 @@ function gerak(){
   halus('naik', naik, 14, dt); halus('miring', miring, 8, dt); halus('condong', condong, 8, dt);
   halus('tanganA', tA, 10, dt); halus('tanganB', tB, 10, dt); halus('mataY', mataY, 14, dt);
   halus('lirikX', lx, 8, dt); halus('lirikY', ly, 8, dt); halus('putar', putar, 4, dt);
-  if(!seret) ekstra += (0 - ekstra) * (1 - Math.exp(-dt * 1.6));
+  if(!seret){
+    ekstra += (0 - ekstra) * (1 - Math.exp(-dt * 1.6));
+    tengok += (0 - tengok) * (1 - Math.exp(-dt * 1.6));
+  }
   halus('putarBadan', kursor.x * .3 + Math.sin(t * .7) * .1, 4, dt);
 
   // Tinggi mulut mengikuti suara (dari analyser kalau ada, kalau tidak: getaran tiruan)
@@ -486,7 +514,7 @@ function gerak(){
   pixi.scale.set(1 + Math.sin(t * 2) * .01, 1 - Math.sin(t * 2) * .012, 1 + Math.sin(t * 2) * .01);
   bayangan.scale.setScalar(1 - v.naik * .35);
   badan.rotation.y = v.putarBadan + ekstra;
-  badan.rotation.x = kursor.y * .12 + v.condong;
+  badan.rotation.x = kursor.y * .12 + v.condong + tengok;
   badan.rotation.z = v.miring;
   tanganA.rotation.z = v.tanganA; tanganB.rotation.z = v.tanganB;
   antena.rotation.z = Math.sin(t * 3) * .07 - v.miring * .6;
@@ -507,7 +535,7 @@ function gerak(){
   mulutG.scale.x = 1 + (sedangBicara ? v.mulut * .1 : 0);
 
   if(glbG){   // badan condong/miring, tangan berayun, mata berkedip & melirik, mulut membuka
-    glbG.rotation.set(kursor.y * .12 + v.condong,
+    glbG.rotation.set(kursor.y * .12 + v.condong + tengok,
                       v.putarBadan + ekstra + (keadaan === 'thinking' ? Math.sin(t * 3) * .12 : 0),
                       v.miring);
     const P = glbParts;
