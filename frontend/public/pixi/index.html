@@ -152,6 +152,10 @@ const CONFIG = {
   // menaikkan nada, dan perpaduan itulah yang terdengar seperti anak.
   //   1.00 apa adanya   1.08 sedikit ceria   1.14 imut   1.20 sangat imut
   IMUT:     1.14,
+  // JEDA_SELESAI: berapa lama hening (milidetik) sebelum ucapan anak dianggap
+  // selesai dan dikirim ke Pixi. Terlalu pendek, kalimat terpotong di tengah.
+  // Terlalu panjang, Pixi terasa lambat menanggapi.
+  JEDA_SELESAI: 1300,
   MAX_PERTANYAAN: 25     // batas pertanyaan per kunjungan
 };
 
@@ -726,6 +730,28 @@ function ucap(teks, gaya = 'talking'){
 // suara Pixi sendiri dari speaker, lalu Pixi menjawab ucapannya sendiri.
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null, mendengar = false, dengarNyala = false, jedaDengar = false;
+
+// Kalimat anak dikumpulkan di sini, BUKAN di dalam objek pengenal suara.
+// Alasannya: di Android, pengenal suara menandai potongan pertama sebagai
+// "final" hampir seketika, lalu sering berhenti sendiri dan dijalankan ulang.
+// Kalau ucapan dikirim begitu potongan pertama final, "Halo nama saya Riki"
+// terkirim sebagai "Halo" saja - sisanya hilang karena mikrofon keburu dijeda.
+//
+// Jadi potongan-potongan itu ditumpuk dulu, dan baru dikirim setelah anak
+// benar-benar diam selama CONFIG.JEDA_SELESAI. Tiap suara baru menunda lagi
+// pengirimannya, sehingga anak boleh berpikir sejenak di tengah kalimat.
+let terkumpul = '', jamKirim = null;
+
+function batalkanKirim(){ clearTimeout(jamKirim); jamKirim = null; }
+
+function jadwalkanKirim(){
+  batalkanKirim();
+  jamKirim = setTimeout(() => {
+    const ucapan = terkumpul.trim();
+    terkumpul = '';
+    if(ucapan) tanyaPixi(ucapan);
+  }, CONFIG.JEDA_SELESAI);
+}
 const $micLabel = el('micLabel');
 
 function tampilTombolMic(){
@@ -739,16 +765,16 @@ function jalankanDengar(){
   if(!dengarNyala || mendengar || jedaDengar || sibuk || !SR) return;
   rec = new SR();
   rec.lang = CONFIG.BAHASA; rec.interimResults = true; rec.continuous = true;
-  let selesai = '';
   rec.onresult = e => {
     let sementara = '';
     for(let i = e.resultIndex; i < e.results.length; i++){
       const potongan = e.results[i][0].transcript;
-      if(e.results[i].isFinal) selesai += potongan; else sementara += potongan;
+      if(e.results[i].isFinal) terkumpul += potongan + ' '; else sementara += potongan;
     }
-    tampilAnak((selesai + sementara).trim());
-    // Kalimat dianggap utuh saat browser menandainya final (anak berhenti bicara).
-    if(selesai.trim()){ const ucapan = selesai.trim(); selesai = ''; tanyaPixi(ucapan); }
+    tampilAnak((terkumpul + sementara).trim());
+    // Setiap suara baru menunda pengiriman. Kalimat baru dikirim setelah anak
+    // diam beberapa saat, jadi kalimat panjang tidak terpotong di kata pertama.
+    jadwalkanKirim();
   };
   rec.onerror = e => {
     if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
@@ -765,6 +791,7 @@ function jalankanDengar(){
 
 function hentikanDengar(){
   jedaDengar = true;
+  batalkanKirim(); terkumpul = '';
   if(rec && mendengar){ try{ rec.abort(); }catch(e){} }
 }
 function lanjutkanDengar(){
