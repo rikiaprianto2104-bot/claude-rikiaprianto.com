@@ -556,6 +556,79 @@ async function panggilOtak(teks){
   if(!r.ok || !j.reply) throw new Error(j.error || 'gagal');
   return j.reply;
 }
+// Jawaban Claude diambil MENGALIR, per kalimat, lalu tiap kalimat langsung
+// disuarakan sambil kalimat berikutnya masih ditulis. Dulu keduanya berurutan:
+// menunggu seluruh jawaban selesai (2,8 sampai 5,6 detik), baru membuat suara
+// (sekitar 2 detik). Sekarang kalimat pertama tiba di sekitar 2 detik dan
+// suaranya dibuat sementara sisanya menyusul, jadi dua tahap itu bertumpuk.
+async function jawabMengalir(pertanyaan){
+  const nomor = ++nomorUcapan;
+  const r = await fetch(CONFIG.CHAT_URL, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({alir:true, messages:[...riwayat.slice(-12), {role:'user', content:pertanyaan}]})
+  });
+  if(!r.ok || !r.body) throw new Error('alir');
+
+  const pembaca = r.body.getReader(), pengurai = new TextDecoder();
+  const antrean = [];
+  let sisa = '', penuh = '', galat = '', habis = false, bangun = null;
+  const tunggu = () => new Promise(res => { bangun = res; });
+  const bangunkan = () => { const b = bangun; bangun = null; if(b) b(); };
+
+  // Sisi pembaca: memecah aliran jadi baris, tiap baris satu kalimat.
+  const membaca = (async () => {
+    try{
+      for(;;){
+        const {done, value} = await pembaca.read();
+        if(done) break;
+        sisa += pengurai.decode(value, {stream:true});
+        let pos;
+        while((pos = sisa.indexOf('\n')) >= 0){
+          const baris = sisa.slice(0, pos).trim(); sisa = sisa.slice(pos + 1);
+          if(!baris) continue;
+          let j; try{ j = JSON.parse(baris); }catch(e){ continue; }
+          if(j.error){ galat = j.error; continue; }
+          if(!j.k) continue;
+          penuh = (penuh + ' ' + j.k).trim();
+          tampilPixi(penuh);
+          antrean.push(j.k);
+          bangunkan();
+        }
+      }
+    } finally { habis = true; bangunkan(); }
+  })();
+
+  // Sisi penyuara: memutar kalimat berurutan, sambil menyiapkan yang berikutnya.
+  const menyuarakan = (async () => {
+    let i = 0, siap = null;
+    for(;;){
+      if(i >= antrean.length){
+        if(habis) break;
+        await tunggu(); continue;
+      }
+      if(nomor !== nomorUcapan) return;
+      if(bisu){ i++; continue; }
+      let blob = null;
+      try{ blob = siap ? await siap : await ambilSuara(antrean[i]); }catch(e){ blob = null; }
+      siap = (i + 1 < antrean.length) ? ambilSuara(antrean[i + 1]).catch(() => null) : null;
+      if(blob){
+        if(i === 0) setKeadaan('talking');
+        await putarSuara(blob, nomor);
+      } else {
+        // Suara server gagal untuk kalimat ini: dibacakan suara browser saja,
+        // supaya percakapan tidak berhenti di tengah.
+        await new Promise(res => bicaraBrowser(antrean[i], res));
+      }
+      i++;
+    }
+  })();
+
+  await membaca;
+  if(!penuh) throw new Error(galat || 'kosong');
+  await menyuarakan;
+  return penuh;
+}
+
 // Jawaban contoh untuk MODE DEMO (belum tersambung ke Claude)
 function jawabDemo(t){
   const s = t.toLowerCase();
@@ -580,17 +653,33 @@ async function tanyaPixi(teks){
     return;
   }
   sibuk = true; hentikanDengar(); jumlah++;
-  tampilAnak(teks); tampilPixi('Hmm, Pixi lagi mikir...'); setKeadaan('thinking');
-  let jawab;
-  try{
-    if(CONFIG.CHAT_URL){ jawab = await panggilOtak(teks); }
-    else { await tidur(800); jawab = jawabDemo(teks); }
-  }catch(e){
-    jawab = 'Aduh, sinyal Pixi lagi putus-putus. Coba tanya lagi sebentar lagi ya!';
-  }
-  riwayat.push({role:'user', content:teks}, {role:'assistant', content:jawab});
+  tampilAnak(teks); hentikanSuara();
+  tampilPixi('Hmm, Pixi lagi mikir...'); setKeadaan('thinking');
   const senang = /makasih|terima kasih|hebat|keren|suka|sayang/i.test(teks);
-  await ucap(jawab, senang ? 'happy' : 'talking');
+  let jawab = '';
+
+  // Jalur utama: jawaban mengalir per kalimat, langsung disuarakan.
+  if(CONFIG.CHAT_URL && CONFIG.TTS_URL && window.ReadableStream){
+    sedangBicara = true;
+    try{ jawab = await jawabMengalir(teks); }
+    catch(e){ jawab = ''; }
+    finally{ sedangBicara = false; }
+  }
+
+  // Jalur cadangan: dipakai kalau aliran gagal, atau saat mode demo.
+  if(!jawab){
+    try{
+      if(CONFIG.CHAT_URL){ jawab = await panggilOtak(teks); }
+      else { await tidur(800); jawab = jawabDemo(teks); }
+    }catch(e){
+      jawab = 'Aduh, sinyal Pixi lagi putus-putus. Coba tanya lagi sebentar lagi ya!';
+    }
+    await ucap(jawab, senang ? 'happy' : 'talking');
+  } else if(senang){
+    setKeadaan('happy');
+  }
+
+  riwayat.push({role:'user', content:teks}, {role:'assistant', content:jawab});
   sibuk = false;
   if(dengarNyala) lanjutkanDengar(); else setKeadaan('idle');
 }

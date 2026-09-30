@@ -15,7 +15,16 @@
   5. Pastikan saldo/batas pengeluaran di Anthropic Console sudah diatur.
 */
 
-header('Content-Type: application/json; charset=utf-8');
+// Mode mengalir: halaman meminta jawaban dikirim sepotong demi sepotong, per
+// kalimat, bukan menunggu seluruh jawaban selesai disusun. Gunanya supaya suara
+// kalimat pertama bisa mulai dibuat sementara kalimat berikutnya masih ditulis.
+// Tanpa ini keduanya berurutan dan anak menunggu dua kali lebih lama.
+$masukAwal = json_decode(file_get_contents('php://input'), true);
+$ALIR = !empty($masukAwal['alir']);
+
+if (!$ALIR) {
+    header('Content-Type: application/json; charset=utf-8');
+}
 header('Cache-Control: no-store');
 
 // ---------------- PENGATURAN ----------------
@@ -92,7 +101,7 @@ if (!is_file($rahasia)) keluar(500, ['error' => 'Pixi belum disetel oleh guru'])
 require $rahasia;
 if (!defined('ANTHROPIC_KEY')) keluar(500, ['error' => 'Pixi belum disetel oleh guru']);
 
-$masuk = json_decode(file_get_contents('php://input'), true);
+$masuk = $masukAwal;
 $pesan = $masuk['messages'] ?? null;
 if (!is_array($pesan) || !$pesan) keluar(400, ['error' => 'Pesan kosong']);
 
@@ -135,13 +144,78 @@ if ($PIXI_PENGETAHUAN !== '') {
                  'cache_control' => ['type' => 'ephemeral']];
 }
 
+// Membersihkan teks supaya enak dibacakan suara: tanpa emoji dan tanpa tanda
+// format. Sama dengan pembersihan di jalur biasa di bawah.
+function rapikan(string $t): string {
+    $t = preg_replace('/[\x{1F000}-\x{1FFFF}\x{2600}-\x{27BF}\x{FE0F}]/u', '', $t);
+    return trim(str_replace(['*', '#', '_', '`'], '', $t));
+}
+
 // Panggil Claude
 $payload = json_encode([
     'model' => MODEL,
     'max_tokens' => MAX_TOKEN,
     'system' => $sistem,
     'messages' => $bersih,
-], JSON_UNESCAPED_UNICODE);
+] + ($ALIR ? ['stream' => true] : []), JSON_UNESCAPED_UNICODE);
+
+if ($ALIR) {
+    header('Content-Type: application/x-ndjson; charset=utf-8');
+    header('X-Accel-Buffering: no');          // minta perantara tidak menahan aliran
+    while (ob_get_level()) ob_end_flush();
+    ob_implicit_flush(true);
+
+    $sisaSSE = '';   // potongan baris SSE yang belum utuh
+    $tampung = '';   // teks jawaban yang belum genap satu kalimat
+    $adaIsi  = false;
+
+    $kirimKalimat = function (string $kalimat) use (&$adaIsi) {
+        $kalimat = rapikan($kalimat);
+        if ($kalimat === '') return;
+        $adaIsi = true;
+        echo json_encode(['k' => $kalimat], JSON_UNESCAPED_UNICODE) . "\n";
+        flush();
+    };
+
+    $ch = curl_init('https://api.anthropic.com/v1/messages');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_TIMEOUT => 40,
+        CURLOPT_HTTPHEADER => [
+            'content-type: application/json',
+            'x-api-key: ' . ANTHROPIC_KEY,
+            'anthropic-version: 2023-06-01',
+        ],
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_WRITEFUNCTION => function ($ch, $data) use (&$sisaSSE, &$tampung, $kirimKalimat) {
+            $sisaSSE .= $data;
+            while (($pos = strpos($sisaSSE, "\n")) !== false) {
+                $baris = rtrim(substr($sisaSSE, 0, $pos), "\r");
+                $sisaSSE = substr($sisaSSE, $pos + 1);
+                if (strncmp($baris, 'data: ', 6) !== 0) continue;
+                $j = json_decode(substr($baris, 6), true);
+                if (($j['type'] ?? '') !== 'content_block_delta') continue;
+                if (($j['delta']['type'] ?? '') !== 'text_delta') continue;
+                $tampung .= $j['delta']['text'];
+                // Kalimat dianggap genap saat ada titik, tanya, atau seru yang
+                // diikuti spasi. Begitu genap, langsung dikirim ke halaman.
+                while (preg_match('/^(.*?[.!?])\s+(.*)$/su', $tampung, $m)) {
+                    $kirimKalimat($m[1]);
+                    $tampung = $m[2];
+                }
+            }
+            return strlen($data);
+        },
+    ]);
+    curl_exec($ch);
+    curl_close($ch);
+
+    if ($tampung !== '') $kirimKalimat($tampung);
+    if (!$adaIsi) {
+        echo json_encode(['error' => 'Pixi lagi gangguan sinyal'], JSON_UNESCAPED_UNICODE) . "\n";
+    }
+    exit;
+}
 
 $ch = curl_init('https://api.anthropic.com/v1/messages');
 curl_setopt_array($ch, [
