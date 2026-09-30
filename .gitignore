@@ -113,3 +113,7 @@ Pixi/*.glb
 # karena pengetahuan memang tidak boleh ikut masuk ke public_html.
 Pixi/pixi.html
 Pixi/pixi-chat.php
+
+# Berkas kerja Meshy (model mentah, pratinjau, catatan tugas). Yang dipakai situs
+# hanya hasil akhirnya di frontend/public/pixi/pixi-v2.glb.
+Pixi/meshy/
