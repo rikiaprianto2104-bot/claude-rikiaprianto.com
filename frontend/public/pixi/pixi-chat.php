@@ -168,6 +168,7 @@ if ($ALIR) {
     $sisaSSE = '';   // potongan baris SSE yang belum utuh
     $tampung = '';   // teks jawaban yang belum genap satu kalimat
     $adaIsi  = false;
+    $alasan  = '';   // kenapa Claude berhenti menulis
 
     $kirimKalimat = function (string $kalimat) use (&$adaIsi) {
         $kalimat = rapikan($kalimat);
@@ -187,13 +188,16 @@ if ($ALIR) {
             'anthropic-version: 2023-06-01',
         ],
         CURLOPT_POSTFIELDS => $payload,
-        CURLOPT_WRITEFUNCTION => function ($ch, $data) use (&$sisaSSE, &$tampung, $kirimKalimat) {
+        CURLOPT_WRITEFUNCTION => function ($ch, $data) use (&$sisaSSE, &$tampung, &$alasan, $kirimKalimat) {
             $sisaSSE .= $data;
             while (($pos = strpos($sisaSSE, "\n")) !== false) {
                 $baris = rtrim(substr($sisaSSE, 0, $pos), "\r");
                 $sisaSSE = substr($sisaSSE, $pos + 1);
                 if (strncmp($baris, 'data: ', 6) !== 0) continue;
                 $j = json_decode(substr($baris, 6), true);
+                if (($j['type'] ?? '') === 'message_delta') {
+                    $alasan = $j['delta']['stop_reason'] ?? $alasan;
+                }
                 if (($j['type'] ?? '') !== 'content_block_delta') continue;
                 if (($j['delta']['type'] ?? '') !== 'text_delta') continue;
                 $tampung .= $j['delta']['text'];
@@ -210,7 +214,11 @@ if ($ALIR) {
     curl_exec($ch);
     curl_close($ch);
 
-    if ($tampung !== '') $kirimKalimat($tampung);
+    // Sisa yang belum genap satu kalimat hanya dikirim kalau Claude memang sudah
+    // selesai bicara. Kalau ia berhenti karena kehabisan jatah token, sisa itu
+    // terpotong di tengah kata - lebih baik dibuang daripada ditampilkan dan
+    // dibacakan sebagai kalimat yang menggantung.
+    if ($tampung !== '' && ($alasan !== 'max_tokens' || !$adaIsi)) $kirimKalimat($tampung);
     if (!$adaIsi) {
         echo json_encode(['error' => 'Pixi lagi gangguan sinyal'], JSON_UNESCAPED_UNICODE) . "\n";
     }

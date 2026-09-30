@@ -598,19 +598,36 @@ async function jawabMengalir(pertanyaan){
     } finally { habis = true; bangunkan(); }
   })();
 
-  // Sisi penyuara: memutar kalimat berurutan, sambil menyiapkan yang berikutnya.
+  // Sisi penyuara.
+  //
+  // Suara TIDAK diminta satu per satu menunggu giliran. Dulu begitu, dan
+  // akibatnya tiap pergantian kalimat menyisakan jeda: pembuatan suara kalimat
+  // berikutnya baru dimulai setelah kalimat sekarang selesai diputar.
+  //
+  // Sekarang permintaan suara dimulai begitu kalimatnya tiba dari aliran, sampai
+  // beberapa kalimat di depan sekaligus. Karena seluruh kalimat tiba dalam dua
+  // sampai tiga detik, suaranya dibuat berbarengan dan sudah siap saat gilirannya
+  // datang. Batas MUKA menjaga agar tidak terlalu banyak permintaan sekaligus.
+  const MUKA = 3;
+  const suara = [];                       // janji suara, sejajar dengan antrean
+  const siapkanSampai = (batas) => {
+    for(let k = suara.length; k < Math.min(batas, antrean.length); k++){
+      suara[k] = bisu ? Promise.resolve(null) : ambilSuara(antrean[k]).catch(() => null);
+    }
+  };
+
   const menyuarakan = (async () => {
-    let i = 0, siap = null;
+    let i = 0;
     for(;;){
+      siapkanSampai(i + MUKA);
       if(i >= antrean.length){
         if(habis) break;
         await tunggu(); continue;
       }
       if(nomor !== nomorUcapan) return;
       if(bisu){ i++; continue; }
-      let blob = null;
-      try{ blob = siap ? await siap : await ambilSuara(antrean[i]); }catch(e){ blob = null; }
-      siap = (i + 1 < antrean.length) ? ambilSuara(antrean[i + 1]).catch(() => null) : null;
+      const blob = await suara[i];
+      if(nomor !== nomorUcapan) return;
       if(blob){
         if(i === 0) setKeadaan('talking');
         await putarSuara(blob, nomor);
