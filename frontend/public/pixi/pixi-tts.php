@@ -50,7 +50,24 @@ const MODEL = 'gemini-3.8-flash-lite-tts';  // dipakai hanya kalau MESIN = 'gemi
 // Ganti satu kata di bawah, lalu deploy. Suara lama yang tersimpan tidak
 // terpakai lagi karena nama suara ikut menentukan sidik jari cache.
 const SUARA = 'Leda';                       // dipakai hanya kalau MESIN = 'gemini'
-const SUARA_CLOUD = 'id-ID-Chirp3-HD-Leda'; // dipakai hanya kalau MESIN = 'cloud'
+const SUARA_CLOUD = 'id-ID-Chirp3-HD-Autonoe'; // dipakai hanya kalau MESIN = 'cloud'
+
+// IMUT: seberapa tinggi nada suara Pixi dinaikkan.
+//
+// Chirp 3 HD tidak menerima pengaturan nada dari Google, jadi nadanya dinaikkan
+// di sini, pada berkas suaranya langsung: angka sample rate di dalam header WAV
+// ditulis ulang lebih tinggi, sehingga browser memutarnya sedikit lebih cepat
+// dan lebih tinggi. Itu persis yang membuat suara terdengar seperti anak kecil.
+//
+//   1.00  apa adanya dari Google
+//   1.08  sedikit lebih ceria
+//   1.14  imut, masih terdengar wajar
+//   1.20  sangat imut, mulai terasa dipercepat
+//   di atas 1.25 biasanya mulai terdengar seperti kaset dipercepat
+//
+// Berkas yang tersimpan menyimpan suara aslinya, dan angka ini diterapkan saat
+// dikirim. Jadi mengubahnya tidak membuang suara yang sudah dibuat.
+const IMUT = 1.14;
 
 // GAYA: inilah yang membuat suaranya terdengar seperti anak Indonesia, bukan
 // seperti pembaca berita. Model mengikuti arahan ini saat membacakan kalimat,
@@ -78,6 +95,20 @@ function keluar(int $kode, array $isi): void {
     exit;
 }
 
+// Menulis ulang sample rate di dalam header WAV. Isinya tidak disentuh sama
+// sekali, hanya keterangan kecepatan putarnya yang diubah, jadi biayanya nol.
+function naikkanNada(string $wav, float $faktor): string {
+    if ($faktor <= 1.001 || strlen($wav) < 44) return $wav;
+    $f = strpos($wav, 'fmt ');
+    if ($f === false || strlen($wav) < $f + 20) return $wav;
+    $rate = unpack('V', substr($wav, $f + 12, 4))[1];
+    $byte = unpack('V', substr($wav, $f + 16, 4))[1];
+    if (!$rate) return $wav;
+    $wav = substr_replace($wav, pack('V', (int)round($rate * $faktor)), $f + 12, 4);
+    $wav = substr_replace($wav, pack('V', (int)round($byte * $faktor)), $f + 16, 4);
+    return $wav;
+}
+
 function kirimWav(string $wav): void {
     header('Content-Type: audio/wav');
     header('Content-Length: ' . strlen($wav));
@@ -92,7 +123,6 @@ $masuk = json_decode(file_get_contents('php://input'), true);
 $teks = trim((string)($masuk['text'] ?? ''));
 if ($teks === '') keluar(400, ['error' => 'Teks kosong']);
 $teks = mb_substr($teks, 0, MAX_HURUF);
-
 // ---------------- Suara yang sudah pernah dibuat dipakai ulang ----------------
 // Sapaan pembuka Pixi sama persis di setiap kunjungan. Tanpa ini, tiap pengunjung
 // membuat tagihan untuk kalimat yang bunyinya sama.
@@ -101,7 +131,7 @@ if (!is_dir($dirCache)) @mkdir($dirCache, 0700, true);
 $kunciCache = $dirCache . '/' . sha1(MESIN . '|' . MODEL . '|' . SUARA . '|' . SUARA_CLOUD . '|' . GAYA . '|' . $teks) . '.wav';
 if (is_file($kunciCache) && filesize($kunciCache) > 44) {
     @touch($kunciCache);
-    kirimWav((string)file_get_contents($kunciCache));
+    kirimWav(naikkanNada((string)file_get_contents($kunciCache), IMUT));
 }
 
 // ---------------- Kunci ----------------
@@ -197,14 +227,7 @@ foreach ([0, 400000, 1200000] as $i => $tunda) {
     if ($kode === 400 || $kode === 401 || $kode === 403) break;
 }
 
-// ===== SEMENTARA - dicabut setelah jalur suara terbukti stabil =====
-if ($res === false || $kode !== 200) keluar(502, [
-    'error'   => 'Suara Pixi lagi gangguan',
-    'd_http'  => (int)$kode,
-    'd_mesin' => MESIN,
-    'd_suara' => MESIN === 'cloud' ? SUARA_CLOUD : SUARA,
-]);
-// ===== AKHIR BAGIAN SEMENTARA =====
+if ($res === false || $kode !== 200) keluar(502, ['error' => 'Suara Pixi lagi gangguan']);
 
 $data = json_decode($res, true);
 $b64 = '';
@@ -231,4 +254,4 @@ if (count($berkas) > MAX_CACHE) {
     foreach (array_slice($berkas, 0, count($berkas) - MAX_CACHE) as $tua) @unlink($tua);
 }
 
-kirimWav($wav);
+kirimWav(naikkanNada($wav, IMUT));
