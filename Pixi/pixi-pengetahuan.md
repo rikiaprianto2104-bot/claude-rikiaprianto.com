@@ -7,20 +7,26 @@
   Ukuran ideal: 1.500 - 4.000 kata. Tulis ringkas, bahasa sederhana, satu fakta per kalimat.
 -->
 
-# Tentang Kak Riki (Riki MarkeThink)
+# Cara memanggil Riki
 
-- Namanya Riki Aprianto. Nama mereknya Riki MarkeThink. Anak-anak memanggilnya Kak Riki.
-- Kak Riki adalah AI Marketing Strategist. Artinya, ia membantu bisnis memakai AI dan cara pemasaran digital supaya lebih dikenal orang.
-- Kak Riki adalah pendiri dan guru di Future Makers, kelas belajar AI untuk anak-anak.
-- Website resminya: rikiaprianto.com. Di sana ada profil, artikel, dan informasi lengkap tentang Kak Riki.
+- Namanya dipanggil **Coach Riki**. Selalu begitu, tanpa kecuali.
+- JANGAN memanggilnya Kak Riki, Pak Riki, Bapak Riki, Kak Guru, atau Bu Guru.
+- Kalau Pixi tidak tahu sesuatu dan perlu mengarahkan anak bertanya kepada orang lain, sebutkan Coach Riki. Contoh: "Pixi belum tahu, coba tanya Coach Riki ya."
 
-## Keahlian Kak Riki (penjelasan sederhana untuk anak)
+# Tentang Coach Riki (Riki MarkeThink)
+
+- Namanya Riki Aprianto. Nama mereknya Riki MarkeThink. Anak-anak memanggilnya Coach Riki.
+- Coach Riki adalah AI Marketing Strategist. Artinya, ia membantu bisnis memakai AI dan cara pemasaran digital supaya lebih dikenal orang.
+- Coach Riki adalah pendiri dan guru di Future Makers, kelas belajar AI untuk anak-anak.
+- Website resminya: rikiaprianto.com. Di sana ada profil, artikel, dan informasi lengkap tentang Coach Riki.
+
+## Keahlian Coach Riki (penjelasan sederhana untuk anak)
 
 - SEO: cara supaya website gampang ditemukan orang waktu mencari di Google.
 - GEO: cara supaya sebuah bisnis atau website ikut disebut ketika orang bertanya kepada AI seperti ChatGPT.
 - Content marketing: membuat tulisan, gambar, dan video yang bermanfaat supaya orang tertarik pada sebuah bisnis.
 - Analitik digital: membaca angka-angka, misalnya berapa orang yang membuka sebuah website, lalu memakainya untuk mengambil keputusan yang tepat.
-- Kak Riki suka menggabungkan alat AI dengan dasar-dasar pemasaran digital yang sudah teruji.
+- Coach Riki suka menggabungkan alat AI dengan dasar-dasar pemasaran digital yang sudah teruji.
 
 # Tentang Future Makers
 
@@ -34,66 +40,66 @@
 
 ## Halaman-halaman di website
 
-- Website Kak Riki punya beberapa halaman: Home, Blog, Profile, Research, My Projects, Future Maker, dan Contact.
-- Halaman Home berisi perkenalan singkat tentang Kak Riki dan pekerjaannya.
-- Halaman Blog berisi artikel tulisan Kak Riki tentang pemasaran dan AI.
-- Halaman Profile berisi riwayat sekolah, pengalaman kerja, dan penghargaan Kak Riki.
-- Halaman Research berisi tulisan ilmiah Kak Riki yang diterbitkan di jurnal.
-- Halaman My Projects berisi kumpulan game dan aplikasi buatan Kak Riki bersama AI.
+- Website Coach Riki punya beberapa halaman: Home, Blog, Profile, Research, My Projects, Future Maker, dan Contact.
+- Halaman Home berisi perkenalan singkat tentang Coach Riki dan pekerjaannya.
+- Halaman Blog berisi artikel tulisan Coach Riki tentang pemasaran dan AI.
+- Halaman Profile berisi riwayat sekolah, pengalaman kerja, dan penghargaan Coach Riki.
+- Halaman Research berisi tulisan ilmiah Coach Riki yang diterbitkan di jurnal.
+- Halaman My Projects berisi kumpulan game dan aplikasi buatan Coach Riki bersama AI.
 - Halaman Future Maker adalah tempat Pixi tinggal. Nanti karya anak-anak juga dipajang di sana.
-- Halaman Contact dipakai kalau ada yang mau menghubungi Kak Riki.
+- Halaman Contact dipakai kalau ada yang mau menghubungi Coach Riki.
 
-## Pekerjaan Kak Riki sekarang
+## Pekerjaan Coach Riki sekarang
 
-- Sekarang Kak Riki bekerja sebagai IT Manager di Yogyakarta, sejak Oktober 2023.
-- Di pekerjaan itu Kak Riki mengurus pembuatan sistem gudang, yaitu program komputer untuk mengatur barang di gudang.
-- Kak Riki memastikan program itu dibuat sesuai kebutuhan dan enak dipakai oleh tim yang bekerja di gudang.
-- Kak Riki juga memeriksa hasil kerja pembuat program, mulai dari rancangan, isi programnya, sampai mencobanya sendiri.
+- Sekarang Coach Riki bekerja sebagai IT Manager di Yogyakarta, sejak Oktober 2023.
+- Di pekerjaan itu Coach Riki mengurus pembuatan sistem gudang, yaitu program komputer untuk mengatur barang di gudang.
+- Coach Riki memastikan program itu dibuat sesuai kebutuhan dan enak dipakai oleh tim yang bekerja di gudang.
+- Coach Riki juga memeriksa hasil kerja pembuat program, mulai dari rancangan, isi programnya, sampai mencobanya sendiri.
 
-## Pekerjaan Kak Riki dahulu
+## Pekerjaan Coach Riki dahulu
 
-- Kak Riki pernah menjadi perancang gambar di sebuah hotel di Jakarta pada tahun 2023.
-- Di sana Kak Riki membuat gambar untuk poster, menu restoran, dan spanduk digital hotel.
-- Kak Riki juga mengurus isi media sosial hotel, seperti Instagram, Facebook, dan TikTok.
-- Kak Riki pernah merancang tata letak mushaf Al-Quran untuk sebuah yayasan di Jakarta.
-- Dalam pekerjaan itu Kak Riki menyusun letak tulisan, tepi halaman, judul surah, dan hiasannya.
-- Kak Riki pernah menjadi Direktur Utama di sebuah perusahaan desain pada tahun 2022 sampai 2023.
-- Sebagai direktur, Kak Riki memimpin seluruh pekerjaan perusahaan dan mengatur tim kreatifnya.
-- Sebelum itu, dari tahun 2018 sampai 2022, Kak Riki bekerja mengoperasikan mesin bordir komputer.
-- Jadi Kak Riki pernah bekerja di banyak bidang: mesin, desain gambar, memimpin perusahaan, dan sekarang teknologi.
+- Coach Riki pernah menjadi perancang gambar di sebuah hotel di Jakarta pada tahun 2023.
+- Di sana Coach Riki membuat gambar untuk poster, menu restoran, dan spanduk digital hotel.
+- Coach Riki juga mengurus isi media sosial hotel, seperti Instagram, Facebook, dan TikTok.
+- Coach Riki pernah merancang tata letak mushaf Al-Quran untuk sebuah yayasan di Jakarta.
+- Dalam pekerjaan itu Coach Riki menyusun letak tulisan, tepi halaman, judul surah, dan hiasannya.
+- Coach Riki pernah menjadi Direktur Utama di sebuah perusahaan desain pada tahun 2022 sampai 2023.
+- Sebagai direktur, Coach Riki memimpin seluruh pekerjaan perusahaan dan mengatur tim kreatifnya.
+- Sebelum itu, dari tahun 2018 sampai 2022, Coach Riki bekerja mengoperasikan mesin bordir komputer.
+- Jadi Coach Riki pernah bekerja di banyak bidang: mesin, desain gambar, memimpin perusahaan, dan sekarang teknologi.
 
-## Sekolah Kak Riki
+## Sekolah Coach Riki
 
-- Kak Riki lulus Sarjana Manajemen dari Universitas Dian Nusantara pada tahun 2023.
-- Waktu kuliah itu Kak Riki belajar cara memasarkan barang, cara orang bekerja sama, dan cara mengatur usaha.
-- Sekarang Kak Riki masih sekolah lagi, mengambil Magister Manajemen di UPN Veteran Yogyakarta sejak tahun 2025.
-- Artinya Kak Riki masih terus belajar sampai sekarang, walaupun sudah bekerja.
-- Waktu kuliah Kak Riki pernah menjadi Ketua Himpunan Mahasiswa Manajemen pada tahun 2020 sampai 2021.
-- Sebagai ketua, Kak Riki mengatur berbagai acara untuk teman-teman mahasiswa.
+- Coach Riki lulus Sarjana Manajemen dari Universitas Dian Nusantara pada tahun 2023.
+- Waktu kuliah itu Coach Riki belajar cara memasarkan barang, cara orang bekerja sama, dan cara mengatur usaha.
+- Sekarang Coach Riki masih sekolah lagi, mengambil Magister Manajemen di UPN Veteran Yogyakarta sejak tahun 2025.
+- Artinya Coach Riki masih terus belajar sampai sekarang, walaupun sudah bekerja.
+- Waktu kuliah Coach Riki pernah menjadi Ketua Himpunan Mahasiswa Manajemen pada tahun 2020 sampai 2021.
+- Sebagai ketua, Coach Riki mengatur berbagai acara untuk teman-teman mahasiswa.
 
-## Penghargaan Kak Riki
+## Penghargaan Coach Riki
 
-- Kak Riki terpilih sebagai Lulusan Terbaik tahun 2023 di kampusnya.
-- Kak Riki pernah menjadi Juara 2 lomba menulis karya ilmiah tingkat nasional di Universitas Negeri Yogyakarta pada tahun 2023.
-- Kak Riki pernah menjadi Juara 3 lomba menulis karya ilmiah tingkat nasional pada tahun 2022.
-- Kak Riki pernah mendapat Medali Emas di lomba wirausaha teknologi di Universitas Negeri Jakarta pada tahun 2021.
-- Kak Riki pernah terpilih ikut program wirausaha mahasiswa dari Kementerian Pendidikan pada tahun 2022.
-- Kak Riki juga pernah ikut program wirausaha mahasiswa bernama KIBM pada tahun 2020.
-- Jadi Kak Riki suka ikut lomba menulis dan lomba membuat usaha, dan sering menang.
+- Coach Riki terpilih sebagai Lulusan Terbaik tahun 2023 di kampusnya.
+- Coach Riki pernah menjadi Juara 2 lomba menulis karya ilmiah tingkat nasional di Universitas Negeri Yogyakarta pada tahun 2023.
+- Coach Riki pernah menjadi Juara 3 lomba menulis karya ilmiah tingkat nasional pada tahun 2022.
+- Coach Riki pernah mendapat Medali Emas di lomba wirausaha teknologi di Universitas Negeri Jakarta pada tahun 2021.
+- Coach Riki pernah terpilih ikut program wirausaha mahasiswa dari Kementerian Pendidikan pada tahun 2022.
+- Coach Riki juga pernah ikut program wirausaha mahasiswa bernama KIBM pada tahun 2020.
+- Jadi Coach Riki suka ikut lomba menulis dan lomba membuat usaha, dan sering menang.
 
-## Tulisan ilmiah Kak Riki
+## Tulisan ilmiah Coach Riki
 
-- Kak Riki menulis penelitian, yaitu tulisan berisi hasil mempelajari sesuatu dengan teliti.
+- Coach Riki menulis penelitian, yaitu tulisan berisi hasil mempelajari sesuatu dengan teliti.
 - Salah satu penelitiannya membahas kenapa orang suka berbelanja di aplikasi TikTok Shop.
 - Ada penelitian tentang apa yang membuat pemakai sebuah program simulator merasa puas.
 - Ada penelitian tentang cara membantu peternak lebah madu supaya bisa berwirausaha.
 - Ada juga penelitian tentang manfaat teknologi untuk usaha-usaha kecil.
 - Penelitian itu ditulis bersama teman-temannya dan diterbitkan di jurnal pada tahun 2022 dan 2023.
-- Hal yang paling menarik bagi Kak Riki adalah pemasaran digital, perilaku orang saat berbelanja, SEO, dan AI.
+- Hal yang paling menarik bagi Coach Riki adalah pemasaran digital, perilaku orang saat berbelanja, SEO, dan AI.
 
-## Karya dan proyek Kak Riki
+## Karya dan proyek Coach Riki
 
-- Di halaman My Projects ada lebih dari dua puluh game dan aplikasi buatan Kak Riki.
+- Di halaman My Projects ada lebih dari dua puluh game dan aplikasi buatan Coach Riki.
 - Semuanya dibuat bersama AI, dan semuanya bisa dibuka langsung di website.
 - Karyanya dibagi empat kelompok: alat bantu pemasaran dengan AI, aplikasi, game cerita, dan game arcade.
 - Petualangan Pixi dan Moko adalah game tentang Pixi dan temannya. Game ini dipakai sebagai contoh di kelas Future Makers.
@@ -102,11 +108,11 @@
 - Ada game mencari harta karun di dalam labirin.
 - Ada teman belajar untuk anak sekolah, teman berlatih berbicara bahasa Inggris, dan alat untuk mengatur tugas sekolah.
 - Game arcade buatannya antara lain menembak pesawat di luar angkasa, memantulkan bola untuk memecahkan balok, petualangan lompat-lompat, ular yang memanjang saat makan, dan melompat setinggi-tingginya.
-- Kak Riki juga membuat alat bantu untuk orang yang bekerja memasarkan barang, misalnya untuk memeriksa hasil iklan dan merencanakan isi promosi.
+- Coach Riki juga membuat alat bantu untuk orang yang bekerja memasarkan barang, misalnya untuk memeriksa hasil iklan dan merencanakan isi promosi.
 
-## Artikel di blog Kak Riki
+## Artikel di blog Coach Riki
 
-- Kak Riki menulis artikel di halaman Blog untuk orang dewasa yang bekerja di bidang pemasaran.
+- Coach Riki menulis artikel di halaman Blog untuk orang dewasa yang bekerja di bidang pemasaran.
 - Satu artikel membahas cara mengetahui seberapa sering sebuah merek disebut oleh AI seperti ChatGPT, Gemini, dan Perplexity.
 - Satu artikel berisi contoh prompt siap pakai untuk membuat tulisan promosi dan menjawab pertanyaan pembeli.
 - Satu artikel membahas kenapa memberi ulasan palsu di Google Maps itu tidak jujur dan merugikan orang lain.
@@ -116,7 +122,7 @@
 
 ## Dua kelas Future Makers
 
-- Kak Riki mengadakan dua macam kelas Future Makers, dan keduanya diadakan secara offline di Yogyakarta.
+- Coach Riki mengadakan dua macam kelas Future Makers, dan keduanya diadakan secara offline di Yogyakarta.
 - Kedua kelas itu sama-sama dibatasi hanya 8 anak, supaya setiap anak benar-benar dibantu mentornya.
 - Kedua kelas itu sama-sama mulai pukul 15.00 WIB.
 - Alamat lengkapnya baru diberitahukan setelah anak mendaftar.
@@ -202,8 +208,8 @@
 
 - Kalau anak bertanya kegiatan di pertemuan 1 atau 2, jawab langsung dari keterangan di atas dengan bahasa yang sederhana dan pendek, tanpa bertanya balik kelas yang mana.
 - Jangan membocorkan urutan jawaban puzzle atau letak potongan prompt yang tersembunyi di dalam game. Itu bagian serunya, biar anak yang menemukan sendiri.
-- Kalau ditanya soal pertemuan 3 atau 4, Pixi belum tahu rinciannya. Jawab jujur dan sarankan bertanya ke kak guru.
-- Kalau ditanya nilai, lembar penilaian, atau cara fasilitator mengajar, jawab bahwa itu urusan kak guru.
+- Kalau ditanya soal pertemuan 3 atau 4, Pixi belum tahu rinciannya. Jawab jujur dan sarankan bertanya ke Coach Riki.
+- Kalau ditanya nilai, lembar penilaian, atau cara fasilitator mengajar, jawab bahwa itu urusan Coach Riki.
 
 ## Hal yang sering ditanyakan orang tua
 
@@ -214,8 +220,8 @@
 - Di kelas berbayar, anak usia 6 dan 15 tahun berada di satu kelas, tetapi tingkat kesulitannya disesuaikan untuk masing-masing anak.
 - Kalau anak berhalangan hadir di satu pertemuan, mentor membantu anak menyusul materinya.
 
-## Kalau ada yang ingin menghubungi Kak Riki
+## Kalau ada yang ingin menghubungi Coach Riki
 
-- Semua cara menghubungi Kak Riki ada di website rikiaprianto.com, di halaman Contact.
+- Semua cara menghubungi Coach Riki ada di website rikiaprianto.com, di halaman Contact.
 - Pixi tidak boleh menyebutkan nomor telepon, nomor WhatsApp, alamat email, atau alamat rumah siapa pun.
 - Kalau ada yang menanyakan hal itu, Pixi cukup menjawab dengan ramah bahwa informasinya ada di website rikiaprianto.com.
