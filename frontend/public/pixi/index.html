@@ -326,8 +326,11 @@ let glbG = null, glbParts = null;
     mulutY: -.222, mulutL: .20, mulutT: .12,
     tambalMataL: .31, tambalMataT: .40, tambalMulutL: .33, tambalMulutT: .21
   };
-  // Batas tekukan: bobot nol di dalam badan, penuh di ujung tangan.
+  // Batas tekukan tangan: bobot nol di dalam badan, penuh di ujung tangan.
   const BOBOT_DALAM = .58, BOBOT_LUAR = .88;
+  // Batas tekukan kaki. Diukur dari modelnya: di atas y = -0,62 lebarnya 1,90
+  // (badan beserta tangan), di bawah y = -0,70 menyempit jadi 0,87 - itu kaki.
+  const KAKI_ATAS = -.62, KAKI_BAWAH = -.92;
 
   try{
     new THREE.GLTFLoader().load('pixi-v2.glb', gltf => {
@@ -348,10 +351,25 @@ let glbG = null, glbParts = null;
       }
       geo.setAttribute('aBobot', new THREE.BufferAttribute(bobot, 1));
 
+      // Bobot kaki, disiapkan dengan cara yang sama: nol di pinggul, penuh di telapak.
+      const bobotKaki = new Float32Array(pos.count);
+      const jumlahX = [0, 0], cacahK = [0, 0];
+      for(let i = 0; i < pos.count; i++){
+        const y = pos.getY(i);
+        let t = (KAKI_ATAS - y) / (KAKI_ATAS - KAKI_BAWAH);
+        t = Math.max(0, Math.min(1, t));
+        bobotKaki[i] = t * t * (3 - 2 * t);
+        if(bobotKaki[i] > 0){ const sK = pos.getX(i) < 0 ? 0 : 1; jumlahX[sK] += pos.getX(i); cacahK[sK]++; }
+      }
+      geo.setAttribute('aBobotKaki', new THREE.BufferAttribute(bobotKaki, 1));
+
       const seragam = {
         uKiri:  {value: 0}, uKanan: {value: 0},
         uBahuKiri:  {value: new THREE.Vector3(-BOBOT_DALAM, cacah[0] ? jumlahY[0] / cacah[0] : 0, 0)},
-        uBahuKanan: {value: new THREE.Vector3( BOBOT_DALAM, cacah[1] ? jumlahY[1] / cacah[1] : 0, 0)}
+        uBahuKanan: {value: new THREE.Vector3( BOBOT_DALAM, cacah[1] ? jumlahY[1] / cacah[1] : 0, 0)},
+        uKakiKiri:  {value: 0}, uKakiKanan: {value: 0},
+        uPinggulKiri:  {value: new THREE.Vector3(cacahK[0] ? jumlahX[0] / cacahK[0] : -.22, KAKI_ATAS, 0)},
+        uPinggulKanan: {value: new THREE.Vector3(cacahK[1] ? jumlahX[1] / cacahK[1] :  .22, KAKI_ATAS, 0)}
       };
 
       mesh.material.onBeforeCompile = (shader) => {
@@ -359,25 +377,40 @@ let glbG = null, glbParts = null;
         shader.vertexShader = shader.vertexShader
           .replace('#include <common>', [
             '#include <common>',
-            'attribute float aBobot;',
+            'attribute float aBobot; attribute float aBobotKaki;',
             'uniform float uKiri; uniform float uKanan;',
             'uniform vec3 uBahuKiri; uniform vec3 uBahuKanan;',
-            'float sudutPixi(){ return (position.x < 0.0 ? uKiri : uKanan) * aBobot; }'
+            'uniform float uKakiKiri; uniform float uKakiKanan;',
+            'uniform vec3 uPinggulKiri; uniform vec3 uPinggulKanan;',
+            // Tangan berayun di sumbu Z (ke samping), kaki di sumbu X (maju-mundur).
+            'vec3 ayunZ(vec3 p, vec3 pv, float a){ vec3 d = p - pv; float c = cos(a), s = sin(a);',
+            '  return vec3(d.x*c - d.y*s, d.x*s + d.y*c, d.z) + pv; }',
+            'vec3 ayunX(vec3 p, vec3 pv, float a){ vec3 d = p - pv; float c = cos(a), s = sin(a);',
+            '  return vec3(d.x, d.y*c - d.z*s, d.y*s + d.z*c) + pv; }'
           ].join('\n'))
           .replace('#include <beginnormal_vertex>', [
             '#include <beginnormal_vertex>',
-            '{ float a = sudutPixi(); float c = cos(a), s = sin(a);',
-            '  objectNormal = vec3(objectNormal.x*c - objectNormal.y*s, objectNormal.x*s + objectNormal.y*c, objectNormal.z); }'
+            '{ float at = (position.x < 0.0 ? uKiri : uKanan) * aBobot;',
+            '  float ak = (position.x < 0.0 ? uKakiKiri : uKakiKanan) * aBobotKaki;',
+            '  objectNormal = ayunZ(objectNormal, vec3(0.0), at);',
+            '  objectNormal = ayunX(objectNormal, vec3(0.0), ak); }'
           ].join('\n'))
           .replace('#include <begin_vertex>', [
             '#include <begin_vertex>',
-            '{ float a = sudutPixi(); vec3 pv = position.x < 0.0 ? uBahuKiri : uBahuKanan;',
-            '  vec3 d = transformed - pv; float c = cos(a), s = sin(a);',
-            '  transformed = vec3(d.x*c - d.y*s, d.x*s + d.y*c, d.z) + pv; }'
+            '{ float at = (position.x < 0.0 ? uKiri : uKanan) * aBobot;',
+            '  float ak = (position.x < 0.0 ? uKakiKiri : uKakiKanan) * aBobotKaki;',
+            '  transformed = ayunZ(transformed, position.x < 0.0 ? uBahuKiri : uBahuKanan, at);',
+            '  transformed = ayunX(transformed, position.x < 0.0 ? uPinggulKiri : uPinggulKanan, ak); }'
           ].join('\n'));
       };
+      // Tanpa kunci sendiri, Three.js bisa memakai ulang program shader yang
+      // sudah ter-cache untuk material sejenis, dan sisipan di atas terabaikan.
+      mesh.material.customProgramCacheKey = () => 'pixi-lentur';
       mesh.material.needsUpdate = true;
-      const lentur = (kiri, kanan) => { seragam.uKiri.value = kiri; seragam.uKanan.value = kanan; };
+      const lentur = (tKiri, tKanan, kKiri, kKanan) => {
+        seragam.uKiri.value = tKiri; seragam.uKanan.value = tKanan;
+        seragam.uKakiKiri.value = kKiri || 0; seragam.uKakiKanan.value = kKanan || 0;
+      };
 
       // ---- Wajah: tambalan menutup wajah bawaan, lalu mata & mulut yang bisa bergerak ----
       // Dipasang SEBELUM model diskalakan, karena stiker dihitung dalam satuan model.
@@ -555,12 +588,37 @@ function gerak(){
                       v.miring);
     const P = glbParts;
     if(P){
-      // Dua angka sudut ini yang dikirim ke shader tiap frame. v.tanganA dan
-      // v.tanganB adalah sudut lengan yang sudah dihitung untuk Pixi buatan kode,
-      // dipakai ulang di sini supaya semua keadaan (diam, bicara, senang,
-      // melambai) langsung berlaku tanpa disusun dua kali.
-      P.lentur(v.tanganB + .35 - Math.sin(t * 1.8 + 1) * .04,
-               v.tanganA - .35 + Math.sin(t * 1.8) * .04);
+      // Sudut tangan dan kaki yang dikirim ke shader tiap frame.
+      //
+      // Sudut lengan mentah (v.tanganA dan v.tanganB) dipakai apa adanya ternyata
+      // nyaris tak terlihat pada model ini: saat Pixi bicara rentangnya cuma 0,36
+      // radian, dan karena tekukan diberi bobot, hanya ujung tangan yang bergerak
+      // penuh. Pada model lama angka yang sama memutar seluruh potongan tangan
+      // sehingga terlihat jelas. Jadi di sini sudutnya dikuatkan, dan ditambah
+      // ayunan tenang yang selalu ada supaya Pixi tidak pernah terlihat kaku.
+      // Ayunan tangan dan kaki punya irama sendiri per keadaan, TIDAK diambil dari
+      // v.tanganA saja. Nilai itu sudah lewat peredam, jadi getaran cepatnya ikut
+      // teredam: saat bicara ayunannya cuma 0,31 radian dan saat diam 0,04 - nyaris
+      // tak terlihat. Peredam tetap dipakai untuk perpindahan antar keadaan supaya
+      // halus, lalu ayunan di bawah ditambahkan supaya gerakannya benar-benar
+      // kelihatan.
+      const KUAT = 2.1;
+      let ayunLebar = .17, ayunCepat = 1.3;          // diam: napas tenang
+      let langkahLebar = .07, langkahCepat = 1.5;
+      if(keadaan === 'talking'){      ayunLebar = .42; ayunCepat = 3.0; langkahLebar = .17; langkahCepat = 3.2; }
+      else if(keadaan === 'happy'){   ayunLebar = .55; ayunCepat = 6.5; langkahLebar = .30; langkahCepat = 7.0; }
+      else if(keadaan === 'wave'){    ayunLebar = .50; ayunCepat = 5.0; langkahLebar = .18; langkahCepat = 4.0; }
+      else if(keadaan === 'thinking'){ayunLebar = .24; ayunCepat = 2.0; langkahLebar = .09; langkahCepat = 1.8; }
+      else if(keadaan === 'listening'){ayunLebar = .13; ayunCepat = 1.4; langkahLebar = .05; langkahCepat = 1.2; }
+
+      const ayun = Math.sin(t * ayunCepat) * ayunLebar;
+      const tKanan = (v.tanganA - .35) * KUAT + ayun;
+      const tKiri  = (v.tanganB + .35) * KUAT - ayun;
+
+      // Kaki melangkah kecil bergantian, maju-mundur.
+      const langkah = Math.sin(t * langkahCepat) * langkahLebar;
+
+      P.lentur(tKiri, tKanan, -langkah, langkah);
       if(P.mataL){
         [['mataL', 'L'], ['mataR', 'R']].forEach(([k, s]) => {
           const e = P[k], d = P.dasar[s];
