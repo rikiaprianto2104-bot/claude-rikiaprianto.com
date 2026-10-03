@@ -1092,11 +1092,16 @@ addEventListener('message',e=>{
 // mengagetkan saat slide ini dibuka.
 const byeBtn=document.getElementById('byeSong'),byeLyr=document.getElementById('byeLyr'),byeAudio=document.getElementById('byeLagu');
 const BYE_AJAK='Klik untuk menyanyi bareng sebelum pulang';
+// Pixi 3D menari mengikuti lagunya. Dikabari dari sini karena lagunya dipegang
+// slide ini, bukan halaman 3D-nya.
+function kabariJoget(pesan){
+  try{pixiJoget.contentWindow?.postMessage(pesan,location.origin)}catch(e){}
+}
 function byePlay(){byeAudio.currentTime=0;byeAudio.volume=.8;
-  byeAudio.play().then(()=>{byeBtn.textContent='■ Hentikan lagu';byeLyr.textContent='Sayonara, sampai berjumpa lagi…';byeLyr.classList.add('on')})
+  byeAudio.play().then(()=>{byeBtn.textContent='■ Hentikan lagu';byeLyr.textContent='Sayonara, sampai berjumpa lagi…';byeLyr.classList.add('on');kabariJoget('joget-mulai')})
     .catch(()=>{byeLyr.textContent='Lagunya belum bisa diputar. Coba klik sekali lagi ya.';byeLyr.classList.add('on')})}
 function byeStop(){try{byeAudio.pause()}catch(e){}
-  byeBtn.textContent='♪ Lagu Sayonara';byeLyr.textContent=BYE_AJAK;byeLyr.classList.remove('on')}
+  byeBtn.textContent='♪ Lagu Sayonara';byeLyr.textContent=BYE_AJAK;byeLyr.classList.remove('on');kabariJoget('joget-stop')}
 // Lagunya habis sendiri: tombolnya ikut kembali ke keadaan semula.
 byeAudio.addEventListener('ended',byeStop);
 byeBtn.onclick=()=>{byeAudio.paused?byePlay():byeStop()};

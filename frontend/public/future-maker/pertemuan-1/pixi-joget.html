@@ -90,6 +90,33 @@ let glbG = null, glbParts = null;
     x.fillStyle = '#fff'; x.beginPath(); x.ellipse(w * .62, hh * .3, w * .15, hh * .11, -.3, 0, Math.PI * 2); x.fill();
     x.beginPath(); x.ellipse(w * .36, hh * .68, w * .06, hh * .045, 0, 0, Math.PI * 2); x.fill();
   });
+  // Pelat punggung. Dulu Pixi tidak pernah diputar penuh karena punggungnya
+  // polos - sekarang diputar penuh, jadi punggungnya diberi lencana Future
+  // Makers supaya sisi belakangnya ikut enak dilihat, bukan sekadar bulatan ungu.
+  const teksPunggung = () => kanvas(256, 256, (x, w, hh) => {
+    const p = w / 2;
+    // Pelat bundar ungu muda dengan tepi yang melembut ke luar, supaya
+    // sambungannya tidak terlihat sebagai lingkaran yang dipotong tajam.
+    const g = x.createRadialGradient(p, p, p * .2, p, p, p * .5);
+    g.addColorStop(0, 'rgba(139,124,255,.95)'); g.addColorStop(.72, 'rgba(124,108,245,.9)');
+    g.addColorStop(.93, 'rgba(110,94,235,.45)'); g.addColorStop(1, 'rgba(110,94,235,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(p, p, p * .5, 0, Math.PI * 2); x.fill();
+    // Cincin tipis
+    x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = w * .012;
+    x.beginPath(); x.arc(p, p, p * .4, 0, Math.PI * 2); x.stroke();
+    // Bintang kuning di tengah, bentuknya sama dengan bintang di antena
+    x.fillStyle = '#FFC93C'; x.beginPath();
+    for(let i = 0; i < 10; i++){
+      const r = (i % 2 ? .1 : .25) * w, a = -Math.PI / 2 + i * Math.PI / 5;
+      const px = p + Math.cos(a) * r, py = p + Math.sin(a) * r;
+      i ? x.lineTo(px, py) : x.moveTo(px, py);
+    }
+    x.closePath(); x.fill();
+    // Tiga titik kecil di bawah bintang, seperti lampu robot
+    x.fillStyle = 'rgba(255,255,255,.5)';
+    [-1, 0, 1].forEach(i => { x.beginPath(); x.arc(p + i * w * .075, p + w * .33, w * .017, 0, Math.PI * 2); x.fill(); });
+  });
+
   const teksMulut = () => kanvas(160, 90, (x, w, hh) => {
     x.save(); x.beginPath(); x.moveTo(w * .12, hh * .28); x.lineTo(w * .88, hh * .28);
     x.bezierCurveTo(w * .88, hh * .96, w * .12, hh * .96, w * .12, hh * .28); x.closePath(); x.clip();
@@ -204,6 +231,16 @@ let glbG = null, glbParts = null;
         mataKiri  = stiker(kiriX,  WAJAH.mataY, WAJAH.mataL, WAJAH.mataT, tm, 2);
         mataKanan = stiker(kananX, WAJAH.mataY, WAJAH.mataL, WAJAH.mataT, tm, 2);
         mulutM    = stiker(WAJAH.cx, WAJAH.mulutY, WAJAH.mulutL, WAJAH.mulutT, teksMulut(), 2);
+
+        // Lencana punggung. Letak Z-nya DIUKUR dari modelnya, bukan dikira-kira,
+        // supaya tetap menempel kalau modelnya suatu saat diganti.
+        geo.computeBoundingBox();
+        const zBelakang = geo.boundingBox.min.z * .92;
+        const gB = new THREE.DecalGeometry(mesh, new THREE.Vector3(WAJAH.cx, -.02, zBelakang),
+                                           new THREE.Euler(0, Math.PI, 0), new THREE.Vector3(.62, .62, .7));
+        gB.translate(-WAJAH.cx, .02, -zBelakang);
+        const meB = new THREE.Mesh(gB, bahanStiker(teksPunggung(), 1));
+        meB.position.set(WAJAH.cx, -.02, zBelakang); meB.renderOrder = 1; m.add(meB);
       }
 
       // ---- Skala & letak ----
@@ -240,6 +277,24 @@ const BPM = 112;
 const jam = new THREE.Clock();
 let kedipBerikut = 2.5, kedipMulai = -1;
 
+// Pixi hanya menari kalau lagunya dinyalakan. Slide-nya yang memegang lagu,
+// jadi slide itu yang mengabari halaman ini lewat postMessage saat lagu mulai
+// dan berhenti. Di luar itu Pixi bernapas tenang saja, tidak diam seperti patung.
+//
+// seru naik pelan ke 1 saat musik menyala dan turun pelan ke 0 saat berhenti,
+// supaya Pixi tidak tiba-tiba menyentak dari diam ke joget penuh. Semua
+// kekuatan gerakan di bawah dikalikan dengannya.
+let musik = false, seru = 0;
+// ketukJoget dihitung terpisah dari jam utama supaya jogetnya SELALU mulai dari
+// ketukan pertama waktu musiknya dinyalakan, bukan melanjutkan hitungan yang
+// sudah jalan sejak slide dibuka.
+let ketukJoget = 0;
+addEventListener('message', e => {
+  if(e.origin !== location.origin) return;
+  if(e.data === 'joget-mulai'){ musik = true; ketukJoget = 0; }
+  else if(e.data === 'joget-stop'){ musik = false; }
+});
+
 function ukur(){
   const w = stage.clientWidth, h = Math.max(stage.clientHeight, 120);
   renderer.setSize(w, h, false);
@@ -256,14 +311,21 @@ function ukur(){
 addEventListener('resize', ukur); ukur();
 if('ResizeObserver' in window){ new ResizeObserver(ukur).observe(stage); }
 
+let tSebelum = 0;
 function gerak(){
   requestAnimationFrame(gerak);
   const t = jam.getElapsedTime();
+  const dt = Math.min(.1, t - tSebelum); tSebelum = t;
+
+  // Peralihan diam <-> joget: sekitar setengah detik, jadi terasa Pixi ikut
+  // bersemangat waktu musiknya mulai, bukan langsung menyentak.
+  seru += ((musik ? 1 : 0) - seru) * Math.min(1, dt * 4);
+  if(seru > .002) ketukJoget += dt * BPM / 60;
 
   if(glbG && glbParts){
-    const ketuk = t * BPM / 60;              // nomor ketukan, pecahan ikut terbawa
+    const ketuk = ketukJoget;                // nomor ketukan, pecahan ikut terbawa
     const putaran = ketuk % 8;               // di mana kita dalam satu putaran
-    const babakKedua = putaran >= 4;         // ketukan 5-8: berputar & melompat
+    const babakKedua = putaran >= 4;         // ketukan 5-8: berputar penuh & melompat
 
     // Hentakan: naik cepat di awal tiap ketukan lalu turun, supaya terasa ada
     // tekanannya - bukan sekadar naik-turun rata seperti gelombang.
@@ -273,30 +335,37 @@ function gerak(){
     // Goyang kiri-kanan: satu lambaian penuh tiap dua ketukan.
     const goyang = Math.sin(ketuk * Math.PI);
 
+    // Saat musiknya mati Pixi bernapas tenang: naik-turun pelan, tanpa ketukan.
+    const napas = Math.sin(t * 1.25) * .035;
+
     // Naik-turun badan + lompatan kecil di babak kedua.
     const pantul = Math.abs(Math.sin(ketuk * Math.PI)) * .13 + hentak * .05;
     const lompat = babakKedua ? Math.max(0, Math.sin((putaran - 4) * Math.PI / 2)) * .3 : 0;
-    glbG.position.y = .28 + pantul + lompat;
+    glbG.position.y = .28 + napas * (1 - seru) + (pantul + lompat) * seru;
 
     // Badan: miring mengikuti goyangan, berputar penuh di babak kedua,
     // dan sedikit condong ke depan saat menghentak.
-    // Pixi TIDAK diputar penuh. Model ini detail di depan, tetapi punggungnya
-    // polos dan sambungan tangannya terlihat dari belakang - alasan yang sama
-    // kenapa halaman /pixi/ membatasi putaran ke sekitar 70 derajat. Di babak
-    // kedua ia berputar bolak-balik lebih lebar, tetap menghadap penonton.
+    // Putaran penuh satu kali dalam empat ketukan. Ini baru enak dilihat setelah
+    // punggungnya diberi lencana di atas; sebelum itu sisi belakangnya polos.
+    // Putarannya diperhalus di ujung (easing) supaya terasa seperti pirouette
+    // yang berhenti manis menghadap penonton, bukan berputar rata seperti mesin.
+    const majuPutar = babakKedua ? (putaran - 4) / 4 : 0;
     const putarBadan = babakKedua
-      ? Math.sin((putaran - 4) * Math.PI / 2) * .95
+      ? (majuPutar < .5 ? 4 * majuPutar ** 3 : 1 - (-2 * majuPutar + 2) ** 3 / 2) * Math.PI * 2
       : goyang * .28;
-    glbG.rotation.set(hentak * .07 - .02, putarBadan, goyang * -.22);
+    glbG.rotation.set((hentak * .07 - .02) * seru, putarBadan * seru, goyang * -.22 * seru);
 
     // Tangan berayun bergantian, lebar, dengan hentakan di tiap ketukan.
     // Angka dasarnya mengikuti /pixi/: tangan kanan condong negatif, kiri positif.
-    const ayun = goyang * .62 + hentak * .18;
+    // Saat diam, tangannya tetap berayun pelan seperti di halaman /pixi/, supaya
+    // Pixi tidak pernah terlihat kaku walaupun musiknya belum dinyalakan.
+    const ayunTenang = Math.sin(t * 1.3) * .17;
+    const ayun = (goyang * .62 + hentak * .18) * seru + ayunTenang * (1 - seru);
     const tKanan = -.35 * 2.1 + ayun;
     const tKiri  =  .35 * 2.1 + ayun;
 
     // Kaki melangkah bergantian, maju-mundur, dua kali lebih cepat dari goyangan.
-    const langkah = Math.sin(ketuk * Math.PI * 2) * .26;
+    const langkah = Math.sin(ketuk * Math.PI * 2) * .26 * seru + Math.sin(t * 1.5) * .05 * (1 - seru);
 
     glbParts.lentur(tKiri, tKanan, -langkah, langkah);
 
@@ -311,13 +380,14 @@ function gerak(){
       [['mataL', 'L'], ['mataR', 'R']].forEach(([k, s]) => {
         const e = glbParts[k], d = glbParts.dasar[s];
         // Mata ikut melirik ke arah goyangan, seperti orang menikmati musiknya.
-        e.position.x = d[0] + goyang * .012;
+        e.position.x = d[0] + goyang * .012 * seru;
         e.position.y = d[1];
         e.scale.y = Math.max(.06, kedip);
       });
       // Mulut membuka-menutup mengikuti ketukan, seperti ikut bernyanyi.
-      glbParts.mulutM.scale.y = 1 + hentak * .45;
-      glbParts.mulutM.scale.x = 1 + hentak * .12;
+      // Mulut hanya ikut menyanyi kalau ada musiknya.
+      glbParts.mulutM.scale.y = 1 + hentak * .45 * seru;
+      glbParts.mulutM.scale.x = 1 + hentak * .12 * seru;
     }
   }
   renderer.render(scene, camera);
