@@ -275,6 +275,30 @@ body.idle .hint{opacity:0}
 .timer .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .timer .row button{border:2px solid #E4DCFF;background:#fff;border-radius:999px;padding:8px 16px;font-size:20px;font-weight:600;color:var(--ink);cursor:pointer}
 .timer .row button.sel{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* Jam WIB di pojok kanan atas, mulai slide 1. Dipakai Coach untuk mengukur
+   sisa waktu kelas, jadi sengaja TIDAK ikut hilang saat layar dibiarkan diam
+   (berbeda dengan tombol navigasi di bawah). */
+.jam{position:absolute;right:96px;top:30px;z-index:6;display:none;align-items:baseline;gap:10px;
+  background:rgba(255,255,255,.82);color:var(--ink);border-radius:999px;padding:10px 22px;
+  font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;box-shadow:0 4px 0 rgba(30,21,80,.08)}
+.jam.on{display:flex}
+.jam small{font-size:20px;font-weight:600;color:var(--ink-2)}
+/* Slide gelap (.sky): jamnya ikut dibalik supaya tetap terbaca. */
+.jam.gelap{background:rgba(255,255,255,.16);color:#fff}
+.jam.gelap small{color:#C9C2FF}
+
+/* Layar STOP saat waktu mengerjakan habis. Menutup seluruh panggung supaya
+   terlihat dari belakang kelas, dan hanya hilang kalau Coach menutupnya. */
+.stopscr{position:absolute;inset:0;z-index:40;display:none;place-items:center;
+  background:rgba(20,14,63,.97);text-align:center;padding:60px}
+.stopscr.on{display:grid;animation:stopin .25s ease-out}
+@keyframes stopin{from{opacity:0}to{opacity:1}}
+.stopscr .big{font-size:300px;font-weight:700;line-height:.9;color:var(--coral);letter-spacing:8px;
+  animation:pulse .55s ease-in-out infinite alternate}
+.stopscr .sub{margin-top:24px;font-size:48px;font-weight:600;color:#fff}
+.stopscr .tutup{margin-top:46px;border:none;background:var(--yellow);color:var(--ink);border-radius:999px;
+  padding:20px 44px;font-size:32px;font-weight:700;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.stopscr .tutup:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.25)}
 
 /* S9 draw */
 #s9{background:var(--cream)}
@@ -303,6 +327,21 @@ body.idle .hint{opacity:0}
 </style>
 <div class="viewport" id="vp">
 <div class="stage" id="stage">
+
+<!-- Jam WIB & layar STOP ikut panggung (bukan layar), supaya ukurannya ikut
+     mengecil bersama slide saat proyektornya lebih kecil dari 1920x1080. -->
+<div class="jam" id="jam" aria-live="off"><span id="jamT">--:--</span><small>WIB</small></div>
+<div class="stopscr" id="stopscr" role="alertdialog" aria-label="Waktu mengerjakan habis">
+  <div>
+    <div class="big">STOP</div>
+    <div class="sub">Waktu mengerjakan habis. Pensil diletakkan dulu ya!</div>
+    <button type="button" class="tutup" id="stopTutup">Lanjut</button>
+  </div>
+</div>
+<!-- Backsound tugas. Sengaja berkas terpisah, bukan ditanam di dalam HTML:
+     ukurannya 19 MB, dan kalau ditanam sebagai base64 seluruh slide jadi berat
+     dibuka. preload="none" supaya baru diunduh saat slide tugas dibuka. -->
+<audio id="bgm" loop preload="none" src="backsound-tugas.mp3"></audio>
 
 <!-- 0: layar tunggu (loop) -->
 <section class="slide" id="s0" data-name="Layar tunggu">
@@ -803,11 +842,16 @@ const hooks={enter:{},leave:{}};
 const countEl=document.getElementById('count'),prog=document.getElementById('prog');
 function go(n,dir){n=Math.max(0,Math.min(N,n));if(n===cur&&slides[n].classList.contains('on'))return;
   const prev=cur;slides[prev].classList.remove('on');hooks.leave[prev]?.();
+  if(prev===8||prev===9)bgmStop(false);
   slides.forEach(s=>s.classList.remove('back'));
   const s=slides[n];if(dir<0)s.classList.add('back');s.offsetWidth;s.classList.remove('back');s.classList.add('on');
   cur=n;hooks.enter[n]?.();
   countEl.textContent=n===0?'Layar tunggu':`${n} / ${N}`;prog.style.width=(n/N*100)+'%';
   document.getElementById('hint').hidden=n!==0;
+  const jamBox=document.getElementById('jam');
+  jamBox.classList.toggle('on',n>=2);
+  jamBox.classList.toggle('gelap',s.classList.contains('sky'));
+  document.getElementById('stopscr').classList.remove('on');
   if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
 }
 const next=()=>go(cur+1,1),prev=()=>go(cur-1,-1);
@@ -955,19 +999,62 @@ function pzClick(i,b){if(b.classList.contains('placed'))return;
   else{b.classList.remove('shake');b.offsetWidth;b.classList.add('shake');sfx('nope');pzMsg.textContent='Belum pas! Potongan ke-'+(pzNext+1)+' itu tentang '+PZ[pzNext].h+'.'}}
 document.getElementById('s8').append(pzEx);document.getElementById('pzReset').onclick=pzBuild;pzBuild();
 
+// ================= backsound tugas + layar STOP =================
+// Dipakai dua slide tugas (menyusun puzzle dan menggambar). Lagunya menyala
+// saat timer dijalankan, berhenti saat dijeda atau diulang, dan saat waktunya
+// habis lagunya diredupkan pelan-pelan lalu layar STOP menutup panggung.
+//
+// Lagunya TIDAK ikut tombol "Suara" di navigasi. Tombol itu untuk efek suara
+// dan musik latar layar tunggu; backsound tugas dinyalakan sendiri oleh timer,
+// supaya Coach tidak perlu mengingat dua saklar saat kelas berjalan.
+const bgm=document.getElementById('bgm'),stopScr=document.getElementById('stopscr');
+let fadeIv=null;
+function bgmMain(){
+  clearInterval(fadeIv);
+  try{bgm.volume=.55;bgm.currentTime=0;bgm.play().catch(()=>{})}catch(e){}
+}
+function bgmStop(halus){
+  clearInterval(fadeIv);
+  if(!halus){try{bgm.pause()}catch(e){} return}
+  // Diredupkan sekitar 1,2 detik supaya tidak terasa diputus mendadak.
+  fadeIv=setInterval(()=>{
+    const v=bgm.volume-.05;
+    if(v<=0){clearInterval(fadeIv);try{bgm.pause();bgm.volume=.55}catch(e){}}
+    else bgm.volume=v;
+  },60);
+}
+function stopTampil(){stopScr.classList.add('on')}
+function stopTutup(){stopScr.classList.remove('on')}
+document.getElementById('stopTutup').onclick=stopTutup;
+// Boleh ditutup dengan Escape juga, supaya Coach tidak harus mencari tombolnya.
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&stopScr.classList.contains('on')){e.preventDefault();stopTutup()}});
+
 // ================= timers =================
 document.querySelectorAll('[data-timer]').forEach(el=>{
   let total=+el.dataset.timer*60,left=total,run=false,endAt=0,iv=null;
   el.innerHTML=`<div class="lbl">Waktu mengerjakan</div><div class="t">00:00</div><div class="row pre">${[5,10,15].map(m=>`<button type="button" data-m="${m}" class="${m===+el.dataset.timer?'sel':''}">${m} menit</button>`).join('')}</div><div class="row"><button type="button" class="go">Mulai</button><button type="button" class="rs">Ulang</button></div>`;
   const tEl=el.querySelector('.t'),goB=el.querySelector('.go');
   const show=()=>{const s=Math.max(0,Math.ceil(left));tEl.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
-  const tick=()=>{left=(endAt-performance.now())/1000;if(left<=0){left=0;stop();el.classList.add('done');goB.textContent='Mulai';const was=soundOn;soundOn=true;sfx('chime');soundOn=was;}show()};
+  const tick=()=>{left=(endAt-performance.now())/1000;
+    if(left<=0){left=0;stop();el.classList.add('done');goB.textContent='Mulai';
+      const was=soundOn;soundOn=true;sfx('chime');soundOn=was;
+      bgmStop(true);stopTampil();}
+    show()};
   const stop=()=>{run=false;clearInterval(iv)};
-  goB.onclick=()=>{if(run){stop();goB.textContent='Lanjut'}else{if(left<=0)left=total;el.classList.remove('done');run=true;endAt=performance.now()+left*1000;iv=setInterval(tick,250);goB.textContent='Jeda'}};
-  el.querySelector('.rs').onclick=()=>{stop();left=total;el.classList.remove('done');goB.textContent='Mulai';show()};
-  el.querySelectorAll('.pre button').forEach(b=>b.onclick=()=>{el.querySelectorAll('.pre button').forEach(x=>x.classList.toggle('sel',x===b));total=+b.dataset.m*60;stop();left=total;el.classList.remove('done');goB.textContent='Mulai';show()});
+  goB.onclick=()=>{if(run){stop();bgmStop(false);goB.textContent='Lanjut'}
+    else{if(left<=0)left=total;el.classList.remove('done');stopTutup();run=true;endAt=performance.now()+left*1000;iv=setInterval(tick,250);goB.textContent='Jeda';bgmMain()}};
+  el.querySelector('.rs').onclick=()=>{stop();bgmStop(false);stopTutup();left=total;el.classList.remove('done');goB.textContent='Mulai';show()};
+  el.querySelectorAll('.pre button').forEach(b=>b.onclick=()=>{el.querySelectorAll('.pre button').forEach(x=>x.classList.toggle('sel',x===b));total=+b.dataset.m*60;stop();bgmStop(false);stopTutup();left=total;el.classList.remove('done');goB.textContent='Mulai';show()});
   show();
 });
+
+// ================= jam WIB =================
+// Selalu waktu Jakarta, berapa pun zona waktu laptop yang dipakai di kelas,
+// supaya Coach tidak salah mengira kalau laptopnya pernah disetel ke zona lain.
+const jamEl=document.getElementById('jam'),jamT=document.getElementById('jamT');
+const jamFmt=new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',hour12:false});
+function jamTik(){jamT.textContent=jamFmt.format(new Date()).replace('.',':')}
+jamTik();setInterval(jamTik,10000);
 
 // ================= slide 10: confetti =================
 const cf=document.getElementById('confetti'),cx=cf.getContext('2d');let parts=[],cfOn=false;
