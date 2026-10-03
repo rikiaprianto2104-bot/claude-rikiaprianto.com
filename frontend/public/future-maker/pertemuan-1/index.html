@@ -334,7 +334,7 @@ body.idle .hint{opacity:0}
 <div class="stopscr" id="stopscr" role="alertdialog" aria-label="Waktu mengerjakan habis">
   <div>
     <div class="big">STOP</div>
-    <div class="sub">Waktu mengerjakan habis. Pensil diletakkan dulu ya!</div>
+    <div class="sub" id="stopSub">Waktu mengerjakan habis.</div>
     <button type="button" class="tutup" id="stopTutup">Lanjut</button>
   </div>
 </div>
@@ -525,7 +525,7 @@ body.idle .hint{opacity:0}
       <div><mark style="color:#1C9BC0">APA:</mark> Game lompat-lompat.</div>
       <div><mark style="color:#14896A">GIMANA:</mark> Kumpulkan ikan, hindari anjing galak.</div>
       <div><mark style="color:#6C5CE7">DI MANA:</mark> Di atap rumah-rumah kota saat senja.</div></div>
-    <div class="card timer ix" data-timer="15"></div>
+    <div class="card timer ix" data-timer="15" data-stop="Puzzle-nya diletakkan dulu ya!"></div>
   </div>
 </section>
 
@@ -537,7 +537,7 @@ body.idle .hint{opacity:0}
     <div class="card pane d1" style="color:#E8456F"><div class="ico" style="background:#FFE4EC"><svg width="150" height="150" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="34" r="20" fill="#FF7AA2"/><path d="M18 92c2-22 16-34 32-34s30 12 32 34z" fill="#FF7AA2"/><path d="M50 2l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z" fill="#FFC93C"/></svg></div><h3 style="color:var(--ink)">Tokoh Utama</h3><ul><li>Siapa namanya?</li><li>Apa kekuatan supernya?</li><li>Seperti apa bentuk &amp; warnanya?</li></ul></div>
     <div class="card pane d2" style="color:#6C5CE7"><div class="ico" style="background:#EFEBFF"><svg width="150" height="150" viewBox="0 0 100 100" aria-hidden="true"><path d="M20 30 30 8l12 18M80 30 70 8 58 26" fill="#6C5CE7"/><circle cx="50" cy="52" r="34" fill="#6C5CE7"/><path d="M34 46l10 5M66 46l-10 5" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M38 68q12-8 24 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div><h3 style="color:var(--ink)">Tokoh Musuh</h3><ul><li>Siapa namanya?</li><li>Kenapa dia jadi musuh?</li><li>Apa kelemahannya?</li></ul></div>
     <div class="card pane d3" style="color:#14896A"><div class="ico" style="background:#E3F8EF"><svg width="170" height="150" viewBox="0 0 120 100" aria-hidden="true"><circle cx="92" cy="22" r="12" fill="#FFC93C"/><path d="M0 80 30 40l22 26 16-18 52 32v20H0z" fill="#2FCB95"/><path d="M0 92q30-10 60 0t60 0v8H0z" fill="#33C3E0"/></svg></div><h3 style="color:var(--ink)">Dunia Game</h3><ul><li>Di mana tempatnya?</li><li>Siang atau malam?</li><li>Ada benda atau rintangan apa?</li></ul></div>
-    <div class="card timer ix d4" data-timer="10"></div>
+    <div class="card timer ix d4" data-timer="10" data-stop="Pensil diletakkan dulu ya!"></div>
   </div>
   <div class="pr"><b>PR:</b>Selesaikan gambar tokoh musuh &amp; dunia game di rumah, lalu bawa minggu depan untuk Pertemuan 2!</div>
 </section>
@@ -1024,7 +1024,8 @@ function bgmStop(halus){
     else bgm.volume=v;
   },60);
 }
-function stopTampil(){stopScr.classList.add('on')}
+const stopSub=document.getElementById('stopSub');
+function stopTampil(pesan){stopSub.textContent='Waktu mengerjakan habis. '+(pesan||'Alat tulisnya diletakkan dulu ya!');stopScr.classList.add('on')}
 function stopTutup(){stopScr.classList.remove('on')}
 document.getElementById('stopTutup').onclick=stopTutup;
 // Boleh ditutup dengan Escape juga, supaya Coach tidak harus mencari tombolnya.
@@ -1039,7 +1040,7 @@ document.querySelectorAll('[data-timer]').forEach(el=>{
   const tick=()=>{left=(endAt-performance.now())/1000;
     if(left<=0){left=0;stop();el.classList.add('done');goB.textContent='Mulai';
       const was=soundOn;soundOn=true;sfx('chime');soundOn=was;
-      bgmStop(true);stopTampil();}
+      bgmStop(true);stopTampil(el.dataset.stop);}
     show()};
   const stop=()=>{run=false;clearInterval(iv)};
   goB.onclick=()=>{if(run){stop();bgmStop(false);goB.textContent='Lanjut'}
