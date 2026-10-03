@@ -152,26 +152,22 @@ body.idle .hint{opacity:0}
 #s6 .step+.step{position:relative}
 #s6 .ex{margin-top:26px;padding:22px 28px;font-size:28px;font-weight:600;line-height:1.35}
 #s6 .ex small{display:block;font-size:22px;color:#9A94C0;margin-bottom:4px}
-#s6 .chat{position:absolute;right:96px;top:110px;width:900px;height:870px;display:flex;flex-direction:column;overflow:hidden}
-#s6 .chat header{display:flex;align-items:center;gap:16px;padding:22px 28px;background:var(--violet);color:#fff}
-#s6 .chat header img{width:64px;height:64px;border-radius:50%;background:#fff;object-fit:contain;padding:4px}
-#s6 .chat header h3{font-size:32px;font-weight:700}
-#s6 .chat header p{font-size:20px;opacity:.85}
-#s6 .chat header .sp{margin-left:auto;display:flex;gap:8px}
-#s6 .chat header button{border:2px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:8px 14px;font-size:18px;font-weight:600;cursor:pointer}
-#s6 .chat header button.on{background:#fff;color:var(--violet)}
-#s6 .msgs{flex:1;overflow-y:auto;padding:26px;display:flex;flex-direction:column;gap:16px;background:#F7F5FF}
-#s6 .m{max-width:78%;padding:18px 22px;border-radius:26px;font-size:28px;line-height:1.35;font-weight:500;white-space:pre-wrap;overflow-wrap:anywhere}
-#s6 .m.p{background:#fff;color:var(--ink);border-bottom-left-radius:8px;box-shadow:0 4px 0 rgba(30,21,80,.06)}
-#s6 .m.u{align-self:flex-end;background:var(--violet);color:#fff;border-bottom-right-radius:8px}
-#s6 .m.wait{color:#9A94C0}
-#s6 .chips{display:flex;flex-wrap:wrap;gap:10px;padding:14px 26px 0;background:#fff}
-#s6 .chips button{border:2px solid #E4DCFF;background:#fff;color:var(--ink);border-radius:999px;padding:8px 16px;font-size:20px;font-weight:600;cursor:pointer}
-#s6 .chips button:hover{background:var(--lav)}
-/* Dua tombol pertama adalah aba-aba Coach Riki, bukan pertanyaan anak. Dibedakan
-   warnanya supaya Coach cepat menemukannya waktu berdiri di depan kelas. */
-#s6 .chips button.cue{border-color:var(--violet);background:var(--lav);color:var(--violet)}
-#s6 .chips button.cue:hover{background:var(--violet);color:#fff}
+/* Panel kanan slide 6 memuat halaman Pixi yang asli (/pixi/) di dalam bingkai,
+   lengkap dengan latar dan robot 3D-nya, supaya yang dilihat anak di kelas sama
+   persis dengan yang mereka buka sendiri di rumah. */
+#s6 .pixibox{position:absolute;right:96px;top:110px;width:900px;height:870px;display:flex;flex-direction:column;overflow:hidden;padding:0}
+#s6 .pixibox header{display:flex;align-items:center;gap:16px;padding:20px 28px;background:var(--violet);color:#fff;flex:none}
+#s6 .pixibox header img{width:60px;height:60px;border-radius:50%;background:#fff;object-fit:contain;padding:4px}
+#s6 .pixibox header h3{font-size:32px;font-weight:700}
+#s6 .pixibox header p{font-size:20px;opacity:.85}
+#s6 .pixibox header a{margin-left:auto;border:2px solid rgba(255,255,255,.5);border-radius:999px;padding:8px 16px;font-size:18px;font-weight:600;color:#fff;text-decoration:none}
+#s6 .pixibox header a:hover{background:#fff;color:var(--violet)}
+#s6 .pixiframe{position:relative;flex:1;background:#7ec4f2}
+#s6 .pixiframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+/* Tirai penutup sebelum Pixi dimuat. Halaman Pixi baru diminta saat slide ini
+   dibuka, supaya model 3D-nya tidak ikut berjalan sepanjang sisa presentasi. */
+#s6 .pixiframe .tirai{position:absolute;inset:0;display:grid;place-items:center;gap:10px;background:#7ec4f2;color:#fff;font-size:28px;font-weight:700;text-align:center;padding:40px;transition:opacity .4s}
+#s6 .pixiframe .tirai.off{opacity:0;pointer-events:none}
 #s10 .bye-song{margin-top:34px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 #s10 .bye-song button{border:none;background:var(--yellow);color:var(--ink);border-radius:999px;padding:18px 34px;font-size:30px;font-weight:700;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.18)}
 #s10 .bye-song button:hover{filter:brightness(1.06)}
@@ -407,16 +403,16 @@ body.idle .hint{opacity:0}
     </div>
     <div class="card ex"><small>Contoh cerita yang jelas:</small>"Aku suka <span style="color:var(--violet)">kucing oranye</span> yang jago <span style="color:var(--coral)">silat</span>!"</div>
   </div>
-  <div class="card chat ix" id="chat">
+  <div class="card pixibox ix" id="pixibox">
     <header>
       <img data-asset="pixi" alt="">
-      <div><h3>Ngobrol sama Pixi</h3><p id="chatStatus">Ketik pertanyaan teman-teman di bawah</p></div>
-      <div class="sp"><button type="button" id="voiceBtn" class="on" aria-pressed="true">Suara Pixi: Nyala</button><button type="button" id="chatClear">Mulai ulang</button></div>
+      <div><h3>Ngobrol sama Pixi</h3><p>Tekan tombol mikrofonnya, lalu bicara seperti biasa</p></div>
+      <a href="https://rikiaprianto.com/pixi/" target="_blank" rel="noopener">Buka layar penuh</a>
     </header>
-    <div class="msgs" id="msgs" aria-live="polite"></div>
-    <div class="chips" id="chips"></div>
-    <form id="chatForm" autocomplete="off"><input id="chatIn" type="text" placeholder="Tanya Pixi sesuatu…" aria-label="Pesan untuk Pixi"><button class="btn" type="submit" id="chatSend">Kirim</button></form>
-    <div class="web">Pixi juga ada di website: <a href="https://rikiaprianto.com/pixi/" target="_blank" rel="noopener">rikiaprianto.com/pixi</a></div>
+    <div class="pixiframe">
+      <iframe id="pixiFrame" title="Ngobrol dengan Pixi" allow="microphone; autoplay" referrerpolicy="same-origin"></iframe>
+      <div class="tirai" id="pixiTirai">Pixi sedang bangun…</div>
+    </div>
   </div>
 </section>
 
@@ -909,90 +905,21 @@ melOff.onclick=()=>{song.mel=false;melOff.classList.add('sel');melOn.classList.r
 document.getElementById('turnReset').onclick=()=>{song.turn=1;document.getElementById('turnNo').textContent=1;if(song.playing){songStop();lastLoop=0;songPlay()}};
 hooks.leave[5]=()=>{if(song.playing)songStop()};
 
-// ================= slide 6: Pixi chat =================
-// Pixi di slide ini memakai OTAK YANG SAMA dengan halaman rikiaprianto.com/pixi:
-// perantara /pixi/pixi-chat.php. Kepribadian dan pengetahuan Pixi tinggal di server
-// (pixi-pengetahuan.md), jadi tidak perlu diulang di sini dan tidak bisa diubah dari
-// halaman ini. Yang dikirim dari sini hanya riwayat obrolan.
+// ================= slide 6: halaman Pixi di dalam bingkai =================
+// Yang tampil di sini adalah halaman Pixi yang asli, /pixi/, bukan tiruannya.
+// Jadi anak melihat Pixi yang sama persis dengan yang mereka buka di rumah:
+// latar yang sama, robot 3D yang sama, dan tombol mikrofon yang sama. Otak,
+// suara, kepribadian, dan pengetahuannya semua ikut halaman itu, jadi tidak ada
+// yang perlu disetel dua kali di sini.
 //
-// Supaya Pixi tahu ia sedang tampil di layar kelas, obrolan dimulai dengan satu
-// pasang pesan pembuka tersembunyi (BRIEFING) yang ikut terkirim tetapi tidak
-// ditampilkan di layar.
-const CHAT_URL = location.protocol.startsWith('http') ? '/pixi/pixi-chat.php' : '';
-const BRIEFING = 'Mode kelas. Kamu sedang tampil di layar proyektor kelas Future Makers Pertemuan 1, Puzzle Prompt Ajaib, Minggu 4 Oktober 2026. Coach Riki memandu di depan dan anak-anak usia 6 sampai 12 tahun menonton bersama. Jawab singkat, dua sampai tiga kalimat, ceria, bahasa anak. Tanpa emoji karena jawabanmu dibacakan dengan suara. Jangan bocorkan urutan jawaban puzzle prompt.';
-const BRIEFING_OK = 'Siap, Coach Riki! Pixi sudah di depan kelas dan siap menyapa teman-teman.';
-
-const msgs=document.getElementById('msgs'),chatIn=document.getElementById('chatIn'),chatForm=document.getElementById('chatForm'),chatStatus=document.getElementById('chatStatus');
-const SIAP='Ketik pertanyaan teman-teman di bawah';
-let turns=[],busy=null,voiceOn=true;
-
-// Dua tombol pertama adalah aba-aba Coach Riki yang dipakai di kelas; sisanya
-// pertanyaan pancingan untuk anak. Yang dikirim ke Pixi (q) sengaja lebih
-// lengkap daripada tulisan di tombolnya (t) supaya jawabannya terarah.
-const CHIPS=[
- {t:'Coach Riki menyapa kelas',cue:true,q:'Pixi, ini saya Coach Riki MarkeThink. Kita akan memulai kelas pada pertemuan pertama. Tolong sapa teman-teman yang ada di sini, lalu ajak mereka semangat belajar hari ini.'},
- {t:'Ada siswa maju ke depan',cue:true,q:'Pixi, ada satu teman yang maju ke depan dan ingin ngobrol denganmu. Tolong ajak dia berkenalan: sapa dia, perkenalkan dirimu singkat, lalu tanya dia mau dipanggil apa dan apa yang paling dia suka. Cukup satu pertanyaan saja dulu. Ingat, jangan tanya nama lengkap, sekolah, alamat, atau nomor telepon.'},
- {t:'Pixi, kamu siapa?'},
- {t:'AI itu apa sih?'},
- {t:'Hari ini kita belajar apa?'},
- {t:'Kenapa prompt itu kayak resep?'},
- {t:'Kasih tebak-tebakan dong!'}];
-const chipsEl=document.getElementById('chips');
-CHIPS.forEach(c=>{const b=document.createElement('button');b.type='button';b.textContent=c.t;if(c.cue)b.className='cue';b.onclick=()=>ask(c.q||c.t,c.t);chipsEl.append(b)});
-
-function bubble(text,who){const d=document.createElement('div');d.className='m '+who;d.textContent=text;msgs.append(d);msgs.scrollTop=msgs.scrollHeight;return d}
-function greet(){msgs.innerHTML='';turns=[{role:'user',content:BRIEFING},{role:'assistant',content:BRIEFING_OK}];
-  bubble('Halo teman-teman! Aku Pixi. Mau tanya apa ke aku hari ini?','p');chatStatus.textContent=SIAP}
-greet();
-document.getElementById('chatClear').onclick=()=>{busy?.abort();speechSynthesis?.cancel();greet()};
-
-const voiceBtn=document.getElementById('voiceBtn');
-voiceBtn.onclick=()=>{voiceOn=!voiceOn;voiceBtn.classList.toggle('on',voiceOn);voiceBtn.setAttribute('aria-pressed',voiceOn);voiceBtn.textContent='Suara Pixi: '+(voiceOn?'Nyala':'Mati');if(!voiceOn)speechSynthesis?.cancel()};
-
-// Tiap kalimat dibacakan begitu tiba, jadi suaranya menyusul teks tanpa menunggu
-// seluruh jawaban selesai. antrean dipakai supaya kalimat tidak saling menimpa.
-let sayQ=[],saying=false;
-function speakReset(){sayQ=[];saying=false;speechSynthesis?.cancel()}
-function speakNext(){if(saying||!sayQ.length)return;const t=sayQ.shift();
-  try{const u=new SpeechSynthesisUtterance(t);u.lang='id-ID';
-    const v=speechSynthesis.getVoices().find(v=>/^id/i.test(v.lang));if(v)u.voice=v;
-    u.pitch=1.6;u.rate=1.05;saying=true;u.onend=u.onerror=()=>{saying=false;speakNext()};speechSynthesis.speak(u)}
-  catch(e){saying=false}}
-function speak(text){if(!voiceOn||!('speechSynthesis' in window))return;
-  sayQ.push(text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,''));speakNext()}
-
-function fallback(msg){chatStatus.textContent='Chat Pixi belum tersambung di sini';
-  const d=bubble(msg,'p');d.append(document.createElement('br'));const a=document.createElement('a');a.href='https://rikiaprianto.com/pixi/';a.target='_blank';a.rel='noopener';a.textContent='Buka Pixi di rikiaprianto.com/pixi';a.style.color='var(--violet)';d.append(a)}
-
-async function ask(q,tampil){q=(q||'').trim();if(!q||busy)return;chatIn.value='';
-  // Aba-aba Coach Riki ditampilkan pendek saja; yang dikirim ke Pixi tetap versi lengkapnya.
-  bubble(tampil&&tampil!==q?tampil:q,'u');turns.push({role:'user',content:q});
-  if(!CHAT_URL){turns.pop();fallback('Halaman ini perlu dibuka lewat rikiaprianto.com supaya Pixi bisa ngobrol.');return}
-  const out=bubble('Pixi sedang berpikir…','p wait');chatStatus.textContent='Pixi sedang berpikir…';
-  const ctl=new AbortController();busy=ctl;speakReset();
-  let penuh='';
-  try{
-    const r=await fetch(CHAT_URL,{method:'POST',headers:{'Content-Type':'application/json'},signal:ctl.signal,
-      body:JSON.stringify({alir:true,messages:turns.slice(-12)})});
-    if(!r.ok||!r.body)throw new Error('sambungan');
-    const reader=r.body.getReader(),dec=new TextDecoder();let sisa='',galat='';
-    for(;;){const {done,value}=await reader.read();if(done)break;
-      sisa+=dec.decode(value,{stream:true});let pos;
-      while((pos=sisa.indexOf('\n'))>=0){const baris=sisa.slice(0,pos).trim();sisa=sisa.slice(pos+1);
-        if(!baris)continue;let j;try{j=JSON.parse(baris)}catch(e){continue}
-        if(j.error){galat=j.error;continue}
-        if(!j.k)continue;
-        penuh=(penuh+' '+j.k).trim();out.classList.remove('wait');out.textContent=penuh;msgs.scrollTop=msgs.scrollHeight;speak(j.k)}}
-    if(!penuh)throw new Error(galat||'kosong');
-    turns.push({role:'assistant',content:penuh});chatStatus.textContent=SIAP}
-  catch(e){turns.pop();
-    if(e.name==='AbortError'){out.remove()}
-    else{out.classList.remove('wait');out.textContent='Ups, sinyal Pixi putus sebentar. Coba kirim lagi, ya!';chatStatus.textContent=SIAP}}
-  finally{busy=null}}
-
-chatForm.addEventListener('submit',e=>{e.preventDefault();ask(chatIn.value)});
-hooks.leave[6]=()=>{speakReset()};
-if('speechSynthesis' in window)speechSynthesis.getVoices();
+// Mikrofon di dalam bingkai butuh DUA izin: atribut allow di <iframe> ini, dan
+// Permissions-Policy  microphone=(self)  pada halaman induknya. Yang kedua
+// diatur di future-maker/.htaccess - tanpa itu tombol mikrofon mati.
+const pixiFrame=document.getElementById('pixiFrame'),pixiTirai=document.getElementById('pixiTirai');
+pixiFrame.addEventListener('load',()=>pixiTirai.classList.add('off'));
+// Baru dimuat saat slide ini dibuka, lalu dibiarkan hidup supaya obrolan tidak
+// hilang kalau Coach mundur sebentar ke slide sebelumnya.
+hooks.enter[6]=()=>{if(!pixiFrame.src)pixiFrame.src='/pixi/'};
 
 // ================= slide 7: tabs + tour =================
 document.querySelectorAll('#s7 .tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#s7 .tabs button').forEach(x=>x.classList.toggle('sel',x===b));document.querySelectorAll('#s7 .tab').forEach(t=>t.classList.toggle('sel',t.id===b.dataset.tab))});
