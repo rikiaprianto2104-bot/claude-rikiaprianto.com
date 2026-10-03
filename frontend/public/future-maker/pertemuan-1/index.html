@@ -174,6 +174,15 @@ body.idle .hint{opacity:0}
 #s10 .bye-song button:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
 #s10 .bye-song .lyr{font-size:28px;font-weight:600;color:#D7D0FF;min-height:40px;transition:color .2s}
 #s10 .bye-song .lyr.on{color:#fff}
+/* Pixi di slide ini: gambar diam sebagai dasar, lalu Pixi 3D yang menari
+   dimuat di atasnya. Gambar diamnya baru disembunyikan SETELAH Pixi 3D benar-
+   benar siap, jadi kalau WebGL mati atau internet untuk three.js tidak ada,
+   slide ini tetap menampilkan Pixi dan bukan kotak kosong. */
+#s10 .pixiarea{position:relative;width:700px;height:880px}
+#s10 .pixiarea img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:560px;transition:opacity .5s}
+#s10 .pixiarea iframe{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .5s;pointer-events:none}
+#s10 .pixiarea.hidup img{opacity:0}
+#s10 .pixiarea.hidup iframe{opacity:1}
 #s6 form{display:flex;gap:12px;padding:16px 26px 22px;background:#fff}
 #s6 input{flex:1;min-width:0;border:3px solid #E4DCFF;border-radius:999px;padding:16px 24px;font:500 26px var(--display);color:var(--ink);background:#fff;color-scheme:light}
 #s6 input:focus{outline:none;border-color:var(--violet)}
@@ -558,7 +567,10 @@ body.idle .hint{opacity:0}
         <audio id="byeLagu" preload="none" src="lagu-sayonara.mp3"></audio>
       </div>
     </div>
-    <div class="bob"><img class="pixi wave" data-asset="pixi" alt="Pixi melambai" style="width:560px"></div>
+    <div class="pixiarea" id="pixiArea">
+      <img class="pixi" data-asset="pixi" alt="Pixi menari">
+      <iframe id="pixiJoget" title="Pixi sedang menari" aria-hidden="true" tabindex="-1"></iframe>
+    </div>
   </div>
 </section>
 
@@ -1062,8 +1074,17 @@ jamTik();setInterval(jamTik,10000);
 const cf=document.getElementById('confetti'),cx=cf.getContext('2d');let parts=[],cfOn=false;
 function burst(){const cols=['#FFC93C','#FF7AA2','#33C3E0','#2FCB95','#fff'];for(let i=0;i<160;i++)parts.push({x:960+(Math.random()-.5)*400,y:700,vx:(Math.random()-.5)*26,vy:-Math.random()*26-8,r:Math.random()*10+6,c:cols[i%5],a:Math.random()*6,va:(Math.random()-.5)*.3})}
 function cfFrame(){if(!cfOn)return;cx.clearRect(0,0,1920,1080);parts.forEach(p=>{p.vy+=.5;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);cx.restore()});parts=parts.filter(p=>p.y<1200);requestAnimationFrame(cfFrame)}
-hooks.enter[10]=()=>{cfOn=true;parts=[];burst();setTimeout(()=>cur===10&&burst(),900);cfFrame();sfx('win')};
+hooks.enter[10]=()=>{if(!pixiJoget.src)pixiJoget.src='pixi-joget.html';cfOn=true;parts=[];burst();setTimeout(()=>cur===10&&burst(),900);cfFrame();sfx('win')};
 hooks.leave[10]=()=>{cfOn=false;cx.clearRect(0,0,1920,1080);byeStop()};
+
+// ================= slide 10: Pixi menari =================
+// Halaman Pixi 3D-nya terpisah (pixi-joget.html) supaya kesalahan apa pun di
+// sana tidak ikut mematikan presentasi. Baru dimuat saat slide terakhir dibuka,
+// karena menjalankan model 3D sepanjang 10 slide hanya memberati laptop kelas.
+const pixiArea=document.getElementById('pixiArea'),pixiJoget=document.getElementById('pixiJoget');
+addEventListener('message',e=>{
+  if(e.origin===location.origin&&e.data==='pixi-joget-siap')pixiArea.classList.add('hidup');
+});
 
 // ================= slide 10: lagu perpisahan =================
 // Lagu Sayonara pilihan Coach Riki, berkas terpisah seperti backsound tugas.
