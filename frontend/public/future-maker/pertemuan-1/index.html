@@ -1083,7 +1083,13 @@ hooks.leave[10]=()=>{cfOn=false;cx.clearRect(0,0,1920,1080);byeStop()};
 // karena menjalankan model 3D sepanjang 10 slide hanya memberati laptop kelas.
 const pixiArea=document.getElementById('pixiArea'),pixiJoget=document.getElementById('pixiJoget');
 addEventListener('message',e=>{
-  if(e.origin===location.origin&&e.data==='pixi-joget-siap')pixiArea.classList.add('hidup');
+  if(e.origin!==location.origin||e.data!=='pixi-joget-siap')return;
+  pixiArea.classList.add('hidup');
+  // Model 3D butuh beberapa detik untuk siap. Kalau Coach sudah menekan tombol
+  // lagu sebelum itu, kabar "mulai menari" tadi terkirim ke halaman yang belum
+  // ada pendengarnya dan hilang begitu saja - Pixi muncul lalu diam walaupun
+  // lagunya jalan. Jadi keadaan lagunya dikabarkan ulang begitu ia siap.
+  if(!byeAudio.paused)kabariJoget('joget-mulai');
 });
 
 // ================= slide 10: lagu perpisahan =================
