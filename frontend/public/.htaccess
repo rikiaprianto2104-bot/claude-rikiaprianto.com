@@ -58,6 +58,13 @@ RewriteRule ^projects/?$ /index.html [L]
 # dan file di dalamnya cocok dengan -f.
 RewriteRule ^pixi/?$ /pixi/index.html [L]
 
+# Folder fisik /future-maker/ berisi materi kelas (mis. /future-maker/pertemuan-1/).
+# Masalahnya sama dengan /projects: route React /future-maker jadi tertutup oleh
+# folder itu karena catch-all di bawah melewati apa pun yang cocok dengan -d.
+# Baris ini mengembalikan /future-maker ke SPA; isi foldernya tetap dilayani
+# langsung karena tidak cocok dengan pola ini.
+RewriteRule ^future-maker/?$ /index.html [L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
