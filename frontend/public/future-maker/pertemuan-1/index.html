@@ -555,6 +555,7 @@ body.idle .hint{opacity:0}
       <div class="bye-song ix">
         <button type="button" id="byeSong" aria-label="Putar lagu perpisahan">♪ Lagu Sayonara</button>
         <div class="lyr" id="byeLyr">Klik untuk menyanyi bareng sebelum pulang</div>
+        <audio id="byeLagu" preload="none" src="lagu-sayonara.mp3"></audio>
       </div>
     </div>
     <div class="bob"><img class="pixi wave" data-asset="pixi" alt="Pixi melambai" style="width:560px"></div>
@@ -1064,49 +1065,19 @@ hooks.enter[10]=()=>{cfOn=true;parts=[];burst();setTimeout(()=>cur===10&&burst()
 hooks.leave[10]=()=>{cfOn=false;cx.clearRect(0,0,1920,1080);byeStop()};
 
 // ================= slide 10: lagu perpisahan =================
-// Lagu "Sayonara" dibunyikan lewat Web Audio yang sama dengan lagu perkenalan di
-// slide 5, jadi tidak ada berkas suara yang perlu ikut diunggah. Lagu HANYA jalan
-// kalau tombolnya diklik, tidak pernah otomatis, supaya tidak mengagetkan di kelas.
-const BYE_BPM=96;
-// [ketukan, nada MIDI, panjang] - satu bait 16 ketukan, diulang dua kali.
-const BYE_MEL=[[0,67,1],[1,67,1],[2,69,2],[4,67,1],[5,65,1],[6,64,2],
-               [8,64,1],[9,65,1],[10,67,2],[12,62,1],[14,60,2],
-               [16,67,1],[17,67,1],[18,69,2],[20,72,1],[21,71,1],[22,69,2],
-               [24,67,1],[25,65,1],[26,64,1],[27,62,1],[28,60,4]];
-const BYE_CH=['C','C','F','G','C','Am','G','C','C','F','C','G','Am','F','G','C'];
-// [ketukan mulai, teks] - baris yang sedang dinyanyikan ikut menyala.
-const BYE_LY=[[0,'Sayonara, sayonara…'],[4,'…sampai berjumpa lagi'],
-              [8,'Minggu depan kita main lagi'],[12,'Dadah, teman-teman!'],
-              [16,'Sayonara, sayonara…'],[20,'…sampai berjumpa lagi'],
-              [24,'Terima kasih, sampai jumpa!'],[32,'Klik untuk menyanyi bareng sebelum pulang']];
-const BYE_BARS=32;
-const byeBtn=document.getElementById('byeSong'),byeLyr=document.getElementById('byeLyr');
-let bye={on:false,start:0,step:0,timer:null};
-function byeStep(i,t){
-  const bd=60/BYE_BPM,pos=i/2,beat=Math.floor(pos),isBeat=i%2===0;
-  if(pos>=BYE_BARS)return;
-  const ch=CH[BYE_CH[beat%16]];
-  if(isBeat){
-    if(beat%2===0)kick(t,.32); else noise(t,.1,.12,2000);
-    note(t,ch[0]-12,bd*.9,{type:'triangle',vol:.18,rel:.2});
-  }
-  ch.forEach(m=>note(t,m+12,bd*(isBeat?.4:.26),{type:'triangle',vol:isBeat?.04:.03,rel:.14}));
-  for(const [b,m,d] of BYE_MEL){if(Math.abs(b-pos)<.01){note(t,m,d*bd*.9,{type:'triangle',vol:.075,rel:.2});bell(t,m+12,d*bd*.8,.055)}}
-}
-function byeTick(){const step=(60/BYE_BPM)/2;
-  while(bye.start+bye.step*step<ac.currentTime+.15){
-    if(bye.step/2>=BYE_BARS+1){byeStop();return}
-    byeStep(bye.step,bye.start+bye.step*step);bye.step++}}
-function byeVis(){if(!bye.on)return;const pos=(ac.currentTime-bye.start)/(60/BYE_BPM);
-  if(pos>=0){let teks=BYE_LY[0][1];for(const [b,t] of BYE_LY)if(pos>=b)teks=t;
-    if(byeLyr.textContent!==teks){byeLyr.textContent=teks;byeLyr.classList.add('on')}}
-  requestAnimationFrame(byeVis)}
-function byePlay(){AC();bye.on=true;bye.start=ac.currentTime+.12;bye.step=0;
-  bye.timer=setInterval(byeTick,25);byeTick();
-  byeBtn.textContent='■ Hentikan lagu';byeLyr.classList.add('on');requestAnimationFrame(byeVis)}
-function byeStop(){if(!bye.on)return;bye.on=false;clearInterval(bye.timer);
-  byeBtn.textContent='♪ Lagu Sayonara';byeLyr.textContent='Klik untuk menyanyi bareng sebelum pulang';byeLyr.classList.remove('on')}
-byeBtn.onclick=()=>{bye.on?byeStop():byePlay()};
+// Lagu Sayonara pilihan Coach Riki, berkas terpisah seperti backsound tugas.
+// Hanya berbunyi kalau tombolnya diklik, tidak pernah otomatis, supaya tidak
+// mengagetkan saat slide ini dibuka.
+const byeBtn=document.getElementById('byeSong'),byeLyr=document.getElementById('byeLyr'),byeAudio=document.getElementById('byeLagu');
+const BYE_AJAK='Klik untuk menyanyi bareng sebelum pulang';
+function byePlay(){byeAudio.currentTime=0;byeAudio.volume=.8;
+  byeAudio.play().then(()=>{byeBtn.textContent='■ Hentikan lagu';byeLyr.textContent='Sayonara, sampai berjumpa lagi…';byeLyr.classList.add('on')})
+    .catch(()=>{byeLyr.textContent='Lagunya belum bisa diputar. Coba klik sekali lagi ya.';byeLyr.classList.add('on')})}
+function byeStop(){try{byeAudio.pause()}catch(e){}
+  byeBtn.textContent='♪ Lagu Sayonara';byeLyr.textContent=BYE_AJAK;byeLyr.classList.remove('on')}
+// Lagunya habis sendiri: tombolnya ikut kembali ke keadaan semula.
+byeAudio.addEventListener('ended',byeStop);
+byeBtn.onclick=()=>{byeAudio.paused?byePlay():byeStop()};
 
 // ================= start =================
 const startAt=/^#s(\d+)$/.exec(location.hash||'');
