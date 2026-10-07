@@ -390,7 +390,13 @@ body.idle .hint{opacity:0}
 <!-- Backsound tugas. Sengaja berkas terpisah, bukan ditanam di dalam HTML:
      ukurannya 19 MB, dan kalau ditanam sebagai base64 seluruh slide jadi berat
      dibuka. preload="none" supaya baru diunduh saat slide tugas dibuka. -->
-<audio id="bgm" loop preload="none" src="backsound-tugas.mp3"></audio>
+<!-- Dua berkas lagu tinggal di ../media/ dan dipakai bersama oleh semua
+     pertemuan. Sengaja tidak disalin ke tiap folder: ukurannya 26 MB, dan
+     menggandakannya berarti 26 MB ikut terunggah ulang tiap kali website
+     diterbitkan. Kalau suatu pertemuan nanti perlu lagu SENDIRI, taruh berkas
+     barunya di ../media/ dengan nama lain lalu ubah src di pertemuan itu saja -
+     jangan menimpa berkas yang sedang dipakai pertemuan lain. -->
+<audio id="bgm" loop preload="none" src="../media/backsound-tugas.mp3"></audio>
 
 <!-- 0: layar tunggu (loop) -->
 <section class="slide" id="s0" data-name="Layar tunggu">
@@ -608,7 +614,7 @@ body.idle .hint{opacity:0}
       <div class="bye-song ix">
         <button type="button" id="byeSong" aria-label="Putar lagu perpisahan">♪ Lagu Sayonara</button>
         <div class="lyr" id="byeLyr">Klik untuk menyanyi bareng sebelum pulang</div>
-        <audio id="byeLagu" preload="none" src="lagu-sayonara.mp3"></audio>
+        <audio id="byeLagu" preload="none" src="../media/lagu-sayonara.mp3"></audio>
       </div>
     </div>
     <div class="pixiarea" id="pixiArea">
