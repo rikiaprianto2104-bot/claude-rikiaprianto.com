@@ -154,10 +154,36 @@ body.idle .hint{opacity:0}
 #s6 .lantai.rapat .anak{width:98px}
 #s6 .lantai.rapat .anak svg{width:98px;height:122px}
 #s6 .lantai.rapat .anak .lbl{font-size:13px;padding:2px 8px}
+/* --- Gerakan anak --- */
+/* Diam: napas pelan, tangan sedikit berayun. Tiap anak diberi jeda mulai yang
+   berbeda lewat --t supaya sepuluh boneka tidak bergoyang serempak seperti
+   barisan baris-berbaris. */
+#s6 .anak svg .tgn{transform-box:fill-box;transform-origin:50% 8%;animation:ayunTgn 2.6s ease-in-out infinite;animation-delay:var(--t,0s)}
+#s6 .anak svg .tgn.kanan{animation-name:ayunTgnKanan}
+#s6 .anak svg .kpl{transform-box:fill-box;transform-origin:50% 92%;animation:anggukKpl 3.4s ease-in-out infinite;animation-delay:var(--t,0s)}
+@keyframes ayunTgn{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+@keyframes ayunTgnKanan{0%,100%{transform:rotate(7deg)}50%{transform:rotate(-9deg)}}
+@keyframes anggukKpl{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+
+/* Menari: dipicu saat anak diabsen dan tiap kali bonekanya diklik. */
+#s6 .anak.menari svg{animation:jogetBadan 1.5s ease-in-out}
+#s6 .anak.menari svg .tgn{animation:jogetTgn .375s ease-in-out 4}
+#s6 .anak.menari svg .tgn.kanan{animation-name:jogetTgnKanan}
+#s6 .anak.menari svg .kpl{animation:jogetKpl .75s ease-in-out 2}
+@keyframes jogetBadan{
+  0%{transform:translateY(0) rotate(0)}
+  12%{transform:translateY(-34px) rotate(-9deg) scaleY(1.06)}
+  28%{transform:translateY(0) rotate(0) scaleY(.92)}
+  44%{transform:translateY(-34px) rotate(9deg) scaleY(1.06)}
+  60%{transform:translateY(0) rotate(0) scaleY(.92)}
+  78%{transform:translateY(-46px) rotate(0) scale(1.1)}
+  100%{transform:translateY(0) rotate(0) scale(1)}}
+@keyframes jogetTgn{0%,100%{transform:rotate(-95deg)}50%{transform:rotate(-20deg)}}
+@keyframes jogetTgnKanan{0%,100%{transform:rotate(20deg)}50%{transform:rotate(95deg)}}
+@keyframes jogetKpl{0%,100%{transform:rotate(-11deg)}50%{transform:rotate(11deg)}}
+#s6 .anak{cursor:pointer}
 @keyframes munculAnak{from{opacity:0;transform:translateY(60px) scale(.6)}to{opacity:1;transform:none}}
 @keyframes goyangAnak{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
-#s6 .anak.lompat svg{animation:lompatAnak .6s ease-out}
-@keyframes lompatAnak{0%{transform:translateY(0)}35%{transform:translateY(-70px) scale(1.08)}60%{transform:translateY(0) scaleY(.88)}100%{transform:translateY(0)}}
 
 /* Pesan kalau belum ada yang diabsen */
 #s6 .kosong{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:60px;
@@ -979,8 +1005,9 @@ function gambarAnak(a, besar){
 <ellipse cx="41" cy="117" rx="9" ry="4.5" fill="#43407A"/><ellipse cx="59" cy="117" rx="9" ry="4.5" fill="#43407A"/>
 <rect x="30" y="62" width="40" height="48" rx="17" fill="${a.baju}"/>
 <rect x="30" y="62" width="40" height="48" rx="17" fill="url(#${id}b)"/>
-<rect x="21" y="66" width="12" height="34" rx="6" fill="${a.baju}"/><rect x="67" y="66" width="12" height="34" rx="6" fill="${a.baju}"/>
-<circle cx="27" cy="99" r="6.5" fill="${a.kulit}"/><circle cx="73" cy="99" r="6.5" fill="${a.kulit}"/>
+<g class="tgn kiri"><rect x="21" y="66" width="12" height="34" rx="6" fill="${a.baju}"/><circle cx="27" cy="99" r="6.5" fill="${a.kulit}"/></g>
+<g class="tgn kanan"><rect x="67" y="66" width="12" height="34" rx="6" fill="${a.baju}"/><circle cx="73" cy="99" r="6.5" fill="${a.kulit}"/></g>
+<g class="kpl">
 <ellipse cx="50" cy="44" rx="25" ry="26" fill="${a.kulit}"/>
 <ellipse cx="50" cy="44" rx="25" ry="26" fill="url(#${id}k)"/>
 <ellipse cx="25" cy="47" rx="4" ry="5.5" fill="${a.kulit}"/><ellipse cx="75" cy="47" rx="4" ry="5.5" fill="${a.kulit}"/>
@@ -989,7 +1016,60 @@ ${RAMBUT[a.rambut] || RAMBUT[0]}
 <circle cx="42.6" cy="46" r="1.7" fill="#fff"/><circle cx="60.6" cy="46" r="1.7" fill="#fff"/>
 <ellipse cx="33" cy="56" rx="4.5" ry="2.8" fill="#FF8FA3" opacity=".75"/><ellipse cx="67" cy="56" rx="4.5" ry="2.8" fill="#FF8FA3" opacity=".75"/>
 <path d="M44 57c2 3.4 10 3.4 12 0" stroke="#17123F" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</g>
 </svg>`;
+}
+
+// ---- Suara anak-anak ----
+// Memakai perantara yang sama dengan halaman Pixi, /pixi/pixi-tts.php (Google
+// Cloud Text-to-Speech, suara Chirp 3 HD berbahasa Indonesia). Perantara itu
+// MENYIMPAN hasilnya di server: sapaan "Halo Gardala!" hanya dibuat sekali
+// seumur hidup, sesudah itu diambil dari simpanan. Jadi satu kelas penuh tiap
+// minggu tidak menambah tagihan.
+//
+// Kalau suaranya gagal (kunci belum dipasang, Google bermasalah, atau kelas
+// sedang tanpa internet), absennya TETAP jalan - hanya tidak bersuara. Absen
+// tidak boleh ikut mati gara-gara suara.
+const TTS_URL='/pixi/pixi-tts.php';
+const simpananSuara=new Map();
+let suaraTerakhir=null;
+async function suara(teks){
+  try{
+    let url=simpananSuara.get(teks);
+    if(!url){
+      const r=await fetch(TTS_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+                                  body:JSON.stringify({text:teks})});
+      if(!r.ok)return;
+      const b=await r.blob();
+      if(!b.size)return;
+      url=URL.createObjectURL(b);simpananSuara.set(teks,url);
+    }
+    suaraTerakhir?.pause();
+    const a=new Audio(url);a.volume=.95;suaraTerakhir=a;
+    await a.play().catch(()=>{});
+  }catch(e){}
+}
+// Nama disiapkan lebih dulu saat slide dibuka, supaya saat anak diklik suaranya
+// langsung keluar dan tidak ada jeda canggung di depan kelas.
+let sudahSiapkan=false;
+function siapkanSuara(){
+  if(sudahSiapkan)return;sudahSiapkan=true;
+  ANAK.forEach((a,i)=>setTimeout(()=>{
+    const teks='Halo '+a.pgl+'!';
+    if(simpananSuara.has(teks))return;
+    fetch(TTS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:teks})})
+      .then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)simpananSuara.set(teks,URL.createObjectURL(b))})
+      .catch(()=>{});
+  },i*400));
+}
+hooks.enter['s6']=siapkanSuara;
+
+// ---- Menari ----
+// Kelas 'menari' dilepas dulu lalu dipasang lagi setelah satu frame, kalau
+// tidak animasi yang sedang berjalan tidak akan mulai ulang saat diklik cepat.
+function menari(el){
+  el.classList.remove('menari');void el.offsetWidth;el.classList.add('menari');
+  setTimeout(()=>el.classList.remove('menari'),1600);
 }
 
 const daftarEl=document.getElementById('daftarAnak'),lantaiEl=document.getElementById('lantaiAnak'),
@@ -1001,8 +1081,14 @@ const hadir=new Set();
 function kartuAnak(a,besar,kelasTambahan){
   const d=document.createElement('div');d.className='anak'+(kelasTambahan?' '+kelasTambahan:'');
   d.innerHTML=gambarAnak(a,besar)+'<div class="lbl">'+a.pgl+'</div>';
+  d.style.setProperty('--t',(Math.random()*1.6).toFixed(2)+'s');
+  d.title='Klik untuk melihat '+a.pgl+' menari';
+  d.onclick=()=>{menari(d);suara(SERU[Math.floor(Math.random()*SERU.length)].replace('{n}',a.pgl))};
   return d;
 }
+// Kalimat yang diucapkan saat bonekanya diklik. Diacak supaya tidak
+// membosankan kalau anak mengklik berkali-kali - dan mereka pasti begitu.
+const SERU=['Hore! Aku {n}!','Lihat, aku bisa menari!','Yeay, semangat ya!','Aku {n}, siap belajar!','Asyik, ayo joget bareng!'];
 function perbaruiHitung(){
   hitungEl.textContent='Hadir '+hadir.size+' dari '+ANAK.length;
   acakBtn.disabled=hadir.size<2;
@@ -1022,8 +1108,11 @@ ANAK.forEach((a,i)=>{
     if(kelasEl.classList.contains('terbagi'))bubarkanKelompok();
     if(hadir.has(i)){hadir.delete(i);b.classList.remove('hadir')}
     else{hadir.add(i);b.classList.add('hadir');sfx('pop');
-         kabarEl.textContent=a.pgl+' hadir! Selamat datang 👋';}
+         kabarEl.textContent=a.pgl+' hadir! Selamat datang 👋';
+         suara('Halo '+a.pgl+'!');}
     gambarLantai();perbaruiHitung();
+    // Yang baru saja diabsen langsung menari menyambut dirinya sendiri.
+    if(hadir.has(i)){const kartu=[...lantaiEl.children].find(e=>e.querySelector('.lbl').textContent===a.pgl);if(kartu)menari(kartu)}
     if(!hadir.has(i))kabarEl.textContent='Klik nama di sebelah kiri untuk absen';
   };
   daftarEl.append(b);
@@ -1056,11 +1145,12 @@ acakBtn.onclick=()=>{
     clearInterval(iv);
     kelasEl.classList.add('terbagi');lantaiEl.innerHTML='';
     kabarEl.textContent='Kelompok sudah jadi!';
-    sfx('win');
+    sfx('win');suara('Kelompoknya sudah jadi! Ada Kelompok Merah dan Kelompok Biru.');
     // Anak masuk ke ruangnya satu per satu supaya terlihat seperti antre
     // berjalan masuk, bukan muncul semua sekaligus.
     urut.forEach((idx,k)=>setTimeout(()=>{
-      (k%2===0?ruangM:ruangB).append(kartuAnak(ANAK[idx],false));
+      const kartu=kartuAnak(ANAK[idx],false);
+      (k%2===0?ruangM:ruangB).append(kartu);menari(kartu);
       sfx('pop');
       if(k===urut.length-1)sedangAcak=false;
     },k*260));
@@ -1068,7 +1158,7 @@ acakBtn.onclick=()=>{
 };
 
 perbaruiHitung();
-hooks.leave['s6']=()=>{};
+hooks.leave['s6']=()=>{suaraTerakhir?.pause()};
 
 // ================= slide 7: tabs + tour =================
 document.querySelectorAll('#s7 .tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#s7 .tabs button').forEach(x=>x.classList.toggle('sel',x===b));document.querySelectorAll('#s7 .tab').forEach(t=>t.classList.toggle('sel',t.id===b.dataset.tab))});
