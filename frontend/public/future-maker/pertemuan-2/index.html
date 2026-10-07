@@ -154,6 +154,13 @@ body.idle .hint{opacity:0}
 #s6 .lantai.rapat .anak{width:98px}
 #s6 .lantai.rapat .anak svg{width:98px;height:122px}
 #s6 .lantai.rapat .anak .lbl{font-size:13px;padding:2px 8px}
+/* Lapisan 3D menutupi panggung. Label nama tetap HTML di atasnya, jadi
+   tulisannya tetap tajam dan bisa dibaca dari belakang kelas. */
+#s6 .kanvas3d{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#s6 .anak .lbl{position:relative;z-index:3}
+/* Begitu model 3D siap, boneka SVG-nya disembunyikan - tetapi kotaknya TIDAK
+   dihilangkan, karena kotak itulah yang menentukan letak anak 3D-nya. */
+#s6 .kelas.tigaD .anak svg{opacity:0}
 /* --- Gerakan anak --- */
 /* Diam: napas pelan, tangan sedikit berayun. Tiap anak diberi jeda mulai yang
    berbeda lewat --t supaya sepuluh boneka tidak bergoyang serempak seperti
@@ -374,6 +381,12 @@ body.idle .hint{opacity:0}
 #s10 .pixiarea.hidup iframe{opacity:1}
 @media (prefers-reduced-motion:reduce){.bob,.wave,.stars,#s4 .notes span,#s7 .hs{animation:none!important}}
 </style>
+<!-- Dipakai HANYA oleh slide absen, untuk anak-anak 3D. defer supaya tidak
+     menahan slide lain, dan kalau gagal dimuat (WiFi kelas mati) boneka SVG
+     tetap tampil. -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
 <div class="viewport" id="vp">
 <div class="stage" id="stage">
 
@@ -1021,48 +1034,41 @@ ${RAMBUT[a.rambut] || RAMBUT[0]}
 }
 
 // ---- Suara anak-anak ----
-// Memakai perantara yang sama dengan halaman Pixi, /pixi/pixi-tts.php (Google
-// Cloud Text-to-Speech, suara Chirp 3 HD berbahasa Indonesia). Perantara itu
-// MENYIMPAN hasilnya di server: sapaan "Halo Gardala!" hanya dibuat sekali
-// seumur hidup, sesudah itu diambil dari simpanan. Jadi satu kelas penuh tiap
-// minggu tidak menambah tagihan.
+// Tiap anak memperkenalkan diri lalu membacakan pantunnya sendiri. Suaranya
+// dibuat SEKALI dengan Google Cloud Text-to-Speech (suara anak Indonesia,
+// Chirp 3 HD) lewat pixi-tts.php, lalu diunduh menjadi berkas MP3 biasa yang
+// ikut diterbitkan bersama slide ini.
 //
-// Kalau suaranya gagal (kunci belum dipasang, Google bermasalah, atau kelas
-// sedang tanpa internet), absennya TETAP jalan - hanya tidak bersuara. Absen
-// tidak boleh ikut mati gara-gara suara.
-const TTS_URL='/pixi/pixi-tts.php';
+// Jadi saat kelas berjalan TIDAK ada panggilan ke Google sama sekali: tidak ada
+// jeda menunggu, tidak ada tagihan berulang, dan tetap bersuara walaupun WiFi
+// kelas mati. Kalau pantunnya mau diubah, berkasnya dibuat ulang sekali lagi.
+const SUARA_ANAK={};
+ANAK.forEach(a=>{SUARA_ANAK[a.pgl]='../media/suara/'+a.pgl.toLowerCase()+'.mp3'});
 const simpananSuara=new Map();
 let suaraTerakhir=null;
-async function suara(teks){
-  try{
-    let url=simpananSuara.get(teks);
-    if(!url){
-      const r=await fetch(TTS_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-                                  body:JSON.stringify({text:teks})});
-      if(!r.ok)return;
-      const b=await r.blob();
-      if(!b.size)return;
-      url=URL.createObjectURL(b);simpananSuara.set(teks,url);
-    }
-    suaraTerakhir?.pause();
-    const a=new Audio(url);a.volume=.95;suaraTerakhir=a;
-    await a.play().catch(()=>{});
-  }catch(e){}
+function suara(pgl){
+  const url=SUARA_ANAK[pgl];
+  if(!url)return;
+  let a=simpananSuara.get(pgl);
+  if(!a){a=new Audio(url);a.preload='auto';a.volume=.95;simpananSuara.set(pgl,a)}
+  try{suaraTerakhir?.pause();a.currentTime=0;suaraTerakhir=a;a.play().catch(()=>{})}catch(e){}
 }
-// Nama disiapkan lebih dulu saat slide dibuka, supaya saat anak diklik suaranya
-// langsung keluar dan tidak ada jeda canggung di depan kelas.
+// Berkasnya diminta lebih dulu begitu slide dibuka, supaya saat anak diklik
+// suaranya langsung keluar tanpa jeda di depan kelas.
 let sudahSiapkan=false;
 function siapkanSuara(){
   if(sudahSiapkan)return;sudahSiapkan=true;
-  ANAK.forEach((a,i)=>setTimeout(()=>{
-    const teks='Halo '+a.pgl+'!';
-    if(simpananSuara.has(teks))return;
-    fetch(TTS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:teks})})
-      .then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)simpananSuara.set(teks,URL.createObjectURL(b))})
-      .catch(()=>{});
-  },i*400));
+  ANAK.forEach(a=>{const au=new Audio(SUARA_ANAK[a.pgl]);au.preload='auto';au.volume=.95;simpananSuara.set(a.pgl,au);au.load()});
 }
-hooks.enter['s6']=siapkanSuara;
+
+// ---- Menari (boneka SVG cadangan) ----
+// Kelas 'menari' dilepas dulu lalu dipasang lagi setelah satu frame, kalau
+// tidak animasi yang sedang berjalan tidak akan mulai ulang saat diklik cepat.
+function menari(el){
+  el.classList.remove('menari');void el.offsetWidth;el.classList.add('menari');
+  setTimeout(()=>el.classList.remove('menari'),1600);
+}
+hooks.enter['s6']=()=>{siapkanSuara();muat3D()};
 
 // ---- Menari ----
 // Kelas 'menari' dilepas dulu lalu dipasang lagi setelah satu frame, kalau
@@ -1071,6 +1077,165 @@ function menari(el){
   el.classList.remove('menari');void el.offsetWidth;el.classList.add('menari');
   setTimeout(()=>el.classList.remove('menari'),1600);
 }
+
+// ================= anak-anak 3D =================
+// Satu model dipakai untuk sepuluh anak, warnanya saja yang berbeda. Model dan
+// animasi jogetnya dibuat di Meshy, lalu dikecilkan dari 12,6 MB menjadi 1,1 MB
+// (geometri disederhanakan, tekstur 512 px, koordinat dikuantisasi). Satu model
+// untuk semua, bukan sepuluh model: sepuluh berkas berarti sepuluh kali unduhan
+// dan sepuluh mesh bertulang dianimasikan bersamaan di laptop kelas.
+//
+// Boneka SVG TIDAK dibuang. Ia tetap digambar seperti biasa dan baru
+// disembunyikan setelah model 3D benar-benar siap. Jadi kalau WiFi kelas mati,
+// three.js gagal dimuat, atau kartu grafisnya tidak mendukung WebGL, slide ini
+// tetap menampilkan anak-anak - hanya versi datarnya.
+const MODEL_ANAK='../media/anak.glb';
+let tigaD=null;   // {scene,camera,renderer,kanvas,jam,proto,klip,tekstur,orang:Map}
+
+function muat3D(){
+  if(tigaD||!window.THREE||!THREE.GLTFLoader||!THREE.SkeletonUtils)return;
+  const kanvas=document.createElement('canvas');
+  kanvas.className='kanvas3d';kelasEl.append(kanvas);
+  let renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas:kanvas,antialias:true,alpha:true})}catch(e){kanvas.remove();return}
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  const scene=new THREE.Scene();
+  // Kamera ortografik dalam satuan piksel panggung: titik (x,y) di kamera sama
+  // persis dengan (x,y) di HTML. Dengan begitu letak tiap anak tinggal dibaca
+  // dari kotak elemennya, dan seluruh tata letak - berjajar di lantai, masuk ke
+  // ruang merah atau biru - tetap diatur oleh CSS seperti sebelumnya.
+  const camera=new THREE.OrthographicCamera(0,1,1,0,-4000,4000);
+  scene.add(new THREE.HemisphereLight(0xffffff,0xb9aeff,1.05));
+  const kunci=new THREE.DirectionalLight(0xffffff,.85);kunci.position.set(300,600,700);scene.add(kunci);
+  const isi=new THREE.DirectionalLight(0xe2dcff,.45);isi.position.set(-350,200,500);scene.add(isi);
+
+  new THREE.GLTFLoader().load(MODEL_ANAK,gltf=>{
+    const proto=gltf.scene;
+    // Ukuran model diambil dari TULANGNYA, bukan dari kotak mesh-nya.
+    // Box3.setFromObject pada mesh bertulang mengukur pose bind yang tersimpan di
+    // berkas, bukan bentuk yang benar-benar tergambar setelah kerangka dipasang.
+    // Pada model ini selisihnya 50 kali lipat: kotak mesh bilang 2 cm, padahal
+    // yang tampil setinggi 1 meter. Dipakai apa adanya, anak-anak tergambar
+    // sebesar panggung.
+    proto.updateMatrixWorld(true);
+    const kotak=new THREE.Box3();
+    let tulang=null;proto.traverse(m=>{if(m.isSkinnedMesh&&!tulang&&m.skeleton&&m.skeleton.bones.length)tulang=m});
+    if(tulang){
+      const v=new THREE.Vector3();
+      tulang.skeleton.bones.forEach(b=>{b.getWorldPosition(v);kotak.expandByPoint(v)});
+      // Tulang berhenti di pergelangan kaki dan pangkal kepala, sedangkan telapak
+      // dan rambut masih di luarnya. Diberi kelonggaran supaya tidak terpotong.
+      const t=kotak.max.y-kotak.min.y;
+      kotak.min.y-=t*0.05;kotak.max.y+=t*0.16;
+    }else{
+      kotak.setFromObject(proto);
+    }
+    const ukuran=kotak.getSize(new THREE.Vector3());
+    const tengah=kotak.getCenter(new THREE.Vector3());
+    let peta=null;
+    proto.traverse(o=>{if(o.isMesh&&o.material&&o.material.map&&!peta)peta=o.material.map});
+    tigaD={scene,camera,renderer,kanvas,jam:new THREE.Clock(),proto,
+           klip:gltf.animations&&gltf.animations[0],
+           tinggiModel:ukuran.y||1,tengahModel:tengah,bawahModel:kotak.min.y,peta,orang:new Map()};
+    kelasEl.classList.add('tigaD');
+    gambarLantai();if(ruangM.children.length||ruangB.children.length)susunUlang3D();
+    renderFrame();
+  },undefined,()=>{kanvas.remove()});
+}
+
+// Baju tiap anak diwarnai ulang di sini, bukan dengan membuat sepuluh tekstur
+// di Meshy. Kaosnya sengaja dibuat PUTIH POLOS waktu model dibuat, jadi piksel
+// yang terang dan nyaris tanpa warna pasti bagian kaos (dan sepatu). Kulit
+// berwarna peach yang jenuh, celana abu sedang, rambut cokelat gelap - semuanya
+// di luar ambang ini, jadi tidak ikut terwarnai.
+function teksturBaju(warna){
+  const img=tigaD.peta.image;
+  const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+  const x=c.getContext('2d');x.drawImage(img,0,0);
+  const d=x.getImageData(0,0,c.width,c.height),p=d.data;
+  const w=new THREE.Color(warna);
+  const wr=w.r*255,wg=w.g*255,wb=w.b*255;
+  for(let i=0;i<p.length;i+=4){
+    const r=p[i],g=p[i+1],b=p[i+2];
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+    if(mx>198&&mx-mn<26){            // terang + nyaris abu-abu => kaos
+      const t=mx/255;                 // bayangan kain tetap terjaga
+      p[i]=wr*t;p[i+1]=wg*t;p[i+2]=wb*t;
+    }
+  }
+  x.putImageData(d,0,0);
+  const t=new THREE.CanvasTexture(c);
+  t.flipY=false;t.encoding=THREE.sRGBEncoding;t.needsUpdate=true;
+  return t;
+}
+
+// Satu salinan model per anak. SkeletonUtils.clone dipakai, bukan .clone()
+// biasa: model bertulang yang disalin dengan cara biasa ikut memakai kerangka
+// aslinya, jadi sepuluh anak akan bergerak serempak persis sama.
+function orang3D(pgl){
+  let o=tigaD.orang.get(pgl);
+  if(o)return o;
+  const data=ANAK.find(a=>a.pgl===pgl);
+  const akar=THREE.SkeletonUtils.clone(tigaD.proto);
+  const tex=tigaD.peta?teksturBaju(data.baju):null;
+  akar.traverse(m=>{if(m.isMesh&&m.material){m.material=m.material.clone();if(tex)m.material.map=tex;m.material.needsUpdate=true}});
+  const induk=new THREE.Group();induk.add(akar);tigaD.scene.add(induk);
+  const mixer=new THREE.AnimationMixer(akar);
+  let aksi=null;
+  if(tigaD.klip){aksi=mixer.clipAction(tigaD.klip);aksi.play();aksi.timeScale=.33;
+     aksi.time=Math.random()*tigaD.klip.duration}
+  o={induk,akar,mixer,aksi,sampai:0};
+  tigaD.orang.set(pgl,o);
+  return o;
+}
+function menari3D(pgl,detik){
+  const o=tigaD&&tigaD.orang.get(pgl);
+  if(!o||!o.aksi)return;
+  o.aksi.timeScale=1.25;o.sampai=performance.now()+detik*1000;
+}
+
+// Tiap frame: letak tiap anak dibaca dari kotak elemen SVG-nya yang tersembunyi,
+// lalu salinan 3D-nya ditaruh persis di situ. Tata letaknya tetap urusan CSS -
+// berjajar di lantai, pindah ke ruang merah atau biru - dan yang 3D hanya
+// mengikuti. Jadi tidak ada logika tata letak yang ditulis dua kali.
+function renderFrame(){
+  if(!tigaD)return;
+  requestAnimationFrame(renderFrame);
+  const kotakKelas=kelasEl.getBoundingClientRect();
+  const skala=kotakKelas.width/kelasEl.offsetWidth||1;   // panggung ikut diperkecil CSS
+  const W=kelasEl.offsetWidth,H=kelasEl.offsetHeight;
+  if(tigaD.kanvas.width!==W||tigaD.kanvas.height!==H){
+    tigaD.renderer.setSize(W,H,false);
+    const c=tigaD.camera;c.left=0;c.right=W;c.top=H;c.bottom=0;c.updateProjectionMatrix();
+  }
+  const dipakai=new Set();
+  kelasEl.querySelectorAll('.anak').forEach(el=>{
+    const pgl=el.querySelector('.lbl').textContent;
+    const o=orang3D(pgl);dipakai.add(pgl);
+    const k=el.querySelector('svg').getBoundingClientRect();
+    const x=(k.left-kotakKelas.left)/skala+(k.width/skala)/2;
+    const yBawah=(k.bottom-kotakKelas.top)/skala;
+    const tinggi=(k.height/skala)*0.98;
+    const s=tinggi/tigaD.tinggiModel;
+    o.induk.visible=true;
+    o.induk.scale.setScalar(s);
+    // Sumbu Y HTML menghitung dari atas, sumbu Y dunia dari bawah.
+    o.induk.position.set(x,H-yBawah,0);
+    // Model digeser supaya pusatnya di tengah dan telapak kakinya tepat di nol,
+    // jadi anak benar-benar berdiri di garis bawah kotaknya.
+    o.akar.position.set(-tigaD.tengahModel.x,-tigaD.bawahModel,-tigaD.tengahModel.z);
+  });
+  tigaD.orang.forEach((o,pgl)=>{if(!dipakai.has(pgl))o.induk.visible=false});
+
+  const dt=tigaD.jam.getDelta(),kini=performance.now();
+  tigaD.orang.forEach(o=>{
+    if(o.aksi&&o.aksi.timeScale>.5&&kini>o.sampai){o.aksi.timeScale=.33}
+    o.mixer.update(dt);
+  });
+  tigaD.renderer.render(tigaD.scene,tigaD.camera);
+}
+function susunUlang3D(){}
 
 const daftarEl=document.getElementById('daftarAnak'),lantaiEl=document.getElementById('lantaiAnak'),
       kelasEl=document.getElementById('kelas'),kabarEl=document.getElementById('kabarKelas'),
@@ -1083,12 +1248,9 @@ function kartuAnak(a,besar,kelasTambahan){
   d.innerHTML=gambarAnak(a,besar)+'<div class="lbl">'+a.pgl+'</div>';
   d.style.setProperty('--t',(Math.random()*1.6).toFixed(2)+'s');
   d.title='Klik untuk melihat '+a.pgl+' menari';
-  d.onclick=()=>{menari(d);suara(SERU[Math.floor(Math.random()*SERU.length)].replace('{n}',a.pgl))};
+  d.onclick=()=>{menari(d);menari3D(a.pgl,2.6);suara(a.pgl)};
   return d;
 }
-// Kalimat yang diucapkan saat bonekanya diklik. Diacak supaya tidak
-// membosankan kalau anak mengklik berkali-kali - dan mereka pasti begitu.
-const SERU=['Hore! Aku {n}!','Lihat, aku bisa menari!','Yeay, semangat ya!','Aku {n}, siap belajar!','Asyik, ayo joget bareng!'];
 function perbaruiHitung(){
   hitungEl.textContent='Hadir '+hadir.size+' dari '+ANAK.length;
   acakBtn.disabled=hadir.size<2;
@@ -1109,10 +1271,10 @@ ANAK.forEach((a,i)=>{
     if(hadir.has(i)){hadir.delete(i);b.classList.remove('hadir')}
     else{hadir.add(i);b.classList.add('hadir');sfx('pop');
          kabarEl.textContent=a.pgl+' hadir! Selamat datang 👋';
-         suara('Halo '+a.pgl+'!');}
+         suara(a.pgl);}
     gambarLantai();perbaruiHitung();
     // Yang baru saja diabsen langsung menari menyambut dirinya sendiri.
-    if(hadir.has(i)){const kartu=[...lantaiEl.children].find(e=>e.querySelector('.lbl').textContent===a.pgl);if(kartu)menari(kartu)}
+    if(hadir.has(i)){const kartu=[...lantaiEl.children].find(e=>e.querySelector('.lbl').textContent===a.pgl);if(kartu)menari(kartu);menari3D(a.pgl,3)}
     if(!hadir.has(i))kabarEl.textContent='Klik nama di sebelah kiri untuk absen';
   };
   daftarEl.append(b);
@@ -1145,12 +1307,12 @@ acakBtn.onclick=()=>{
     clearInterval(iv);
     kelasEl.classList.add('terbagi');lantaiEl.innerHTML='';
     kabarEl.textContent='Kelompok sudah jadi!';
-    sfx('win');suara('Kelompoknya sudah jadi! Ada Kelompok Merah dan Kelompok Biru.');
+    sfx('win');
     // Anak masuk ke ruangnya satu per satu supaya terlihat seperti antre
     // berjalan masuk, bukan muncul semua sekaligus.
     urut.forEach((idx,k)=>setTimeout(()=>{
       const kartu=kartuAnak(ANAK[idx],false);
-      (k%2===0?ruangM:ruangB).append(kartu);menari(kartu);
+      (k%2===0?ruangM:ruangB).append(kartu);menari(kartu);menari3D(ANAK[idx].pgl,2.2);
       sfx('pop');
       if(k===urut.length-1)sedangAcak=false;
     },k*260));
