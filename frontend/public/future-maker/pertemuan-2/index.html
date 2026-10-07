@@ -932,24 +932,24 @@ addEventListener('pointerdown',wakeLock,{once:true});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wakeLock()});
 
 // ================= slide absen & acak kelompok =================
-// Daftar peserta Pertemuan 2. Nama panggilan (pgl) yang dipakai di layar
-// supaya muat di label dan supaya anak langsung mengenali dirinya; nama
-// lengkapnya tetap disimpan untuk dibacakan Coach saat absen.
+// Daftar peserta Pertemuan 2. HANYA nama panggilan. Halaman ini terbuka untuk
+// siapa pun yang tahu alamatnya, jadi nama lengkap anak sengaja tidak disimpan
+// di sini sama sekali - bukan disembunyikan, memang tidak ada.
 //
 // Tiap anak punya rupa tetap (warna baju, rambut, aksesori) yang ditentukan di
 // sini, BUKAN diacak. Kalau diacak, rupanya berubah tiap kali halaman dimuat
 // ulang dan anak tidak bisa bilang "itu aku yang baju hijau".
 const ANAK = [
-  {nama:'Gardala Sangjalu GA',               pgl:'Gardala', baju:'#FF6B4A', rambut:0, warnaRambut:'#2B1B14', kulit:'#F2C9A0'},
-  {nama:'Al Farras King Shaquille Bayanaka', pgl:'Farras',  baju:'#2FCB95', rambut:1, warnaRambut:'#1A1208', kulit:'#E8B183'},
-  {nama:'Farjana',                           pgl:'Farjana', baju:'#FF7AA2', rambut:5, warnaRambut:'#241611', kulit:'#F6D3AE'},
-  {nama:'Muhammad Umar',                     pgl:'Umar',    baju:'#33C3E0', rambut:2, warnaRambut:'#2B1B14', kulit:'#D9A06B'},
-  {nama:'M. Arsene Putra Kurniawan',         pgl:'Arsene',  baju:'#6C5CE7', rambut:0, warnaRambut:'#3A2418', kulit:'#F2C9A0'},
-  {nama:'Arshad Alvaronizam Arrafif',        pgl:'Arshad',  baju:'#FFC93C', rambut:3, warnaRambut:'#1A1208', kulit:'#E8B183'},
-  {nama:'Dzaky Almair',                      pgl:'Dzaky',   baju:'#1C9BC0', rambut:1, warnaRambut:'#241611', kulit:'#F6D3AE'},
-  {nama:'M. Althaf Arrayhan',                pgl:'Althaf',  baju:'#E8456F', rambut:2, warnaRambut:'#2B1B14', kulit:'#D9A06B'},
-  {nama:'M. Ahnaf Syauqi',                   pgl:'Ahnaf',   baju:'#14896A', rambut:4, warnaRambut:'#1A1208', kulit:'#F2C9A0'},
-  {nama:'Muhammad Aksa',                     pgl:'Aksa',    baju:'#8B5CF6', rambut:3, warnaRambut:'#3A2418', kulit:'#E8B183'}
+  {pgl:'Gardala', baju:'#FF6B4A', rambut:0, warnaRambut:'#2B1B14', kulit:'#F2C9A0'},
+  {pgl:'King',    baju:'#2FCB95', rambut:1, warnaRambut:'#1A1208', kulit:'#E8B183'},
+  {pgl:'Farjana', baju:'#FF7AA2', rambut:5, warnaRambut:'#241611', kulit:'#F6D3AE'},
+  {pgl:'Umar',    baju:'#33C3E0', rambut:2, warnaRambut:'#2B1B14', kulit:'#D9A06B'},
+  {pgl:'Arsene',  baju:'#6C5CE7', rambut:0, warnaRambut:'#3A2418', kulit:'#F2C9A0'},
+  {pgl:'Arshad',  baju:'#FFC93C', rambut:3, warnaRambut:'#1A1208', kulit:'#E8B183'},
+  {pgl:'Dzaky',   baju:'#1C9BC0', rambut:1, warnaRambut:'#241611', kulit:'#F6D3AE'},
+  {pgl:'Althaf',  baju:'#E8456F', rambut:2, warnaRambut:'#2B1B14', kulit:'#D9A06B'},
+  {pgl:'Ahnaf',   baju:'#14896A', rambut:4, warnaRambut:'#1A1208', kulit:'#F2C9A0'},
+  {pgl:'Aksa',    baju:'#8B5CF6', rambut:3, warnaRambut:'#3A2418', kulit:'#E8B183'}
 ];
 
 // Boneka anak. Digambar sebagai SVG, bukan model 3D sungguhan: sepuluh model
@@ -1018,7 +1018,6 @@ function gambarLantai(){
 ANAK.forEach((a,i)=>{
   const b=document.createElement('button');b.type='button';b.className='nm';
   b.innerHTML='<span class="av">'+a.pgl[0]+'</span><span>'+a.pgl+'</span>';
-  b.title=a.nama;
   b.onclick=()=>{
     if(kelasEl.classList.contains('terbagi'))bubarkanKelompok();
     if(hadir.has(i)){hadir.delete(i);b.classList.remove('hadir')}
