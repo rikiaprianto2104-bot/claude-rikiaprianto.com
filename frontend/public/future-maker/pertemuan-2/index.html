@@ -422,7 +422,7 @@ body.idle .hint{opacity:0}
      diterbitkan. Kalau suatu pertemuan nanti perlu lagu SENDIRI, taruh berkas
      barunya di ../media/ dengan nama lain lalu ubah src di pertemuan itu saja -
      jangan menimpa berkas yang sedang dipakai pertemuan lain. -->
-<audio id="bgm" loop preload="none" src="../media/backsound-tugas.mp3"></audio>
+<audio id="bgm" loop preload="none" src="../media/backsound-tugas.mp3?v=3"></audio>
 
 <!-- 0: layar tunggu (loop) -->
 <section class="slide" id="s0" data-name="Layar tunggu">
@@ -630,7 +630,7 @@ body.idle .hint{opacity:0}
       <div class="bye-song ix">
         <button type="button" id="byeSong" aria-label="Putar lagu perpisahan">♪ Lagu Sayonara</button>
         <div class="lyr" id="byeLyr">Klik untuk menyanyi bareng sebelum pulang</div>
-        <audio id="byeLagu" preload="none" src="../media/lagu-sayonara.mp3"></audio>
+        <audio id="byeLagu" preload="none" src="../media/lagu-sayonara.mp3?v=3"></audio>
       </div>
     </div>
     <div class="pixiarea" id="pixiArea">
@@ -1042,8 +1042,9 @@ ${RAMBUT[a.rambut] || RAMBUT[0]}
 // Jadi saat kelas berjalan TIDAK ada panggilan ke Google sama sekali: tidak ada
 // jeda menunggu, tidak ada tagihan berulang, dan tetap bersuara walaupun WiFi
 // kelas mati. Kalau pantunnya mau diubah, berkasnya dibuat ulang sekali lagi.
+const VERSI_ASET='3';   // naikkan tiap kali isi media/ diganti
 const SUARA_ANAK={};
-ANAK.forEach(a=>{SUARA_ANAK[a.pgl]='../media/suara/'+a.pgl.toLowerCase()+'.mp3'});
+ANAK.forEach(a=>{SUARA_ANAK[a.pgl]='../media/suara/'+a.pgl.toLowerCase()+'.mp3?v='+VERSI_ASET});
 const simpananSuara=new Map();
 let suaraTerakhir=null;
 function suara(pgl){
@@ -1089,7 +1090,7 @@ function menari(el){
 // disembunyikan setelah model 3D benar-benar siap. Jadi kalau WiFi kelas mati,
 // three.js gagal dimuat, atau kartu grafisnya tidak mendukung WebGL, slide ini
 // tetap menampilkan anak-anak - hanya versi datarnya.
-const MODEL_ANAK='../media/anak.glb';
+const MODEL_ANAK='../media/anak.glb?v=3';
 let tigaD=null;   // {scene,camera,renderer,kanvas,jam,proto,klip,tekstur,orang:Map}
 
 function muat3D(){
