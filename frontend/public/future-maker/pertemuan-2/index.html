@@ -151,6 +151,14 @@ body.idle .hint{opacity:0}
 #s6 .ruang .anak{width:118px}
 #s6 .ruang .anak svg{width:96px;height:120px}
 #s6 .ruang .anak .lbl{font-size:13px;padding:2px 8px}
+/* Saat absen, panggung hanya menampilkan SATU anak: yang baru saja dipanggil.
+   Dibuat besar dan di tengah supaya terlihat jelas dari belakang kelas, dan
+   supaya anak yang sedang maju merasa benar-benar jadi bintangnya. Yang sudah
+   lewat sengaja dihilangkan; semuanya baru muncul bersama saat acak kelompok. */
+#s6 .lantai.tunggal{align-items:center;padding-bottom:70px}
+#s6 .lantai.tunggal .anak{width:380px;gap:10px}
+#s6 .lantai.tunggal .anak svg{width:380px;height:470px}
+#s6 .lantai.tunggal .anak .lbl{font-size:30px;padding:8px 24px;max-width:none}
 #s6 .lantai.rapat .anak{width:98px}
 #s6 .lantai.rapat .anak svg{width:98px;height:122px}
 #s6 .lantai.rapat .anak .lbl{font-size:13px;padding:2px 8px}
@@ -1259,18 +1267,25 @@ function perbaruiHitung(){
 }
 // Absen: nama diklik -> anaknya melompat masuk ke kelas. Yang TIDAK diklik
 // tidak pernah muncul di panggung dan tidak ikut diacak ke kelompok mana pun.
+// Saat absen hanya anak yang BARU dipanggil yang berdiri di panggung. Kalau
+// semuanya ditampilkan, satu per satu mengecil sampai sepuluh anak berjejer
+// kecil-kecil, dan yang sedang maju tidak kelihatan menonjol.
+let sorotan=null;   // nomor anak yang sedang di panggung
 function gambarLantai(){
   lantaiEl.innerHTML='';
-  lantaiEl.classList.toggle('rapat',hadir.size>6);
-  ANAK.forEach((a,i)=>{ if(hadir.has(i)) lantaiEl.append(kartuAnak(a,true)); });
+  const satu=sorotan!==null&&hadir.has(sorotan);
+  lantaiEl.classList.toggle('tunggal',satu);
+  lantaiEl.classList.remove('rapat');
+  if(satu){lantaiEl.append(kartuAnak(ANAK[sorotan],true));return}
+  // Di luar mode sorotan (mis. setelah Ulang) panggung dibiarkan kosong.
 }
 ANAK.forEach((a,i)=>{
   const b=document.createElement('button');b.type='button';b.className='nm';
   b.innerHTML='<span class="av">'+a.pgl[0]+'</span><span>'+a.pgl+'</span>';
   b.onclick=()=>{
     if(kelasEl.classList.contains('terbagi'))bubarkanKelompok();
-    if(hadir.has(i)){hadir.delete(i);b.classList.remove('hadir')}
-    else{hadir.add(i);b.classList.add('hadir');sfx('pop');
+    if(hadir.has(i)){hadir.delete(i);b.classList.remove('hadir');if(sorotan===i)sorotan=null}
+    else{hadir.add(i);b.classList.add('hadir');sfx('pop');sorotan=i;
          kabarEl.textContent=a.pgl+' hadir! Selamat datang 👋';
          suara(a.pgl);}
     gambarLantai();perbaruiHitung();
@@ -1286,7 +1301,7 @@ function bubarkanKelompok(){
   kabarEl.textContent='Klik nama di sebelah kiri untuk absen';
 }
 document.getElementById('ulangAbsen').onclick=()=>{
-  hadir.clear();daftarEl.querySelectorAll('.nm').forEach(b=>b.classList.remove('hadir'));
+  hadir.clear();sorotan=null;daftarEl.querySelectorAll('.nm').forEach(b=>b.classList.remove('hadir'));
   bubarkanKelompok();gambarLantai();perbaruiHitung();
 };
 
@@ -1306,7 +1321,7 @@ acakBtn.onclick=()=>{
     n--;
     if(n>0){kabarEl.textContent='Pixi sedang mengacak… '+n;sfx('pop');return}
     clearInterval(iv);
-    kelasEl.classList.add('terbagi');lantaiEl.innerHTML='';
+    kelasEl.classList.add('terbagi');sorotan=null;lantaiEl.innerHTML='';lantaiEl.classList.remove('tunggal');
     kabarEl.textContent='Kelompok sudah jadi!';
     sfx('win');
     // Anak masuk ke ruangnya satu per satu supaya terlihat seperti antre
