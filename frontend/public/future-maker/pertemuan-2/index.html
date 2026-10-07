@@ -151,6 +151,9 @@ body.idle .hint{opacity:0}
 #s6 .ruang .anak{width:118px}
 #s6 .ruang .anak svg{width:96px;height:120px}
 #s6 .ruang .anak .lbl{font-size:13px;padding:2px 8px}
+#s6 .lantai.rapat .anak{width:106px}
+#s6 .lantai.rapat .anak svg{width:106px;height:131px}
+#s6 .lantai.rapat .anak .lbl{font-size:13px;padding:2px 8px}
 @keyframes munculAnak{from{opacity:0;transform:translateY(60px) scale(.6)}to{opacity:1;transform:none}}
 @keyframes goyangAnak{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
 #s6 .anak.lompat svg{animation:lompatAnak .6s ease-out}
@@ -1009,6 +1012,7 @@ function perbaruiHitung(){
 // tidak pernah muncul di panggung dan tidak ikut diacak ke kelompok mana pun.
 function gambarLantai(){
   lantaiEl.innerHTML='';
+  lantaiEl.classList.toggle('rapat',hadir.size>6);
   ANAK.forEach((a,i)=>{ if(hadir.has(i)) lantaiEl.append(kartuAnak(a,true)); });
 }
 ANAK.forEach((a,i)=>{
