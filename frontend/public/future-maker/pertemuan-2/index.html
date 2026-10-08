@@ -172,9 +172,18 @@ body.idle .hint{opacity:0}
    tulisannya tetap tajam dan bisa dibaca dari belakang kelas. */
 #s6 .kanvas3d{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 #s6 .anak .lbl{position:relative;z-index:3}
-/* Begitu model 3D siap, boneka SVG-nya disembunyikan - tetapi kotaknya TIDAK
-   dihilangkan, karena kotak itulah yang menentukan letak anak 3D-nya. */
-#s6 .kelas.tigaD .anak svg{opacity:0}
+/* Boneka SVG disembunyikan SEJAK mesin 3D siap, bukan menunggu modelnya
+   selesai diunduh. Kalau menunggu, boneka datar itu sempat berkedip sekejap
+   tiap kali anak baru dipanggil, lalu diganti model 3D - terlihat seperti
+   animasi lama yang muncul sebentar. Kotaknya TIDAK dihilangkan, karena kotak
+   itulah yang menentukan letak dan ukuran anak 3D-nya. */
+#s6 .kelas.siap3d .anak svg{opacity:0}
+/* Penanda singkat selama model anak diunduh, supaya panggung tidak terasa
+   kosong tanpa sebab. */
+#s6 .memuat{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);z-index:3;display:none;
+  background:rgba(255,255,255,.92);color:var(--ink);border-radius:999px;padding:12px 28px;
+  font-size:26px;font-weight:700}
+#s6 .kelas.memuat3d .memuat{display:block}
 /* --- Gerakan anak --- */
 /* Diam: napas pelan, tangan sedikit berayun. Tiap anak diberi jeda mulai yang
    berbeda lewat --t supaya sepuluh boneka tidak bergoyang serempak seperti
@@ -560,6 +569,7 @@ body.idle .hint{opacity:0}
   <div class="kelas ix" id="kelas">
     <div class="kabar" id="kabarKelas">Klik nama di sebelah kiri untuk absen</div>
     <div class="kosong">Belum ada yang absen.<br>Ayo, siapa yang mau maju duluan?</div>
+    <div class="memuat" id="memuatAnak">Sebentar ya…</div>
     <div class="lantai" id="lantaiAnak"></div>
     <div class="ruang merah"><h4>Kelompok Merah</h4><div class="isi" id="ruangMerah"></div></div>
     <div class="ruang biru"><h4>Kelompok Biru</h4><div class="isi" id="ruangBiru"></div></div>
@@ -1127,7 +1137,25 @@ function muat3D(){
   const kunci=new THREE.DirectionalLight(0xffffff,.9);kunci.position.set(300,600,700);scene.add(kunci);
   const isi=new THREE.DirectionalLight(0xe2dcff,.5);isi.position.set(-350,200,500);scene.add(isi);
   tigaD={scene,camera,renderer,kanvas,jam:new THREE.Clock(),muat:new Map(),tampil:null};
+  // Mesin 3D hidup: mulai sekarang boneka SVG tidak pernah ditampilkan lagi.
+  kelasEl.classList.add('siap3d');
   renderFrame();
+  siapkanModel();
+}
+
+// Sepuluh model diunduh diam-diam di latar begitu slide dibuka, SATU PER SATU,
+// sambil Coach masih menjelaskan. Jadi saat nama diklik modelnya biasanya sudah
+// siap dan langsung muncul tanpa jeda. Berurutan, bukan bersamaan, supaya tidak
+// merebut jalur unduhan dan tidak memberati laptop kelas sekaligus.
+function siapkanModel(){
+  let i=0;
+  const berikut=()=>{
+    if(i>=ANAK.length)return;
+    const e=ambilAnak(ANAK[i++].pgl);
+    if(e.siap||e.gagal)return berikut();
+    e.lalu=berikut;            // dipanggil setelah unduhannya selesai
+  };
+  berikut();
 }
 
 // Model satu anak. Diunduh sekali lalu disimpan, jadi kalau namanya diklik lagi
@@ -1162,7 +1190,8 @@ function ambilAnak(pgl){
       e.aksi.play();
     }
     if(tigaD.tampil===pgl)pasangTampil(pgl);
-  },undefined,()=>{e.gagal=true});
+    e.lalu?.();e.lalu=null;
+  },undefined,()=>{e.gagal=true;if(tigaD.tampil===pgl)pasangTampil(pgl);e.lalu?.();e.lalu=null});
   return e;
 }
 
@@ -1172,13 +1201,16 @@ function pasangTampil(pgl){
   if(!tigaD)return;
   tigaD.muat.forEach((e,k)=>{if(e.akar)e.akar.visible=(k===pgl)});
   const e=pgl?tigaD.muat.get(pgl):null;
-  kelasEl.classList.toggle('tigaD',!!(e&&e.siap));
+  kelasEl.classList.toggle('memuat3d',!!(pgl&&e&&!e.siap&&!e.gagal));
+  // Kalau modelnya gagal diunduh, boneka SVG dimunculkan lagi sebagai cadangan
+  // supaya panggungnya tidak kosong.
+  kelasEl.classList.toggle('siap3d',!(pgl&&e&&e.gagal));
 }
 function tampilkan3D(pgl){
   if(!tigaD)return;
   tigaD.tampil=pgl;
-  if(pgl){const e=ambilAnak(pgl);if(e.siap)pasangTampil(pgl);else kelasEl.classList.remove('tigaD')}
-  else pasangTampil(null);
+  if(pgl)ambilAnak(pgl);
+  pasangTampil(pgl);
 }
 // Diklik: gerakannya diulang dari awal supaya terasa menanggapi.
 function menari3D(pgl){
