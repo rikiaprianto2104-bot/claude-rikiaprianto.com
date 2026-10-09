@@ -297,9 +297,6 @@ body.idle .hint{opacity:0}
 /* Tombol buka game */
 #s8 .mainbar{position:absolute;left:96px;bottom:60px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 #s8 .mainbar a,#s8 .mainbar button{border:0;border-radius:999px;padding:18px 32px;font-family:var(--display);font-size:26px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 5px 0 rgba(0,0,0,.14)}
-#s8 .mainbar .buka{background:var(--violet);color:#fff}
-#s8 .mainbar .a{background:var(--pink);color:#fff}
-#s8 .mainbar .b{background:var(--cyan);color:#fff}
 #s8 .mainbar a:active,#s8 .mainbar button:active{transform:translateY(2px);box-shadow:0 3px 0 rgba(0,0,0,.14)}
 /* Kolom kanan */
 #s8 .side{position:absolute;right:96px;top:150px;width:540px;display:grid;gap:24px}
@@ -316,21 +313,6 @@ body.idle .hint{opacity:0}
 #s8 .promptbar button:active{transform:translateY(2px);box-shadow:0 3px 0 rgba(0,0,0,.14)}
 #s8 .promptbar .a{background:var(--pink)}
 #s8 .promptbar .b{background:var(--cyan)}
-.promptscr{position:absolute;inset:0;z-index:35;display:none;place-items:center;background:rgba(20,14,63,.96);padding:50px}
-.promptscr.on{display:grid}
-.promptscr .kotak{width:1500px;max-height:950px;overflow:auto;background:#fff;border-radius:36px;padding:40px 48px;color:var(--ink)}
-.promptscr h3{font-size:44px;font-weight:700;display:flex;align-items:center;gap:16px}
-.promptscr h3 .tag{font-size:24px;border-radius:999px;padding:8px 20px;color:#fff}
-.promptscr .baris{margin-top:22px;font-size:27px;line-height:1.4;font-weight:500}
-.promptscr .baris mark{background:none;font-weight:700;margin-right:10px}
-.promptscr .aksi{margin-top:34px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.promptscr .aksi button{border:0;border-radius:999px;padding:16px 34px;font-family:var(--display);font-size:26px;font-weight:700;cursor:pointer}
-.promptscr .salin{background:var(--violet);color:#fff}
-.promptscr .tutup{background:#EFEBFF;color:var(--ink)}
-.promptscr .aksi a{font-size:22px;font-weight:600;color:var(--violet)}
-.promptscr .kabar{font-size:24px;font-weight:600;color:#14896A;min-height:32px}
-.promptscr textarea{width:100%;height:150px;margin-top:16px;font:500 22px/1.4 var(--display);border:3px solid #E4DCFF;border-radius:20px;padding:14px;color:var(--ink);display:none}
-.promptscr textarea.on{display:block}
 /* Jam WIB di pojok kanan atas, mulai slide 1. Dipakai Coach untuk mengukur
    sisa waktu kelas, jadi sengaja TIDAK ikut hilang saat layar dibiarkan diam
    (berbeda dengan tombol navigasi di bawah). */
@@ -415,19 +397,6 @@ body.idle .hint{opacity:0}
 <!-- Jam WIB & layar STOP ikut panggung (bukan layar), supaya ukurannya ikut
      mengecil bersama slide saat proyektornya lebih kecil dari 1920x1080. -->
 <div class="jam" id="jam" aria-live="off"><span id="jamT">--:--</span><small>WIB</small></div>
-<div class="promptscr" id="promptscr" role="dialog" aria-label="Prompt kelompok">
-  <div class="kotak">
-    <h3><span id="promptJudul">Prompt Kelompok A</span><span class="tag" id="promptTag">Kelompok A</span></h3>
-    <div id="promptIsi"></div>
-    <div class="aksi">
-      <button type="button" class="salin" id="promptSalin">Salin prompt</button>
-      <button type="button" class="tutup" id="promptTutup">Tutup</button>
-      <a id="promptDoc" href="#" target="_blank" rel="noopener">Buka di Google Docs</a>
-      <span class="kabar" id="promptKabar"></span>
-    </div>
-    <textarea id="promptTeks" readonly aria-label="Teks prompt untuk disalin"></textarea>
-  </div>
-</div>
 <div class="stopscr" id="stopscr" role="alertdialog" aria-label="Waktu mengerjakan habis">
   <div>
     <div class="big">STOP</div>
@@ -589,8 +558,6 @@ body.idle .hint{opacity:0}
   </div>
   <div class="mainbar ix">
     <a class="buka" href="/projects/labirin-harta-karun.html" target="_blank" rel="noopener">🗺️ Buka Labirin Harta Karun ↗</a>
-    <button type="button" class="a" data-prompt="A">Prompt Kelompok Merah</button>
-    <button type="button" class="b" data-prompt="B">Prompt Kelompok Biru</button>
   </div>
   <div class="side">
     <div class="card harta">
@@ -601,7 +568,6 @@ body.idle .hint{opacity:0}
       <div class="ptg"><i style="background:#6C5CE7">4</i>DI MANA — tempatnya</div>
       <small>Belum ketemu semua? Jangan menyerah, periksa lagi lorong yang belum dilewati.</small>
     </div>
-    <div class="card timer ix" data-timer="15" data-stop="Labirinnya ditutup dulu ya!"></div>
   </div>
 </section>
 
@@ -960,7 +926,6 @@ function go(n,dir){n=Math.max(0,Math.min(N,n));if(n===cur&&slides[n].classList.c
   jamBox.classList.toggle('on',n>=2);
   jamBox.classList.toggle('gelap',s.classList.contains('sky'));
   document.getElementById('stopscr').classList.remove('on');
-  document.getElementById('promptscr').classList.remove('on');
   if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
 }
 const next=()=>go(cur+1,1),prev=()=>go(cur-1,-1);
@@ -1364,81 +1329,6 @@ function showFeat(i){featI=(i+FEAT.length)%FEAT.length;const f=FEAT[featI];mock.
   document.getElementById('fPrev').onclick=()=>showFeat(featI-1);document.getElementById('fNext').onclick=()=>showFeat(featI+1)}
 showFeat(0);
 
-// ================= prompt siap pakai tiap kelompok =================
-// Isinya disalin dari dua Google Docs milik Coach Riki, lalu DITANAM di sini.
-// Alasannya: di kelas, membuka Google Docs berarti berpindah jendela, menunggu
-// halaman termuat, dan bergantung pada WiFi yang belum tentu sehat. Ditanam
-// begini, promptnya muncul seketika dan tetap ada walaupun internet mati.
-// Tautan dokumen aslinya tetap disediakan kalau Coach ingin mengubah isinya.
-//
-// KALAU DOKUMENNYA DIUBAH, teks di bawah ini harus ikut diperbarui - keduanya
-// tidak tersambung otomatis.
-const PROMPT = {
-  A: {
-    judul: 'Flappy Bird sederhana',
-    warna: '#FF7AA2',
-    doc: 'https://docs.google.com/document/d/1e_fPMFLeprY_va4pKqzDGcXeDOTQ7FwCi2Dzr2IPdKk/edit',
-    bagian: [
-      ['SIAPA', '#E8456F', 'Buatkan game arcade sederhana gaya "Flappy Bird". Tokohnya bentuk sederhana (lingkaran/segitiga) kuning/oranye cerah yang terbang di tengah layar.'],
-      ['APA', '#1C9BC0', 'Game arcade satu tombol: klik mouse, tap layar, atau Spasi membuat karakter terbang naik sesaat sebelum jatuh lagi karena gravitasi.'],
-      ['GIMANA', '#14896A', 'Rintangan pasangan pipa hijau atas-bawah dengan celah acak, bergerak kanan ke kiri. Skor +1 tiap lewat 1 pasang pipa, kecepatan naik tiap 10 poin. Game over kalau menabrak, tampilkan skor akhir dan tombol "Main Lagi".'],
-      ['DI MANA', '#6C5CE7', 'Langit biru muda dengan awan sederhana bergerak pelan. 1 file HTML, CSS, JavaScript saja tanpa dependensi luar, responsif untuk klik mouse maupun tap layar sentuh.']
-    ]
-  },
-  B: {
-    judul: "Bloop's Adventure",
-    warna: '#33C3E0',
-    doc: 'https://docs.google.com/document/d/1C6unxHnq_Fge7B8HhJhutoVQjUp-gh0ugDgnIyvmvB4/edit',
-    bagian: [
-      ['SIAPA', '#E8456F', 'Buatkan game platformer 2D "Bloop\'s Adventure". Tokohnya Bloop, makhluk bulat lucu biru-pink cerah bermata besar, digambar sederhana pakai bentuk lingkaran/oval (tanpa gambar dari luar).'],
-      ['APA', '#1C9BC0', 'Game platformer side-scrolling untuk anak 7-11 tahun, kontrol pakai panah/A-D untuk gerak dan Spasi untuk lompat. Kamera mengikuti Bloop melewati platform berbagai ketinggian, termasuk yang bergerak.'],
-      ['GIMANA', '#14896A', 'Tambahkan musuh lucu yang kalah kalau dilompati, koin/permata untuk dikumpulkan sebagai skor, bendera checkpoint untuk respawn, dan 3 nyawa. Level selesai saat Bloop menyentuh gerbang pelangi.'],
-      ['DI MANA', '#6C5CE7', 'Langit cerah biru-pink dengan awan dan bukit bergerak pelan, platform bertema rumput-tanah hijau-cokelat. 1 file HTML, CSS, JavaScript saja tanpa dependensi luar, langsung bisa dibuka di browser.']
-    ]
-  }
-};
-const promptScr=document.getElementById('promptscr'),promptIsi=document.getElementById('promptIsi'),
-      promptJudul=document.getElementById('promptJudul'),promptTag=document.getElementById('promptTag'),
-      promptDoc=document.getElementById('promptDoc'),promptKabar=document.getElementById('promptKabar'),
-      promptTeks=document.getElementById('promptTeks');
-let promptAktif='A';
-
-// Yang disalin adalah empat bagian digabung berurutan SIAPA, APA, GIMANA, DI MANA
-// - persis susunan yang dilatih anak - tanpa label, supaya bisa langsung
-// ditempel ke ChatGPT tanpa dirapikan lagi.
-function promptTeksPenuh(k){ return PROMPT[k].bagian.map(b => b[2]).join(' '); }
-
-function promptBuka(k){
-  promptAktif=k;const d=PROMPT[k];
-  promptJudul.textContent='Prompt Kelompok '+(k==='A'?'Merah':'Biru');
-  promptTag.textContent=d.judul;promptTag.style.background=d.warna;
-  promptDoc.href=d.doc;
-  promptIsi.innerHTML='';
-  d.bagian.forEach(([label,warna,teks])=>{
-    const el=document.createElement('div');el.className='baris';
-    const m=document.createElement('mark');m.style.color=warna;m.textContent=label+':';
-    el.append(m,document.createTextNode(teks));promptIsi.append(el);
-  });
-  promptTeks.value=promptTeksPenuh(k);promptTeks.classList.remove('on');
-  promptKabar.textContent='';promptScr.classList.add('on');
-}
-function promptTutup(){promptScr.classList.remove('on')}
-document.querySelectorAll('#s8 .mainbar button[data-prompt]').forEach(b=>b.onclick=()=>promptBuka(b.dataset.prompt));
-document.getElementById('promptTutup').onclick=promptTutup;
-document.getElementById('promptSalin').onclick=async()=>{
-  const teks=promptTeksPenuh(promptAktif);
-  try{
-    await navigator.clipboard.writeText(teks);
-    promptKabar.textContent='Tersalin! Tinggal tempel ke ChatGPT.';
-  }catch(e){
-    // Juru salin browser bisa ditolak (halaman bukan https, atau izin dimatikan).
-    // Daripada Coach kebingungan di depan kelas, teksnya ditampilkan dan langsung
-    // disorot supaya tinggal menekan Ctrl+C.
-    promptTeks.classList.add('on');promptTeks.focus();promptTeks.select();
-    promptKabar.textContent='Tekan Ctrl+C untuk menyalin.';
-  }
-};
-
 // ================= backsound tugas + layar STOP =================
 // Dipakai dua slide tugas (menyusun puzzle dan menggambar). Lagunya menyala
 // saat timer dijalankan, berhenti saat dijeda atau diulang, dan saat waktunya
@@ -1469,7 +1359,6 @@ function stopTutup(){stopScr.classList.remove('on')}
 document.getElementById('stopTutup').onclick=stopTutup;
 // Boleh ditutup dengan Escape juga, supaya Coach tidak harus mencari tombolnya.
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&stopScr.classList.contains('on')){e.preventDefault();stopTutup()}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&promptScr.classList.contains('on')){e.preventDefault();promptTutup()}});
 
 // ================= timers =================
 document.querySelectorAll('[data-timer]').forEach(el=>{
