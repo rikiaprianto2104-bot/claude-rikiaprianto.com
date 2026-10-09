@@ -1540,7 +1540,7 @@ export const projects = [
     title: 'Labirin Harta Karun',
     category: 'Interactive Game',
     description:
-      'Game labirin multiplayer untuk kelas: guru membuat kode kelas, siswa gabung lewat HP, lalu dua kelompok berlomba membuka 4 peti berisi potongan prompt. Usia 6–12 tahun.',
+      'Game labirin estafet untuk kelas: guru membuka kelas, 10 siswa dibagi dua kelompok, lalu jalan bergilir satu per satu membuka 4 peti berisi potongan prompt. Usia 6–12 tahun.',
     tags: ['Interactive Game', 'Multiplayer', 'Prompt Learning'],
     url: '/projects/labirin-harta-karun.html',
     image: '/projects/thumbs/labirin-harta-karun.png',

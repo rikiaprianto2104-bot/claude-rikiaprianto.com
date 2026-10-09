@@ -217,6 +217,20 @@ body.touch .dpad{display:grid}
 .ring i{width:92px;height:92px;border-radius:50%;background:#3a0a14;display:grid;place-items:center;font-style:normal}
 .hearts{letter-spacing:2px;font-size:15px}
 
+/* papan giliran */
+.gbar{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;
+  border-radius:14px;padding:9px 14px;margin-bottom:8px;font-size:14.5px;font-weight:800;
+  background:var(--panel2);border:2px solid rgba(255,255,255,.14);line-height:1.25}
+.gbar .ava{font-size:22px;line-height:1}
+.gbar small{display:block;font-weight:600;font-size:12px;color:var(--ink-dim);margin-top:1px}
+.gbar.aku{background:linear-gradient(180deg,rgba(255,210,63,.3),rgba(255,210,63,.1));
+  border-color:var(--gold);animation:denyut 1.6s ease-in-out infinite}
+.gbar.selesai{background:rgba(61,220,151,.16);border-color:var(--green)}
+@keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(255,210,63,.35)}50%{box-shadow:0 0 0 7px rgba(255,210,63,0)}}
+body.land .gbar{padding:4px 10px;font-size:12px;margin-bottom:4px}
+body.land .gbar .ava{font-size:16px}
+body.land .gbar small{font-size:10.5px}
+
 /* umpan balik jawaban (sederhana, 1,4 detik) */
 .hasil{position:fixed;inset:0;display:grid;place-items:center;z-index:70;pointer-events:none;animation:fade .15s}
 .hasil .kotak{border-radius:24px;padding:26px 40px;text-align:center;border:4px solid;
@@ -342,7 +356,15 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
 
   <div class="card">
     <h2 style="font-size:20px">👥 Peserta <span class="badge off" id="cntBadge">0 orang</span></h2>
-    <p class="hint" style="margin:-4px 0 12px">Butuh minimal <b>4 orang</b> (1 guru + 3 siswa). Maksimal 10 orang.</p>
+    <p class="hint" style="margin:-4px 0 12px">Maksimal <b>10 siswa</b> — 5 anak Kelompok Merah &amp; 5 anak Kelompok Biru. <b>Guru tidak ikut bermain</b>: layar guru dipakai untuk memandu &amp; menampilkan permainan ke kelas.</p>
+    <div class="hint" style="margin:-4px 0 12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06)">
+      <b>🎮 Aturan main (bergilir):</b> tiap kelompok jalan <b>satu per satu</b>.
+      Anak ke-1 masuk labirin mencari 🎁 peti pertama — teman-temannya menunggu di titik start dan
+      <b>ikut bantu menjawab soalnya</b>. Setelah peti terbuka, anak ke-1 mengantar potongan prompt ke 🏁 <b>FINISH</b>,
+      baru giliran anak ke-2, dan seterusnya. Petinya ada 4, jadi anak ke-5 kebagian <b>lari penutup</b>
+      menyeberangi labirin sampai finish — saat itu kelompoknya dinyatakan selesai.
+      Kalau anggotanya kurang dari 5, urutannya <b>berputar lagi</b> dari anak pertama.
+    </div>
     <p class="hint hidden" id="manualHint" style="margin:-4px 0 10px">
       🧑‍🏫 <b>Guru:</b> klik <b>🔴</b> / <b>🔵</b> di samping tiap nama untuk membagi kelompok secara manual,
       atau pakai tombol <b>ACAK KELOMPOK</b> di bawah. Klik <b>➖</b> untuk mengeluarkan dari kelompok.
@@ -375,6 +397,7 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
     <span class="pill biru">🔵 <span id="pgBiru">0/4</span></span>
     <span class="pill" id="pillYou">🧒 —</span>
     <span class="pill hearts" id="pillNyawa">❤️❤️❤️</span>
+    <span class="pill hidden" id="pillGiliran">🏃 —</span>
     <span style="flex:1"></span>
     <button class="btn xs ghost hidden" id="btnGuruReset">🔄 Reset Posisi</button>
     <button class="btn xs ghost hidden" id="btnGuruEnd">🏁 Akhiri</button>
@@ -382,6 +405,7 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
 
   <div class="gwrap">
     <div>
+      <div id="giliranBar" class="gbar hidden"></div>
       <div class="stagewrap">
         <canvas id="cv"></canvas>
         <div id="koOv" class="koov hidden">
@@ -407,7 +431,7 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
         <button data-d="L">◀</button><span></span><button data-d="R">▶</button>
         <span></span><button data-d="D">▼</button><span></span>
       </div>
-      <p class="hint" id="hintKontrol" style="text-align:center;margin-top:10px">Gerak: tombol <b>panah</b> atau <b>W A S D</b> · Jalan ke 🎁 milik kelompokmu untuk membukanya · Hindari 💣 dan 👻</p>
+      <p class="hint" id="hintKontrol" style="text-align:center;margin-top:10px">Gerak: tombol <b>panah</b> atau <b>W A S D</b> · Buka 🎁 kelompokmu, lalu antar potongannya ke 🏁 <b>FINISH</b> · Hindari 💣 dan 👻</p>
     </div>
 
     <div class="side">
@@ -432,6 +456,11 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
         <h3 style="font-size:15px">🧑‍🏫 Panel Guru</h3>
         <p class="hint" id="guruInfo" style="margin:0 0 8px"></p>
         <div class="row"><button class="btn xs ghost" id="btnSkip">⏭️ Buka Paksa Peti Aktif</button></div>
+        <div class="row" style="margin-top:6px">
+          <button class="btn xs ghost" id="btnGantiM">🔴 Ganti Pelari</button>
+          <button class="btn xs ghost" id="btnGantiB">🔵 Ganti Pelari</button>
+        </div>
+        <p class="hint" style="margin:6px 0 0;font-size:11.5px">Pakai <b>Ganti Pelari</b> kalau anak yang sedang jalan bingung, keluar kelas, atau HP-nya bermasalah — misinya tetap, pelarinya pindah ke teman berikutnya.</p>
       </div>
     </div>
   </div>
@@ -497,8 +526,10 @@ var CONFIG = {
   // Server signaling PeerJS. null = pakai server publik gratis PeerJS.
   peer: null,
 
-  MAX_PLAYER: 10,
+  MAX_PLAYER: 10,         // maksimum SISWA satu kelas (guru tidak dihitung)
+  MAX_PER_GROUP: 5,       // maksimum siswa per kelompok (5 merah + 5 biru)
   MIN_PLAYER: 4,
+  MISI: 5,                // 4 giliran peti + 1 giliran lari penutup ke finish
   ANSWER_SECONDS: 60,     // waktu menjawab soal harta karun
   STEP_MS: 135,           // jeda antar langkah di labirin (makin kecil = makin cepat)
   MUSUH: 5,               // jumlah hantu 👻 di labirin (0 = tanpa musuh)
@@ -721,8 +752,10 @@ function buildWorld(seed){
   }
 
   var starts = { merah:{x:1,y:1}, biru:{x:MW-2,y:MH-2} };
-  // pastikan sudut start terbuka
-  g[1][1]=1; g[MH-2][MW-2]=1;
+  // garis finish di dua sudut sisanya -> pemain wajib menyeberangi labirin
+  var finish = { merah:{x:MW-2,y:1}, biru:{x:1,y:MH-2} };
+  // pastikan sudut start & finish terbuka
+  g[1][1]=1; g[MH-2][MW-2]=1; g[1][MW-2]=1; g[MH-2][1]=1;
 
   var dM = bfs(g, starts.merah), dB = bfs(g, starts.biru);
 
@@ -730,6 +763,10 @@ function buildWorld(seed){
   var open=[];
   for(var y3=1;y3<MH-1;y3++) for(var x3=1;x3<MW-1;x3++)
     if(g[y3][x3]===1 && dM[y3][x3]<9999 && dB[y3][x3]<9999) open.push({x:x3,y:y3});
+  open = open.filter(function(c){
+    return !(c.x===finish.merah.x && c.y===finish.merah.y) &&
+           !(c.x===finish.biru.x  && c.y===finish.biru.y);
+  });
 
   function far(list, c, min){
     for(var i=0;i<list.length;i++){
@@ -757,7 +794,7 @@ function buildWorld(seed){
   var chB = pickChests(dB, chM, 7);
 
   // --- bom ---
-  var used = chM.concat(chB);
+  var used = chM.concat(chB).concat([finish.merah, finish.biru]);
   var bombs=[], cand2 = shuffleSeeded(open, rnd);
   for(var i2=0;i2<cand2.length && bombs.length<16;i2++){
     var c2=cand2[i2];
@@ -773,7 +810,7 @@ function buildWorld(seed){
     bombs.push({x:c2.x,y:c2.y});
   }
 
-  var world = { grid:g, W:MW, H:MH, starts:starts, chests:{merah:chM, biru:chB}, bombs:bombs };
+  var world = { grid:g, W:MW, H:MH, starts:starts, finish:finish, chests:{merah:chM, biru:chB}, bombs:bombs };
   pastikanBisaDilewati(world);
 
   // --- zona aman: 3 petak di sekitar titik start, musuh tidak boleh masuk ---
@@ -782,6 +819,9 @@ function buildWorld(seed){
     var dd = bfs(world.grid, world.starts[gn]);
     for(var y=0;y<MH;y++) for(var x=0;x<MW;x++)
       if(dd[y][x] <= 3) world.safe[x+','+y] = 1;
+    var df = bfs(world.grid, world.finish[gn]);
+    for(var y2=0;y2<MH;y2++) for(var x2=0;x2<MW;x2++)
+      if(df[y2][x2] <= 2) world.safe[x2+','+y2] = 1;
   });
 
   // --- titik awal musuh ---
@@ -822,8 +862,9 @@ function pastikanBisaDilewati(w){
     for(var gi=0; gi<gs.length && aman; gi++){
       var gname=gs[gi];
       var d = bfsHindari(w, w.starts[gname], set);
-      for(var i=0;i<w.chests[gname].length;i++){
-        var c=w.chests[gname][i];
+      var wajib = w.chests[gname].concat([w.finish[gname]]);
+      for(var i=0;i<wajib.length;i++){
+        var c=wajib[i];
         if(d[c.y][c.x] < 9999) continue;
         aman=false;
         // buang bom yang menghalangi: ambil jalur terpendek (abaikan bom) lalu hapus bom di jalur itu
@@ -1148,10 +1189,10 @@ var HOST = {
   init:function(code){
     HOST.S = {
       phase:'lobby', code:code, seed:null, startedAt:null, endedAt:null,
-      players:{}, order:[], enemies:[],
+      players:{}, order:[], enemies:[], tolak:{},
       groups:{
-        merah:{ promptId:null, found:[false,false,false,false], qIdx:[0,0,0,0], active:null, result:null, finishedAt:null, fails:0 },
-        biru: { promptId:null, found:[false,false,false,false], qIdx:[0,0,0,0], active:null, result:null, finishedAt:null, fails:0 }
+        merah:{ promptId:null, found:[false,false,false,false], qIdx:[0,0,0,0], active:null, result:null, finishedAt:null, fails:0, order:[], turn:0, lewat:0, stage:'cari' },
+        biru: { promptId:null, found:[false,false,false,false], qIdx:[0,0,0,0], active:null, result:null, finishedAt:null, fails:0, order:[], turn:0, lewat:0, stage:'cari' }
       }
     };
     if(HOST.timer) clearInterval(HOST.timer);
@@ -1160,6 +1201,54 @@ var HOST = {
 
   isGuru:function(pid){ var p=HOST.S.players[pid]; return p && p.role==='guru'; },
 
+  /* ---- SISTEM GILIRAN ----
+     Satu kelompok punya CONFIG.MISI (=5) giliran: 4 giliran membuka peti + 1 giliran
+     lari penutup ke garis finish. Giliran dibagikan bergilir ke anggota kelompok:
+     5 anak = satu giliran seorang; 4 anak = anak ke-1 kebagian lari penutup;
+     kurang dari 4 anak = urutannya berputar lagi dari anak pertama. */
+  jmlSiswa:function(grp){
+    var S=HOST.S, n=0;
+    S.order.forEach(function(pid){
+      var q=S.players[pid]; if(!q || q.role!=='siswa') return;
+      if(grp===undefined || q.group===grp) n++;
+    });
+    return n;
+  },
+  giliranPid:function(gn){
+    var g=HOST.S.groups[gn];
+    if(!g || !g.order.length || g.turn>=CONFIG.MISI) return null;
+    return g.order[(g.turn + (g.lewat||0)) % g.order.length];
+  },
+  bolehJalan:function(p){
+    var S=HOST.S;
+    if(!p || p.role==='guru' || !p.group || S.phase!=='play') return false;
+    if(p.koUntil && nowMs() < p.koUntil) return false;
+    var g=S.groups[p.group];
+    if(!g || g.finishedAt!=null || g.active) return false;
+    return HOST.giliranPid(p.group)===p.pid;
+  },
+  kumpulDiStart:function(gn){
+    var S=HOST.S, g=S.groups[gn];
+    g.order.forEach(function(pid){
+      var q=S.players[pid];
+      if(q){ q.deaths=0; q.koUntil=0; HOST.respawn(q); }
+    });
+  },
+  majuGiliran:function(gn){
+    var S=HOST.S, g=S.groups[gn];
+    g.turn++; g.active=null;
+    if(g.turn >= CONFIG.MISI){
+      g.stage='selesai';
+      g.finishedAt = nowMs() - S.startedAt;
+      var other = gn==='merah'?'biru':'merah';
+      if(S.groups[other].finishedAt!=null){ S.phase='done'; S.endedAt=nowMs(); }
+      return;
+    }
+    // giliran terakhir sudah tidak ada peti -> langsung lari ke garis finish
+    g.stage = (g.turn >= CONFIG.MISI-1) ? 'pulang' : 'cari';
+    HOST.kumpulDiStart(gn);
+  },
+
   apply:function(a){
     var S=HOST.S; if(!S || !a || !a.t) return;
     var p = S.players[a.pid];
@@ -1167,9 +1256,14 @@ var HOST = {
     switch(a.t){
       case 'join': {
         if(!S.players[a.pid]){
-          if(S.order.length >= CONFIG.MAX_PLAYER){ return; }
+          // guru tidak dihitung: yang dibatasi hanya jumlah siswa (maks 10)
+          if(a.role!=='guru' && HOST.jmlSiswa() >= CONFIG.MAX_PLAYER){
+            S.tolak[a.pid]='penuh'; break;
+          }
+          if(S.phase!=='lobby' && a.role!=='guru'){ S.tolak[a.pid]='mulai'; break; }
           S.order.push(a.pid);
         }
+        delete S.tolak[a.pid];
         var old = S.players[a.pid] || {};
         var av = a.ava || '🐱';
         var pakai = {};
@@ -1185,7 +1279,15 @@ var HOST = {
         break;
       }
       case 'leave': {
-        if(p){ delete S.players[a.pid]; S.order = S.order.filter(function(k){ return k!==a.pid; }); }
+        if(p){
+          delete S.players[a.pid];
+          S.order = S.order.filter(function(k){ return k!==a.pid; });
+          ['merah','biru'].forEach(function(gn){
+            var gg=S.groups[gn];
+            if(gg.active && gg.active.by===a.pid) gg.active=null;   // kelompok jangan sampai terkunci
+            gg.order = gg.order.filter(function(k){ return k!==a.pid; });
+          });
+        }
         break;
       }
       case 'acak': {
@@ -1196,7 +1298,10 @@ var HOST = {
       case 'setgrp': {
         if(!HOST.isGuru(a.pid) || S.phase!=='lobby') return;
         var tg = S.players[a.target]; if(!tg) return;
-        tg.group = (a.group==='merah'||a.group==='biru') ? a.group : null;
+        if(tg.role==='guru') return;                       // guru tidak ikut bermain
+        var grp = (a.group==='merah'||a.group==='biru') ? a.group : null;
+        if(grp && tg.group!==grp && HOST.jmlSiswa(grp) >= CONFIG.MAX_PER_GROUP) return;
+        tg.group = grp;
         tg.force++;
         break;
       }
@@ -1235,6 +1340,15 @@ var HOST = {
         if(gg && gg.active) HOST.resolve(a.group, gg.active.ans, true);
         break;
       }
+      case 'ganti': {
+        if(!HOST.isGuru(a.pid) || S.phase!=='play') return;
+        var gc = S.groups[a.group];
+        if(!gc || gc.finishedAt!=null || !gc.order.length) return;
+        gc.active=null; gc.result=null;
+        gc.lewat=(gc.lewat||0)+1;              // misinya tetap, pelarinya yang diganti
+        HOST.kumpulDiStart(a.group);
+        break;
+      }
       case 'end': {
         if(!HOST.isGuru(a.pid)) return;
         S.phase='done'; S.endedAt=nowMs();
@@ -1245,7 +1359,7 @@ var HOST = {
         if(!HOST.isGuru(a.pid)) return;
         S.phase='lobby'; S.seed=null; S.startedAt=null; S.endedAt=null;
         ['merah','biru'].forEach(function(g){
-          S.groups[g]={promptId:null,found:[false,false,false,false],qIdx:[0,0,0,0],active:null,result:null,finishedAt:null,fails:0};
+          S.groups[g]={ promptId:null, found:[false,false,false,false], qIdx:[0,0,0,0], active:null, result:null, finishedAt:null, fails:0, order:[], turn:0, lewat:0, stage:'cari' };
         });
         S.enemies=[];
         for(var k2 in S.players){ var pz=S.players[k2]; pz.group=null; pz.force++; pz.deaths=0; pz.koUntil=0; pz.hitAt=0; }
@@ -1257,19 +1371,17 @@ var HOST = {
   },
 
   acak:function(){
-    var S=HOST.S;
-    var siswa=[], guru=[];
+    var S=HOST.S, siswa=[];
     S.order.forEach(function(pid){
       var pl=S.players[pid]; if(!pl) return;
-      (pl.role==='guru'?guru:siswa).push(pid);
+      if(pl.role==='guru'){ pl.group=null; return; }      // guru memandu, tidak ikut main
+      siswa.push(pid);
     });
-    // acak siswa
     for(var i=siswa.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=siswa[i]; siswa[i]=siswa[j]; siswa[j]=t; }
-    var half=Math.ceil(siswa.length/2);
-    siswa.forEach(function(pid,i2){ S.players[pid].group = i2<half ? 'merah':'biru'; });
-    // guru: 1 per kelompok; guru ke-3+ jadi pengawas
-    guru.forEach(function(pid,i3){
-      S.players[pid].group = (guru.length>=2) ? (i3===0?'merah':(i3===1?'biru':null)) : null;
+    var maks=CONFIG.MAX_PER_GROUP;
+    var half=Math.min(maks, Math.ceil(siswa.length/2));
+    siswa.forEach(function(pid,i2){
+      S.players[pid].group = (i2<half) ? 'merah' : (i2 < half+maks ? 'biru' : null);
     });
     for(var k in S.players) S.players[k].force++;
   },
@@ -1292,11 +1404,17 @@ var HOST = {
     for(var i3=HOST.pool.length-1;i3>0;i3--){ var j3=Math.floor(Math.random()*(i3+1)); var t3=HOST.pool[i3]; HOST.pool[i3]=HOST.pool[j3]; HOST.pool[j3]=t3; }
 
     ['merah','biru'].forEach(function(g,gi){
+      // urutan giliran = urutan siswa masuk kelas, maksimal 5 anak per kelompok
+      var urut = S.order.filter(function(pid){
+        var pl=S.players[pid]; return pl && pl.role==='siswa' && pl.group===g;
+      }).slice(0, CONFIG.MAX_PER_GROUP);
+      urut.forEach(function(pid,i){ S.players[pid].nomor = i+1; });
       S.groups[g] = {
         promptId: ids[gi],
         found:[false,false,false,false],
         qIdx:[HOST.pool.pop(),HOST.pool.pop(),HOST.pool.pop(),HOST.pool.pop()],
-        active:null, result:null, finishedAt:null, fails:0
+        active:null, result:null, finishedAt:null, fails:0,
+        order:urut, turn:0, lewat:0, stage:'cari'
       };
     });
 
@@ -1327,19 +1445,16 @@ var HOST = {
   },
   respawnIn:function(p, w){
     if(!w) return;
-    var S=HOST.S, s;
-    if(p.group){ s = w.starts[p.group]; }
-    else {
-      var cx=Math.floor(w.W/2), cy=Math.floor(w.H/2), best=null, bd=1e9;
-      for(var y=1;y<w.H-1;y++) for(var x=1;x<w.W-1;x++){
-        if(w.grid[y][x]!==1) continue;
-        var d=Math.abs(x-cx)+Math.abs(y-cy);
-        if(d<bd){ bd=d; best={x:x,y:y}; }
-      }
-      s = best || {x:1,y:1};
+    var S=HOST.S;
+    // guru hanya menonton & memandu -> tidak pernah muncul di labirin
+    if(p.role==='guru' || !p.group){ p.x=-99; p.y=-99; p.force=(p.force||0)+1; return; }
+    var s = w.starts[p.group];
+    // sebar agar tidak menumpuk; yang sedang kebagian giliran berdiri tepat di petak start
+    var rekan = S.order.filter(function(k){ var q=S.players[k]; return q && q.role==='siswa' && q.group===p.group; });
+    var gil = HOST.giliranPid(p.group);
+    if(gil && rekan.indexOf(gil)>=0){
+      rekan = [gil].concat(rekan.filter(function(k){ return k!==gil; }));
     }
-    // sebar agar tidak menumpuk di satu petak
-    var rekan = S.order.filter(function(k){ var q=S.players[k]; return q && q.group===p.group; });
     var idx = Math.max(0, rekan.indexOf(p.pid));
     var cells = HOST.nearCells(w, s, 10);
     var t = cells[idx % cells.length];
@@ -1356,9 +1471,10 @@ var HOST = {
   move:function(p, dx, dy){
     var w=HOST.worldNow(); if(!w) return;
     var S=HOST.S;
-    if(p.koUntil && nowMs() < p.koUntil) return;          // sedang pingsan
-    if(p.group && S.groups[p.group].active) return;      // sedang menjawab -> tidak boleh gerak
-    if(p.group && S.groups[p.group].finishedAt!=null) return;
+    // hanya pemain yang sedang kebagian giliran yang boleh melangkah;
+    // teman sekelompok menunggu di titik start dan membantu menjawab soal.
+    if(!HOST.bolehJalan(p)) return;
+    var g=S.groups[p.group];
     var nx=p.x+dx, ny=p.y+dy;
     p.dir = dx>0?'R':dx<0?'L':dy>0?'D':'U';
     if(isWall(w,nx,ny)) return;
@@ -1378,18 +1494,21 @@ var HOST = {
         return;
       }
     }
-    // peti kelompok sendiri
-    if(!p.group) return;
-    var g=S.groups[p.group];
-    if(g.finishedAt!=null) return;
-    var ch=w.chests[p.group];
-    for(var c=0;c<ch.length;c++){
-      if(ch[c].x===nx && ch[c].y===ny && !g.found[c] && !g.active){
-        g.active = { ci:c, qIdx:g.qIdx[c], by:p.pid, byName:p.name, deadline: nowMs()+CONFIG.ANSWER_SECONDS*1000, ans:SOAL[g.qIdx[c]].a };
-        g.result = null;
-        return;
+    if(g.stage==='cari'){
+      // sedang berburu peti: peti kelompok sendiri yang belum terbuka
+      var ch=w.chests[p.group];
+      for(var c=0;c<ch.length;c++){
+        if(ch[c].x===nx && ch[c].y===ny && !g.found[c] && !g.active){
+          g.active = { ci:c, qIdx:g.qIdx[c], by:p.pid, byName:p.name, deadline: nowMs()+CONFIG.ANSWER_SECONDS*1000, ans:SOAL[g.qIdx[c]].a };
+          g.result = null;
+          return;
+        }
       }
+      return;
     }
+    // sudah membuka peti (atau giliran penutup): tinggal menyentuh garis finish
+    var f=w.finish[p.group];
+    if(nx===f.x && ny===f.y) HOST.majuGiliran(p.group);
   },
 
   resolve:function(gname, choice, forced){
@@ -1402,11 +1521,7 @@ var HOST = {
     g.active=null;
     if(benar||forced){
       g.found[act.ci]=true;
-      if(g.found.every(function(b){return b;})){
-        g.finishedAt = nowMs() - S.startedAt;
-        var other = gname==='merah'?'biru':'merah';
-        if(S.groups[other].finishedAt!=null){ S.phase='done'; S.endedAt=nowMs(); }
-      }
+      g.stage='pulang';        // potongan prompt diantar ke garis finish dulu
     }else{
       g.fails++;
       // soal baru untuk peti itu
@@ -1453,9 +1568,8 @@ var HOST = {
     // musuh menabrak pemain
     var t=nowMs();
     S.order.forEach(function(pid){
-      var p=S.players[pid]; if(!p || !p.group) return;
-      if(p.koUntil && t < p.koUntil) return;
-      if(S.groups[p.group].active || S.groups[p.group].finishedAt!=null) return;
+      var p=S.players[pid];
+      if(!HOST.bolehJalan(p)) return;    // yang menunggu giliran aman di titik start
       for(var i=0;i<S.enemies.length;i++){
         if(S.enemies[i].x===p.x && S.enemies[i].y===p.y){ HOST.kena(p,'musuh'); break; }
       }
@@ -1468,22 +1582,27 @@ var HOST = {
     for(var k in S.players){
       var p=S.players[k];
       players[k]={pid:p.pid,name:p.name,ava:p.ava,role:p.role,group:p.group,x:p.x,y:p.y,dir:p.dir,
-                  seq:p.seq,force:p.force,deaths:p.deaths||0,koUntil:p.koUntil||0,hitAt:p.hitAt||0,hitBy:p.hitBy||''};
+                  seq:p.seq,force:p.force,nomor:p.nomor||0,
+                  deaths:p.deaths||0,koUntil:p.koUntil||0,hitAt:p.hitAt||0,hitBy:p.hitBy||''};
     }
     var gp={};
     ['merah','biru'].forEach(function(gn){
       var g=S.groups[gn];
+      var gil = HOST.giliranPid(gn), pg = gil? S.players[gil] : null;
       gp[gn]={
         count: g.found.filter(function(b){return b;}).length,
         found: g.found.slice(),
         finishedAt: g.finishedAt, fails:g.fails,
         activeBy: g.active? g.active.byName : null,
         activeCi: g.active? g.active.ci : null,
-        activeDeadline: g.active? g.active.deadline : null
+        activeDeadline: g.active? g.active.deadline : null,
+        order: g.order.slice(), turn: g.turn, misi: CONFIG.MISI, stage: g.stage,
+        turnPid: gil, turnName: pg? pg.name : null, turnAva: pg? pg.ava : null,
+        turnNo: pg? (pg.nomor||0) : 0
       };
     });
     return { phase:S.phase, code:S.code, seed:S.seed, startedAt:S.startedAt, endedAt:S.endedAt,
-             now:nowMs(), players:players, order:S.order.slice(), groups:gp,
+             now:nowMs(), players:players, order:S.order.slice(), groups:gp, tolak:clone(S.tolak||{}),
              enemies:(S.enemies||[]).map(function(e){ return {x:e.x,y:e.y,dir:e.dir}; }) };
   },
   sec:function(){
@@ -1510,7 +1629,7 @@ var HOST = {
 </script>
 <script>
 /* ===================== 9. PENERIMAAN STATE DI KLIEN ===================== */
-var lastPhase='', ghosts={}, boomSeen={}, resultSeen=0, startedAnim=false;
+var lastPhase='', ghosts={}, boomSeen={}, resultSeen=0, startedAnim=false, tolakTampil='';
 
 NET.onAction = function(a){ if(HOST.S) HOST.apply(a); };
 NET.onStatus = function(s){
@@ -1526,6 +1645,20 @@ NET.onState = function(msg){
   if(V.pub.seed!=null && (!WORLD || WORLD._seed!==V.pub.seed)){
     WORLD = buildWorld(V.pub.seed); WORLD._seed = V.pub.seed;
   }
+  var alasan = V.pub.tolak && V.pub.tolak[MY.pid];
+  if(alasan && !V.pub.players[MY.pid]){
+    if(tolakTampil!==alasan){
+      tolakTampil = alasan;
+      show('scHome'); hide('scLobby'); hide('scGame'); hide('scDone');
+      var bg=$('btnGo'); bg.disabled=false; bg.textContent='🚀 MASUK';
+      $('joinMsg').innerHTML = (alasan==='penuh')
+        ? '<span style="color:#ffb3b5">⚠️ Kelas sudah penuh (maksimal '+CONFIG.MAX_PLAYER+' siswa). Tunggu ada yang keluar ya.</span>'
+        : '<span style="color:#ffb3b5">⚠️ Permainan sudah dimulai. Minta gurumu mengulang dari lobi.</span>';
+    }
+    return;
+  }
+  tolakTampil='';
+
   var me = V.pub.players[MY.pid];
   if(me){
     MY.role = me.role; MY.group = me.group;
@@ -1567,9 +1700,10 @@ function render(){
 function renderLobby(){
   var S=V.pub;
   $('lbCode').textContent = S.code;
-  var n=S.order.length;
-  $('cntBadge').className='badge '+(n>=CONFIG.MIN_PLAYER?'on':'warn');
-  $('cntBadge').textContent = n+' orang';
+  var nSis=0, nGur=0;
+  S.order.forEach(function(pid){ var q=S.players[pid]; if(!q) return; if(q.role==='guru') nGur++; else nSis++; });
+  $('cntBadge').className='badge '+(nSis>=2?'on':'warn');
+  $('cntBadge').textContent = nSis+'/'+CONFIG.MAX_PLAYER+' siswa · '+nGur+' guru';
 
   var akuGuru = S.players[MY.pid] && S.players[MY.pid].role==='guru';
   var list=$('lbList'); list.innerHTML='';
@@ -1585,10 +1719,14 @@ function renderLobby(){
   if(adaGrup){
     ['merah','biru'].forEach(function(g){
       var box=$(g==='merah'?'tMerah':'tBiru'); box.innerHTML='';
+      var no=0;
       S.order.forEach(function(pid){
         var p=S.players[pid];
-        if(p && p.group===g) box.appendChild(chip(p));
+        if(p && p.group===g){ no++; box.appendChild(chip(p, false, no)); }
       });
+      var h=box.parentElement.querySelector('h3');
+      if(h) h.innerHTML = (g==='merah'?'🔴 Kelompok MERAH':'🔵 Kelompok BIRU')+
+        ' <span class="badge '+(no>CONFIG.MAX_PER_GROUP?'off':(no?'on':'warn'))+'">'+no+'/'+CONFIG.MAX_PER_GROUP+' anak</span>';
       if(!box.children.length) box.appendChild(el('div','hint',' belum ada anggota'));
     });
   }
@@ -1599,24 +1737,26 @@ function renderLobby(){
   var siswaM=0, siswaB=0, jmlSiswa=0, jmlGuru=0;
   S.order.forEach(function(pid){ var p=S.players[pid]; if(!p) return;
     if(p.role==='guru') jmlGuru++; else { jmlSiswa++; if(p.group==='merah')siswaM++; if(p.group==='biru')siswaB++; } });
-  $('btnStart').disabled = !(siswaM>0 && siswaB>0);
+  $('btnStart').disabled = !(siswaM>0 && siswaB>0 && siswaM<=CONFIG.MAX_PER_GROUP && siswaB<=CONFIG.MAX_PER_GROUP);
   $('btnAcak').disabled = jmlSiswa<2;
 
   var msg='';
-  if(jmlSiswa<2) msg='Menunggu siswa bergabung… (minimal 2 siswa untuk diacak, ideal 8 siswa)';
+  if(jmlSiswa<2) msg='Menunggu siswa bergabung… (minimal 2 siswa, ideal 10 siswa = 5 merah + 5 biru)';
+  else if(siswaM>CONFIG.MAX_PER_GROUP || siswaB>CONFIG.MAX_PER_GROUP) msg='⚠️ Satu kelompok maksimal '+CONFIG.MAX_PER_GROUP+' anak. Pindahkan kelebihannya ke kelompok lain.';
   else if(!adaGrup) msg = guru? 'Bagi kelompok dengan klik <b>🔴 / 🔵</b> di tiap nama, atau pakai tombol <b>ACAK KELOMPOK</b>.' : 'Menunggu guru membagi kelompok…';
   else if(siswaM>0&&siswaB>0) msg = guru? 'Kelompok siap! Klik <b>START GAME</b> kalau semua sudah paham aturannya.' : 'Kelompok sudah dibagi. Menunggu guru menekan START…';
   else if(adaGrup) msg = guru? 'Kedua kelompok harus punya minimal 1 siswa.' : 'Menunggu guru menyelesaikan pembagian kelompok…';
   if(jmlGuru<1) msg='⚠️ Belum ada guru di kelas ini.';
   $('lobbyMsg').innerHTML = msg;
 }
-function chip(p, ctl){
+function chip(p, ctl, no){
   var c=el('div','pchip'+(p.role==='guru'?' guru':'')+(p.pid===MY.pid?' me':'')+(p.group?(' g-'+p.group):''));
   c.appendChild(el('div','e',p.ava));
-  var t=el('div','nm'); t.appendChild(el('b',null,esc(p.name)));
-  t.appendChild(el('small',null,(p.role==='guru'?'Guru':'Siswa')+(p.pid===MY.pid?' · kamu':'')));
+  var t=el('div','nm'); t.appendChild(el('b',null,(no?(no+'. '):'')+esc(p.name)));
+  t.appendChild(el('small',null,(p.role==='guru'?'Guru · memandu':'Siswa')+(p.pid===MY.pid?' · kamu':'')+
+    (no?(' · giliran ke-'+no):'')));
   c.appendChild(t);
-  if(ctl){
+  if(ctl && p.role!=='guru'){
     var gb=el('div','gb');
     [['merah','🔴'],['biru','🔵'],[null,'➖']].forEach(function(d){
       var b=el('button','gbtn'+(p.group===d[0]?' on':''), d[1]);
@@ -1636,7 +1776,8 @@ function renderTop(){
   $('pgMerah').textContent = S.groups.merah.count+'/4';
   $('pgBiru').textContent  = S.groups.biru.count+'/4';
   var me=S.players[MY.pid];
-  if(me) $('pillYou').innerHTML = me.ava+' '+esc(me.name)+(me.group?(' · '+(me.group==='merah'?'🔴':'🔵')):'');
+  if(me) $('pillYou').innerHTML = me.ava+' '+esc(me.name)+
+    (me.role==='guru' ? ' · 🧑‍🏫 Guru' : (me.group?(' · '+(me.group==='merah'?'🔴':'🔵')+(me.nomor?(' anak ke-'+me.nomor):'')):''));
   var guru = me && me.role==='guru';
   $('btnGuruReset').classList.toggle('hidden', !guru);
   $('btnGuruEnd').classList.toggle('hidden', !guru);
@@ -1645,10 +1786,11 @@ function renderTop(){
   $('monCard').classList.toggle('hidden', !guru);
   document.body.classList.toggle('guru', !!guru);
 
-  // nyawa & pingsan (hanya untuk diri sendiri)
-  var ko = !!(me && me.koUntil && nowMs() < me.koUntil);
+  // nyawa & pingsan (guru tidak ikut bermain -> tidak punya nyawa)
+  var ko = !!(me && !guru && me.koUntil && nowMs() < me.koUntil);
   var maks = CONFIG.MAX_MATI;
   var sisa = ko ? 0 : maks - ((me && me.deaths) || 0);
+  $('pillNyawa').classList.toggle('hidden', !!guru);
   $('pillNyawa').textContent = '❤️'.repeat(Math.max(0,sisa)) + '🖤'.repeat(maks-Math.max(0,sisa));
   $('koOv').classList.toggle('hidden', !ko);
   if(ko) $('koTxt').textContent = 'Sudah '+CONFIG.MAX_MATI+' kali kena. Tunggu sebentar ya…';
@@ -1665,6 +1807,70 @@ function renderTop(){
     $('waitOv').querySelector('.hint').innerHTML =
       'Semua potongan prompt sudah ada di kantong kanan.<br>Sambil menunggu <b>Kelompok '+
       (lawan==='merah'?'Merah':'Biru')+'</b> ('+S.groups[lawan].count+'/4), salin prompt &amp; tempel ke notebook kalian<span class="dots"></span>';
+  }
+  renderGiliran();
+}
+
+/* ---------- PAPAN GILIRAN ----------
+   Inti aturan baru: satu kelompok hanya boleh jalan satu anak pada satu waktu. */
+function teksMisi(g){
+  var tot = g.misi || CONFIG.MISI, no = (g.turn||0)+1;
+  if(g.finishedAt!=null) return 'sudah selesai 🎉';
+  if(g.stage==='pulang'){
+    return 'Giliran '+no+'/'+tot+' · '+(g.turn>=tot-1
+      ? 'lari penutup ke 🏁 finish'
+      : 'mengantar potongan ke 🏁 finish');
+  }
+  return 'Giliran '+no+'/'+tot+' · mencari 🎁 peti';
+}
+function renderGiliran(){
+  var S=V.pub, me=S.players[MY.pid]; if(!me) return;
+  var bar=$('giliranBar'), pil=$('pillGiliran');
+  var guru = me.role==='guru';
+
+  if(guru){
+    pil.classList.add('hidden');
+    var t='';
+    ['merah','biru'].forEach(function(gn){
+      var g=S.groups[gn];
+      var siapa = g.turnName ? ((g.turnAva||'')+' <b>'+esc(g.turnName)+'</b>'+(g.turnNo?(' (anak ke-'+g.turnNo+')'):'')) : '—';
+      t += '<div style="margin:1px 0">'+(gn==='merah'?'🔴':'🔵')+' '+siapa+
+           ' <small style="display:inline;color:var(--ink-dim);font-weight:600"> — '+teksMisi(g)+'</small></div>';
+    });
+    bar.className='gbar';
+    bar.innerHTML='<div style="text-align:left">'+t+'</div>';
+    bar.classList.remove('hidden');
+    return;
+  }
+
+  var g = me.group ? S.groups[me.group] : null;
+  if(!g){ bar.classList.add('hidden'); pil.classList.add('hidden'); return; }
+  bar.classList.remove('hidden'); pil.classList.remove('hidden');
+
+  if(g.finishedAt!=null){
+    bar.className='gbar selesai';
+    bar.innerHTML='<span class="ava">🎉</span><div>Kelompokmu sudah SELESAI!<small>Semua potongan prompt aman di kantong kanan.</small></div>';
+    pil.innerHTML='🎉 Selesai';
+    return;
+  }
+
+  var akuGiliran = (g.turnPid===MY.pid);
+  if(akuGiliran){
+    bar.className='gbar aku';
+    var isi = (g.stage==='pulang')
+      ? (g.turn>=(g.misi||CONFIG.MISI)-1
+          ? '<span class="ava">🏁</span><div>GILIRANMU — LARI PENUTUP!<small>Petinya sudah habis. Seberangi labirin sampai 🏁 finish untuk menutup permainan kelompokmu.</small></div>'
+          : '<span class="ava">🏁</span><div>Peti terbuka — antar ke FINISH!<small>Bawa potongan promptnya ke petak 🏁 supaya giliran teman berikutnya bisa mulai.</small></div>')
+      : '<span class="ava">🏃</span><div>GILIRANMU — cari 🎁 peti!<small>Teman sekelompokmu menunggu di titik start dan siap bantu menjawab soalnya.</small></div>';
+    bar.innerHTML=isi;
+    pil.innerHTML = (g.stage==='pulang') ? '🏁 Ke finish!' : '🏃 Giliranmu!';
+  }else{
+    bar.className='gbar';
+    var nm = g.turnName ? esc(g.turnName) : '—';
+    bar.innerHTML='<span class="ava">⏳</span><div>Tunggu giliran — sekarang '+(g.turnAva||'')+' <b>'+nm+'</b>'+
+      (g.turnNo?(' (anak ke-'+g.turnNo+')'):'')+
+      '<small>'+teksMisi(g)+' · kamu tetap ikut bantu menjawab soal petinya, ya!</small></div>';
+    pil.innerHTML='⏳ Giliran '+nm;
   }
 }
 function tickClock(){
@@ -1801,12 +2007,14 @@ function renderGuruPanel(){
   var t='';
   ['merah','biru'].forEach(function(g){
     var gg=S.groups[g];
-    t += (g==='merah'?'🔴':'🔵')+' <b>'+gg.count+'/4</b> · gagal '+gg.fails+
+    t += (g==='merah'?'🔴':'🔵')+' peti <b>'+gg.count+'/4</b> · '+teksMisi(gg)+' · gagal '+gg.fails+
          (gg.finishedAt!=null&&gg.finishedAt>=0 ? ' · ✅ '+fmtTime(gg.finishedAt) : '')+'<br>';
   });
   $('guruInfo').innerHTML=t;
   var adaAktif = (V.sec.merah&&V.sec.merah.active)||(V.sec.biru&&V.sec.biru.active);
   $('btnSkip').disabled = !adaAktif;
+  $('btnGantiM').disabled = S.groups.merah.finishedAt!=null;
+  $('btnGantiB').disabled = S.groups.biru.finishedAt!=null;
   renderMonitor();
 }
 
@@ -1874,7 +2082,8 @@ function renderDone(){
     var selesai = r.t!=null && r.t>=0;
     d.innerHTML='<div class="pos">'+(i===0&&selesai?'🥇':'🥈')+'</div>'+
       '<div class="t"><b style="font-size:17px">'+r.e+' '+r.n+'</b><br><span class="hint">'+
-      (selesai? 'Menyelesaikan 4 harta karun':'Belum selesai ('+S.groups[r.g].count+'/4)')+'</span></div>'+
+      (selesai? 'Semua anak kebagian giliran & melewati garis finish'
+              : 'Belum selesai ('+S.groups[r.g].count+'/4 peti, giliran '+((S.groups[r.g].turn||0)+1)+'/'+CONFIG.MISI+')')+'</span></div>'+
       '<div class="tm">'+(selesai?fmtTime(r.t):'—')+'</div>';
     box.appendChild(d);
   });
@@ -1898,10 +2107,14 @@ function showDonePrompt(){
 
 /* ===================== 11. GAMBAR LABIRIN ===================== */
 var cv=$('cv'), ctx=cv.getContext('2d'), CS=28, camX=0, camY=0, VIEW=null;
+function akuGuru(){
+  var me = V.pub && V.pub.players && V.pub.players[MY.pid];
+  return !!(me && me.role==='guru');
+}
 function fitCanvas(){
   if(!WORLD) return;
   var host=cv.parentElement, wpx=Math.max(120, host.clientWidth-14);
-  var sentuh = document.body.classList.contains('touch');
+  var sentuh = document.body.classList.contains('touch') && !akuGuru();
   var mendatar = window.innerWidth > window.innerHeight;
   document.body.classList.toggle('land', sentuh && mendatar);
 
@@ -1916,7 +2129,7 @@ function fitCanvas(){
     CS = Math.max(9, Math.min(Math.floor(wpx/WORLD.W), Math.floor(hpx/WORLD.H)));
     cv.width=WORLD.W*CS; cv.height=WORLD.H*CS;
     cv.style.width=cv.width+'px'; cv.style.height='auto'; cv.style.maxWidth='100%';
-  } else if(window.innerWidth < 820){
+  } else if(window.innerWidth < 820 && !akuGuru()){
     // HP tegak: ikuti pemain (labirin tidak muat)
     var maxH = Math.max(240, Math.floor(window.innerHeight*0.46));
     VIEW={w:11,h:11};
@@ -1935,7 +2148,7 @@ function fitCanvas(){
 /* tampilkan ajakan memutar HP saat bermain dalam posisi tegak */
 var rotSkip=false;
 function cekPutar(){
-  var sentuh = document.body.classList.contains('touch');
+  var sentuh = document.body.classList.contains('touch') && !akuGuru();
   var tegak = window.innerHeight >= window.innerWidth;
   var main = V.pub && V.pub.phase==='play';
   var perlu = sentuh && tegak && main && !rotSkip;
@@ -1969,7 +2182,7 @@ function draw(){
   });
 
   // kamera
-  if(VIEW && me){
+  if(VIEW && me && me.role!=='guru'){
     camX = Math.max(0, Math.min(WORLD.W-VIEW.w, MY.rx-(VIEW.w-1)/2));
     camY = Math.max(0, Math.min(WORLD.H-VIEW.h, MY.ry-(VIEW.h-1)/2));
   } else { camX=0; camY=0; }
@@ -2000,15 +2213,29 @@ function draw(){
       }
     }
   }
-  // titik start
+  // titik start (tempat menunggu giliran) + garis finish
   ['merah','biru'].forEach(function(g){
     var s=WORLD.starts[g], sx=SX(s.x), sy=SY(s.y);
-    ctx.globalAlpha=.55;
+    ctx.globalAlpha=.5;
     ctx.fillStyle = g==='merah'? '#ff5a5f':'#3ea6ff';
     roundRect(ctx,sx+2,sy+2,CS-4,CS-4,6); ctx.fill();
     ctx.globalAlpha=1;
     ctx.font='bold '+Math.floor(CS*0.5)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillStyle='#fff'; ctx.fillText('🏁', sx+CS/2, sy+CS/2+1);
+    ctx.fillStyle='#fff'; ctx.fillText('🚩', sx+CS/2, sy+CS/2+1);
+
+    var f=WORLD.finish[g], fx=SX(f.x), fy=SY(f.y);
+    var pulse=0.55+0.45*Math.sin(t*3);
+    ctx.save();
+    ctx.globalAlpha=0.35+0.3*pulse;
+    ctx.fillStyle = g==='merah'? '#ff5a5f':'#3ea6ff';
+    roundRect(ctx,fx+1,fy+1,CS-2,CS-2,6); ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.lineWidth=Math.max(2,CS*0.08);
+    ctx.strokeStyle='#ffd23f';
+    roundRect(ctx,fx+1,fy+1,CS-2,CS-2,6); ctx.stroke();
+    ctx.font='bold '+Math.floor(CS*0.56)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🏁', fx+CS/2, fy+CS/2+1);
+    ctx.restore();
   });
   // bom
   WORLD.bombs.forEach(function(b){
@@ -2068,12 +2295,22 @@ function draw(){
   // pemain
   S.order.forEach(function(pid){
     var p=S.players[pid]; if(!p || !ghosts[pid]) return;
+    if(p.role==='guru' || !p.group || p.x<0) return;      // guru memandu, tidak ikut di labirin
     var sx=SX(ghosts[pid].x), sy=SY(ghosts[pid].y);
     if(sx<-CS*2||sy<-CS*2||sx>cv.width+CS||sy>cv.height+CS) return;
     var bob = Math.sin(t*4+pid.length)*CS*0.05;
     var pingsan = p.koUntil && nowMs() < p.koUntil;
+    var gp = S.groups[p.group];
+    var pelari = gp && gp.turnPid===pid;                  // yang sedang kebagian giliran
     ctx.save();
     if(pingsan) ctx.globalAlpha = 0.42;
+    else if(!pelari) ctx.globalAlpha = 0.5;               // teman yang menunggu dibuat redup
+    if(pelari){
+      ctx.beginPath();
+      ctx.strokeStyle='rgba(255,210,63,'+(0.45+0.35*Math.sin(t*4))+')';
+      ctx.lineWidth=Math.max(2,CS*0.12);
+      ctx.arc(sx+CS/2, sy+CS/2, CS*0.56, 0, 7); ctx.stroke();
+    }
     if(p.group){
       ctx.beginPath();
       ctx.fillStyle = p.group==='merah'? 'rgba(255,90,95,.5)':'rgba(62,166,255,.5)';
@@ -2085,7 +2322,7 @@ function draw(){
     }
     ctx.font=Math.floor(CS*0.7)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(p.ava, sx+CS/2, sy+CS/2+bob);
-    if(p.role==='guru'){ ctx.font=Math.floor(CS*0.34)+'px sans-serif'; ctx.fillText('⭐', sx+CS*0.82, sy+CS*0.2); }
+    if(pelari){ ctx.font=Math.floor(CS*0.34)+'px sans-serif'; ctx.fillText('🏃', sx+CS*0.82, sy+CS*0.2); }
     ctx.font='bold '+Math.max(9,Math.floor(CS*0.32))+'px "Trebuchet MS",sans-serif';
     ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.75)';
     if(CS>=20 || pid===MY.pid){
@@ -2141,9 +2378,11 @@ if(('ontouchstart' in window) || navigator.maxTouchPoints>0) document.body.class
 setInterval(function(){
   var S=V.pub; if(!S || S.phase!=='play' || !WORLD) return;
   var me=S.players[MY.pid]; if(!me) return;
+  if(me.role==='guru' || !me.group) return;                         // guru hanya memandu
   if(me.koUntil && nowMs() < me.koUntil) return;                    // sedang pingsan
-  if(me.group && (V.sec[me.group] && (V.sec[me.group].active || V.sec[me.group].result))) return;
-  if(me.group && S.groups[me.group].finishedAt!=null) return;
+  if(S.groups[me.group].turnPid !== MY.pid) return;                 // belum gilirannya
+  if(V.sec[me.group] && (V.sec[me.group].active || V.sec[me.group].result)) return;
+  if(S.groups[me.group].finishedAt!=null) return;
   if(nowMs()-MY.lastStep < CONFIG.STEP_MS) return;
   var dx=0, dy=0;
   if(keys.U) dy=-1; else if(keys.D) dy=1; else if(keys.L) dx=-1; else if(keys.R) dx=1;
@@ -2275,6 +2514,14 @@ $('btnSkip').onclick   = function(){
   var g = (V.sec.merah&&V.sec.merah.active)?'merah':'biru';
   send({t:'skip', pid:MY.pid, group:g});
 };
+$('btnGantiM').onclick = function(){ gantiPelari('merah'); };
+$('btnGantiB').onclick = function(){ gantiPelari('biru'); };
+function gantiPelari(g){
+  var nm = V.pub && V.pub.groups[g] && V.pub.groups[g].turnName;
+  if(!confirm('Ganti pelari Kelompok '+(g==='merah'?'Merah':'Biru')+(nm?(' (sekarang '+nm+')'):'')+
+              '?\n\nMisinya tetap sama, hanya pindah ke anak berikutnya.')) return;
+  send({t:'ganti', pid:MY.pid, group:g});
+}
 $('btnAgain').onclick  = function(){ send({t:'again', pid:MY.pid}); };
 $('btnCopyLink').onclick=function(){
   var url = location.origin+location.pathname+'?kode='+(V.pub?V.pub.code:'');
@@ -2330,9 +2577,14 @@ HOST.startSolo = function(group){
   HOST.pool = SOAL.map(function(_,i2){ return i2; });
   for(var i3=HOST.pool.length-1;i3>0;i3--){ var j3=Math.floor(Math.random()*(i3+1)); var t3=HOST.pool[i3]; HOST.pool[i3]=HOST.pool[j3]; HOST.pool[j3]=t3; }
   ['merah','biru'].forEach(function(g,gi){
+    var urut = S.order.filter(function(pid){
+      var pl=S.players[pid]; return pl && pl.role==='siswa' && pl.group===g;
+    }).slice(0, CONFIG.MAX_PER_GROUP);
+    urut.forEach(function(pid,i){ S.players[pid].nomor=i+1; });
     S.groups[g]={ promptId:ids[gi], found:[false,false,false,false],
       qIdx:[HOST.pool.pop(),HOST.pool.pop(),HOST.pool.pop(),HOST.pool.pop()],
-      active:null, result:null, finishedAt:(g===group?null:-1), fails:0 };
+      active:null, result:null, finishedAt:(g===group?null:-1), fails:0,
+      order:urut, turn:0, lewat:0, stage:'cari' };
   });
   S.enemies = clone(w.enemySpawn);
   for(var k in S.players){ var pk=S.players[k]; pk.deaths=0; pk.koUntil=0; HOST.respawnIn(pk, w); }
@@ -2367,11 +2619,11 @@ BOT.mulai = function(nama, ava){
     MY.name=nama; MY.ava=ava; MY.role='guru';
     HOST.apply({t:'join', pid:MY.pid, name:nama, ava:ava, role:'guru'});
     var daftar = [
-      ['b_g2','Pak Budi','🦉','guru'],
       ['b_s1','Aldo','🐱','siswa'],   ['b_s2','Bila','🦕','siswa'],
       ['b_s3','Cinta','🚀','siswa'],  ['b_s4','Dika','🐼','siswa'],
       ['b_s5','Eka','🦊','siswa'],    ['b_s6','Fara','🐧','siswa'],
-      ['b_s7','Gilang','🦁','siswa'], ['b_s8','Hana','🐸','siswa']
+      ['b_s7','Gilang','🦁','siswa'], ['b_s8','Hana','🐸','siswa'],
+      ['b_s9','Ivan','🐙','siswa'],   ['b_s10','Jihan','🦄','siswa']
     ];
     BOT.ids = daftar.map(function(d){ return d[0]; });
     daftar.forEach(function(d){ HOST.apply({t:'join', pid:d[0], name:d[1], ava:d[2], role:d[3]}); });
@@ -2379,7 +2631,7 @@ BOT.mulai = function(nama, ava){
     if(BOT.timer) clearInterval(BOT.timer);
     BOT.timer = setInterval(BOT.step, 420);
     hide('scHome');
-    toast('🧪 Mode uji coba: 9 pemain bot sudah masuk. Silakan klik ACAK KELOMPOK.', 4500);
+    toast('🧪 Mode uji coba: 10 siswa bot sudah masuk (5 merah + 5 biru). Kamu jadi guru — klik ACAK KELOMPOK.', 5000);
   });
 };
 
@@ -2402,23 +2654,34 @@ BOT.step = function(){
     berubah = true;
   });
 
-  // --- gerak ---
-  S.order.forEach(function(pid){
-    if(!BOT.isBot(pid)) return;
-    var p = S.players[pid]; if(!p || !p.group) return;
-    var gr = S.groups[p.group];
+  // --- gerak: hanya bot yang sedang kebagian giliran ---
+  ['merah','biru'].forEach(function(gn){
+    var gr = S.groups[gn];
     if(gr.active || gr.result || gr.finishedAt!=null) return;
+    var pid = HOST.giliranPid(gn);
+    if(!pid || !BOT.isBot(pid)) return;
+    var p = S.players[pid]; if(!p || !p.group) return;
     if(p.koUntil && nowMs() < p.koUntil) return;
     if(Math.random() < 0.12) return;                     // sedikit jeda biar tidak kaku
 
-    var ch = w.chests[p.group], target = null;
-    // tiap bot punya peti favorit supaya mereka menyebar, bukan mengejar peti yang sama
-    var fav = 0; for(var z=0;z<pid.length;z++) fav = (fav*31 + pid.charCodeAt(z)) % 4;
-    for(var k=0;k<4;k++){ var idx=(fav+k)%4; if(!gr.found[idx]){ target = ch[idx]; break; } }
+    var target = null;
+    if(gr.stage==='cari'){
+      var ch = w.chests[gn];
+      // peti favorit per bot supaya tidak selalu peti yang sama yang dikejar
+      var fav = 0; for(var z=0;z<pid.length;z++) fav = (fav*31 + pid.charCodeAt(z)) % 4;
+      for(var k=0;k<4;k++){ var idx=(fav+k)%4; if(!gr.found[idx]){ target = ch[idx]; break; } }
+    } else {
+      target = w.finish[gn];                             // mengantar potongan / lari penutup
+    }
     if(!target) return;
+    // jarak tempuh sekarang jauh (start -> peti -> finish), jadi bot ikut
+    // menghindari petak tetangga hantu, bukan cuma petak yang sedang diinjaknya
     var bahaya = {};
     w.bombs.forEach(function(b){ bahaya[b.x+','+b.y]=1; });
-    (S.enemies||[]).forEach(function(e){ bahaya[e.x+','+e.y]=1; });
+    (S.enemies||[]).forEach(function(e){
+      bahaya[e.x+','+e.y]=1;
+      [[0,-1],[1,0],[0,1],[-1,0]].forEach(function(d){ bahaya[(e.x+d[0])+','+(e.y+d[1])]=1; });
+    });
     var langkah = BOT.langkah(w, p, target, bahaya) || BOT.langkah(w, p, target, null);
     if(!langkah) return;
     HOST.move(p, langkah[0], langkah[1]);
