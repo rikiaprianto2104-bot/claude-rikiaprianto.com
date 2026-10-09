@@ -75,6 +75,29 @@ const DaftarButton = ({
 );
 
 const KelasBelajarAI = () => {
+  // Selama kelas.hidden masih true, halaman ini tetap bisa dibuka lewat URL
+  // langsung untuk diperbaiki, tapi tidak boleh diindeks mesin pencari.
+  // Hapus blok ini bersamaan dengan hidden: false di mock.js.
+  useEffect(() => {
+    if (!kelas.hidden) return undefined;
+    // index.html sudah memasang <meta name="robots"> sendiri. Kalau kita
+    // menambah tag kedua, tag pertama yang terbaca duluan, jadi nilainya
+    // ditimpa lalu dikembalikan saat pengunjung meninggalkan halaman ini.
+    let meta = document.head.querySelector('meta[name="robots"]');
+    const dibuatDiSini = !meta;
+    const nilaiAwal = meta ? meta.getAttribute('content') : null;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', 'noindex, nofollow');
+    return () => {
+      if (dibuatDiSini) meta.remove();
+      else meta.setAttribute('content', nilaiAwal);
+    };
+  }, []);
+
   // Sembunyikan CTA melayang saat pembaca sudah sampai ke footer.
   const [ctaVisible, setCtaVisible] = useState(true);
   // Penanda agar ViewContent hanya dikirim sekali per kunjungan.

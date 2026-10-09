@@ -43,8 +43,13 @@ const Blog = () => {
       </div>
 
       {/* Kartu promo kelas — kelas berbayar & kelas gratis */}
-      <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Kelas berbayar */}
+      <div
+        className={`mt-10 grid grid-cols-1 gap-6 ${
+          futureMakersPaidClass.hidden ? "" : "lg:grid-cols-2"
+        }`}
+      >
+        {/* Kelas berbayar - disembunyikan selama hidden: true di mock.js */}
+        {!futureMakersPaidClass.hidden && (
         <Link
           to={`/blog/${futureMakersPaidClass.slug}`}
           className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white p-7 hover:shadow-2xl hover:shadow-[#2563eb]/25 transition-all duration-300 flex flex-col"
@@ -92,6 +97,7 @@ const Blog = () => {
             </span>
           </div>
         </Link>
+        )}
 
         {/* Kelas gratis */}
         <Link

@@ -1783,6 +1783,10 @@ export const futureMakersClass = {
 // ---------- Landing page: Kelas Berbayar Belajar AI (Claude & ChatGPT) ----------
 export const futureMakersPaidClass = {
   slug: 'kelas-belajar-ai-anak',
+  // SEDANG DISEMBUNYIKAN - kartu promonya tidak ditampilkan di halaman Blog
+  // dan halamannya diberi tag noindex. URL-nya tetap bisa dibuka langsung
+  // untuk diperbaiki. Ubah ke false kalau sudah siap ditayangkan lagi.
+  hidden: true,
   brand: 'Future Makers',
   tagline: 'AI untuk Anak, Masa Depan Lebih Cerah',
   title: 'Belajar Artificial Intelligence',
