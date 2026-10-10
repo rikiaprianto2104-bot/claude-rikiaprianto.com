@@ -217,6 +217,21 @@ body.touch .dpad{display:grid}
 .ring i{width:92px;height:92px;border-radius:50%;background:#3a0a14;display:grid;place-items:center;font-style:normal}
 .hearts{letter-spacing:2px;font-size:15px}
 
+/* daftar urutan giliran */
+.urow{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:11px;margin-bottom:6px;
+  background:rgba(255,255,255,.05);border:2px solid transparent;font-size:13px}
+.urow .no{flex:0 0 24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.13);font-weight:900;font-size:12.5px}
+.urow .nm{flex:1;min-width:0;font-weight:700;overflow-wrap:break-word}
+.urow .st{font-size:11.5px;color:var(--ink-dim);white-space:nowrap}
+.urow.now{border-color:var(--gold);background:rgba(255,210,63,.16)}
+.urow.now .no{background:var(--gold);color:#2a1550}
+.urow.now .st{color:var(--gold)}
+.urow.sudah{opacity:.6}
+.urow.sudah .no{background:rgba(61,220,151,.35)}
+.urow.aku .nm:after{content:" (kamu)";font-weight:600;color:var(--ink-dim);font-size:11.5px}
+.uhead{font-size:12px;color:var(--ink-dim);margin:8px 0 5px;font-weight:700}
+
 /* papan giliran */
 .gbar{display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;
   border-radius:14px;padding:9px 14px;margin-bottom:8px;font-size:14.5px;font-weight:800;
@@ -311,15 +326,6 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
   </div>
 
   <div id="homeForm" class="card hidden" style="max-width:620px;margin:0 auto">
-    <div id="hostChoice" class="hidden" style="margin-bottom:16px">
-      <label class="fl">Guru — pilih salah satu</label>
-      <div class="row">
-        <button class="btn sm" id="btnCreate">🎪 Buat Kelas Baru</button>
-        <button class="btn sm ghost" id="btnJoinAsGuru">🔑 Gabung Kelas (guru ke-2)</button>
-      </div>
-      <p class="hint" style="margin:10px 0 0">Cukup <b>satu</b> guru yang klik "Buat Kelas Baru" — laptopnya jadi pusat permainan. Guru ke-2 &amp; semua siswa memakai kode kelas.</p>
-    </div>
-
     <div id="codeField" class="hidden" style="margin-bottom:16px">
       <label class="fl">Kode Kelas</label>
       <input type="text" id="inCode" class="code-in" maxlength="4" placeholder="ABCD" autocomplete="off">
@@ -435,6 +441,10 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
     </div>
 
     <div class="side">
+      <div class="card hidden" style="padding:14px" id="urutCard">
+        <h3 style="font-size:15px" id="urutTitle">👥 Urutan Giliran</h3>
+        <div id="urutList"></div>
+      </div>
       <div class="card hidden" style="padding:14px" id="monCard">
         <h3 style="font-size:15px">👀 Pantauan Soal (Guru)</h3>
         <div id="monMerah" class="mon merah"></div>
@@ -489,6 +499,17 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
 <div class="foot">Labirin Harta Karun Prompt · Modul Pertemuan 2 · Kursus AI Anak 6–12 Tahun</div>
 </div>
 
+<div id="verOv" class="rotov hidden" style="z-index:120">
+  <div>
+    <div class="e">🔄</div>
+    <h2>Versi Game Berbeda</h2>
+    <p class="hint" style="max-width:380px;margin:0 auto 18px">Perangkat ini masih memuat versi <b>lama</b> dari cache browser,
+    sedangkan kelasnya sudah memakai versi baru. Aturannya tidak cocok, jadi permainan bisa macet.<br><br>
+    Muat ulang halaman ini (atau tekan <b>Ctrl+Shift+R</b>) lalu masuk lagi.</p>
+    <button class="btn" id="btnMuatUlang">🔄 MUAT ULANG HALAMAN</button>
+  </div>
+</div>
+
 <div id="rotOv" class="rotov hidden">
   <div>
     <div class="e">📱</div>
@@ -513,6 +534,11 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
      2. PEERJS    -> default, tanpa daftar apa pun (laptop guru jadi host)
      3. LOKAL     -> 1 laptop saja, tanpa internet
    ========================================================================= */
+
+/* Dinaikkan setiap kali aturan main berubah. Dipakai untuk memperingatkan
+   perangkat yang masih memuat versi lama dari cache browser — kalau host dan
+   pemain beda versi, aturannya tidak cocok dan permainan bisa macet. */
+var GAME_VER = '2026.10.10';
 
 var CONFIG = {
   // --- OPSIONAL: tempel config Firebase di sini agar sync lebih stabil ---
@@ -751,11 +777,23 @@ function buildWorld(seed){
     }
   }
 
-  var starts = { merah:{x:1,y:1}, biru:{x:MW-2,y:MH-2} };
-  // garis finish di dua sudut sisanya -> pemain wajib menyeberangi labirin
-  var finish = { merah:{x:MW-2,y:1}, biru:{x:1,y:MH-2} };
-  // pastikan sudut start & finish terbuka
-  g[1][1]=1; g[MH-2][MW-2]=1; g[1][MW-2]=1; g[MH-2][1]=1;
+  /* --- BASE & FINISH BERUPA RUANGAN 3x3 ---
+     Dulu cuma 1 petak, jadi 5 anak yang menunggu giliran saling menumpuk dan
+     bisa tersenggol hantu. Sekarang tiap sudut dibuka jadi ruangan lega:
+       merah  : base kiri-atas      -> finish kanan-atas
+       biru   : base kanan-bawah    -> finish kiri-bawah  */
+  function kotak(x0,y0){ return {x0:x0, y0:y0, x1:x0+2, y1:y0+2}; }
+  var baseBox   = { merah:kotak(1,1),      biru:kotak(MW-4,MH-4) };
+  var finishBox = { merah:kotak(MW-4,1),   biru:kotak(1,MH-4) };
+  function bukaKotak(b){
+    for(var y=b.y0;y<=b.y1;y++) for(var x=b.x0;x<=b.x1;x++)
+      if(x>0 && y>0 && x<MW-1 && y<MH-1) g[y][x]=1;
+  }
+  ['merah','biru'].forEach(function(gn){ bukaKotak(baseBox[gn]); bukaKotak(finishBox[gn]); });
+
+  function tengah(b){ return { x:(b.x0+b.x1)>>1, y:(b.y0+b.y1)>>1 }; }
+  var starts = { merah:tengah(baseBox.merah),   biru:tengah(baseBox.biru) };
+  var finish = { merah:tengah(finishBox.merah), biru:tengah(finishBox.biru) };
 
   var dM = bfs(g, starts.merah), dB = bfs(g, starts.biru);
 
@@ -763,10 +801,15 @@ function buildWorld(seed){
   var open=[];
   for(var y3=1;y3<MH-1;y3++) for(var x3=1;x3<MW-1;x3++)
     if(g[y3][x3]===1 && dM[y3][x3]<9999 && dB[y3][x3]<9999) open.push({x:x3,y:y3});
-  open = open.filter(function(c){
-    return !(c.x===finish.merah.x && c.y===finish.merah.y) &&
-           !(c.x===finish.biru.x  && c.y===finish.biru.y);
-  });
+  var semuaKotak = [baseBox.merah, baseBox.biru, finishBox.merah, finishBox.biru];
+  function diDalamKotak(x,y){
+    for(var ki=0;ki<semuaKotak.length;ki++){
+      var b=semuaKotak[ki];
+      if(x>=b.x0 && x<=b.x1 && y>=b.y0 && y<=b.y1) return true;
+    }
+    return false;
+  }
+  open = open.filter(function(c){ return !diDalamKotak(c.x,c.y); });
 
   function far(list, c, min){
     for(var i=0;i<list.length;i++){
@@ -794,7 +837,11 @@ function buildWorld(seed){
   var chB = pickChests(dB, chM, 7);
 
   // --- bom ---
-  var used = chM.concat(chB).concat([finish.merah, finish.biru]);
+  // bom juga menjauh dari mulut base & finish
+  var used = chM.concat(chB);
+  semuaKotak.forEach(function(b){
+    for(var by=b.y0;by<=b.y1;by++) for(var bx=b.x0;bx<=b.x1;bx++) used.push({x:bx,y:by});
+  });
   var bombs=[], cand2 = shuffleSeeded(open, rnd);
   for(var i2=0;i2<cand2.length && bombs.length<16;i2++){
     var c2=cand2[i2];
@@ -810,18 +857,24 @@ function buildWorld(seed){
     bombs.push({x:c2.x,y:c2.y});
   }
 
-  var world = { grid:g, W:MW, H:MH, starts:starts, finish:finish, chests:{merah:chM, biru:chB}, bombs:bombs };
+  var world = { grid:g, W:MW, H:MH, starts:starts, finish:finish,
+                baseBox:baseBox, finishBox:finishBox,
+                chests:{merah:chM, biru:chB}, bombs:bombs };
   pastikanBisaDilewati(world);
 
   // --- zona aman: 3 petak di sekitar titik start, musuh tidak boleh masuk ---
+  /* Hantu TIDAK BOLEH masuk base & finish. Anak yang sedang menunggu giliran
+     berdiri diam di base, jadi dia tidak boleh bisa disentuh hantu sama sekali.
+     Ditandai seluruh petak ruangan + satu petak penyangga di sekelilingnya. */
   world.safe = {};
-  ['merah','biru'].forEach(function(gn){
-    var dd = bfs(world.grid, world.starts[gn]);
-    for(var y=0;y<MH;y++) for(var x=0;x<MW;x++)
-      if(dd[y][x] <= 3) world.safe[x+','+y] = 1;
-    var df = bfs(world.grid, world.finish[gn]);
-    for(var y2=0;y2<MH;y2++) for(var x2=0;x2<MW;x2++)
-      if(df[y2][x2] <= 2) world.safe[x2+','+y2] = 1;
+  [world.baseBox, world.finishBox].forEach(function(kmp){
+    ['merah','biru'].forEach(function(gn){
+      var b=kmp[gn];
+      for(var y=b.y0-1;y<=b.y1+1;y++) for(var x=b.x0-1;x<=b.x1+1;x++){
+        if(x<0||y<0||x>=MW||y>=MH) continue;
+        world.safe[x+','+y] = 1;
+      }
+    });
   });
 
   // --- titik awal musuh ---
@@ -937,6 +990,7 @@ function bfs(g, s){
   }
   return d;
 }
+function diKotak(b,x,y){ return !!b && x>=b.x0 && x<=b.x1 && y>=b.y0 && y<=b.y1; }
 function isWall(w,x,y){
   if(x<0||y<0||x>=w.W||y>=w.H) return true;
   return w.grid[y][x]!==1;
@@ -1506,9 +1560,8 @@ var HOST = {
       }
       return;
     }
-    // sudah membuka peti (atau giliran penutup): tinggal menyentuh garis finish
-    var f=w.finish[p.group];
-    if(nx===f.x && ny===f.y) HOST.majuGiliran(p.group);
+    // sudah membuka peti (atau giliran penutup): cukup masuk ke AREA finish
+    if(diKotak(w.finishBox[p.group], nx, ny)) HOST.majuGiliran(p.group);
   },
 
   resolve:function(gname, choice, forced){
@@ -1596,12 +1649,12 @@ var HOST = {
         activeBy: g.active? g.active.byName : null,
         activeCi: g.active? g.active.ci : null,
         activeDeadline: g.active? g.active.deadline : null,
-        order: g.order.slice(), turn: g.turn, misi: CONFIG.MISI, stage: g.stage,
+        order: g.order.slice(), turn: g.turn, lewat: g.lewat||0, misi: CONFIG.MISI, stage: g.stage,
         turnPid: gil, turnName: pg? pg.name : null, turnAva: pg? pg.ava : null,
         turnNo: pg? (pg.nomor||0) : 0
       };
     });
-    return { phase:S.phase, code:S.code, seed:S.seed, startedAt:S.startedAt, endedAt:S.endedAt,
+    return { ver:GAME_VER, phase:S.phase, code:S.code, seed:S.seed, startedAt:S.startedAt, endedAt:S.endedAt,
              now:nowMs(), players:players, order:S.order.slice(), groups:gp, tolak:clone(S.tolak||{}),
              enemies:(S.enemies||[]).map(function(e){ return {x:e.x,y:e.y,dir:e.dir}; }) };
   },
@@ -1641,6 +1694,11 @@ NET.onStatus = function(s){
 };
 NET.onState = function(msg){
   if(!msg || !msg.pub) return;
+  // host dan pemain wajib memakai versi aturan yang sama
+  if(msg.pub.ver !== GAME_VER){      // 'undefined' = host memakai versi sebelum penomoran ini
+    $('verOv').classList.remove('hidden');
+    return;
+  }
   V.pub = msg.pub; V.sec = msg.sec || {};
   if(V.pub.seed!=null && (!WORLD || WORLD._seed!==V.pub.seed)){
     WORLD = buildWorld(V.pub.seed); WORLD._seed = V.pub.seed;
@@ -1784,6 +1842,7 @@ function renderTop(){
   $('guruPanel').classList.toggle('hidden', !guru);
   $('bagTabs').classList.toggle('hidden', !guru);
   $('monCard').classList.toggle('hidden', !guru);
+  $('urutCard').classList.toggle('hidden', !(guru || me.group));
   document.body.classList.toggle('guru', !!guru);
 
   // nyawa & pingsan (guru tidak ikut bermain -> tidak punya nyawa)
@@ -1809,6 +1868,39 @@ function renderTop(){
       (lawan==='merah'?'Merah':'Biru')+'</b> ('+S.groups[lawan].count+'/4), salin prompt &amp; tempel ke notebook kalian<span class="dots"></span>';
   }
   renderGiliran();
+  renderUrutan();
+}
+
+/* ---------- DAFTAR URUTAN GILIRAN ----------
+   Supaya tiap anak tahu dia pemain ke berapa dan kapan dapat giliran. */
+function renderUrutan(){
+  var S=V.pub, me=S.players[MY.pid]; if(!me) return;
+  var guru = me.role==='guru';
+  var daftar = guru ? ['merah','biru'] : (me.group? [me.group] : []);
+  var box=$('urutList'); if(!box) return;
+  $('urutTitle').textContent = guru ? '👥 Urutan Giliran (2 Kelompok)' : '👥 Urutan Giliran Kelompokmu';
+  var html='';
+  daftar.forEach(function(gn){
+    var g=S.groups[gn], n=(g.order||[]).length;
+    if(guru) html += '<div class="uhead">'+(gn==='merah'?'🔴 Kelompok Merah':'🔵 Kelompok Biru')+'</div>';
+    if(!n){ html += '<div class="hint" style="margin:0 0 8px">belum ada anggota</div>'; return; }
+    g.order.forEach(function(pid,i){
+      var p=S.players[pid]; if(!p) return;
+      var sekarang = (g.turnPid===pid) && g.finishedAt==null;
+      // sudah pernah kebagian giliran kalau ada misi selesai yang jatuh ke dia
+      var sudah=false;
+      for(var tcek=0; tcek<g.turn; tcek++) if((tcek+(g.lewat||0))%n===i){ sudah=true; break; }
+      var st = g.finishedAt!=null ? '✅ selesai'
+             : sekarang ? (g.stage==='pulang' ? '🏁 ke finish' : '🏃 cari peti')
+             : (sudah ? '✅ sudah' : '⏳ menunggu');
+      html += '<div class="urow'+(sekarang?' now':'')+(sudah&&!sekarang?' sudah':'')+(pid===MY.pid?' aku':'')+'">'+
+              '<span class="no">'+(i+1)+'</span>'+
+              '<span class="nm">'+p.ava+' '+esc(p.name)+'</span>'+
+              '<span class="st">'+st+'</span></div>';
+    });
+  });
+  if(!html) html='<div class="hint">Kamu belum punya kelompok.</div>';
+  if(box.dataset.k!==html){ box.dataset.k=html; box.innerHTML=html; }
 }
 
 /* ---------- PAPAN GILIRAN ----------
@@ -2213,28 +2305,40 @@ function draw(){
       }
     }
   }
-  // titik start (tempat menunggu giliran) + garis finish
+  // ruang BASE (tempat menunggu giliran, bebas hantu) + ruang FINISH
   ['merah','biru'].forEach(function(g){
-    var s=WORLD.starts[g], sx=SX(s.x), sy=SY(s.y);
-    ctx.globalAlpha=.5;
-    ctx.fillStyle = g==='merah'? '#ff5a5f':'#3ea6ff';
-    roundRect(ctx,sx+2,sy+2,CS-4,CS-4,6); ctx.fill();
-    ctx.globalAlpha=1;
-    ctx.font='bold '+Math.floor(CS*0.5)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillStyle='#fff'; ctx.fillText('🚩', sx+CS/2, sy+CS/2+1);
-
-    var f=WORLD.finish[g], fx=SX(f.x), fy=SY(f.y);
-    var pulse=0.55+0.45*Math.sin(t*3);
+    var warna = g==='merah'? '#ff5a5f':'#3ea6ff';
+    function gambarRuang(b, isiWarna, garisWarna, alpha){
+      var rx=SX(b.x0), ry=SY(b.y0), rw=(b.x1-b.x0+1)*CS, rh=(b.y1-b.y0+1)*CS;
+      ctx.save();
+      ctx.globalAlpha=alpha; ctx.fillStyle=isiWarna;
+      roundRect(ctx,rx+2,ry+2,rw-4,rh-4,10); ctx.fill();
+      ctx.globalAlpha=1; ctx.lineWidth=Math.max(2,CS*0.09); ctx.strokeStyle=garisWarna;
+      roundRect(ctx,rx+2,ry+2,rw-4,rh-4,10); ctx.stroke();
+      ctx.restore();
+      return {x:rx+rw/2, y:ry+rh/2};
+    }
+    var bb=WORLD.baseBox[g];
+    gambarRuang(bb, warna, warna, .26);
+    var s=WORLD.starts[g];
     ctx.save();
-    ctx.globalAlpha=0.35+0.3*pulse;
-    ctx.fillStyle = g==='merah'? '#ff5a5f':'#3ea6ff';
-    roundRect(ctx,fx+1,fy+1,CS-2,CS-2,6); ctx.fill();
-    ctx.globalAlpha=1;
-    ctx.lineWidth=Math.max(2,CS*0.08);
-    ctx.strokeStyle='#ffd23f';
-    roundRect(ctx,fx+1,fy+1,CS-2,CS-2,6); ctx.stroke();
-    ctx.font='bold '+Math.floor(CS*0.56)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🏁', fx+CS/2, fy+CS/2+1);
+    ctx.font='bold '+Math.floor(CS*0.5)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.globalAlpha=.75; ctx.fillText('🚩', SX(s.x)+CS/2, SY(s.y)+CS/2+1);
+    ctx.restore();
+
+    var fb=WORLD.finishBox[g], pulse=0.5+0.5*Math.sin(t*3);
+    gambarRuang(fb, '#ffd23f', '#ffd23f', .14+.16*pulse);
+    var f=WORLD.finish[g];
+    ctx.save();
+    ctx.font='bold '+Math.floor(CS*0.6)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🏁', SX(f.x)+CS/2, SY(f.y)+CS/2+1);
+    if(CS>=18){
+      ctx.font='bold '+Math.max(8,Math.floor(CS*0.3))+'px "Trebuchet MS",sans-serif';
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.7)';
+      var ty=SY(fb.y1)+CS*0.78;
+      ctx.strokeText('FINISH', SX(f.x)+CS/2, ty); ctx.fillStyle='#ffd23f';
+      ctx.fillText('FINISH', SX(f.x)+CS/2, ty);
+    }
     ctx.restore();
   });
   // bom
@@ -2323,13 +2427,26 @@ function draw(){
     ctx.font=Math.floor(CS*0.7)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(p.ava, sx+CS/2, sy+CS/2+bob);
     if(pelari){ ctx.font=Math.floor(CS*0.34)+'px sans-serif'; ctx.fillText('🏃', sx+CS*0.82, sy+CS*0.2); }
+    // lencana nomor urut giliran, supaya anak tahu dia pemain ke berapa
+    if(p.nomor){
+      var bx=sx+CS*0.2, by=sy+CS*0.22, rr=CS*0.2;
+      ctx.beginPath(); ctx.fillStyle = pelari? '#ffd23f' : 'rgba(10,4,30,.8)';
+      ctx.arc(bx, by, rr, 0, 7); ctx.fill();
+      ctx.lineWidth=Math.max(1,CS*0.04); ctx.strokeStyle='rgba(255,255,255,.75)'; ctx.stroke();
+      ctx.font='bold '+Math.max(8,Math.floor(CS*0.3))+'px "Trebuchet MS",sans-serif';
+      ctx.fillStyle = pelari? '#2a1550' : '#fff';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(String(p.nomor), bx, by+0.5);
+    }
     ctx.font='bold '+Math.max(9,Math.floor(CS*0.32))+'px "Trebuchet MS",sans-serif';
     ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.75)';
     if(CS>=20 || pid===MY.pid){
       var ny2 = sy - CS*0.18 - (nameSlot(pid)%2)*CS*0.38;
-      ctx.strokeText(p.name, sx+CS/2, ny2);
+      var label = (p.nomor? p.nomor+'. ':'')+p.name;
+      ctx.textAlign='center';
+      ctx.strokeText(label, sx+CS/2, ny2);
       ctx.fillStyle= p.group==='merah'? '#ffb3b5' : p.group==='biru'? '#a9d8ff' : '#ffd23f';
-      ctx.fillText(p.name, sx+CS/2, ny2);
+      ctx.fillText(label, sx+CS/2, ny2);
     }
     if(pingsan){
       ctx.font=Math.floor(CS*0.4)+'px sans-serif';
@@ -2403,26 +2520,24 @@ Array.prototype.forEach.call(document.querySelectorAll('#homePick .role'), funct
     pending.local = false; pending.demo = false;
     if($('grpPick')) $('grpPick').classList.add('hidden');
     hide('homePick'); show('homeForm');
-    if(pending.role==='guru'){ show('hostChoice'); hide('codeField'); hide('joinFields'); }
-    else { hide('hostChoice'); show('codeField'); show('joinFields'); }
+    if(pending.role==='guru'){
+      // guru selalu pembuat kelas: tidak ada lagi opsi "guru ke-2"
+      pending.asHost = true;
+      hide('codeField'); show('joinFields');
+      $('joinMsg').innerHTML='Laptop/komputer ini jadi <b>pusat permainan &amp; layar kelas</b>. Jangan tutup tab-nya ya!';
+    }
+    else { pending.asHost = false; show('codeField'); show('joinFields'); }
     buildAvatars();
   };
 });
 $('btnBackHome').onclick=function(){
-  show('homePick'); hide('homeForm'); hide('hostChoice'); hide('codeField'); hide('joinFields');
+  show('homePick'); hide('homeForm'); hide('codeField'); hide('joinFields');
   $('joinMsg').textContent='';
 };
-$('btnCreate').onclick=function(){
-  pending.asHost=true; hide('codeField'); show('joinFields');
-  $('joinMsg').innerHTML='Laptop ini akan jadi <b>pusat permainan</b>. Jangan tutup tab-nya ya!';
-};
-$('btnJoinAsGuru').onclick=function(){
-  pending.asHost=false; show('codeField'); show('joinFields');
-  $('joinMsg').textContent='Masukkan kode kelas dari guru pertama.';
-};
+$('btnMuatUlang').onclick=function(){ location.reload(true); };
 $('btnLocal').onclick=function(){
   pending.local=true; pending.demo=false; pending.role='siswa'; pending.asHost=true;
-  hide('homePick'); show('homeForm'); hide('hostChoice'); hide('codeField'); show('joinFields');
+  hide('homePick'); show('homeForm'); hide('codeField'); show('joinFields');
   buildAvatars();
   if(!$('grpPick')){
     var d=el('div'); d.id='grpPick'; d.style.marginTop='14px';
@@ -2598,7 +2713,7 @@ HOST.startSolo = function(group){
   if(m){
     $('inCode').value = m[1].toUpperCase();
     pending.role='siswa'; pending.asHost=false;
-    hide('homePick'); show('homeForm'); hide('hostChoice'); show('codeField'); show('joinFields');
+    hide('homePick'); show('homeForm'); show('codeField'); show('joinFields');
     buildAvatars();
     $('joinMsg').innerHTML='Kode kelas sudah terisi. Tulis nama & pilih karakter, lalu klik MASUK.';
   }
@@ -2734,7 +2849,7 @@ BOT.langkah = function(w, p, target, bahaya){
   host.appendChild(b);
   b.onclick=function(){
     pending.local=false; pending.demo=true; pending.role='guru'; pending.asHost=true;
-    hide('homePick'); show('homeForm'); hide('hostChoice'); hide('codeField'); show('joinFields');
+    hide('homePick'); show('homeForm'); hide('codeField'); show('joinFields');
     if($('grpPick')) $('grpPick').classList.add('hidden');
     buildAvatars();
     $('joinMsg').innerHTML='Mode uji coba untuk <b>latihan guru</b>: kamu jadi guru host, 9 pemain bot ikut bermain otomatis. Alurnya persis seperti di kelas.';

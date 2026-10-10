@@ -137,7 +137,10 @@ RewriteRule . /index.html [L]
   # index.html harus selalu divalidasi ulang. Nama file bundle JS/CSS mengandung
   # hash, jadi kalau index.html ikut ter-cache browser akan terus memuat bundle lama
   # dan perubahan terbaru seolah belum ter-publish.
-  <FilesMatch "^(index\.html|asset-manifest\.json)$">
+  # Berlaku untuk SEMUA .html, bukan cuma index.html. Game di /projects/*.html
+  # juga sering diperbarui; kalau browser menyimpannya, laptop guru bisa memuat
+  # aturan main versi lama sementara HP siswa sudah versi baru -> permainan macet.
+  <FilesMatch "(\.html|asset-manifest\.json)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 
