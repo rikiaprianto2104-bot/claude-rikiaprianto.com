@@ -365,8 +365,9 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
     <p class="hint" style="margin:-4px 0 12px">Maksimal <b>10 siswa</b> — 5 anak Kelompok Merah &amp; 5 anak Kelompok Biru. <b>Guru tidak ikut bermain</b>: layar guru dipakai untuk memandu &amp; menampilkan permainan ke kelas.</p>
     <div class="hint" style="margin:-4px 0 12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06)">
       <b>🎮 Aturan main (bergilir):</b> tiap kelompok jalan <b>satu per satu</b>.
-      Anak ke-1 masuk labirin mencari 🎁 peti pertama — teman-temannya menunggu di titik start dan
-      <b>ikut bantu menjawab soalnya</b>. Setelah peti terbuka, anak ke-1 mengantar potongan prompt ke 🏁 <b>FINISH</b>,
+      Anak ke-1 masuk labirin mencari 🎁 <b>peti #1</b>, anak ke-2 mencari <b>peti #2</b>, dan seterusnya —
+      peti bernomor lain tidak akan terbuka. Teman-temannya menunggu di base dan
+      <b>ikut bantu menjawab soalnya</b>. Setelah peti terbuka, anak ke-1 mengantar potongan prompt ke 🏁 <b>FINISH</b> (kotak hijau di seberang base),
       baru giliran anak ke-2, dan seterusnya. Petinya ada 4, jadi anak ke-5 kebagian <b>lari penutup</b>
       menyeberangi labirin sampai finish — saat itu kelompoknya dinyatakan selesai.
       Kalau anggotanya kurang dari 5, urutannya <b>berputar lagi</b> dari anak pertama.
@@ -437,7 +438,7 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
         <button data-d="L">◀</button><span></span><button data-d="R">▶</button>
         <span></span><button data-d="D">▼</button><span></span>
       </div>
-      <p class="hint" id="hintKontrol" style="text-align:center;margin-top:10px">Gerak: tombol <b>panah</b> atau <b>W A S D</b> · Buka 🎁 kelompokmu, lalu antar potongannya ke 🏁 <b>FINISH</b> · Hindari 💣 dan 👻</p>
+      <p class="hint" id="hintKontrol" style="text-align:center;margin-top:10px">Gerak: tombol <b>panah</b> atau <b>W A S D</b> · Buka 🎁 kelompokmu <b>sesuai nomor giliran</b>, lalu antar potongannya ke 🏁 <b>FINISH</b> (kotak hijau) · Hindari 💣 dan 👻</p>
     </div>
 
     <div class="side">
@@ -538,7 +539,7 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
 /* Dinaikkan setiap kali aturan main berubah. Dipakai untuk memperingatkan
    perangkat yang masih memuat versi lama dari cache browser — kalau host dan
    pemain beda versi, aturannya tidak cocok dan permainan bisa macet. */
-var GAME_VER = '2026.10.10';
+var GAME_VER = '2026.10.10b';
 
 var CONFIG = {
   // --- OPSIONAL: tempel config Firebase di sini agar sync lebih stabil ---
@@ -817,24 +818,36 @@ function buildWorld(seed){
     }
     return true;
   }
+  /* Peti tidak boleh nempel ke ruangan mana pun (base & finish kedua kelompok),
+     supaya anak benar-benar masuk labirin dulu. */
+  var pusatRuang = [starts.merah, starts.biru, finish.merah, finish.biru];
+  function jauhDariRuang(c, min){
+    for(var i=0;i<pusatRuang.length;i++){
+      if(Math.abs(pusatRuang[i].x-c.x)+Math.abs(pusatRuang[i].y-c.y) < min) return false;
+    }
+    return true;
+  }
   function pickChests(dist, other, minFromStart){
-    var cand = shuffleSeeded(open.filter(function(c){
-      return dist[c.y][c.x] >= minFromStart;
-    }), rnd);
-    var out=[], minGap=7;
+    var out=[], minGap=7, minRuang=6;
     while(out.length<4 && minGap>2){
+      var cand = shuffleSeeded(open.filter(function(c){
+        return dist[c.y][c.x] >= minFromStart && jauhDariRuang(c, minRuang);
+      }), rnd);
       for(var i=0;i<cand.length && out.length<4;i++){
         var c=cand[i];
         if(!far(out,c,minGap)) continue;
         if(!far(other,c,4)) continue;
         out.push({x:c.x,y:c.y});
       }
-      minGap-=2;
+      minGap-=2; if(minRuang>4) minRuang-=1;
     }
+    /* Peti dibuka BERURUTAN (anak ke-1 wajib peti #1, dst), jadi diurutkan dari
+       yang terdekat ke base supaya rutenya makin jauh di tiap giliran. */
+    out.sort(function(a,b){ return dist[a.y][a.x] - dist[b.y][b.x]; });
     return out;
   }
-  var chM = pickChests(dM, [], 7);
-  var chB = pickChests(dB, chM, 7);
+  var chM = pickChests(dM, [], 9);
+  var chB = pickChests(dB, chM, 9);
 
   // --- bom ---
   // bom juga menjauh dari mulut base & finish
@@ -1549,14 +1562,13 @@ var HOST = {
       }
     }
     if(g.stage==='cari'){
-      // sedang berburu peti: peti kelompok sendiri yang belum terbuka
-      var ch=w.chests[p.group];
-      for(var c=0;c<ch.length;c++){
-        if(ch[c].x===nx && ch[c].y===ny && !g.found[c] && !g.active){
-          g.active = { ci:c, qIdx:g.qIdx[c], by:p.pid, byName:p.name, deadline: nowMs()+CONFIG.ANSWER_SECONDS*1000, ans:SOAL[g.qIdx[c]].a };
-          g.result = null;
-          return;
-        }
+      /* Peti HARUS berurutan: giliran ke-1 membuka peti #1, giliran ke-2 peti #2,
+         dst. Peti lain tidak bereaksi kalau diinjak. */
+      var c = g.turn;
+      var ch = w.chests[p.group][c];
+      if(ch && ch.x===nx && ch.y===ny && !g.found[c] && !g.active){
+        g.active = { ci:c, qIdx:g.qIdx[c], by:p.pid, byName:p.name, deadline: nowMs()+CONFIG.ANSWER_SECONDS*1000, ans:SOAL[g.qIdx[c]].a };
+        g.result = null;
       }
       return;
     }
@@ -1650,6 +1662,7 @@ var HOST = {
         activeCi: g.active? g.active.ci : null,
         activeDeadline: g.active? g.active.deadline : null,
         order: g.order.slice(), turn: g.turn, lewat: g.lewat||0, misi: CONFIG.MISI, stage: g.stage,
+        petiTarget: (g.stage==='cari' && g.turn<4) ? g.turn : null,
         turnPid: gil, turnName: pg? pg.name : null, turnAva: pg? pg.ava : null,
         turnNo: pg? (pg.nomor||0) : 0
       };
@@ -1891,7 +1904,7 @@ function renderUrutan(){
       var sudah=false;
       for(var tcek=0; tcek<g.turn; tcek++) if((tcek+(g.lewat||0))%n===i){ sudah=true; break; }
       var st = g.finishedAt!=null ? '✅ selesai'
-             : sekarang ? (g.stage==='pulang' ? '🏁 ke finish' : '🏃 cari peti')
+             : sekarang ? (g.stage==='pulang' ? '🏁 ke finish' : ('🏃 cari peti #'+(g.turn+1)))
              : (sudah ? '✅ sudah' : '⏳ menunggu');
       html += '<div class="urow'+(sekarang?' now':'')+(sudah&&!sekarang?' sudah':'')+(pid===MY.pid?' aku':'')+'">'+
               '<span class="no">'+(i+1)+'</span>'+
@@ -1913,7 +1926,7 @@ function teksMisi(g){
       ? 'lari penutup ke 🏁 finish'
       : 'mengantar potongan ke 🏁 finish');
   }
-  return 'Giliran '+no+'/'+tot+' · mencari 🎁 peti';
+  return 'Giliran '+no+'/'+tot+' · mencari 🎁 peti #'+no;
 }
 function renderGiliran(){
   var S=V.pub, me=S.players[MY.pid]; if(!me) return;
@@ -1953,9 +1966,10 @@ function renderGiliran(){
       ? (g.turn>=(g.misi||CONFIG.MISI)-1
           ? '<span class="ava">🏁</span><div>GILIRANMU — LARI PENUTUP!<small>Petinya sudah habis. Seberangi labirin sampai 🏁 finish untuk menutup permainan kelompokmu.</small></div>'
           : '<span class="ava">🏁</span><div>Peti terbuka — antar ke FINISH!<small>Bawa potongan promptnya ke petak 🏁 supaya giliran teman berikutnya bisa mulai.</small></div>')
-      : '<span class="ava">🏃</span><div>GILIRANMU — cari 🎁 peti!<small>Teman sekelompokmu menunggu di titik start dan siap bantu menjawab soalnya.</small></div>';
+      : '<span class="ava">🏃</span><div>GILIRANMU — cari 🎁 PETI #'+(g.turn+1)+'!<small>Hanya peti bernomor <b>'+(g.turn+1)+
+        '</b> yang bisa kamu buka. Teman sekelompokmu menunggu di base dan siap bantu menjawab soalnya.</small></div>';
     bar.innerHTML=isi;
-    pil.innerHTML = (g.stage==='pulang') ? '🏁 Ke finish!' : '🏃 Giliranmu!';
+    pil.innerHTML = (g.stage==='pulang') ? '🏁 Ke finish!' : ('🏃 Peti #'+(g.turn+1));
   }else{
     bar.className='gbar';
     var nm = g.turnName ? esc(g.turnName) : '—';
@@ -2180,7 +2194,12 @@ function renderDone(){
     box.appendChild(d);
   });
   var me=S.players[MY.pid];
-  $('btnAgain').classList.toggle('hidden', !(me&&me.role==='guru'));
+  var guru = me && me.role==='guru';
+  // siswa langsung melihat prompt kelompoknya sendiri; tombol pilih kelompok
+  // hanya untuk guru (cuma guru yang memegang kedua prompt).
+  if(!guru && me && me.group) doneTab = me.group;
+  $('doneTabs').classList.toggle('hidden', !guru);
+  $('btnAgain').classList.toggle('hidden', !guru);
   showDonePrompt();
 }
 function showDonePrompt(){
@@ -2318,6 +2337,7 @@ function draw(){
       ctx.restore();
       return {x:rx+rw/2, y:ry+rh/2};
     }
+    // BASE = warna kelompok (merah / biru)
     var bb=WORLD.baseBox[g];
     gambarRuang(bb, warna, warna, .26);
     var s=WORLD.starts[g];
@@ -2325,29 +2345,60 @@ function draw(){
     ctx.font='bold '+Math.floor(CS*0.5)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.globalAlpha=.75; ctx.fillText('🚩', SX(s.x)+CS/2, SY(s.y)+CS/2+1);
     ctx.restore();
+    if(CS>=18){
+      ctx.save();
+      ctx.font='bold '+Math.max(8,Math.floor(CS*0.28))+'px "Trebuchet MS",sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.7)';
+      var by=SY(bb.y1)+CS*0.78;
+      ctx.strokeText('BASE', SX(s.x)+CS/2, by);
+      ctx.fillStyle=warna; ctx.fillText('BASE', SX(s.x)+CS/2, by);
+      ctx.restore();
+    }
 
+    /* FINISH = HIJAU, sengaja dibedakan dari base supaya anak langsung tahu
+       mana garis akhir. Bingkai dalam tetap warna kelompok sebagai penanda
+       finish ini milik siapa. */
     var fb=WORLD.finishBox[g], pulse=0.5+0.5*Math.sin(t*3);
-    gambarRuang(fb, '#ffd23f', '#ffd23f', .14+.16*pulse);
-    var f=WORLD.finish[g];
+    gambarRuang(fb, '#3ddc97', '#3ddc97', .20+.18*pulse);
+    var fx=SX(fb.x0), fy=SY(fb.y0), fw=(fb.x1-fb.x0+1)*CS, fh=(fb.y1-fb.y0+1)*CS;
     ctx.save();
+    ctx.lineWidth=Math.max(1.5,CS*0.055); ctx.strokeStyle=warna;
+    roundRect(ctx,fx+CS*0.28,fy+CS*0.28,fw-CS*0.56,fh-CS*0.56,8); ctx.stroke();
+    var f=WORLD.finish[g];
     ctx.font='bold '+Math.floor(CS*0.6)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('🏁', SX(f.x)+CS/2, SY(f.y)+CS/2+1);
+    ctx.font=Math.floor(CS*0.42)+'px sans-serif';
+    ctx.fillText(g==='merah'?'🔴':'🔵', fx+CS*0.52, fy+CS*0.5);
     if(CS>=18){
       ctx.font='bold '+Math.max(8,Math.floor(CS*0.3))+'px "Trebuchet MS",sans-serif';
-      ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.7)';
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.75)';
       var ty=SY(fb.y1)+CS*0.78;
-      ctx.strokeText('FINISH', SX(f.x)+CS/2, ty); ctx.fillStyle='#ffd23f';
-      ctx.fillText('FINISH', SX(f.x)+CS/2, ty);
+      ctx.strokeText('FINISH', SX(f.x)+CS/2, ty);
+      ctx.fillStyle='#3ddc97'; ctx.fillText('FINISH', SX(f.x)+CS/2, ty);
     }
     ctx.restore();
   });
-  // bom
+  /* bom — emoji 💣 saja hampir tidak terlihat di atas lantai ungu gelap,
+     jadi diberi cakram merah menyala + cincin berdenyut sebagai tanda bahaya */
   WORLD.bombs.forEach(function(b){
-    var sx=SX(b.x), sy=SY(b.y);
-    var pulse = 0.75+0.25*Math.sin(t*4+b.x+b.y);
-    ctx.save(); ctx.globalAlpha=pulse;
-    ctx.font=Math.floor(CS*0.72)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('💣', sx+CS/2, sy+CS/2+1);
+    var sx=SX(b.x), sy=SY(b.y), cx=sx+CS/2, cy=sy+CS/2;
+    if(sx<-CS||sy<-CS||sx>cv.width+CS||sy>cv.height+CS) return;
+    var pulse = 0.5+0.5*Math.sin(t*4+b.x+b.y);
+    ctx.save();
+    // cincin peringatan
+    ctx.globalAlpha=0.35+0.4*pulse;
+    ctx.lineWidth=Math.max(1.5,CS*0.08); ctx.strokeStyle='#ff4d5e';
+    ctx.beginPath(); ctx.arc(cx, cy, CS*(0.36+0.1*pulse), 0, 7); ctx.stroke();
+    // cakram isi
+    ctx.globalAlpha=1;
+    ctx.beginPath(); ctx.fillStyle='rgba(255,77,94,.45)';
+    ctx.arc(cx, cy, CS*0.34, 0, 7); ctx.fill();
+    ctx.lineWidth=Math.max(1,CS*0.05); ctx.strokeStyle='#ff8a5c';
+    ctx.beginPath(); ctx.arc(cx, cy, CS*0.34, 0, 7); ctx.stroke();
+    ctx.shadowColor='#ff4d5e'; ctx.shadowBlur=4+6*pulse;
+    ctx.font=Math.floor(CS*0.56)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('💣', cx, cy+1);
     ctx.restore();
   });
   // peti
@@ -2358,13 +2409,15 @@ function draw(){
       var sx=SX(c.x), sy=SY(c.y);
       var mine = (meG===g) || (me&&me.role==='guru');
       var ambil = pub.found && pub.found[i];
+      var giliranPeti = (pub.petiTarget===i);     // peti yang WAJIB dibuka sekarang
       ctx.save();
-      if(ambil){ ctx.globalAlpha=.35; }
-      else if(!mine){ ctx.globalAlpha=.4; }
+      if(ambil){ ctx.globalAlpha=.3; }
+      else if(!mine){ ctx.globalAlpha=.35; }
+      else if(!giliranPeti){ ctx.globalAlpha=.42; }   // belum / bukan giliran peti ini
       else {
-        var gl=0.5+0.5*Math.sin(t*3+i);
-        ctx.shadowColor = g==='merah'? '#ff5a5f':'#3ea6ff';
-        ctx.shadowBlur = 6+10*gl;
+        var gl=0.5+0.5*Math.sin(t*4+i);
+        ctx.shadowColor = '#ffd23f';
+        ctx.shadowBlur = 10+16*gl;
       }
       ctx.fillStyle = g==='merah'? 'rgba(255,90,95,.35)':'rgba(62,166,255,.35)';
       roundRect(ctx,sx+2,sy+2,CS-4,CS-4,6); ctx.fill();
@@ -2372,8 +2425,16 @@ function draw(){
       ctx.font=Math.floor(CS*0.66)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(ambil?'✅':'🎁', sx+CS/2, sy+CS/2+1);
       if(!ambil){
-        ctx.font='bold '+Math.floor(CS*0.3)+'px sans-serif';
-        ctx.fillStyle='#fff'; ctx.fillText(String(i+1), sx+CS*0.82, sy+CS*0.24);
+        // nomor peti: besar & jelas, karena urutannya wajib
+        var nx2=sx+CS*0.78, ny3=sy+CS*0.24;
+        ctx.beginPath();
+        ctx.fillStyle = giliranPeti? '#ffd23f' : 'rgba(10,4,30,.8)';
+        ctx.arc(nx2, ny3, CS*0.21, 0, 7); ctx.fill();
+        ctx.lineWidth=Math.max(1,CS*0.04); ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.stroke();
+        ctx.font='bold '+Math.max(8,Math.floor(CS*0.3))+'px "Trebuchet MS",sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillStyle = giliranPeti? '#2a1550' : '#fff';
+        ctx.fillText(String(i+1), nx2, ny3+0.5);
       }
       ctx.restore();
     });
@@ -2781,10 +2842,7 @@ BOT.step = function(){
 
     var target = null;
     if(gr.stage==='cari'){
-      var ch = w.chests[gn];
-      // peti favorit per bot supaya tidak selalu peti yang sama yang dikejar
-      var fav = 0; for(var z=0;z<pid.length;z++) fav = (fav*31 + pid.charCodeAt(z)) % 4;
-      for(var k=0;k<4;k++){ var idx=(fav+k)%4; if(!gr.found[idx]){ target = ch[idx]; break; } }
+      target = w.chests[gn][gr.turn] || null;      // wajib peti bernomor giliran
     } else {
       target = w.finish[gn];                             // mengantar potongan / lari penutup
     }
