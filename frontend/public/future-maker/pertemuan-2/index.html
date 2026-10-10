@@ -229,6 +229,39 @@ body.idle .hint{opacity:0}
 #s6 .aksi .acak:disabled{background:#CFC8EA;color:#fff;cursor:not-allowed;box-shadow:0 5px 0 rgba(0,0,0,.06)}
 #s6 .aksi .ulang{background:#fff;color:var(--ink)}
 #s6 .aksi .hitung{font-size:24px;font-weight:700;color:var(--ink-2)}
+
+/* Boneka SVG cadangan masih dipakai sebagai KOTAK penentu letak anak 3D, tapi
+   kotak itu tidak boleh ikut beranimasi. Animasi 'munculAnak' melambung
+   melewati ukuran akhir lalu memantul balik, dan 'goyangAnak' menggeser kotak
+   terus-menerus - model 3D yang mengikuti kotak itu jadi terlihat jedag-jedug
+   saat anak pertama kali dipanggil. Begitu mesin 3D hidup, semua animasi pada
+   kotak dimatikan; yang muncul lembut cukup label namanya. */
+#s6 .kelas.siap3d .anak,
+#s6 .kelas.siap3d .anak svg,
+#s6 .kelas.siap3d .anak.menari svg,
+#s6 .kelas.siap3d .anak svg .tgn,
+#s6 .kelas.siap3d .anak svg .kpl{animation:none!important;transform:none!important}
+#s6 .kelas.siap3d .anak .lbl{animation:munculLabel .45s ease both}
+@keyframes munculLabel{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* --- Pembukaan: Pixi yang memandu absen --- */
+#s6 .pixiarea{position:absolute;inset:0;z-index:5;opacity:0;pointer-events:none;transition:opacity .45s}
+#s6 .kelas.adapixi .pixiarea{opacity:1}
+#s6 .pixiarea iframe{position:absolute;left:50%;bottom:-70px;width:740px;height:740px;border:0;background:transparent;
+  transform:translateX(-50%);transition:transform 1.1s cubic-bezier(.55,0,.85,.25),opacity 1.1s}
+#s6 .kelas.pixipergi .pixiarea iframe{transform:translateX(-50%) translateY(-980px) scale(.45);opacity:0}
+#s6 .kelas.adapixi .kosong{display:none}
+#s6 .balon{position:absolute;left:46px;right:46px;top:76px;z-index:6;background:rgba(255,255,255,.95);border-radius:34px;
+  padding:24px 34px;font-size:31px;font-weight:700;line-height:1.35;color:var(--ink);
+  box-shadow:0 8px 0 rgba(30,21,80,.14);opacity:0;transform:translateY(-12px);transition:opacity .3s,transform .3s;pointer-events:none}
+#s6 .balon.ada{opacity:1;transform:none}
+#s6 .kelas.adapixi .kabar,#s6 .kelas.pixipergi .kabar{opacity:0}
+#s6 .tblPixi{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:7;border:0;border-radius:999px;
+  padding:18px 42px;font-family:var(--display);font-size:30px;font-weight:700;cursor:pointer;
+  background:var(--violet);color:#fff;box-shadow:0 6px 0 var(--violet-d)}
+#s6 .tblPixi:active{transform:translateX(-50%) translateY(3px);box-shadow:0 3px 0 var(--violet-d)}
+#s6 .tblPixi.lewati{background:#fff;color:var(--ink);box-shadow:0 6px 0 rgba(30,21,80,.18);font-size:25px;padding:14px 32px}
+#s6 .tblPixi[hidden]{display:none}
 #s7{background:#F6F4FF}
 #s7 .tabs{position:absolute;left:96px;top:150px;display:flex;gap:12px}
 #s7 .tabs button{border:3px solid #DDD5FF;background:#fff;color:var(--ink);border-radius:999px;padding:14px 26px;font-size:26px;font-weight:600;cursor:pointer}
@@ -546,6 +579,10 @@ body.idle .hint{opacity:0}
   </div>
   <div class="kelas ix" id="kelas">
     <div class="kabar" id="kabarKelas">Klik nama di sebelah kiri untuk absen</div>
+    <div class="pixiarea" id="pixiArea"><iframe id="pixiFrame" title="Pixi" src="about:blank" tabindex="-1" scrolling="no"></iframe></div>
+    <div class="balon" id="pixiBalon"></div>
+    <button type="button" class="tblPixi" id="mulaiPixi">▶ Ayo Pixi, kita mulai</button>
+    <button type="button" class="tblPixi lewati" id="lewatiAnak" hidden>Lewati ›</button>
     <div class="kosong">Belum ada yang absen.<br>Ayo, siapa yang mau maju duluan?</div>
     <div class="memuat" id="memuatAnak">Sebentar ya…</div>
     <div class="lantai" id="lantaiAnak"></div>
@@ -1070,7 +1107,7 @@ function menari(el){
   el.classList.remove('menari');void el.offsetWidth;el.classList.add('menari');
   setTimeout(()=>el.classList.remove('menari'),1600);
 }
-hooks.enter['s6']=()=>{siapkanSuara();muat3D()};
+hooks.enter['s6']=()=>{siapkanSuara();muat3D();siapkanPixi()};
 
 // ---- Menari ----
 // Kelas 'menari' dilepas dulu lalu dipasang lagi setelah satu frame, kalau
@@ -1267,6 +1304,7 @@ ANAK.forEach((a,i)=>{
     // Yang baru saja diabsen langsung menari menyambut dirinya sendiri.
     if(hadir.has(i)){const kartu=[...lantaiEl.children].find(e=>e.querySelector('.lbl').textContent===a.pgl);if(kartu)menari(kartu);menari3D(a.pgl)}
     if(!hadir.has(i))kabarEl.textContent='Klik nama di sebelah kiri untuk absen';
+    if(hadir.has(i))lapurAbsen();
   };
   daftarEl.append(b);
 });
@@ -1277,7 +1315,7 @@ function bubarkanKelompok(){
 }
 document.getElementById('ulangAbsen').onclick=()=>{
   hadir.clear();sorotan=null;daftarEl.querySelectorAll('.nm').forEach(b=>b.classList.remove('hadir'));
-  bubarkanKelompok();gambarLantai();perbaruiHitung();
+  bubarkanKelompok();gambarLantai();perbaruiHitung();ulangPixi();
 };
 
 // Acak kelompok. Pengacakannya Fisher-Yates lalu dibagi dua bergantian, jadi
@@ -1317,7 +1355,139 @@ acakBtn.onclick=()=>{
 };
 
 perbaruiHitung();
-hooks.leave['s6']=()=>{suaraTerakhir?.pause()};
+
+// ---- Pembukaan kelas: Pixi yang memandu absen -------------------------------
+// Satu tombol untuk Coach: "Ayo Pixi, kita mulai". Setelah itu seluruh dialog
+// berjalan sendiri, jadi Coach tidak perlu mengingat urutan apa pun di depan
+// kelas. Pixi-nya memakai halaman pixi-joget.html yang sudah ada (model 3D yang
+// sama dengan yang ditemui anak di rumah), ditumpuk di atas panggung dengan
+// latar tembus pandang.
+//
+// Suaranya berkas MP3 yang sudah jadi, sama seperti pantun anak-anak: tidak ada
+// panggilan ke mana pun saat kelas berjalan. Kalau berkas suaranya belum ada
+// atau gagal diunduh, dialognya TETAP jalan - tulisannya muncul dan berganti
+// sendiri setelah jeda sepanjang kalimatnya, jadi kelas tidak pernah macet.
+const PIDATO_PIXI=[
+ 'Halo semuanya, senang bisa bertemu dengan teman-teman semua. Aku Pixi, robot bintang dari Future Makers.',
+ 'Hari ini kita akan belajar Claude AI bersama Coach Riki Markethink. Untuk memulai kelasnya, teman-teman akan bermain di dalam permainan yang bernama LABIRIN DIGITAL.',
+ 'Jadi teman-teman akan dibagi menjadi 2 kelompok, yaitu kelompok merah dan kelompok biru. Setiap kelompok harus menemukan 4 prompt yang disembunyikan di dalam labirin.',
+ 'Eitsss, hati-hati ya, karena di dalam labirin itu ada bom dan juga hantu yang siap menangkap teman-teman semua.',
+ 'Nah, tapi sebelum permainannya dimulai, Pixi akan mengecek kehadiran teman-teman semua ya. Nanti yang Pixi panggil silakan maju ke depan. Sudah siap semuanyaa\u2026\u2026'
+];
+// Urutan panggilan sudah ditetapkan Coach, bukan urutan daftar di kiri.
+const URUT_PANGGIL=['Althaf','Umar','King','Ahnaf','Dzaky','Farjana','Aksa','Arsene','Arshad','Gardala'];
+const PENUTUP_PIXI='Luar biasa, teman Pixi masih semangat belajar AI-nya. Selanjutnya Coach Riki Markethink yang akan memberikan instruksi untuk permainannya ya. Sampai jumpa kembali teman-teman, Pixi pulang dulu yaa\u2026 daaahhh!';
+const SUARA_PIXI=n=>'../media/suara/pixi/'+n+'.mp3?v='+VERSI_ASET;
+const IMUT_PIXI=1.14;
+
+const pixiFrame=document.getElementById('pixiFrame'),
+      balonEl=document.getElementById('pixiBalon'),mulaiBtn=document.getElementById('mulaiPixi'),
+      lewatiBtn=document.getElementById('lewatiAnak');
+let pidatoJalan=false,pidatoSelesai=false,tungguAbsen=null,tutupUcapan=null;
+
+function siapkanPixi(){
+  if(pixiFrame.dataset.siap)return;
+  pixiFrame.dataset.siap='1';
+  pixiFrame.src='pixi-joget.html';
+  kelasEl.classList.add('adapixi');
+}
+const jeda=ms=>new Promise(r=>setTimeout(r,ms));
+function joget(nyala){
+  try{pixiFrame.contentWindow.postMessage(nyala?'joget-mulai':'joget-stop','*')}catch(e){}
+}
+// Satu kalimat Pixi. Selesai kalau suaranya habis; kalau berkasnya tidak ada,
+// selesai setelah jeda yang dihitung dari panjang kalimatnya.
+function ucapPixi(teks,berkas){
+  return new Promise(res=>{
+    balonEl.textContent=teks;balonEl.classList.add('ada');
+    joget(true);
+    let sudah=false;
+    const tutup=()=>{if(sudah)return;sudah=true;joget(false);tutupUcapan=null;res()};
+    let cadangan=setTimeout(tutup,Math.max(2600,teks.length*78));
+    // IMUT: nada suara dari server dinaikkan saat diputar, persis seperti di
+    // halaman /pixi/ - jadi Pixi di kelas terdengar sama dengan Pixi yang
+    // ditemui anak di rumah, tanpa perlu menyimpan dua versi berkasnya.
+    const a=new Audio(SUARA_PIXI(berkas));a.volume=1;a.playbackRate=IMUT_PIXI;
+    a.onloadedmetadata=()=>{if(isFinite(a.duration)&&a.duration>0){clearTimeout(cadangan);cadangan=setTimeout(tutup,a.duration*1000/IMUT_PIXI+700)}};
+    a.onended=()=>{clearTimeout(cadangan);tutup()};
+    a.play().catch(()=>{});
+    tutupUcapan=()=>{try{a.pause()}catch(e){}clearTimeout(cadangan);tutup()};
+  });
+}
+// Menunggu anak yang dipanggil menekan namanya, lalu menunggu suara pantunnya
+// habis. Tombol "Lewati" untuk anak yang hari itu tidak hadir.
+function tungguAnak(){
+  return new Promise(res=>{
+    lewatiBtn.hidden=false;
+    const selesai=()=>{lewatiBtn.hidden=true;lewatiBtn.onclick=null;tungguAbsen=null;res()};
+    tungguAbsen=()=>{
+      tungguAbsen=null;lewatiBtn.hidden=true;lewatiBtn.onclick=null;
+      const a=suaraTerakhir;
+      if(a&&!a.ended){
+        a.addEventListener('ended',()=>setTimeout(selesai,600),{once:true});
+        setTimeout(selesai,12000);        // jaring pengaman kalau suaranya gagal
+      }else setTimeout(selesai,1000);
+    };
+    lewatiBtn.onclick=selesai;
+  });
+}
+function lapurAbsen(){if(tungguAbsen)tungguAbsen()}
+
+async function jalankanPidato(){
+  if(pidatoJalan)return;
+  pidatoJalan=true;mulaiBtn.hidden=true;
+  kelasEl.classList.add('adapixi');kelasEl.classList.remove('pixipergi');
+  for(let i=0;i<PIDATO_PIXI.length;i++){
+    if(!pidatoJalan)return;
+    await ucapPixi(PIDATO_PIXI[i],'pembuka-'+(i+1));
+  }
+  await jeda(3000);                       // jeda 3 detik sebelum absen dimulai
+  for(let k=0;k<URUT_PANGGIL.length;k++){
+    if(!pidatoJalan)return;
+    const pgl=URUT_PANGGIL[k];
+    // Begitu panggilan pertama dimulai Pixi terbang keluar, supaya panggung
+    // sepenuhnya milik anak yang sedang maju.
+    if(k===0)kelasEl.classList.add('pixipergi');
+    const teks=k===0
+      ? 'Pixi mulai dari yang pertama ya\u2026\u2026 Halo '+pgl+', ayo maju ke depan!'
+      : 'Selanjutnya '+pgl+', ayo '+pgl+' maju ke depan.';
+    await ucapPixi(teks,'panggil-'+pgl.toLowerCase());
+    if(!pidatoJalan)return;
+    balonEl.classList.remove('ada');
+    await tungguAnak();
+  }
+  if(!pidatoJalan)return;
+  // Anak terakhir diturunkan dari panggung dulu, kalau tidak ia tetap berdiri
+  // di tengah dan Pixi pulang sambil menimpa badannya.
+  sorotan=null;lantaiEl.innerHTML='';lantaiEl.classList.remove('tunggal');tampilkan3D(null);
+  // Pixi kembali untuk menutup, lalu terbang menghilang.
+  kelasEl.classList.remove('pixipergi');
+  await jeda(900);
+  await ucapPixi(PENUTUP_PIXI,'penutup');
+  if(!pidatoJalan)return;
+  kelasEl.classList.add('pixipergi');
+  balonEl.classList.remove('ada');
+  await jeda(1200);
+  // Kedua kelas dilepas: 'pixipergi' ikut menyembunyikan pita kabar di atas
+  // panggung, yang setelah ini dipakai lagi untuk aba-aba acak kelompok.
+  kelasEl.classList.remove('adapixi','pixipergi');
+  pidatoJalan=false;pidatoSelesai=true;
+}
+mulaiBtn.onclick=jalankanPidato;
+// Dipanggil saat slide ditinggalkan atau tombol Ulang ditekan. Kalau pidatonya
+// terputus di tengah, panggung dikembalikan ke keadaan siap: Pixi berdiri lagi
+// dan tombol mulainya muncul, jadi Coach tinggal menekannya sekali lagi.
+function hentikanPidato(){
+  pidatoJalan=false;tutupUcapan?.();tutupUcapan=null;tungguAbsen=null;
+  lewatiBtn.hidden=true;lewatiBtn.onclick=null;
+  balonEl.classList.remove('ada');joget(false);
+  if(!pidatoSelesai){kelasEl.classList.add('adapixi');kelasEl.classList.remove('pixipergi');mulaiBtn.hidden=false}
+}
+function ulangPixi(){
+  pidatoSelesai=false;hentikanPidato();
+}
+
+hooks.leave['s6']=()=>{suaraTerakhir?.pause();hentikanPidato()};
 
 // ================= slide 7: tabs + tour =================
 document.querySelectorAll('#s7 .tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#s7 .tabs button').forEach(x=>x.classList.toggle('sel',x===b));document.querySelectorAll('#s7 .tab').forEach(t=>t.classList.toggle('sel',t.id===b.dataset.tab))});
