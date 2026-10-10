@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
-import { FolderKanban, ArrowUpRight } from 'lucide-react';
+import { FolderKanban, ArrowUpRight, Search, X } from 'lucide-react';
 import { projects, projectCategories } from '../mock';
 
 const categories = projectCategories;
 
 const Projects = () => {
   const [active, setActive] = useState('All');
+  const [query, setQuery] = useState('');
 
-  const filtered =
-    active === 'All' ? projects : projects.filter((p) => p.category === active);
+  const q = query.trim().toLowerCase();
+  const filtered = projects.filter((p) => {
+    if (active !== 'All' && p.category !== active) return false;
+    if (!q) return true;
+    return (
+      p.title.toLowerCase().includes(q) ||
+      p.tags.some((t) => t.toLowerCase().includes(q))
+    );
+  });
 
   return (
     <div className="max-w-6xl mx-auto px-6 lg:px-8 py-20">
@@ -25,7 +33,32 @@ const Projects = () => {
         </p>
       </div>
 
-      <div className="mt-10 flex flex-wrap justify-center gap-2">
+      <div className="mt-10 max-w-md mx-auto relative">
+        <Search
+          size={18}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+        />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Cari berdasarkan judul atau tag..."
+          aria-label="Cari proyek berdasarkan judul atau tag"
+          className="w-full pl-11 pr-11 py-3 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#0d9eff] focus:ring-2 focus:ring-[#0d9eff]/20 transition"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            aria-label="Hapus pencarian"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-slate-400 hover:text-[#0d9eff] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
         {categories.map((c) => (
           <button
             key={c}
@@ -41,7 +74,24 @@ const Projects = () => {
         ))}
       </div>
 
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {q && (
+        <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+          {filtered.length} proyek ditemukan untuk &ldquo;{query.trim()}&rdquo;
+        </p>
+      )}
+
+      {filtered.length === 0 && (
+        <div className="mt-12 text-center text-slate-500 dark:text-slate-400">
+          <p className="font-medium text-slate-700 dark:text-slate-200">
+            Tidak ada proyek yang cocok.
+          </p>
+          <p className="mt-1 text-sm">
+            Coba kata kunci lain, atau pilih kategori &ldquo;All&rdquo;.
+          </p>
+        </div>
+      )}
+
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((p) => (
           <a
             key={p.id}
