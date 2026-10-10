@@ -503,11 +503,10 @@ body.guru .gwrap{grid-template-columns:1fr 380px}
 <div id="verOv" class="rotov hidden" style="z-index:120">
   <div>
     <div class="e">🔄</div>
-    <h2>Versi Game Berbeda</h2>
-    <p class="hint" style="max-width:380px;margin:0 auto 18px">Perangkat ini masih memuat versi <b>lama</b> dari cache browser,
-    sedangkan kelasnya sudah memakai versi baru. Aturannya tidak cocok, jadi permainan bisa macet.<br><br>
-    Muat ulang halaman ini (atau tekan <b>Ctrl+Shift+R</b>) lalu masuk lagi.</p>
+    <h2 id="verJudul">Versi Game Berbeda</h2>
+    <p class="hint" id="verPesan" style="max-width:420px;margin:0 auto 18px"></p>
     <button class="btn" id="btnMuatUlang">🔄 MUAT ULANG HALAMAN</button>
+    <p class="hint" id="verDetail" style="margin:14px 0 0;font-size:11.5px;opacity:.7"></p>
   </div>
 </div>
 
@@ -1338,7 +1337,7 @@ var HOST = {
         if(pakai[av]){ for(var ai=0; ai<AVATARS.length; ai++){ if(!pakai[AVATARS[ai]]){ av=AVATARS[ai]; break; } } }
         S.players[a.pid] = {
           pid:a.pid, name:(a.name||'Pemain').slice(0,14), ava:av,
-          role:(a.role==='guru'?'guru':'siswa'),
+          role:(a.role==='guru'?'guru':'siswa'), ver:(a.ver||''),
           group: old.group||null, x: old.x||1, y: old.y||1, dir: old.dir||'D',
           seq: old.seq||0, force:(old.force||0)+1, on:true, out:false,
           deaths: old.deaths||0, koUntil: old.koUntil||0, hitAt: old.hitAt||0, hitBy: old.hitBy||''
@@ -1647,7 +1646,7 @@ var HOST = {
     for(var k in S.players){
       var p=S.players[k];
       players[k]={pid:p.pid,name:p.name,ava:p.ava,role:p.role,group:p.group,x:p.x,y:p.y,dir:p.dir,
-                  seq:p.seq,force:p.force,nomor:p.nomor||0,
+                  seq:p.seq,force:p.force,nomor:p.nomor||0,ver:p.ver||'',
                   deaths:p.deaths||0,koUntil:p.koUntil||0,hitAt:p.hitAt||0,hitBy:p.hitBy||''};
     }
     var gp={};
@@ -1709,7 +1708,7 @@ NET.onState = function(msg){
   if(!msg || !msg.pub) return;
   // host dan pemain wajib memakai versi aturan yang sama
   if(msg.pub.ver !== GAME_VER){      // 'undefined' = host memakai versi sebelum penomoran ini
-    $('verOv').classList.remove('hidden');
+    tampilkanBedaVersi(msg.pub.ver);
     return;
   }
   V.pub = msg.pub; V.sec = msg.sec || {};
@@ -1818,14 +1817,23 @@ function renderLobby(){
   else if(siswaM>0&&siswaB>0) msg = guru? 'Kelompok siap! Klik <b>START GAME</b> kalau semua sudah paham aturannya.' : 'Kelompok sudah dibagi. Menunggu guru menekan START…';
   else if(adaGrup) msg = guru? 'Kedua kelompok harus punya minimal 1 siswa.' : 'Menunggu guru menyelesaikan pembagian kelompok…';
   if(jmlGuru<1) msg='⚠️ Belum ada guru di kelas ini.';
+  // siapa yang masih memakai berkas game versi lama?
+  var tertinggal = S.order.filter(function(pid){
+    var q=S.players[pid]; return q && q.ver!==GAME_VER;
+  }).map(function(pid){ return S.players[pid].name; });
+  if(tertinggal.length){
+    msg = '⚠️ <b>'+esc(tertinggal.join(', '))+'</b> masih memakai game versi lama. '+
+          'Minta mereka menekan <b>Ctrl+Shift+R</b> (atau tutup lalu buka lagi link kelasnya) sebelum START.<br>'+msg;
+  }
   $('lobbyMsg').innerHTML = msg;
 }
 function chip(p, ctl, no){
   var c=el('div','pchip'+(p.role==='guru'?' guru':'')+(p.pid===MY.pid?' me':'')+(p.group?(' g-'+p.group):''));
   c.appendChild(el('div','e',p.ava));
   var t=el('div','nm'); t.appendChild(el('b',null,(no?(no+'. '):'')+esc(p.name)));
+  var tua = p.ver!==GAME_VER;      // kosong = klien sebelum ada penomoran versi
   t.appendChild(el('small',null,(p.role==='guru'?'Guru · memandu':'Siswa')+(p.pid===MY.pid?' · kamu':'')+
-    (no?(' · giliran ke-'+no):'')));
+    (no?(' · giliran ke-'+no):'')+(tua?' · <b style="color:#ff9b9e">versi lama</b>':'')));
   c.appendChild(t);
   if(ctl && p.role!=='guru'){
     var gb=el('div','gb');
@@ -2595,7 +2603,31 @@ $('btnBackHome').onclick=function(){
   show('homePick'); hide('homeForm'); hide('codeField'); hide('joinFields');
   $('joinMsg').textContent='';
 };
-$('btnMuatUlang').onclick=function(){ location.reload(true); };
+/* location.reload(true) sudah diabaikan browser modern. Menambah parameter
+   unik membuat URL-nya berbeda, jadi berkasnya pasti diambil ulang dari server. */
+function muatUlangPaksa(){
+  try{
+    var u = new URL(location.href);
+    u.searchParams.set('_v', Date.now());
+    location.replace(u.toString());
+  }catch(_){ location.reload(); }
+}
+$('btnMuatUlang').onclick = muatUlangPaksa;
+
+/* Tampilkan peringatan beda versi dengan menyebut SIAPA yang perlu bertindak. */
+function tampilkanBedaVersi(verHost){
+  var hostLebihTua = !verHost || String(verHost) < GAME_VER;
+  $('verJudul').textContent = hostLebihTua ? 'Laptop Guru Masih Versi Lama' : 'Perangkat Ini Versi Lama';
+  $('verPesan').innerHTML = hostLebihTua
+    ? 'Kelas ini dibuat dari laptop guru yang <b>masih memuat game versi lama</b>. '+
+      'Memuat ulang HP ini tidak menolong — yang harus dimuat ulang adalah <b>laptop gurunya</b>.<br><br>'+
+      '🧑‍🏫 <b>Guru:</b> tekan <b>Ctrl+Shift+R</b> di laptop, lalu <b>buat kelas baru</b> dan bagikan kodenya lagi.'
+    : 'Perangkat ini masih memuat versi <b>lama</b> dari cache, sedangkan kelasnya sudah memakai versi baru.<br><br>'+
+      'Tekan tombol di bawah (atau <b>Ctrl+Shift+R</b>) lalu masuk lagi pakai kode kelas yang sama.';
+  $('btnMuatUlang').classList.toggle('hidden', hostLebihTua);
+  $('verDetail').textContent = 'versi perangkat ini: '+GAME_VER+' · versi kelas: '+(verHost||'sebelum ada penomoran');
+  $('verOv').classList.remove('hidden');
+}
 $('btnLocal').onclick=function(){
   pending.local=true; pending.demo=false; pending.role='siswa'; pending.asHost=true;
   hide('homePick'); show('homeForm'); hide('codeField'); show('joinFields');
@@ -2640,7 +2672,7 @@ $('btnGo').onclick=function(){
     $('joinMsg').innerHTML='<span style="color:#ffb3b5">⚠️ '+esc(e.message||e)+'</span>';
   }
   function masuk(){
-    send({t:'join', pid:MY.pid, name:MY.name, ava:MY.ava, role:MY.role});
+    send({t:'join', pid:MY.pid, name:MY.name, ava:MY.ava, role:MY.role, ver:GAME_VER});
     hide('scHome');
   }
 
@@ -2649,7 +2681,7 @@ $('btnGo').onclick=function(){
   if(pending.local){
     NET.startLocal(function(){
       HOST.init('LOKAL');
-      HOST.apply({t:'join', pid:MY.pid, name:MY.name, ava:MY.ava, role:'siswa'});
+      HOST.apply({t:'join', pid:MY.pid, name:MY.name, ava:MY.ava, role:'siswa', ver:GAME_VER});
       HOST.S.players[MY.pid].group = pending.group;
       HOST.startSolo(pending.group);
       hide('scHome');
@@ -2675,7 +2707,7 @@ $('btnGo').onclick=function(){
     go2(function(err){
       if(err) return gagal(err);
       masuk();
-      setTimeout(function(){ if(!V.pub) send({t:'join', pid:MY.pid, name:MY.name, ava:MY.ava, role:MY.role}); }, 1200);
+      setTimeout(function(){ if(!V.pub) send({t:'join', pid:MY.pid, name:MY.name, ava:MY.ava, role:MY.role, ver:GAME_VER}); }, 1200);
     });
   }
 };
@@ -2780,6 +2812,31 @@ HOST.startSolo = function(group){
   }
   $('inCode').addEventListener('input', function(){ this.value=this.value.toUpperCase().replace(/[^A-Z]/g,''); });
   $('inName').addEventListener('keydown', function(e){ if(e.key==='Enter') $('btnGo').click(); });
+
+  /* Cek mandiri: ambil berkas ini dari server (lewati cache) lalu bandingkan
+     nomor versinya. Kalau halaman yang sedang jalan ternyata tertinggal — misalnya
+     laptop guru dibuka sejak kemarin — peringatannya muncul SEBELUM kelas dibuat,
+     bukan setelah anak-anak gagal bergerak. */
+  if(location.protocol==='http:' || location.protocol==='https:'){
+    setTimeout(function(){
+      try{
+        fetch(location.pathname + '?_cek=' + Date.now(), {cache:'no-store'})
+          .then(function(r){ return r.ok ? r.text() : null; })
+          .then(function(teks){
+            if(!teks) return;
+            var m = teks.match(/var GAME_VER = '([^']+)'/);
+            if(!m || m[1]===GAME_VER) return;
+            $('verJudul').textContent = 'Ada Versi Baru';
+            $('verPesan').innerHTML = 'Halaman ini dibuka sejak sebelum game diperbarui, jadi masih memakai '+
+              'aturan <b>versi lama</b>. Muat ulang dulu supaya sama dengan perangkat lain di kelas.';
+            $('btnMuatUlang').classList.remove('hidden');
+            $('verDetail').textContent = 'versi halaman ini: '+GAME_VER+' · versi di server: '+m[1];
+            $('verOv').classList.remove('hidden');
+          })
+          .catch(function(){});
+      }catch(_){}
+    }, 1200);
+  }
 })();
 </script>
 <script>
@@ -2793,7 +2850,7 @@ BOT.mulai = function(nama, ava){
   NET.startLocal(function(){
     HOST.init('DEMO');
     MY.name=nama; MY.ava=ava; MY.role='guru';
-    HOST.apply({t:'join', pid:MY.pid, name:nama, ava:ava, role:'guru'});
+    HOST.apply({t:'join', pid:MY.pid, name:nama, ava:ava, role:'guru', ver:GAME_VER});
     var daftar = [
       ['b_s1','Aldo','🐱','siswa'],   ['b_s2','Bila','🦕','siswa'],
       ['b_s3','Cinta','🚀','siswa'],  ['b_s4','Dika','🐼','siswa'],
@@ -2802,7 +2859,7 @@ BOT.mulai = function(nama, ava){
       ['b_s9','Ivan','🐙','siswa'],   ['b_s10','Jihan','🦄','siswa']
     ];
     BOT.ids = daftar.map(function(d){ return d[0]; });
-    daftar.forEach(function(d){ HOST.apply({t:'join', pid:d[0], name:d[1], ava:d[2], role:d[3]}); });
+    daftar.forEach(function(d){ HOST.apply({t:'join', pid:d[0], name:d[1], ava:d[2], role:d[3], ver:GAME_VER}); });
     BOT.on = true;
     if(BOT.timer) clearInterval(BOT.timer);
     BOT.timer = setInterval(BOT.step, 420);
