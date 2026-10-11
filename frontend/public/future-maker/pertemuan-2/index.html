@@ -1085,12 +1085,28 @@ const SUARA_ANAK={};
 ANAK.forEach(a=>{SUARA_ANAK[a.pgl]='../media/suara/'+a.pgl.toLowerCase()+'.mp3?v='+VERSI_ASET});
 const simpananSuara=new Map();
 let suaraTerakhir=null;
+// Anak sering menekan namanya saat Pixi MASIH memanggil. Kalau langsung
+// diputar, dua suara berbunyi bersamaan dan tidak ada yang terdengar jelas di
+// depan kelas. Jadi suaranya mengantre: ditahan sampai Pixi selesai bicara,
+// baru berbunyi. Yang ditahan hanya pemutarannya - absennya tetap tercatat
+// saat itu juga.
 function suara(pgl){
   const url=SUARA_ANAK[pgl];
   if(!url)return;
   let a=simpananSuara.get(pgl);
   if(!a){a=new Audio(url);a.preload='auto';a.volume=.95;simpananSuara.set(pgl,a)}
-  try{suaraTerakhir?.pause();a.currentTime=0;suaraTerakhir=a;a.play().catch(()=>{})}catch(e){}
+  try{suaraTerakhir?.pause()}catch(e){}
+  suaraTerakhir=a;
+  const mulai=()=>{
+    if(suaraTerakhir!==a)return;          // keburu ada anak lain yang diklik
+    try{a.currentTime=0;a.play().catch(()=>{})}catch(e){}
+  };
+  if(pixiBicara)tungguPixiDiam(mulai);else mulai();
+}
+// Menunggu Pixi benar-benar berhenti bicara, lalu menjalankan lanjutannya.
+function tungguPixiDiam(lalu){
+  const cek=()=>pixiBicara?setTimeout(cek,200):lalu();
+  cek();
 }
 // Berkasnya diminta lebih dulu begitu slide dibuka, supaya saat anak diklik
 // suaranya langsung keluar tanpa jeda di depan kelas.
@@ -1410,6 +1426,12 @@ const pixiFrame=document.getElementById('pixiFrame'),
       balonEl=document.getElementById('pixiBalon'),mulaiBtn=document.getElementById('mulaiPixi'),
       lewatiBtn=document.getElementById('lewatiAnak');
 let pidatoJalan=false,pidatoSelesai=false,tungguAbsen=null,tutupUcapan=null;
+// Dipakai suara anak supaya tidak menimpa suara Pixi, dan sebaliknya.
+let pixiBicara=false,absenTerlanjur=false;
+// Jeda setelah seorang anak selesai bicara sebelum Pixi memanggil nama
+// berikutnya. Bukan sekadar pemisah suara: ini waktu anak itu kembali ke
+// tempatnya dan teman-temannya sempat bertepuk tangan.
+const JEDA_ANTAR_ANAK=6000;
 
 function siapkanPixi(){
   if(pixiFrame.dataset.siap)return;
@@ -1438,10 +1460,10 @@ function ucapPixi(isi,berkas){
   const huruf=bagian.reduce((n,t)=>n+t.length,0);
   return new Promise(res=>{
     balonEl.textContent=bagian[0];balonEl.classList.add('ada');
-    joget(true);
+    joget(true);pixiBicara=true;
     let sudah=false,jadwal=[],cadangan=null;
     const bersihkan=()=>{jadwal.forEach(clearTimeout);jadwal=[];clearTimeout(cadangan)};
-    const tutup=()=>{if(sudah)return;sudah=true;bersihkan();joget(false);tutupUcapan=null;res()};
+    const tutup=()=>{if(sudah)return;sudah=true;bersihkan();joget(false);pixiBicara=false;tutupUcapan=null;res()};
     const a=ambilSuaraPixi(berkas);
     const tunggu=ms=>{clearTimeout(cadangan);cadangan=setTimeout(()=>{
       if(!a.paused&&!a.ended)return tunggu(1500);   // masih bicara, tunggu lagi
@@ -1477,22 +1499,41 @@ function ucapPixi(isi,berkas){
 }
 // Menunggu anak yang dipanggil menekan namanya, lalu menunggu suara pantunnya
 // habis. Tombol "Lewati" untuk anak yang hari itu tidak hadir.
+// Menunggu anak yang dipanggil menekan namanya, lalu menunggu suaranya
+// BENAR-BENAR habis sebelum Pixi memanggil nama berikutnya.
+//
+// Dulu di sini ada jaring pengaman 12 detik yang berjalan tanpa syarat, jadi
+// pantun yang lebih panjang dari itu ditimpa suara Pixi. Sekarang keadaan
+// suaranya yang diperiksa berulang: selama masih berbunyi - atau masih
+// mengantre di belakang suara Pixi - penghitungnya menunggu lagi. Batas 25
+// detik hanya dipakai kalau suaranya memang tidak pernah berbunyi, supaya
+// kelas tidak pernah tergantung.
 function tungguAnak(){
   return new Promise(res=>{
     lewatiBtn.hidden=false;
     const selesai=()=>{lewatiBtn.hidden=true;lewatiBtn.onclick=null;tungguAbsen=null;res()};
     tungguAbsen=()=>{
       tungguAbsen=null;lewatiBtn.hidden=true;lewatiBtn.onclick=null;
-      const a=suaraTerakhir;
-      if(a&&!a.ended){
-        a.addEventListener('ended',()=>setTimeout(selesai,600),{once:true});
-        setTimeout(selesai,12000);        // jaring pengaman kalau suaranya gagal
-      }else setTimeout(selesai,1000);
+      const a=suaraTerakhir,batas=Date.now()+25000;
+      const cek=()=>{
+        const lewat=Date.now()>batas;
+        const belumMulai=a&&a.paused&&!a.ended&&a.currentTime===0;   // masih mengantre
+        const masihBunyi=a&&!a.paused&&!a.ended;
+        if(!lewat&&(pixiBicara||belumMulai||masihBunyi))return setTimeout(cek,300);
+        setTimeout(selesai,JEDA_ANTAR_ANAK);
+      };
+      cek();
     };
-    lewatiBtn.onclick=selesai;
+    // Anak yang sudah terlanjur menekan namanya saat Pixi masih memanggil tetap
+    // terhitung, jadi urutannya tidak pernah tersendat menunggu klik kedua.
+    if(absenTerlanjur){absenTerlanjur=false;tungguAbsen()}
+    else lewatiBtn.onclick=selesai;
   });
 }
-function lapurAbsen(){if(tungguAbsen)tungguAbsen()}
+function lapurAbsen(){
+  if(tungguAbsen)tungguAbsen();
+  else if(pidatoJalan)absenTerlanjur=true;
+}
 
 async function jalankanPidato(){
   if(pidatoJalan)return;
@@ -1539,6 +1580,7 @@ mulaiBtn.onclick=jalankanPidato;
 // dan tombol mulainya muncul, jadi Coach tinggal menekannya sekali lagi.
 function hentikanPidato(){
   pidatoJalan=false;tutupUcapan?.();tutupUcapan=null;tungguAbsen=null;
+  pixiBicara=false;absenTerlanjur=false;
   lewatiBtn.hidden=true;lewatiBtn.onclick=null;
   balonEl.classList.remove('ada');joget(false);
   if(!pidatoSelesai){kelasEl.classList.add('adapixi');kelasEl.classList.remove('pixipergi');mulaiBtn.hidden=false}
