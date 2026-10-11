@@ -1378,7 +1378,33 @@ const PIDATO_PIXI=[
 const URUT_PANGGIL=['Althaf','Umar','King','Ahnaf','Dzaky','Farjana','Aksa','Arsene','Arshad','Gardala'];
 const PENUTUP_PIXI='Luar biasa, teman Pixi masih semangat belajar AI-nya. Selanjutnya Coach Riki Markethink yang akan memberikan instruksi untuk permainannya ya. Sampai jumpa kembali teman-teman, Pixi pulang dulu yaa\u2026 daaahhh!';
 const SUARA_PIXI=n=>'../media/suara/pixi/'+n+'.mp3?v='+VERSI_ASET;
+// IMUT: angka yang sama dengan CONFIG.IMUT di halaman /pixi/. Suara dari server
+// sengaja belum dinaikkan nadanya; halamanlah yang menaikkannya saat memutar.
 const IMUT_PIXI=1.14;
+// Satu berkas Pixi, disiapkan dengan setelan yang PERSIS sama dengan halaman
+// /pixi/. preservesPitch harus dimatikan LEBIH DULU: bawaan browser menjaga
+// nada tetap sama saat kecepatan diubah, padahal naiknya nada itulah yang
+// membuat Pixi terdengar seperti Pixi. Tanpa baris ini suaranya cuma jadi lebih
+// cepat dengan nada orang dewasa.
+function siapAudioPixi(berkas){
+  const a=new Audio(SUARA_PIXI(berkas));
+  a.preload='auto';a.volume=1;
+  a.preservesPitch=false;a.mozPreservesPitch=false;a.webkitPreservesPitch=false;
+  // defaultPlaybackRate ikut diisi: load() mengembalikan playbackRate ke nilai
+  // bawaan ini, jadi kalau hanya playbackRate yang diatur, suaranya kembali ke
+  // kecepatan - dan nada - aslinya begitu berkasnya selesai diunduh.
+  a.defaultPlaybackRate=IMUT_PIXI;a.playbackRate=IMUT_PIXI;
+  return a;
+}
+// Semua suara Pixi diunduh di latar begitu slide dibuka, jadi tidak ada jeda
+// unduhan di tengah dialog - termasuk saat berpindah dari satu anak ke anak
+// berikutnya.
+const simpananPixi=new Map();
+function ambilSuaraPixi(berkas){
+  let a=simpananPixi.get(berkas);
+  if(!a){a=siapAudioPixi(berkas);simpananPixi.set(berkas,a)}
+  return a;
+}
 
 const pixiFrame=document.getElementById('pixiFrame'),
       balonEl=document.getElementById('pixiBalon'),mulaiBtn=document.getElementById('mulaiPixi'),
@@ -1390,6 +1416,8 @@ function siapkanPixi(){
   pixiFrame.dataset.siap='1';
   pixiFrame.src='pixi-joget.html';
   kelasEl.classList.add('adapixi');
+  ['pembuka','penutup'].concat(URUT_PANGGIL.map(p=>'panggil-'+p.toLowerCase()))
+    .forEach(n=>ambilSuaraPixi(n).load());
 }
 const jeda=ms=>new Promise(r=>setTimeout(r,ms));
 function joget(nyala){
@@ -1397,21 +1425,54 @@ function joget(nyala){
 }
 // Satu kalimat Pixi. Selesai kalau suaranya habis; kalau berkasnya tidak ada,
 // selesai setelah jeda yang dihitung dari panjang kalimatnya.
-function ucapPixi(teks,berkas){
+// Satu kali bicara. 'isi' boleh satu kalimat atau beberapa kalimat yang
+// dibacakan dari SATU berkas suara: balonnya berganti kalimat mengikuti bagian
+// yang sedang dibacakan, dibagi menurut panjang tiap kalimat.
+//
+// Yang menentukan selesai adalah suaranya sendiri. Kalau berkasnya tidak ada
+// atau gagal diunduh, penutupnya dihitung dari panjang teks supaya kelas tetap
+// jalan; penghitung itu juga memeriksa dulu - selama suaranya masih berbunyi,
+// ia menunggu lagi, jadi durasi yang salah baca tidak pernah memotong Pixi.
+function ucapPixi(isi,berkas){
+  const bagian=Array.isArray(isi)?isi:[isi];
+  const huruf=bagian.reduce((n,t)=>n+t.length,0);
   return new Promise(res=>{
-    balonEl.textContent=teks;balonEl.classList.add('ada');
+    balonEl.textContent=bagian[0];balonEl.classList.add('ada');
     joget(true);
-    let sudah=false;
-    const tutup=()=>{if(sudah)return;sudah=true;joget(false);tutupUcapan=null;res()};
-    let cadangan=setTimeout(tutup,Math.max(2600,teks.length*78));
-    // IMUT: nada suara dari server dinaikkan saat diputar, persis seperti di
-    // halaman /pixi/ - jadi Pixi di kelas terdengar sama dengan Pixi yang
-    // ditemui anak di rumah, tanpa perlu menyimpan dua versi berkasnya.
-    const a=new Audio(SUARA_PIXI(berkas));a.volume=1;a.playbackRate=IMUT_PIXI;
-    a.onloadedmetadata=()=>{if(isFinite(a.duration)&&a.duration>0){clearTimeout(cadangan);cadangan=setTimeout(tutup,a.duration*1000/IMUT_PIXI+700)}};
-    a.onended=()=>{clearTimeout(cadangan);tutup()};
+    let sudah=false,jadwal=[],cadangan=null;
+    const bersihkan=()=>{jadwal.forEach(clearTimeout);jadwal=[];clearTimeout(cadangan)};
+    const tutup=()=>{if(sudah)return;sudah=true;bersihkan();joget(false);tutupUcapan=null;res()};
+    const a=ambilSuaraPixi(berkas);
+    const tunggu=ms=>{clearTimeout(cadangan);cadangan=setTimeout(()=>{
+      if(!a.paused&&!a.ended)return tunggu(1500);   // masih bicara, tunggu lagi
+      tutup();
+    },ms)};
+    // Jadwal pergantian kalimat, dibagi menurut jumlah huruf tiap kalimat.
+    const bagiTeks=ms=>{
+      jadwal.forEach(clearTimeout);jadwal=[];
+      let lewat=0;
+      bagian.forEach((t,i)=>{
+        if(i===0)return;
+        lewat+=bagian[i-1].length;
+        jadwal.push(setTimeout(()=>{balonEl.textContent=t},ms*lewat/huruf));
+      });
+    };
+    const pasang=()=>{
+      if(!isFinite(a.duration)||!a.duration)return;
+      const ms=a.duration*1000/IMUT_PIXI;
+      bagiTeks(ms);tunggu(ms+700);
+    };
+    tunggu(Math.max(2600,huruf*78));
+    bagiTeks(huruf*78);
+    if(isFinite(a.duration)&&a.duration>0)pasang();else a.onloadedmetadata=pasang;
+    a.onended=()=>tutup();
+    // Dipasang ulang tepat sebelum berbunyi, sebagai pengaman kalau browser
+    // sempat mengembalikannya ke bawaan.
+    a.preservesPitch=false;a.mozPreservesPitch=false;a.webkitPreservesPitch=false;
+    a.playbackRate=IMUT_PIXI;
+    try{a.currentTime=0}catch(e){}
     a.play().catch(()=>{});
-    tutupUcapan=()=>{try{a.pause()}catch(e){}clearTimeout(cadangan);tutup()};
+    tutupUcapan=()=>{try{a.pause()}catch(e){}tutup()};
   });
 }
 // Menunggu anak yang dipanggil menekan namanya, lalu menunggu suara pantunnya
@@ -1437,10 +1498,9 @@ async function jalankanPidato(){
   if(pidatoJalan)return;
   pidatoJalan=true;mulaiBtn.hidden=true;
   kelasEl.classList.add('adapixi');kelasEl.classList.remove('pixipergi');
-  for(let i=0;i<PIDATO_PIXI.length;i++){
-    if(!pidatoJalan)return;
-    await ucapPixi(PIDATO_PIXI[i],'pembuka-'+(i+1));
-  }
+  // Seluruh pembukaan satu berkas saja: sekali unduh, tanpa jeda antarkalimat.
+  await ucapPixi(PIDATO_PIXI,'pembuka');
+  if(!pidatoJalan)return;
   await jeda(3000);                       // jeda 3 detik sebelum absen dimulai
   for(let k=0;k<URUT_PANGGIL.length;k++){
     if(!pidatoJalan)return;
