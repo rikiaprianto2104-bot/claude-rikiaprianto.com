@@ -60,6 +60,17 @@ button{font-family:var(--display)}
 .progress{position:fixed;left:0;top:0;height:5px;background:var(--yellow);transition:width .4s;z-index:10}
 body.idle .nav{opacity:0;transform:translateY(10px);pointer-events:none}
 body.idle{cursor:none}
+/* Slide yang dikunci: tombol pindah slide diredupkan supaya jelas sedang
+   tidak berfungsi, bukan sekadar tidak menanggapi. Tombol lain (suara, layar
+   penuh) tetap normal karena tidak memindahkan slide. */
+.nav.terkunci #bPrev,.nav.terkunci #bNext,.nav.terkunci #bHome{opacity:.3;cursor:not-allowed}
+.nav.terkunci #bNext{background:rgba(255,255,255,.12);color:#fff}
+/* Pesan singkat kalau Coach menekan tombol atau layar saat slide dikunci. */
+.gembok{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(10px);
+  font:700 17px/1.3 var(--display);color:#fff;background:rgba(20,14,63,.92);padding:14px 26px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);z-index:12;white-space:nowrap;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s}
+.gembok.on{opacity:1;transform:translateX(-50%)}
 .hint{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font:600 15px var(--display);color:#fff;background:rgba(20,14,63,.82);padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.18);transition:opacity .4s;z-index:9;white-space:nowrap}
 body.idle .hint{opacity:0}
 
@@ -229,6 +240,9 @@ body.idle .hint{opacity:0}
 #s6 .aksi .acak:disabled{background:#CFC8EA;color:#fff;cursor:not-allowed;box-shadow:0 5px 0 rgba(0,0,0,.06)}
 #s6 .aksi .ulang{background:#fff;color:var(--ink)}
 #s6 .aksi .hitung{font-size:24px;font-weight:700;color:var(--ink-2)}
+#s6 .notakunci{position:absolute;left:96px;bottom:18px;width:900px;font-size:20px;font-weight:600;
+  color:var(--ink-2);opacity:.8;display:none}
+#s6.terkunci .notakunci{display:block}
 
 /* Boneka SVG cadangan masih dipakai sebagai KOTAK penentu letak anak 3D, tapi
    kotak itu tidak boleh ikut beranimasi. Animasi 'munculAnak' melambung
@@ -577,6 +591,7 @@ body.idle .hint{opacity:0}
     <button type="button" class="ulang" id="ulangAbsen">Ulang</button>
     <span class="hitung" id="hitungHadir">Hadir 0 dari 10</span>
   </div>
+  <p class="notakunci">🔒 Pindah slide dikunci sampai tombol “Acak kelompok” ditekan.</p>
   <div class="kelas ix" id="kelas">
     <div class="kabar" id="kabarKelas">Klik nama di sebelah kiri untuk absen</div>
     <div class="pixiarea" id="pixiArea"><iframe id="pixiFrame" title="Pixi" src="about:blank" tabindex="-1" scrolling="no"></iframe></div>
@@ -678,6 +693,7 @@ body.idle .hint{opacity:0}
 </div>
 </div>
 <div class="progress" id="prog"></div>
+<div class="gembok" id="gembok" role="status"></div>
 <div class="hint" id="hint">Klik layar, tekan Spasi, atau pakai pointer untuk lanjut</div>
 <nav class="nav" id="nav" aria-label="Navigasi slide">
   <button type="button" id="bHome" title="Layar tunggu (Home)">Layar tunggu</button>
@@ -960,12 +976,39 @@ const slides=[...document.querySelectorAll('.slide')];let cur=0;const N=slides.l
 const hooks={enter:{},leave:{}};   // dikunci ke id slide, bukan nomor urut
 const idSlide=n=>slides[n].id;
 const countEl=document.getElementById('count'),prog=document.getElementById('prog');
+// Slide yang dikunci tidak bisa ditinggalkan sampai dibuka dari dalam slide
+// itu sendiri. Penjagaannya ditaruh di dalam go(), bukan di tiap tombol,
+// supaya SEMUA cara pindah ikut terjaga sekaligus: tombol Lanjut/Kembali,
+// papan ketik (spasi, panah, Home/End), dan klik di mana saja di layar.
+// Di kelas, satu pencetan tidak sengaja saat anak sedang maju membuat seluruh
+// kegiatan buyar - jadi yang dijaga memang pintunya, bukan gagangnya.
+let kunciSlide=null;
+const gembokEl=document.getElementById('gembok');
+let gembokT;
+function tolakPindah(pesan){
+  gembokEl.textContent=pesan;gembokEl.classList.add('on');
+  clearTimeout(gembokT);gembokT=setTimeout(()=>gembokEl.classList.remove('on'),2600);
+}
+function kunciNavigasi(idSlideKunci,pesan){
+  kunciSlide={id:idSlideKunci,pesan};
+  document.getElementById(idSlideKunci).classList.add('terkunci');
+  document.getElementById('nav').classList.add('terkunci');
+}
+function bukaNavigasi(){
+  if(!kunciSlide)return;
+  document.getElementById(kunciSlide.id)?.classList.remove('terkunci');
+  document.getElementById('nav').classList.remove('terkunci');
+  kunciSlide=null;gembokEl.classList.remove('on');
+}
 function go(n,dir){n=Math.max(0,Math.min(N,n));if(n===cur&&slides[n].classList.contains('on'))return;
+  if(kunciSlide&&slides[cur].id===kunciSlide.id){tolakPindah(kunciSlide.pesan);return}
   const prev=cur;slides[prev].classList.remove('on');hooks.leave[idSlide(prev)]?.();
   if(slides[prev].querySelector('[data-timer]'))bgmStop(false);
   slides.forEach(s=>s.classList.remove('back'));
   const s=slides[n];if(dir<0)s.classList.add('back');s.offsetWidth;s.classList.remove('back');s.classList.add('on');
   cur=n;hooks.enter[idSlide(n)]?.();
+  // Redup/tidaknya tombol navigasi selalu mengikuti slide yang sedang tampil.
+  document.getElementById('nav').classList.toggle('terkunci',!!(kunciSlide&&slides[n].id===kunciSlide.id));
   countEl.textContent=n===0?'Layar tunggu':`${n} / ${N}`;prog.style.width=(n/N*100)+'%';
   document.getElementById('hint').hidden=n!==0;
   const jamBox=document.getElementById('jam');
@@ -1123,7 +1166,16 @@ function menari(el){
   el.classList.remove('menari');void el.offsetWidth;el.classList.add('menari');
   setTimeout(()=>el.classList.remove('menari'),1600);
 }
-hooks.enter['s6']=()=>{siapkanSuara();muat3D();siapkanPixi()};
+// Selama absen, pindah slide dikunci: anak maju satu per satu di depan kelas
+// dan satu pencetan tidak sengaja membuat semuanya buyar. Kuncinya dibuka saat
+// Coach menekan "Acak kelompok" - penanda bahwa absennya memang sudah selesai.
+// Kalau kelompoknya sudah pernah diacak, slide ini tidak dikunci lagi supaya
+// Coach bebas bolak-balik.
+let absenRampung=false;
+hooks.enter['s6']=()=>{
+  siapkanSuara();muat3D();siapkanPixi();
+  if(!absenRampung)kunciNavigasi('s6','🔒 Absen sedang berjalan — tekan “Acak kelompok” dulu untuk membuka');
+};
 
 // ---- Menari ----
 // Kelas 'menari' dilepas dulu lalu dipasang lagi setelah satu frame, kalau
@@ -1325,13 +1377,25 @@ ANAK.forEach((a,i)=>{
   daftarEl.append(b);
 });
 
+// Pengacakan punya nomor urut sendiri. Hitung mundur dan masuknya anak ke
+// ruang kelompok berjalan lewat penghitung waktu; kalau Coach menekan "Ulang"
+// di tengah-tengah, penghitung yang lama harus tahu bahwa ia sudah kedaluwarsa.
+// Tanpa ini, aba-aba lama tetap berjalan dan nama-nama tetap masuk ke ruang
+// kelompok yang baru saja dikosongkan.
+let nomorAcak=0,ivAcak=null;
+function batalkanAcak(){
+  nomorAcak++;clearInterval(ivAcak);ivAcak=null;sedangAcak=false;
+}
 function bubarkanKelompok(){
+  batalkanAcak();
   kelasEl.classList.remove('terbagi');ruangM.innerHTML='';ruangB.innerHTML='';
   kabarEl.textContent='Klik nama di sebelah kiri untuk absen';
 }
 document.getElementById('ulangAbsen').onclick=()=>{
   hadir.clear();sorotan=null;daftarEl.querySelectorAll('.nm').forEach(b=>b.classList.remove('hadir'));
   bubarkanKelompok();gambarLantai();perbaruiHitung();ulangPixi();
+  // Ulang berarti absennya diulang dari awal, jadi kuncinya dipasang lagi.
+  absenRampung=false;kunciNavigasi('s6','🔒 Absen sedang berjalan — tekan “Acak kelompok” dulu untuk membuka');
 };
 
 // Acak kelompok. Pengacakannya Fisher-Yates lalu dibagi dua bergantian, jadi
@@ -1340,16 +1404,20 @@ document.getElementById('ulangAbsen').onclick=()=>{
 let sedangAcak=false;
 acakBtn.onclick=()=>{
   if(sedangAcak||hadir.size<2)return;
+  const nomor=++nomorAcak;
+  // Inilah penanda absen selesai: kunci pindah slide dibuka di sini.
+  absenRampung=true;bukaNavigasi();
   sedangAcak=true;bubarkanKelompok();
   const urut=[...hadir];
   for(let i=urut.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[urut[i],urut[j]]=[urut[j],urut[i]]}
 
   // Aba-aba hitung mundur dulu, supaya anak sempat tegang menunggu hasilnya.
   let n=3;kabarEl.textContent='Pixi sedang mengacak… '+n;sfx('pop');
-  const iv=setInterval(()=>{
+  const iv=ivAcak=setInterval(()=>{
+    if(nomor!==nomorAcak)return clearInterval(iv);   // sudah dibatalkan
     n--;
     if(n>0){kabarEl.textContent='Pixi sedang mengacak… '+n;sfx('pop');return}
-    clearInterval(iv);
+    clearInterval(iv);ivAcak=null;
     // Model anak terakhir ikut diturunkan dari panggung, kalau tidak ia tetap
     // berdiri di tengah menutupi kedua ruang kelompok.
     kelasEl.classList.add('terbagi');sorotan=null;lantaiEl.innerHTML='';lantaiEl.classList.remove('tunggal');tampilkan3D(null);
@@ -1358,6 +1426,7 @@ acakBtn.onclick=()=>{
     // Anak masuk ke ruangnya satu per satu supaya terlihat seperti antre
     // berjalan masuk, bukan muncul semua sekaligus.
     urut.forEach((idx,k)=>setTimeout(()=>{
+      if(nomor!==nomorAcak)return;
       // Saat diundi yang ditampilkan cukup NAMANYA. Sepuluh model bertulang
       // bergerak bersamaan terlalu berat untuk laptop kelas, dan di tahap ini
       // yang penting memang siapa masuk ruang mana.
