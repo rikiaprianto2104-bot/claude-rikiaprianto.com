@@ -30,8 +30,9 @@ const PERTEMUAN = [
     judul: 'Labirin Digital',
     tanggal: 'Minggu, 11 Oktober 2026',
     singkat: '11 Okt',
-    ringkas: 'Materi sedang disiapkan.',
-    href: null,
+    ringkas:
+      'Kenalan dengan Claude AI, absen seru bersama Pixi, lalu berburu prompt di dalam game Labirin Harta Karun.',
+    href: '/future-maker/pertemuan-2/',
   },
   {
     no: 3,
