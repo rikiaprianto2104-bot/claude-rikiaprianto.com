@@ -114,6 +114,20 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
 .btn[disabled]{cursor:not-allowed}
 .lama{margin:8px 0 0;color:#14775A;font-size:14.5px;font-weight:500}
 .lama[hidden]{display:none}
+dialog.tanya{border:0;border-radius:26px;padding:0;width:min(92vw,430px);background:#fff;color:var(--ink);font-family:var(--font);box-shadow:0 26px 60px rgba(20,14,63,.38)}
+dialog.tanya::backdrop{background:rgba(20,14,63,.58);backdrop-filter:blur(2px)}
+dialog.tanya[open]{animation:muncul .18s ease-out}
+@keyframes muncul{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.tanya .isi{padding:26px 24px 6px;text-align:center}
+.tanya .ikon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:32px;margin:0 auto 12px;background:var(--lav)}
+.tanya.bahaya .ikon{background:#FFE9E3}
+.tanya h3{margin:0 0 10px;font-size:22px;line-height:1.2}
+.tanya p{margin:0 0 8px;color:var(--ink-2);font-size:16px;line-height:1.45}
+.tanya .pilihan{display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px 24px}
+.tanya .pilihan .btn{flex:1 1 150px;font-size:17px;padding:13px 16px;min-height:50px}
+.btn.merah{background:var(--coral);box-shadow:0 4px 0 #c94a30}
+.btn.merah:hover{background:#ff7a5c}
+@media (prefers-reduced-motion:reduce){dialog.tanya[open]{animation:none}}
 .kodeform{display:flex;gap:10px;max-width:400px;margin:0 auto;flex-wrap:wrap}
 .kodeform input{flex:1 1 200px;width:auto}
 .kodeform .btn{font-size:18px;padding:12px 22px}
@@ -263,6 +277,29 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
       method: opt.method || 'GET', body: opt.body, headers: { 'X-Kunci': KUNCI }, cache: 'no-store'
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, data: j }; });
+    });
+  }
+
+  // ---------------- Kotak tanya (pengganti confirm bawaan browser) ----------------
+  // tanya({ikon, judul, isi:[...], ya, tidak, bahaya}) -> Promise<boolean>
+  function tanya(o) {
+    return new Promise(function (selesai) {
+      var dlg = el('dialog', { class: 'tanya' + (o.bahaya ? ' bahaya' : ''), 'aria-labelledby': 'tanya-judul' });
+      if (typeof dlg.showModal !== 'function') { selesai(window.confirm(o.judul + '\n\n' + (o.isi || []).join('\n'))); return; }
+      var ya = el('button', { type: 'button', class: 'btn' + (o.bahaya ? ' merah' : ''), text: o.ya || 'Ya' });
+      var tidak = el('button', { type: 'button', class: 'btn alt', text: o.tidak || 'Batal' });
+      function tutup(hasil) { dlg.close(); dlg.remove(); selesai(hasil); }
+      ya.addEventListener('click', function () { tutup(true); });
+      tidak.addEventListener('click', function () { tutup(false); });
+      dlg.addEventListener('cancel', function (e) { e.preventDefault(); tutup(false); });                  // tombol Esc
+      dlg.addEventListener('click', function (e) { if (e.target === dlg) tutup(false); });                  // klik di luar kotak
+      dlg.appendChild(el('div', { class: 'isi' }, [
+        el('div', { class: 'ikon', text: o.ikon || '❓', 'aria-hidden': 'true' }),
+        el('h3', { id: 'tanya-judul', text: o.judul })
+      ].concat((o.isi || []).map(function (t) { return el('p', { text: t }); }))));
+      dlg.appendChild(el('div', { class: 'pilihan' }, [tidak, ya]));
+      document.body.appendChild(dlg); dlg.showModal();
+      (o.bahaya ? tidak : ya).focus();      // untuk tindakan berbahaya, fokus awal di "Batal"
     });
   }
 
@@ -575,8 +612,15 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     if (mode === 'terkunci') return;
     if (!periksa()) return;
     var kosong = ['hero', 'musuh', 'dunia'].filter(function (j) { return !foto[j] && !fotoLama[j]; });
-    if (kosong.length && !confirm('Foto gambarmu belum lengkap (' + kosong.length + ' belum ada).\nTetap kirim sekarang?')) return;
+    if (kosong.length) {
+      tanya({ ikon: '📸', judul: 'Foto belum lengkap',
+        isi: [kosong.length + ' dari 3 foto gambarmu belum ada.', 'Tetap kirim sekarang?'],
+        ya: 'Ya, kirim', tidak: 'Lengkapi dulu' }).then(function (ya) { if (ya) kirimForm(); });
+      return;
+    }
+    kirimForm();
 
+    function kirimForm() {
     var fd = new FormData(), d = ambilNilai();
     for (var k in d) fd.append(k, d[k]);
     ['hero', 'musuh', 'dunia'].forEach(function (j) { if (foto[j]) fd.append('foto_' + j, foto[j], j + '.jpg'); });
@@ -603,6 +647,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     }).catch(function (err) {
       pesanStatus(err.name === 'TypeError' ? 'Koneksi terputus. Cek internet lalu tekan kirim lagi.' : err.message, true);
     }).then(function () { tombol.disabled = (mode === 'terkunci'); tombol.textContent = teksTombol(); });
+    }
   });
 
   // Ambil ulang status "sudah mengisi / revisi dibuka" dari server. Tanpa argumen, formulir ikut disesuaikan.

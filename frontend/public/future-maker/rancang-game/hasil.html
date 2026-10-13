@@ -103,6 +103,20 @@ figure.fig-unggah figcaption span{flex:1 1 100%}
 figure.fig-unggah figcaption{gap:6px}
 .hitung{margin:0 0 10px;font-weight:600;font-size:15px}
 .hitung.lengkap{color:#14775A}
+dialog.tanya{border:0;border-radius:26px;padding:0;width:min(92vw,430px);background:#fff;color:var(--ink);font-family:var(--font);box-shadow:0 26px 60px rgba(20,14,63,.38)}
+dialog.tanya::backdrop{background:rgba(20,14,63,.58);backdrop-filter:blur(2px)}
+dialog.tanya[open]{animation:muncul .18s ease-out}
+@keyframes muncul{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.tanya .isi{padding:26px 24px 6px;text-align:center}
+.tanya .ikon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:32px;margin:0 auto 12px;background:var(--lav)}
+.tanya.bahaya .ikon{background:#FFE9E3}
+.tanya h3{margin:0 0 10px;font-size:22px;line-height:1.2}
+.tanya p{margin:0 0 8px;color:var(--ink-2);font-size:16px;line-height:1.45}
+.tanya .pilihan{display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px 24px}
+.tanya .pilihan .btn{flex:1 1 150px;font-size:17px;padding:13px 16px;min-height:50px}
+.btn.merah{background:var(--coral);box-shadow:0 4px 0 #c94a30}
+.btn.merah:hover{background:#ff7a5c}
+@media (prefers-reduced-motion:reduce){dialog.tanya[open]{animation:none}}
 .aksi-kepala{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .status-kunci{display:inline-block;margin-top:6px;font-size:13.5px;font-weight:600;border-radius:999px;padding:2px 12px;background:var(--lav);color:var(--ink-2)}
 .status-kunci.buka{background:#E8F7FD;color:#0b5b70}
@@ -170,6 +184,29 @@ figure.fig-unggah figcaption{gap:6px}
     return e;
   };
   function tampil(n) { ['muat', 'kunci', 'isi'].forEach(function (x) { $('layar-' + x).classList.toggle('aktif', x === n); }); }
+
+  // ---------------- Kotak tanya (pengganti confirm bawaan browser) ----------------
+  // tanya({ikon, judul, isi:[...], ya, tidak, bahaya}) -> Promise<boolean>
+  function tanya(o) {
+    return new Promise(function (selesai) {
+      var dlg = el('dialog', { class: 'tanya' + (o.bahaya ? ' bahaya' : ''), 'aria-labelledby': 'tanya-judul' });
+      if (typeof dlg.showModal !== 'function') { selesai(window.confirm(o.judul + '\n\n' + (o.isi || []).join('\n'))); return; }
+      var ya = el('button', { type: 'button', class: 'btn' + (o.bahaya ? ' merah' : ''), text: o.ya || 'Ya' });
+      var tidak = el('button', { type: 'button', class: 'btn alt', text: o.tidak || 'Batal' });
+      function tutup(hasil) { dlg.close(); dlg.remove(); selesai(hasil); }
+      ya.addEventListener('click', function () { tutup(true); });
+      tidak.addEventListener('click', function () { tutup(false); });
+      dlg.addEventListener('cancel', function (e) { e.preventDefault(); tutup(false); });                  // tombol Esc
+      dlg.addEventListener('click', function (e) { if (e.target === dlg) tutup(false); });                  // klik di luar kotak
+      dlg.appendChild(el('div', { class: 'isi' }, [
+        el('div', { class: 'ikon', text: o.ikon || '❓', 'aria-hidden': 'true' }),
+        el('h3', { id: 'tanya-judul', text: o.judul })
+      ].concat((o.isi || []).map(function (t) { return el('p', { text: t }); }))));
+      dlg.appendChild(el('div', { class: 'pilihan' }, [tidak, ya]));
+      document.body.appendChild(dlg); dlg.showModal();
+      (o.bahaya ? tidak : ya).focus();      // untuk tindakan berbahaya, fokus awal di "Batal"
+    });
+  }
 
   // ---------------- Pemberitahuan kecil ----------------
   var tToast;
@@ -340,12 +377,16 @@ figure.fig-unggah figcaption{gap:6px}
           }, 'Unduh gambar'));
           cap.appendChild(tombol('⬆', 'alt', function () { input.click(); }, 'Ganti dengan gambar lain'));
           cap.appendChild(tombol('✕', 'bahaya', function () {
-            if (!confirm('Hapus gambar ' + NAMA_GPT[jenis].slice(4).toLowerCase() + ' hasil ChatGPT ini?')) return;
-            var fd = new FormData(); fd.append('id', entri.id); fd.append('jenis', jenis);
-            api('hapusgpt', '', { method: 'POST', body: fd }).then(function (r) {
-              if (!r.ok) throw new Error();
-              entri.gpt[jenis] = false; delete cacheFoto[entri.id + ':gpt:' + jenis]; gambar(); perbarui();
-            }).catch(function () { toast('Gagal menghapus gambar. Coba lagi.', true); });
+            tanya({ ikon: '🖼️', bahaya: true, judul: 'Hapus gambar ' + NAMA_GPT[jenis].slice(4).toLowerCase() + '?',
+              isi: ['Gambar hasil ChatGPT ini akan dihapus dari server. Kamu bisa mengunggah gambar baru setelahnya.'],
+              ya: 'Ya, hapus', tidak: 'Batal' }).then(function (ya) {
+              if (!ya) return;
+              var fd = new FormData(); fd.append('id', entri.id); fd.append('jenis', jenis);
+              api('hapusgpt', '', { method: 'POST', body: fd }).then(function (r) {
+                if (!r.ok) throw new Error();
+                entri.gpt[jenis] = false; delete cacheFoto[entri.id + ':gpt:' + jenis]; gambar(); perbarui();
+              }).catch(function () { toast('Gagal menghapus gambar. Coba lagi.', true); });
+            });
           }, 'Hapus gambar'));
         } else {
           gbr.appendChild(el('div', { class: 'kosong-unggah' }, [
@@ -455,27 +496,36 @@ figure.fig-unggah figcaption{gap:6px}
     var revisiBtn = el('button', { type: 'button', class: 'btn kecil ' + (p.revisi ? 'alt' : ''), text: p.revisi ? '🔒 Tutup revisi' : '✏️ Buka revisi',
       title: p.revisi ? 'Batalkan izin revisi' : 'Izinkan anak ini mengisi ulang satu kali' });
     revisiBtn.addEventListener('click', function () {
-      var buka = !p.revisi;
-      if (buka && !confirm('Buka revisi untuk ' + p.nama + '?\nAnak ini bisa membuka formulir lagi SATU kali, jawaban lamanya akan terisi otomatis. Setelah ia mengirim, formulir terkunci lagi.')) return;
-      var fd = new FormData(); fd.append('no', p.no); fd.append('buka', buka ? '1' : '0');
-      revisiBtn.disabled = true;
-      api('izinkan', '', { method: 'POST', body: fd }).then(function (r) {
-        if (!r.ok) throw new Error();
-        toast(buka ? 'Revisi dibuka. Minta ' + p.nama.split(' ')[0] + ' membuka formulir dan memilih namanya lagi.' : 'Revisi ditutup.'); muat(p.no);
-      }).catch(function () { revisiBtn.disabled = false; toast('Gagal mengubah izin revisi. Coba lagi.', true); });
+      var buka = !p.revisi, depan = p.nama.split(' ').filter(function (k) { return !/^(muhammad|m\.|al)$/i.test(k); })[0] || p.nama;
+      function jalankan() {
+        var fd = new FormData(); fd.append('no', p.no); fd.append('buka', buka ? '1' : '0');
+        revisiBtn.disabled = true;
+        api('izinkan', '', { method: 'POST', body: fd }).then(function (r) {
+          if (!r.ok) throw new Error();
+          toast(buka ? 'Revisi dibuka. Minta ' + depan + ' membuka formulir dan memilih namanya lagi.' : 'Revisi ditutup.'); muat(p.no);
+        }).catch(function () { revisiBtn.disabled = false; toast('Gagal mengubah izin revisi. Coba lagi.', true); });
+      }
+      if (!buka) return jalankan();
+      tanya({ ikon: '✏️', judul: 'Buka revisi untuk ' + depan + '?',
+        isi: [depan + ' bisa membuka formulir lagi satu kali, dan jawaban lamanya terisi otomatis.', 'Setelah ia mengirim, formulir terkunci lagi.'],
+        ya: 'Ya, buka revisi', tidak: 'Batal' }).then(function (ya) { if (ya) jalankan(); });
     });
     aksiK.appendChild(revisiBtn);
 
     var hapus = el('button', { type: 'button', class: 'btn kecil bahaya', text: '🗑 Hapus isian ini' });
     hapus.addEventListener('click', function () {
-      if (!confirm('Hapus isian "' + j.judul + '" milik ' + p.nama + ' beserta foto-fotonya?\nIni tidak bisa dibatalkan.' +
-        (p.entri.length === 1 ? '\n\nIni satu-satunya isiannya, jadi setelah dihapus anak ini bisa mengisi formulir dari awal lagi.' : ''))) return;
-      var fd = new FormData(); fd.append('id', e.id);
-      hapus.disabled = true;
-      api('hapus', '', { method: 'POST', body: fd }).then(function (r) {
-        if (!r.ok) throw new Error();
-        toast('Isian dihapus.'); muat(p.no);
-      }).catch(function () { hapus.disabled = false; toast('Gagal menghapus. Coba lagi.', true); });
+      tanya({ ikon: '🗑️', bahaya: true, judul: 'Hapus isian "' + j.judul + '"?',
+        isi: ['Milik ' + p.nama + ', beserta foto dan gambar ChatGPT-nya. Ini tidak bisa dibatalkan.']
+          .concat(p.entri.length === 1 ? ['Ini satu-satunya isiannya, jadi setelah dihapus anak ini bisa mengisi formulir dari awal lagi.'] : []),
+        ya: 'Ya, hapus', tidak: 'Batal' }).then(function (ya) {
+        if (!ya) return;
+        var fd = new FormData(); fd.append('id', e.id);
+        hapus.disabled = true;
+        api('hapus', '', { method: 'POST', body: fd }).then(function (r) {
+          if (!r.ok) throw new Error();
+          toast('Isian dihapus.'); muat(p.no);
+        }).catch(function () { hapus.disabled = false; toast('Gagal menghapus. Coba lagi.', true); });
+      });
     });
     aksiK.appendChild(hapus);
   }
