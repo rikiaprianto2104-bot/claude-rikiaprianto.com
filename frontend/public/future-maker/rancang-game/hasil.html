@@ -94,6 +94,15 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
 .prompt:not(.buka)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:54px;border-radius:0 0 14px 14px;background:linear-gradient(transparent,#FBFAFF 85%);pointer-events:none}
 .aksi{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .aksi .info{color:var(--ink-2);font-size:13.5px;margin-left:auto}
+.gbr.unggah{min-height:170px;outline:none;cursor:pointer}
+.gbr.unggah:focus-visible,.gbr.unggah.tarik{box-shadow:inset 0 0 0 3px var(--violet)}
+.gbr.unggah.tarik{background:var(--lav)}
+.kosong-unggah{padding:22px 14px;text-align:center;color:var(--ink-2);font-size:14px;line-height:1.4}
+.kosong-unggah b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+figure.fig-unggah figcaption span{flex:1 1 100%}
+figure.fig-unggah figcaption{gap:6px}
+.hitung{margin:0 0 10px;font-weight:600;font-size:15px}
+.hitung.lengkap{color:#14775A}
 .aksi-kepala{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .status-kunci{display:inline-block;margin-top:6px;font-size:13.5px;font-weight:600;border-radius:999px;padding:2px 12px;background:var(--lav);color:var(--ink-2)}
 .status-kunci.buka{background:#E8F7FD;color:#0b5b70}
@@ -195,10 +204,10 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
 
   // ---------------- Foto: ambil sekali, simpan di memori ----------------
   var cacheFoto = {};
-  function ambilFoto(id, jenis) {
-    var k = id + ':' + jenis;
+  function ambilFoto(id, jenis, sumber) {
+    var k = id + ':' + (sumber || 'asli') + ':' + jenis;
     if (!cacheFoto[k]) {
-      cacheFoto[k] = api('foto', '&id=' + encodeURIComponent(id) + '&jenis=' + jenis).then(function (r) {
+      cacheFoto[k] = api('foto', '&id=' + encodeURIComponent(id) + '&jenis=' + jenis + (sumber === 'gpt' ? '&sumber=gpt' : '')).then(function (r) {
         if (!r.ok) throw new Error('foto ' + r.status);
         return r.blob();
       }).then(function (b) { return { blob: b, url: URL.createObjectURL(b) }; });
@@ -214,16 +223,16 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
       return new Promise(function (ok, gagal) { c.toBlob(function (p) { p ? ok(p) : gagal(new Error('png')); }, 'image/png'); });
     });
   }
-  function salinFoto(id, jenis) {
+  function salinFoto(id, jenis, sumber, tujuan) {
     if (!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem)) {
       toast('Browser ini belum bisa menyalin foto otomatis. Klik kanan (atau tekan lama) fotonya, lalu pilih "Salin gambar".', true);
       return Promise.resolve();
     }
     // Promise diberikan ke ClipboardItem langsung: Safari mewajibkan penyalinan dimulai
     // di dalam ketukan tombol, sebelum foto selesai diproses.
-    var png = ambilFoto(id, jenis).then(function (f) { return keBlobPng(f.blob); });
+    var png = ambilFoto(id, jenis, sumber).then(function (f) { return keBlobPng(f.blob); });
     return navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]).then(function () {
-      toast('Foto tersalin! Tempel di ChatGPT dengan Ctrl+V (di HP: tahan kolom chat → Tempel).');
+      toast('Foto tersalin! Tempel di ' + (tujuan || 'ChatGPT') + ' dengan Ctrl+V (di HP: tahan kolom chat → Tempel).');
     }).catch(function () {
       toast('Foto gagal disalin. Klik kanan (atau tekan lama) fotonya, lalu pilih "Salin gambar".', true);
     });
@@ -257,8 +266,104 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
     return el('figure', {}, [gbr, cap]);
   }
 
+  // ---------------- Gambar hasil ChatGPT (diunggah, lalu disalin ke Claude) ----------------
+  var NAMA_GPT = { hero: '1 · Tokoh Utama', musuh: '2 · Tokoh Musuh', dunia: '3 · Dunia Game' };
+
+  // Memperkecil gambar sebelum diunggah (maks. 2600 px) supaya ringan dan seragam jadi JPEG.
+  function kecilkanGambar(file) {
+    return createImageBitmap(file).then(function (bmp) {
+      var skala = Math.min(1, 2600 / Math.max(bmp.width, bmp.height));
+      var c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(bmp.width * skala)); c.height = Math.max(1, Math.round(bmp.height * skala));
+      var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(bmp, 0, 0, c.width, c.height);
+      return new Promise(function (ok, gagal) { c.toBlob(function (b) { b ? ok(b) : gagal(new Error('simpan')); }, 'image/jpeg', 0.92); });
+    });
+  }
+
+  function galeriUnggah(entri) {
+    var hitung = el('div', { class: 'hitung' });
+    var daftar = el('div', { class: 'galeri' });
+    function perbarui() {
+      var n = ['hero', 'musuh', 'dunia'].filter(function (j) { return entri.gpt[j]; }).length;
+      hitung.textContent = 'Gambar hasil ChatGPT: ' + n + ' dari 3 sudah diunggah' + (n === 3 ? ' ✓' : '');
+      hitung.classList.toggle('lengkap', n === 3);
+    }
+    ['hero', 'musuh', 'dunia'].forEach(function (jenis) {
+      var gbr = el('div', { class: 'gbr unggah', tabindex: '0', role: 'group', 'aria-label': 'Gambar hasil ChatGPT: ' + NAMA_GPT[jenis] });
+      var cap = el('figcaption', {}, []);
+      var input = el('input', { type: 'file', accept: 'image/*', hidden: '' });
+
+      function kirim(file) {
+        if (!file || !/^image\//.test(file.type)) { toast('Itu bukan gambar. Pilih file gambar (PNG atau JPG).', true); return; }
+        gbr.textContent = ''; gbr.appendChild(el('div', { class: 'tdk', text: 'Mengunggah…' }));
+        kecilkanGambar(file).then(function (blob) {
+          var fd = new FormData(); fd.append('id', entri.id); fd.append('jenis', jenis); fd.append('gambar', blob, jenis + '.jpg');
+          return api('unggah', '', { method: 'POST', body: fd });
+        }).then(function (r) {
+          if (!r.ok) throw new Error();
+          entri.gpt[jenis] = true; delete cacheFoto[entri.id + ':gpt:' + jenis];
+          toast('Gambar ' + NAMA_GPT[jenis].slice(4).toLowerCase() + ' tersimpan.');
+        }).catch(function () { toast('Gambar gagal diunggah. Coba lagi.', true); })
+          .then(function () { gambar(); perbarui(); });
+      }
+      input.addEventListener('change', function () { kirim(input.files && input.files[0]); input.value = ''; });
+      gbr.addEventListener('paste', function (ev) {
+        var f = ev.clipboardData && ev.clipboardData.files && ev.clipboardData.files[0];
+        if (f) { ev.preventDefault(); kirim(f); }
+      });
+      gbr.addEventListener('dragover', function (ev) { ev.preventDefault(); gbr.classList.add('tarik'); });
+      gbr.addEventListener('dragleave', function () { gbr.classList.remove('tarik'); });
+      gbr.addEventListener('drop', function (ev) {
+        ev.preventDefault(); gbr.classList.remove('tarik');
+        kirim(ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]);
+      });
+
+      function tombol(teks, kelas, aksi, judul) {
+        var b = el('button', { type: 'button', class: 'btn kecil ' + kelas, text: teks });
+        if (judul) { b.title = judul; b.setAttribute('aria-label', judul); }
+        b.addEventListener('click', aksi); return b;
+      }
+      function gambar() {
+        gbr.textContent = ''; cap.textContent = '';
+        cap.appendChild(el('span', { text: NAMA_GPT[jenis] }));
+        if (entri.gpt[jenis]) {
+          var img = el('img', { alt: 'Hasil ChatGPT: ' + NAMA_GPT[jenis] });
+          gbr.appendChild(el('div', { class: 'tdk', text: 'Memuat gambar…' }));
+          ambilFoto(entri.id, jenis, 'gpt').then(function (f) { img.src = f.url; gbr.textContent = ''; gbr.appendChild(img); })
+            .catch(function () { gbr.textContent = ''; gbr.appendChild(el('div', { class: 'tdk', text: 'Gambar gagal dimuat.' })); });
+          cap.appendChild(tombol('📋 Salin foto', '', function () { salinFoto(entri.id, jenis, 'gpt', 'Claude'); }));
+          cap.appendChild(tombol('⬇', 'alt', function () {
+            ambilFoto(entri.id, jenis, 'gpt').then(function (f) {
+              var a = el('a', { href: f.url, download: 'hasil-chatgpt-' + jenis + '.jpg' });
+              document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            });
+          }, 'Unduh gambar'));
+          cap.appendChild(tombol('⬆', 'alt', function () { input.click(); }, 'Ganti dengan gambar lain'));
+          cap.appendChild(tombol('✕', 'bahaya', function () {
+            if (!confirm('Hapus gambar ' + NAMA_GPT[jenis].slice(4).toLowerCase() + ' hasil ChatGPT ini?')) return;
+            var fd = new FormData(); fd.append('id', entri.id); fd.append('jenis', jenis);
+            api('hapusgpt', '', { method: 'POST', body: fd }).then(function (r) {
+              if (!r.ok) throw new Error();
+              entri.gpt[jenis] = false; delete cacheFoto[entri.id + ':gpt:' + jenis]; gambar(); perbarui();
+            }).catch(function () { toast('Gagal menghapus gambar. Coba lagi.', true); });
+          }, 'Hapus gambar'));
+        } else {
+          gbr.appendChild(el('div', { class: 'kosong-unggah' }, [
+            el('b', { text: 'Belum ada gambar' }),
+            'Unggah hasil dari ChatGPT, seret file ke sini, atau klik kotak ini lalu tekan Ctrl+V.'
+          ]));
+          cap.appendChild(tombol('⬆ Unggah gambar', '', function () { input.click(); }));
+        }
+      }
+      gambar();
+      daftar.appendChild(el('figure', { class: 'fig-unggah' }, [gbr, cap, input]));
+    });
+    perbarui();
+    return el('div', {}, [hitung, daftar]);
+  }
+
   function kartuPrompt(o) {
-    var galeri = el('div', { class: 'galeri' + (o.foto.length === 1 ? ' satu' : '') },
+    var galeri = o.unggah ? galeriUnggah(o.entri) : el('div', { class: 'galeri' + (o.foto.length === 1 ? ' satu' : '') },
       o.foto.map(function (j) { return kotakFoto(o.entri, j, o.peserta); }));
     var pre = el('pre', { text: o.teks });
     var kotak = el('div', { class: 'prompt' }, [pre]);
@@ -340,10 +445,10 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
     d.appendChild(kartuPrompt({ entri: e, peserta: p, ikon: '🏞️', warna: 'var(--mintbg)', untuk: 'gpt', judul: '3 · Gambar Dunia Game',
       foto: ['dunia'], teks: pr.dunia, langkah: LANGKAH_GPT }));
     d.appendChild(kartuPrompt({ entri: e, peserta: p, ikon: '🎮', warna: 'var(--cream)', untuk: 'claude', judul: '4 · Game 3D: ' + j.judul,
-      foto: ['hero', 'musuh', 'dunia'], teks: pr.game,
+      foto: ['hero', 'musuh', 'dunia'], unggah: true, teks: pr.game,
       langkah: [
-        'Buka <b>Claude</b> (claude.ai), mulai <b>chat baru</b>.',
-        'Tempel <b>3 gambar</b> berurutan: Gambar 1 = Tokoh Utama, Gambar 2 = Musuh, Gambar 3 = Dunia. Paling bagus pakai <b>hasil gambar dari ChatGPT</b> (langkah 1–3); foto asli di bawah juga boleh.',
+        '<b>Unggah 3 gambar hasil ChatGPT</b> (dari langkah 1–3) di kotak di bawah. Boleh klik <b>Unggah gambar</b>, seret file ke kotak, atau klik kotak lalu tekan <b>Ctrl+V</b>.',
+        'Buka <b>Claude</b> (claude.ai), mulai <b>chat baru</b>. Klik <b>Salin foto</b> lalu tempel di chat, satu per satu <b>berurutan</b>: Gambar 1 = Tokoh Utama, Gambar 2 = Musuh, Gambar 3 = Dunia.',
         'Klik <b>Salin Prompt</b>, tempel di chat yang sama, lalu kirim.'
       ] }));
 

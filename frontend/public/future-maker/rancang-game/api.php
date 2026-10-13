@@ -9,6 +9,8 @@
     GET  ?aksi=daftar    semua isian + prompt yang sudah terisi                 (kunci hasil)
     GET  ?aksi=foto      satu foto (id, jenis)                                  (kunci hasil)
     POST ?aksi=hapus     hapus satu isian beserta fotonya                       (kunci hasil)
+    POST ?aksi=unggah    simpan gambar HASIL ChatGPT (hero|musuh|dunia) utk satu isian (kunci hasil)
+    POST ?aksi=hapusgpt  hapus satu gambar hasil ChatGPT                        (kunci hasil)
     POST ?aksi=izinkan   buka / tutup izin revisi untuk satu peserta            (kunci hasil)
 
   ATURAN ISI: tiap peserta hanya boleh mengisi SEKALI. Setelah itu formulir menolaknya (409)
@@ -30,6 +32,7 @@ define('GAME_API', 1);
 
 // ---------------- PENGATURAN ----------------
 const MAX_FOTO_BYTE   = 6 * 1024 * 1024;   // per foto. Formulir sudah mengecilkan jadi < 1 MB.
+const MAX_GPT_BYTE    = 10 * 1024 * 1024;  // per gambar hasil ChatGPT (diunggah Coach Riki)
 const LIMIT_IP_HARI   = 150;               // satu WiFi kelas = satu IP, jadi dibuat longgar
 const LIMIT_TOTAL_HARI = 500;              // rem darurat
 const LIMIT_SALAH_HARI = 60;               // salah ketik kode per IP per hari, setelah itu ditolak sampai besok
@@ -282,7 +285,7 @@ if ($aksi === 'kirim' && $metode === 'POST') {
 }
 
 // Tiga aksi di bawah ini khusus pemegang kunci hasil.
-if (in_array($aksi, ['foto', 'hapus', 'daftar', 'izinkan'], true) && !$bolehHasil) keluar(403, ['error' => 'kunci_salah']);
+if (in_array($aksi, ['foto', 'hapus', 'daftar', 'izinkan', 'unggah', 'hapusgpt'], true) && !$bolehHasil) keluar(403, ['error' => 'kunci_salah']);
 
 // ---------------- AKSI: foto ----------------
 if ($aksi === 'foto' && $metode === 'GET') {
@@ -291,7 +294,8 @@ if ($aksi === 'foto' && $metode === 'GET') {
     if (!idValid($id) || !in_array($j, JENIS_FOTO, true)) keluar(400, ['error' => 'Permintaan tidak valid.']);
     $berkas = $data . '/entri/' . $id . '.json';
     $entri  = is_file($berkas) ? json_decode((string)file_get_contents($berkas), true) : null;
-    $nama   = $entri['foto'][$j] ?? null;
+    $sumber = ($_GET['sumber'] ?? '') === 'gpt' ? 'gpt' : 'foto';   // gambar asli anak, atau hasil ChatGPT
+    $nama   = $entri[$sumber][$j] ?? null;
     if (!$nama || !preg_match('/^[0-9A-Za-z-]+\.(jpg|png|webp)$/', $nama) || !is_file($data . '/foto/' . $nama)) {
         keluar(404, ['error' => 'Foto tidak ada.']);
     }
@@ -309,12 +313,53 @@ if ($aksi === 'hapus' && $metode === 'POST') {
     $berkas = $data . '/entri/' . $id . '.json';
     if (!is_file($berkas)) keluar(404, ['error' => 'Isian tidak ditemukan.']);
     $entri = json_decode((string)file_get_contents($berkas), true) ?: [];
-    foreach (($entri['foto'] ?? []) as $nama) {
+    foreach (array_merge(array_values($entri['foto'] ?? []), array_values($entri['gpt'] ?? [])) as $nama) {
         if ($nama && preg_match('/^[0-9A-Za-z-]+\.(jpg|png|webp)$/', $nama)) @unlink($data . '/foto/' . $nama);
     }
     @unlink($berkas);
     if (!empty($entri['no']) && !berkasEntri($data, $entri['no'])) {   // tidak ada isian tersisa: anak itu boleh mengisi lagi
         @unlink($data . '/izin/' . kodeBerkas($entri['no']));
+    }
+    keluar(200, ['ok' => true]);
+}
+
+// ---------------- AKSI: unggah / hapusgpt (gambar hasil ChatGPT) ----------------
+// Gambar ini dipakai sebagai lampiran di Claude. Disimpan per isian (per versi), di samping foto asli anak.
+if (($aksi === 'unggah' || $aksi === 'hapusgpt') && $metode === 'POST') {
+    if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 0 && !$_POST && !$_FILES) {
+        keluar(413, ['error' => 'Gambarnya terlalu besar untuk dikirim.']);
+    }
+    $id = (string)($_POST['id'] ?? '');
+    $j  = (string)($_POST['jenis'] ?? '');
+    if (!idValid($id) || !in_array($j, JENIS_FOTO, true)) keluar(400, ['error' => 'Permintaan tidak valid.']);
+    $baru = null; $biner = null; $ext = null;
+    if ($aksi === 'unggah') {
+        $f = $_FILES['gambar'] ?? null;
+        if (!$f || ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+            keluar(400, ['error' => 'Gambar gagal diunggah. Coba pilih ulang.']);
+        }
+        if ($f['size'] > MAX_GPT_BYTE) keluar(400, ['error' => 'Gambar terlalu besar (maksimal 10 MB).']);
+        $biner = (string)file_get_contents($f['tmp_name']);
+        $info  = @getimagesizefromstring($biner);
+        $ext   = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$info['mime'] ?? ''] ?? null;
+        if (!$info || !$ext) keluar(400, ['error' => 'File harus berupa gambar JPG, PNG, atau WebP.']);
+        $baru = "$id-gpt-$j.$ext";
+    }
+    pastikanFolder($data . '/foto');
+    $fk = fopen($data . '/kirim.lock', 'c');
+    if ($fk) flock($fk, LOCK_EX);
+    $berkas = $data . '/entri/' . $id . '.json';
+    $entri  = is_file($berkas) ? json_decode((string)file_get_contents($berkas), true) : null;
+    if (!is_array($entri)) keluar(404, ['error' => 'Isian tidak ditemukan.']);
+    $lama = $entri['gpt'][$j] ?? null;
+    if ($baru !== null && file_put_contents($data . '/foto/' . $baru, $biner) === false) {
+        keluar(500, ['error' => 'Gambar gagal disimpan.']);
+    }
+    if ($lama && $lama !== $baru && preg_match('/^[0-9A-Za-z-]+\.(jpg|png|webp)$/', $lama)) @unlink($data . '/foto/' . $lama);
+    $entri['gpt'] = ($entri['gpt'] ?? []) + ['hero' => null, 'musuh' => null, 'dunia' => null];
+    $entri['gpt'][$j] = $baru;
+    if (file_put_contents($berkas, json_encode($entri, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) === false) {
+        keluar(500, ['error' => 'Perubahan gagal disimpan.']);
     }
     keluar(200, ['ok' => true]);
 }
@@ -376,6 +421,7 @@ if ($aksi === 'daftar' && $metode === 'GET') {
                 'waktu'   => $e['waktu'] ?? '',
                 'jawaban' => $a,
                 'foto'    => array_map(fn($f) => $f !== null, $e['foto'] ?? []),
+                'gpt'     => array_map(fn($f) => $f !== null, ($e['gpt'] ?? []) + ['hero' => null, 'musuh' => null, 'dunia' => null]),
                 'prompt'  => [
                     'game' => $isi($templat['game'], $umum + [
                         'NAMA_HERO' => $a['nama_hero'], 'KEKUATAN_HERO' => $a['kekuatan_hero'],

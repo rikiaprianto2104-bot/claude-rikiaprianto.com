@@ -69,6 +69,16 @@ pilih anaknya (dan versinya lewat menu "Versi"), lalu tekan **🗑 Hapus isian i
 hanya versi yang sedang tampil, beserta fotonya. Kalau itu isian terakhir anak tersebut, anak itu
 otomatis bisa mengisi formulir dari awal lagi. Penghapusan tidak bisa dibatalkan.
 
+## Gambar hasil ChatGPT → Claude
+
+Kartu **4 · Game 3D** (prompt untuk Claude) tidak lagi menampilkan foto asli anak, melainkan tiga kotak
+untuk **mengunggah gambar hasil ChatGPT** (Tokoh Utama, Musuh, Dunia). Cara mengisinya: klik
+**Unggah gambar**, atau seret file ke kotak, atau klik kotak lalu tekan **Ctrl+V**. Setelah terunggah,
+tombol **Salin foto** menyalinnya untuk ditempel berurutan di Claude. Gambar disimpan di server per isian
+(per versi, di luar `public_html`, hanya terbaca oleh `KUNCI_HASIL`), diperkecil otomatis (maks. 2600 px),
+dan ikut terhapus bila isiannya dihapus. Versi revisi baru dimulai tanpa gambar hasil ChatGPT; yang lama
+tetap ada di versi sebelumnya. Foto asli anak tetap tampil di kartu 1–3.
+
 ## Catatan perilaku
 
 - Draf yang belum terkirim disimpan di perangkat **per anak** (muncul lagi saat anak itu memilih
