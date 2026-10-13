@@ -106,6 +106,9 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
 @keyframes putar{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}html{scroll-behavior:auto}}
 .confetti{font-size:34px;letter-spacing:6px}
+.kodeform{display:flex;gap:10px;max-width:400px;margin:0 auto;flex-wrap:wrap}
+.kodeform input{flex:1 1 200px;width:auto}
+.kodeform .btn{font-size:18px;padding:12px 22px}
 </style>
 </head>
 <body>
@@ -128,7 +131,11 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
   <section id="layar-kunci" class="layar card pesan">
     <div class="big">🔒</div>
     <h2>Halaman ini khusus</h2>
-    <p id="kunci-teks">Formulir ini hanya bisa dibuka lewat link lengkap dari Coach Riki. Minta linknya ya.</p>
+    <p id="kunci-teks">Ketik kode dari Coach Riki untuk membuka formulir.</p>
+    <form id="form-kunci" class="kodeform" autocomplete="off">
+      <input type="text" id="kode" aria-label="Kode dari Coach Riki" placeholder="Kode dari Coach Riki" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button type="submit" class="btn">Masuk</button>
+    </form>
   </section>
 
   <!-- Formulir -->
@@ -191,7 +198,15 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
 (function () {
   'use strict';
   var API = '/future-maker/rancang-game/api.php';
+  var SIMPAN = 'rg-kunci-form';
+  // Kode datang dari kolom ketik, atau dari link lama (?k=...), atau diingat dari kunjungan sebelumnya.
   var KUNCI = new URLSearchParams(location.search).get('k') || '';
+  if (!KUNCI) { try { KUNCI = localStorage.getItem(SIMPAN) || ''; } catch (e) {} }
+  function ingatKunci() {
+    try { localStorage.setItem(SIMPAN, KUNCI); } catch (e) {}
+    if (location.search) history.replaceState(null, '', location.pathname);   // kode tidak tertinggal di alamat
+  }
+  function lupakanKunci() { KUNCI = ''; try { localStorage.removeItem(SIMPAN); } catch (e) {} }
   var DRAFT = 'rg-draft-v1';
 
   // ---------------- Daftar pertanyaan ----------------
@@ -502,7 +517,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     api('kirim', { method: 'POST', body: fd }).then(function (r) {
       if (!r.ok) {
         var pesan = (r.data && r.data.error) || 'Gagal mengirim. Coba lagi sebentar lagi.';
-        if (r.status === 403 || pesan === 'kunci_salah') pesan = 'Link formulir ini tidak berlaku. Minta link baru ke Coach Riki.';
+        if (r.status === 403 || pesan === 'kunci_salah') { lupakanKunci(); pesan = 'Kodenya tidak berlaku lagi. Muat ulang halaman ini dan ketik kode yang baru.'; }
         if (pesan === 'belum_disetel') pesan = 'Formulir belum siap di server. Kabari Coach Riki.';
         throw new Error(pesan);
       }
@@ -527,17 +542,28 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
   // ---------------- Mulai ----------------
   function terkunci(teks) {
     if (teks) $('kunci-teks').textContent = teks;
-    tampil('kunci');
+    tampil('kunci'); $('kode').value = '';
   }
+  function buka(dariKetikan) {
+    tampil('muat');
+    api('peserta').then(function (r) {
+      if (r.status === 503) return terkunci('Formulir belum disetel di server. Kabari Coach Riki.');
+      if (r.status === 429) return terkunci('Terlalu banyak salah ketik kode. Coba lagi besok, atau tanya Coach Riki.');
+      if (!r.ok) { lupakanKunci(); return terkunci(dariKetikan ? 'Kodenya belum cocok. Coba ketik lagi ya.' : 'Ketik kode dari Coach Riki untuk membuka formulir.'); }
+      ingatKunci();
+      peserta = r.data.peserta || [];
+      pulihDraft();
+      tampil('form');
+    }).catch(function () { terkunci('Tidak bisa terhubung. Cek internetmu lalu muat ulang halaman ini.'); });
+  }
+  $('form-kunci').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('kode').value.trim();
+    if (!v) { $('kode').focus(); return; }
+    KUNCI = v; buka(true);
+  });
   bangunSoal();
-  if (!KUNCI) { terkunci(); return; }
-  api('peserta').then(function (r) {
-    if (r.status === 503) return terkunci('Formulir belum disetel di server. Kabari Coach Riki.');
-    if (!r.ok) return terkunci('Link formulir ini tidak berlaku. Minta link yang benar ke Coach Riki ya.');
-    peserta = r.data.peserta || [];
-    pulihDraft();
-    tampil('form');
-  }).catch(function () { terkunci('Tidak bisa terhubung. Cek internetmu lalu muat ulang halaman ini.'); });
+  if (KUNCI) buka(false); else terkunci();
 })();
 </script>
 </body>

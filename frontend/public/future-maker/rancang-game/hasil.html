@@ -96,6 +96,9 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
 .aksi .info{color:var(--ink-2);font-size:13.5px;margin-left:auto}
 .bahaya-wrap{margin-top:8px;text-align:right}
 /* toast */
+.kodeform{display:flex;gap:10px;max-width:420px;margin:14px auto 0;flex-wrap:wrap}
+.kodeform input{flex:1 1 200px;font:inherit;color:var(--ink);background:#FBFAFF;border:2px solid var(--line);border-radius:14px;padding:11px 14px;outline:none}
+.kodeform input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.16)}
 #toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;pointer-events:none;background:var(--night);color:#fff;padding:12px 20px;border-radius:16px;max-width:min(92vw,520px);text-align:center;box-shadow:0 14px 34px rgba(0,0,0,.3);transition:all .22s;z-index:50;font-weight:500}
 #toast.tampil{opacity:1;transform:translate(-50%,0)}
 #toast.salah{background:var(--coral)}
@@ -113,7 +116,11 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
 
 <div class="wrap"><main>
   <section id="layar-muat" class="layar aktif card tengah"><div class="spin" aria-hidden="true"></div><p>Mengambil data…</p></section>
-  <section id="layar-kunci" class="layar card tengah"><div class="big">🔒</div><h2 style="margin:6px 0">Halaman ini khusus Coach Riki</h2><p id="kunci-teks">Buka lewat link lengkap yang berisi kunci hasil.</p></section>
+  <section id="layar-kunci" class="layar card tengah"><div class="big">🔒</div><h2 style="margin:6px 0">Halaman ini khusus Coach Riki</h2><p id="kunci-teks">Ketik kunci hasil untuk membuka halaman ini.</p>
+    <form id="form-kunci" class="kodeform" autocomplete="off">
+      <input type="password" id="kode" aria-label="Kunci hasil" placeholder="Kunci hasil" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button type="submit" class="btn">Masuk</button>
+    </form></section>
 
   <section id="layar-isi" class="layar">
     <div class="ringkas"><span id="ringkas"></span></div>
@@ -127,7 +134,19 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
 (function () {
   'use strict';
   var API = '/future-maker/rancang-game/api.php';
+  var SIMPAN = 'rg-kunci-hasil';
+  // Kunci datang dari kolom ketik, atau dari link lama (?k=...), atau diingat dari kunjungan sebelumnya.
   var KUNCI = new URLSearchParams(location.search).get('k') || '';
+  if (!KUNCI) { try { KUNCI = localStorage.getItem(SIMPAN) || ''; } catch (e) {} }
+  var sudahMasuk = false;
+  function ingatKunci() {
+    try { localStorage.setItem(SIMPAN, KUNCI); } catch (e) {}
+    if (location.search) history.replaceState(null, '', location.pathname);   // kunci tidak tertinggal di alamat
+  }
+  function terkunci(teks) {
+    var t = $('kunci-teks'); if (teks) t.textContent = teks;
+    tampil('kunci'); $('kode').value = '';
+  }
   var $ = function (id) { return document.getElementById(id); };
   var el = function (tag, attrs, kids) {
     var e = document.createElement(tag);
@@ -356,20 +375,22 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
 
   function muat(pertahankan, diam) {
     return api('daftar').then(function (r) {
-      if (r.status === 403 || r.status === 503) {
+      if (r.status === 403 || r.status === 503 || r.status === 429) {
         return r.json().catch(function () { return {}; }).then(function (j) {
-          $('kunci-teks').textContent = (j.error === 'belum_disetel')
-            ? 'Formulir belum disetel di server (berkas rancang-game-secret.php belum ada). Lihat RANCANG-GAME-PASANG.md.'
-            : 'Kunci di link ini tidak berlaku. Pakai link lengkap yang benar.';
-          tampil('kunci');
+          if (r.status === 503) return terkunci('Formulir belum disetel di server (berkas rancang-game-secret.php belum ada). Lihat RANCANG-GAME-PASANG.md.');
+          if (r.status === 429) return terkunci('Terlalu banyak salah ketik kunci. Coba lagi besok.');
+          var tadiMasuk = sudahMasuk; sudahMasuk = false;
+          KUNCI = ''; try { localStorage.removeItem(SIMPAN); } catch (e) {}
+          terkunci(tadiMasuk ? 'Kunci sudah tidak berlaku. Ketik kunci yang baru.' : (diam || pertahankan === 'ketik' ? 'Kunci belum cocok. Coba ketik lagi.' : 'Ketik kunci hasil untuk membuka halaman ini.'));
         });
       }
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json().then(function (j) {
+        if (!sudahMasuk) { sudahMasuk = true; ingatKunci(); }
         var baru = j.peserta.map(function (p) { return p.no + ':' + p.entri.map(function (e) { return e.id; }).join(','); }).join('|');
         if (diam && baru === tanda) return;           // tidak ada yang berubah: jangan ganggu layar
         tanda = baru; data = j.peserta;
-        if (pertahankan && pertahankan !== true) dipilih = pertahankan;
+        if (pertahankan && pertahankan !== true && pertahankan !== 'ketik') dipilih = pertahankan;
         if (!dipilih || !data.some(function (p) { return p.no === dipilih; })) {
           var pertama = data.filter(function (p) { return p.entri.length; })[0];
           dipilih = (pertama || data[0]).no;
@@ -379,13 +400,18 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
         tampilDetail(p, 0);
       });
     }).catch(function () {
-      if (!diam) { $('kunci-teks').textContent = 'Tidak bisa terhubung ke server. Cek internet lalu tekan Muat ulang.'; tampil('kunci'); }
+      if (!diam) terkunci('Tidak bisa terhubung ke server. Cek internet lalu muat ulang halaman ini.');
     });
   }
 
   $('muat-ulang').addEventListener('click', function () { cacheFoto = {}; muat(true); });
-  if (!KUNCI) { tampil('kunci'); return; }
-  muat();
+  $('form-kunci').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('kode').value.trim();
+    if (!v) { $('kode').focus(); return; }
+    KUNCI = v; tampil('muat'); muat('ketik');
+  });
+  if (!KUNCI) terkunci(); else muat();
   // Cek isian baru tiap 30 detik; layar hanya digambar ulang kalau ada kiriman baru.
   setInterval(function () { if (!document.hidden && $('layar-isi').classList.contains('aktif')) muat(true, true); }, 30000);
 })();

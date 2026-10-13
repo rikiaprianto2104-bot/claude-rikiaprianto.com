@@ -26,6 +26,7 @@ define('GAME_API', 1);
 const MAX_FOTO_BYTE   = 6 * 1024 * 1024;   // per foto. Formulir sudah mengecilkan jadi < 1 MB.
 const LIMIT_IP_HARI   = 150;               // satu WiFi kelas = satu IP, jadi dibuat longgar
 const LIMIT_TOTAL_HARI = 500;              // rem darurat
+const LIMIT_SALAH_HARI = 60;               // salah ketik kode per IP per hari, setelah itu ditolak sampai besok
 
 date_default_timezone_set('Asia/Jakarta');
 
@@ -111,8 +112,30 @@ $bolehForm  = $bolehHasil || kunciCocok($kunci, KUNCI_FORM);
 $aksi    = (string)($_GET['aksi'] ?? '');
 $metode  = $_SERVER['REQUEST_METHOD'] ?? '';
 
+// Rem tebak-tebakan kode: hitung kode salah per IP per hari. Setelah melewati batas, IP itu
+// ditolak lebih dulu SEBELUM kodenya diperiksa, jadi tebakan yang kebetulan benar pun tidak
+// bisa dipastikan. Catatan disimpan di rancang-game-data/ (di luar public_html).
+$ipSalah = substr(hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . 'salah'), 0, 16);
+$berkasSalah = $data . '/salah-' . date('Ymd') . '.json';
+$hitSalah = is_file($berkasSalah) ? (json_decode((string)file_get_contents($berkasSalah), true) ?: []) : [];
+if (($hitSalah[$ipSalah] ?? 0) >= LIMIT_SALAH_HARI) keluar(429, ['error' => 'terlalu_banyak']);
+
 if (!$bolehForm) {
-    usleep(400000);   // menyulitkan tebak-tebakan kunci
+    if ($kunci !== '') {
+        pastikanFolder($data);
+        $fs = fopen($berkasSalah, 'c+');
+        if ($fs && flock($fs, LOCK_EX)) {
+            $cat = json_decode((string)stream_get_contents($fs), true) ?: [];
+            $cat[$ipSalah] = ($cat[$ipSalah] ?? 0) + 1;
+            ftruncate($fs, 0); rewind($fs); fwrite($fs, json_encode($cat));
+            flock($fs, LOCK_UN);
+        }
+        if ($fs) fclose($fs);
+        foreach (glob($data . '/salah-*.json') ?: [] as $lama) {
+            if ($lama !== $berkasSalah && filemtime($lama) < time() - 3 * 86400) @unlink($lama);
+        }
+    }
+    usleep(400000);   // memperlambat tebak-tebakan
     keluar(403, ['error' => 'kunci_salah']);
 }
 

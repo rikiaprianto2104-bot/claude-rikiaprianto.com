@@ -21,3 +21,16 @@ Options -Indexes
   RewriteEngine On
   RewriteRule .* - [E=Cache-Control:no-cache]
 </IfModule>
+
+# ---------------------------------------------------------------------------
+# Alamat pendek yang mudah diingat:
+#   /future-maker/rancang-game/formulir  -> index.html  (formulir untuk siswa)
+#   /future-maker/rancang-game/hasil     -> hasil.html  (hasil + prompt, Coach Riki)
+# Aturan ini sengaja ditulis DI SINI, bukan di .htaccess root: berkas .htaccess di folder
+# ini menggantikan aturan rewrite milik folder induknya, jadi aturan root tidak berlaku
+# untuk alamat di dalam folder ini. Kode akses diketik di halaman, bukan lewat alamat.
+# ---------------------------------------------------------------------------
+RewriteEngine On
+RewriteRule ^$ /future-maker/rancang-game/index.html [L]
+RewriteRule ^formulir/?$ /future-maker/rancang-game/index.html [L]
+RewriteRule ^hasil/?$ /future-maker/rancang-game/hasil.html [L]
