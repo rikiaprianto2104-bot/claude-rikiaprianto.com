@@ -49,10 +49,30 @@ Ganti nilai di `rancang-game-secret.php` **di server**, lalu bagikan kode baru. 
 - **Pilihan Waktu / Akhir cerita**: `PILIHAN_WAKTU` dan `PILIHAN_AKHIR` di `api.php`
   (tambahkan juga ikon di array `SOAL` pada `index.html`).
 
+## Aturan isi, revisi, dan hapus
+
+**Sekali isi, lalu terkunci.** Setiap peserta hanya boleh mengirim formulir satu kali. Kalau anak
+memilih namanya lagi, formulir menampilkan "kamu sudah mengisi" dan tombol kirim mati.
+
+**Revisi dibuka oleh Coach Riki, per anak.**
+1. Di halaman **Hasil**, pilih anaknya, lalu tekan **✏️ Buka revisi**.
+2. Minta anak membuka formulir dan memilih namanya lagi. Jawaban lamanya terisi otomatis; ia cukup
+   mengubah bagian yang mau diganti. Foto lama tetap dipakai kalau ia tidak memilih foto baru.
+3. Setelah ia menekan **Simpan Revisi**, formulir terkunci lagi. Satu izin = satu kali revisi.
+4. Berubah pikiran? Tekan **🔒 Tutup revisi** sebelum anak mengirim.
+
+Versi sebelumnya tidak hilang. Di halaman Hasil ada menu "Versi" di atas kartu, dan yang tampil
+pertama selalu yang terbaru.
+
+**Menghapus data** (mis. isian uji coba atau versi lama), di halaman **Hasil**:
+pilih anaknya (dan versinya lewat menu "Versi"), lalu tekan **🗑 Hapus isian ini**. Yang terhapus
+hanya versi yang sedang tampil, beserta fotonya. Kalau itu isian terakhir anak tersebut, anak itu
+otomatis bisa mengisi formulir dari awal lagi. Penghapusan tidak bisa dibatalkan.
+
 ## Catatan perilaku
 
-- Satu anak boleh mengirim lebih dari sekali. Halaman Hasil menampilkan yang **terbaru**, versi
-  lama bisa dipilih lewat menu di atas kartu. Isian bisa dihapus dari halaman Hasil.
+- Draf yang belum terkirim disimpan di perangkat **per anak** (muncul lagi saat anak itu memilih
+  namanya), jadi tidak tercampur di perangkat yang dipakai bergantian.
 - Foto dikecilkan otomatis di perangkat anak (maks. 1800 px, JPEG) sebelum dikirim.
 - Nama anak **tidak** dimasukkan ke dalam prompt yang ditempel ke ChatGPT/Claude.
 - Tombol **Salin foto** memakai papan klip browser (butuh HTTPS; Chrome/Edge/Safari/Firefox terbaru).

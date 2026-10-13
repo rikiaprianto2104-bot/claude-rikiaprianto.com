@@ -94,7 +94,9 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
 .prompt:not(.buka)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:54px;border-radius:0 0 14px 14px;background:linear-gradient(transparent,#FBFAFF 85%);pointer-events:none}
 .aksi{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .aksi .info{color:var(--ink-2);font-size:13.5px;margin-left:auto}
-.bahaya-wrap{margin-top:8px;text-align:right}
+.aksi-kepala{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.status-kunci{display:inline-block;margin-top:6px;font-size:13.5px;font-weight:600;border-radius:999px;padding:2px 12px;background:var(--lav);color:var(--ink-2)}
+.status-kunci.buka{background:#E8F7FD;color:#0b5b70}
 /* toast */
 .kodeform{display:flex;gap:10px;max-width:420px;margin:14px auto 0;flex-wrap:wrap}
 .kodeform input{flex:1 1 200px;font:inherit;color:var(--ink);background:#FBFAFF;border:2px solid var(--line);border-radius:14px;padding:11px 14px;outline:none}
@@ -303,9 +305,12 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
       d.appendChild(box); return;
     }
     var e = p.entri[indeks];
+    var aksiK = el('div', { class: 'kanan aksi-kepala' }); kepala.appendChild(aksiK);
 
     var meta = el('div', { class: 'meta', text: 'Dikirim ' + new Date(e.waktu).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) });
     kepala.firstChild.appendChild(meta);
+    kepala.firstChild.appendChild(el('div', { class: 'status-kunci' + (p.revisi ? ' buka' : ''),
+      text: p.revisi ? '✏️ Revisi dibuka: menunggu anak mengirim ulang' : '🔒 Terkunci: anak tidak bisa mengisi lagi' }));
     if (p.entri.length > 1) {
       var sel = el('select', { 'aria-label': 'Pilih versi isian' });
       p.entri.forEach(function (x, i) {
@@ -313,7 +318,7 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
       });
       sel.value = String(indeks);
       sel.addEventListener('change', function () { tampilDetail(p, +sel.value); });
-      kepala.appendChild(el('div', { class: 'kanan' }, [sel]));
+      aksiK.appendChild(sel);
     }
 
     // Ringkasan jawaban
@@ -342,9 +347,24 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
         'Klik <b>Salin Prompt</b>, tempel di chat yang sama, lalu kirim.'
       ] }));
 
+    var revisiBtn = el('button', { type: 'button', class: 'btn kecil ' + (p.revisi ? 'alt' : ''), text: p.revisi ? '🔒 Tutup revisi' : '✏️ Buka revisi',
+      title: p.revisi ? 'Batalkan izin revisi' : 'Izinkan anak ini mengisi ulang satu kali' });
+    revisiBtn.addEventListener('click', function () {
+      var buka = !p.revisi;
+      if (buka && !confirm('Buka revisi untuk ' + p.nama + '?\nAnak ini bisa membuka formulir lagi SATU kali, jawaban lamanya akan terisi otomatis. Setelah ia mengirim, formulir terkunci lagi.')) return;
+      var fd = new FormData(); fd.append('no', p.no); fd.append('buka', buka ? '1' : '0');
+      revisiBtn.disabled = true;
+      api('izinkan', '', { method: 'POST', body: fd }).then(function (r) {
+        if (!r.ok) throw new Error();
+        toast(buka ? 'Revisi dibuka. Minta ' + p.nama.split(' ')[0] + ' membuka formulir dan memilih namanya lagi.' : 'Revisi ditutup.'); muat(p.no);
+      }).catch(function () { revisiBtn.disabled = false; toast('Gagal mengubah izin revisi. Coba lagi.', true); });
+    });
+    aksiK.appendChild(revisiBtn);
+
     var hapus = el('button', { type: 'button', class: 'btn kecil bahaya', text: '🗑 Hapus isian ini' });
     hapus.addEventListener('click', function () {
-      if (!confirm('Hapus isian "' + j.judul + '" milik ' + p.nama + ' beserta foto-fotonya?\nIni tidak bisa dibatalkan.')) return;
+      if (!confirm('Hapus isian "' + j.judul + '" milik ' + p.nama + ' beserta foto-fotonya?\nIni tidak bisa dibatalkan.' +
+        (p.entri.length === 1 ? '\n\nIni satu-satunya isiannya, jadi setelah dihapus anak ini bisa mengisi formulir dari awal lagi.' : ''))) return;
       var fd = new FormData(); fd.append('id', e.id);
       hapus.disabled = true;
       api('hapus', '', { method: 'POST', body: fd }).then(function (r) {
@@ -352,7 +372,7 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
         toast('Isian dihapus.'); muat(p.no);
       }).catch(function () { hapus.disabled = false; toast('Gagal menghapus. Coba lagi.', true); });
     });
-    d.appendChild(el('div', { class: 'bahaya-wrap' }, [hapus]));
+    aksiK.appendChild(hapus);
   }
 
   // ---------------- Daftar peserta & muat data ----------------
@@ -365,8 +385,8 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
     $('ringkas').appendChild(document.createTextNode(' peserta sudah mengirim formulir.'));
     data.forEach(function (p) {
       var b = el('button', { type: 'button', class: 'pcard' + (p.entri.length ? ' sudah' : ''), 'aria-pressed': p.no === dipilih ? 'true' : 'false' }, [
-        el('span', { class: 'lamp', text: p.entri.length ? '✓' : '…', 'aria-hidden': 'true' }),
-        el('span', {}, [el('b', { text: p.nama }), el('small', { text: p.no + (p.entri.length ? ' · ' + p.entri.length + ' kiriman' : ' · belum mengirim') })])
+        el('span', { class: 'lamp', text: p.revisi ? '✎' : (p.entri.length ? '✓' : '…'), 'aria-hidden': 'true' }),
+        el('span', {}, [el('b', { text: p.nama }), el('small', { text: p.no + (p.entri.length ? ' · ' + p.entri.length + ' kiriman' + (p.revisi ? ' · revisi dibuka' : '') : ' · belum mengirim') })])
       ]);
       b.addEventListener('click', function () { dipilih = p.no; gambarDaftar(); tampilDetail(p, 0); });
       wadah.appendChild(b);
@@ -387,7 +407,7 @@ figcaption span{font-weight:600;font-size:14.5px;margin-right:auto}
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json().then(function (j) {
         if (!sudahMasuk) { sudahMasuk = true; ingatKunci(); }
-        var baru = j.peserta.map(function (p) { return p.no + ':' + p.entri.map(function (e) { return e.id; }).join(','); }).join('|');
+        var baru = j.peserta.map(function (p) { return p.no + (p.revisi ? '*' : '') + ':' + p.entri.map(function (e) { return e.id; }).join(','); }).join('|');
         if (diam && baru === tanda) return;           // tidak ada yang berubah: jangan ganggu layar
         tanda = baru; data = j.peserta;
         if (pertahankan && pertahankan !== true && pertahankan !== 'ketik') dipilih = pertahankan;

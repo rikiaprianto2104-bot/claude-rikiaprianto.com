@@ -106,6 +106,14 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
 @keyframes putar{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}html{scroll-behavior:auto}}
 .confetti{font-size:34px;letter-spacing:6px}
+.banner{margin:12px 0 0;padding:12px 14px;border-radius:14px;font-weight:500;font-size:15.5px;line-height:1.4}
+.banner[hidden]{display:none}
+.banner.kunci{background:#FFF4D6;border:2px solid var(--yellow);color:#6b4b00}
+.banner.revisi{background:#E8F7FD;border:2px solid var(--cyan);color:#0b5b70}
+#layar-form.terkunci .card[data-grup]{opacity:.4;pointer-events:none;filter:grayscale(.4)}
+.btn[disabled]{cursor:not-allowed}
+.lama{margin:8px 0 0;color:#14775A;font-size:14.5px;font-weight:500}
+.lama[hidden]{display:none}
 .kodeform{display:flex;gap:10px;max-width:400px;margin:0 auto;flex-wrap:wrap}
 .kodeform input{flex:1 1 200px;width:auto}
 .kodeform .btn{font-size:18px;padding:12px 22px}
@@ -155,6 +163,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
           <div><b id="pd-nama"></b><small id="pd-no"></small></div>
           <button type="button" id="pd-ganti">Ganti</button>
         </div>
+        <div class="banner" id="banner" hidden></div>
         <p class="err">Pilih namamu dari daftar yang muncul.</p>
       </div>
     </div>
@@ -207,7 +216,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     if (location.search) history.replaceState(null, '', location.pathname);   // kode tidak tertinggal di alamat
   }
   function lupakanKunci() { KUNCI = ''; try { localStorage.removeItem(SIMPAN); } catch (e) {} }
-  var DRAFT = 'rg-draft-v1';
+  var DRAFT = 'rg-draft-v2-';   // + kode peserta: draf tiap anak terpisah, tidak tercampur di perangkat bersama
 
   // ---------------- Daftar pertanyaan ----------------
   var SOAL = [
@@ -250,7 +259,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
 
   function api(aksi, opt) {
     opt = opt || {};
-    return fetch(API + '?aksi=' + encodeURIComponent(aksi), {
+    return fetch(API + '?aksi=' + encodeURIComponent(aksi) + (opt.extra || ''), {
       method: opt.method || 'GET', body: opt.body, headers: { 'X-Kunci': KUNCI }, cache: 'no-store'
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, data: j }; });
@@ -260,7 +269,9 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
   // ---------------- Bangun pertanyaan ----------------
   var foto = { hero: null, musuh: null, dunia: null };   // Blob JPEG yang sudah dikecilkan
   var peserta = [];                                       // [{no,nama}]
-  var terpilih = null;                                    // {no,nama}
+  var terpilih = null;                                    // {no,nama,sudah,revisi}
+  var mode = 'baru';                                      // baru | terkunci (sudah mengisi) | revisi (dibuka Coach Riki)
+  var fotoLama = {};                                      // foto yang sudah tersimpan saat revisi
 
   function bangunSoal() {
     SOAL.forEach(function (s) {
@@ -304,6 +315,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
         ]);
         q.appendChild(drop);
         q.appendChild(el('button', { type: 'button', class: 'hapusfoto', 'data-hapus': s.k, text: '✕ Ganti / hapus foto' }));
+        q.appendChild(el('p', { class: 'lama', hidden: '', text: '✓ Foto sebelumnya masih tersimpan dan tetap dipakai. Pilih foto baru hanya kalau mau menggantinya.' }));
         q.appendChild(el('p', { class: 'err', text: '' }));
       }
       card.appendChild(q);
@@ -362,6 +374,13 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     drop.classList.toggle('ada', !!blob);
     q.classList.toggle('punya', !!blob);
     q.classList.remove('bad');
+    catatanFoto();
+  }
+  function catatanFoto() {
+    ['hero', 'musuh', 'dunia'].forEach(function (j) {
+      var n = $('q-' + j + '-foto').querySelector('.lama');
+      if (n) n.hidden = !(mode === 'revisi' && fotoLama[j] && !foto[j]);
+    });
   }
   function pilihFoto(jenis, inp) {
     var f = inp.files && inp.files[0];
@@ -409,7 +428,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     } else {
       hasil.forEach(function (p, i) {
         var li = el('li', { role: 'option', id: 'opt-' + i, 'aria-selected': i === aktif ? 'true' : 'false' }, [
-          el('span', {}, []), el('small', { text: p.no })
+          el('span', {}, []), el('small', { text: p.no + (p.sudah ? (p.revisi ? ' · revisi dibuka' : ' · sudah mengisi') : '') })
         ]);
         li.firstChild.appendChild(sorot(p.nama, kata));
         li.addEventListener('mousedown', function (e) { e.preventDefault(); pilihPeserta(p); });
@@ -424,11 +443,56 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     $('pd-nama').textContent = p.nama; $('pd-no').textContent = p.no;
     $('peserta-dipilih').style.display = 'flex';
     cari.parentNode.style.display = 'none';
-    $('q-peserta').classList.remove('bad'); tutupDaftar(); simpanDraft();
+    $('q-peserta').classList.remove('bad'); tutupDaftar();
+    terapkanStatus(p);
   }
   function gantiPeserta() {
     terpilih = null; $('peserta-dipilih').style.display = 'none';
-    cari.parentNode.style.display = ''; cari.value = ''; cari.focus(); saring(); simpanDraft();
+    // Isian milik anak lain (revisi / terkunci) tidak boleh terbawa ke anak berikutnya.
+    var tadi = mode; mode = 'baru';
+    if (tadi !== 'baru') resetFormulir();
+    $('banner').hidden = true; $('layar-form').classList.remove('terkunci');
+    $('kirim').disabled = false; $('kirim').textContent = teksTombol(); fotoLama = {}; catatanFoto();
+    cari.parentNode.style.display = ''; cari.value = ''; cari.focus(); saring();
+  }
+  function teksTombol() { return mode === 'revisi' ? '💾 Simpan Revisi' : '🚀 Kirim Game Impianku'; }
+  function resetFormulir() {
+    $('layar-form').reset();
+    ['hero', 'musuh', 'dunia'].forEach(function (j) { setFoto(j, null); });
+    fotoLama = {};
+  }
+  function isiDariServer(j) {
+    SOAL.forEach(function (s) {
+      var v = j[s.k]; if (s.tipe === 'foto' || !v) return;
+      if (s.tipe === 'pilih') { var r = document.querySelector('input[name="' + s.k + '"][value="' + String(v).replace(/"/g, '') + '"]'); if (r) r.checked = true; }
+      else $('f-' + s.k).value = v;
+    });
+    document.querySelectorAll('.q.bad').forEach(function (q) { q.classList.remove('bad'); });
+  }
+  // Menyesuaikan formulir dengan status anak yang dipilih.
+  function terapkanStatus(p) {
+    var b = $('banner'), f = $('layar-form'), t = $('kirim');
+    mode = 'baru'; fotoLama = {}; b.hidden = true; b.className = 'banner'; f.classList.remove('terkunci'); t.disabled = false;
+    if (p.sudah && !p.revisi) {
+      mode = 'terkunci'; f.classList.add('terkunci'); t.disabled = true;
+      b.className = 'banner kunci'; b.hidden = false;
+      b.textContent = '🔒 ' + panggilan(p.nama) + ', kamu sudah mengisi formulir ini. Kalau mau mengubah jawabanmu, minta Coach Riki membuka revisi dulu, lalu pilih namamu lagi.';
+    } else if (p.sudah && p.revisi) {
+      mode = 'revisi'; t.disabled = true;
+      b.className = 'banner revisi'; b.hidden = false;
+      b.textContent = '✏️ Mode revisi: jawaban lamamu sedang dimuat…';
+      api('ambil', { extra: '&no=' + encodeURIComponent(p.no) }).then(function (r) {
+        if (!terpilih || terpilih.no !== p.no) return;            // sudah ganti nama sebelum selesai dimuat
+        if (!r.ok) { p.revisi = false; return terapkanStatus(p); } // izin revisi keburu ditutup
+        isiDariServer(r.data.jawaban || {});
+        fotoLama = r.data.foto || {}; catatanFoto();
+        b.textContent = '✏️ Mode revisi: jawaban lamamu sudah terisi. Ubah bagian yang mau diganti, lalu tekan Simpan Revisi. Foto lama tetap dipakai kalau kamu tidak memilih foto baru.';
+        t.disabled = false;
+      }).catch(function () { b.textContent = '⚠️ Jawaban lama tidak bisa dimuat. Cek internet lalu muat ulang halaman ini.'; });
+    } else {
+      pulihDraft(p.no);
+    }
+    t.textContent = teksTombol(); catatanFoto();
   }
   cari.addEventListener('input', function () { aktif = 0; terpilih = null; saring(); });
   cari.addEventListener('focus', function () { if (!terpilih) saring(); });
@@ -460,18 +524,22 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
     });
     return d;
   }
-  function simpanDraft() { try { localStorage.setItem(DRAFT, JSON.stringify(ambilNilai())); } catch (e) {} }
-  function hapusDraft() { try { localStorage.removeItem(DRAFT); } catch (e) {} }
-  function pulihDraft() {
-    var d; try { d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); } catch (e) { d = null; }
-    if (!d) return;
-    SOAL.forEach(function (s) {
-      if (s.tipe === 'foto' || !d[s.k]) return;
-      if (s.tipe === 'pilih') { var r = document.querySelector('input[name="' + s.k + '"][value="' + d[s.k].replace(/"/g, '') + '"]'); if (r) r.checked = true; }
-      else $('f-' + s.k).value = d[s.k];
+  function simpanDraft() {
+    if (!terpilih || mode !== 'baru') return;
+    try { localStorage.setItem(DRAFT + terpilih.no, JSON.stringify(ambilNilai())); } catch (e) {}
+  }
+  function hapusDraft(no) { try { localStorage.removeItem(DRAFT + no); } catch (e) {} }
+  function formKosong() {
+    return SOAL.every(function (s) {
+      if (s.tipe === 'foto') return true;
+      return s.tipe === 'pilih' ? !document.querySelector('input[name="' + s.k + '"]:checked') : !$('f-' + s.k).value.trim();
     });
-    var p = peserta.filter(function (x) { return x.no === d.peserta; })[0];
-    if (p) pilihPeserta(p);
+  }
+  // Draf anak itu dipulihkan saat ia memilih namanya, dan hanya kalau formulir masih kosong.
+  function pulihDraft(no) {
+    if (!formKosong()) return;
+    var d; try { d = JSON.parse(localStorage.getItem(DRAFT + no) || 'null'); } catch (e) { d = null; }
+    if (d) isiDariServer(d);
   }
 
   // ---------------- Kirim ----------------
@@ -504,8 +572,9 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
   $('layar-form').addEventListener('submit', function (e) {
     e.preventDefault();
     pesanStatus('');
+    if (mode === 'terkunci') return;
     if (!periksa()) return;
-    var kosong = ['hero', 'musuh', 'dunia'].filter(function (j) { return !foto[j]; });
+    var kosong = ['hero', 'musuh', 'dunia'].filter(function (j) { return !foto[j] && !fotoLama[j]; });
     if (kosong.length && !confirm('Foto gambarmu belum lengkap (' + kosong.length + ' belum ada).\nTetap kirim sekarang?')) return;
 
     var fd = new FormData(), d = ambilNilai();
@@ -519,22 +588,36 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
         var pesan = (r.data && r.data.error) || 'Gagal mengirim. Coba lagi sebentar lagi.';
         if (r.status === 403 || pesan === 'kunci_salah') { lupakanKunci(); pesan = 'Kodenya tidak berlaku lagi. Muat ulang halaman ini dan ketik kode yang baru.'; }
         if (pesan === 'belum_disetel') pesan = 'Formulir belum siap di server. Kabari Coach Riki.';
+        if (r.data && r.data.kode === 'sudah_mengisi') segarkanStatus();
         throw new Error(pesan);
       }
-      var judul = d.judul;
-      hapusDraft();
+      var judul = d.judul, revisi = mode === 'revisi';
+      hapusDraft(terpilih.no);
       $('sukses-judul').textContent = 'Yeay, ' + panggilan(terpilih.nama) + '!';
       pesanStatus('');
-      $('sukses-teks').textContent = 'Game "' + judul + '" sudah terkirim ke Coach Riki. Tunggu perintah gambarnya disiapkan ya!';
+      $('sukses-teks').textContent = revisi
+        ? 'Revisi game "' + judul + '" sudah disimpan. Tunggu perintah gambarnya disiapkan ya!'
+        : 'Game "' + judul + '" sudah terkirim ke Coach Riki. Tunggu perintah gambarnya disiapkan ya! Kalau nanti mau mengubah jawaban, bilang ke Coach Riki.';
+      segarkanStatus(true);
       tampil('sukses');
     }).catch(function (err) {
       pesanStatus(err.name === 'TypeError' ? 'Koneksi terputus. Cek internet lalu tekan kirim lagi.' : err.message, true);
-    }).then(function () { tombol.disabled = false; tombol.textContent = '🚀 Kirim Game Impianku'; });
+    }).then(function () { tombol.disabled = (mode === 'terkunci'); tombol.textContent = teksTombol(); });
   });
 
+  // Ambil ulang status "sudah mengisi / revisi dibuka" dari server. Tanpa argumen, formulir ikut disesuaikan.
+  function segarkanStatus(diam) {
+    api('peserta').then(function (r) {
+      if (!r.ok) return;
+      peserta = r.data.peserta || peserta;
+      if (diam || !terpilih) return;
+      var p = peserta.filter(function (x) { return x.no === terpilih.no; })[0];
+      if (p) { terpilih = p; terapkanStatus(p); }
+    });
+  }
+
   $('isi-lagi').addEventListener('click', function () {
-    $('layar-form').reset();
-    ['hero', 'musuh', 'dunia'].forEach(function (j) { setFoto(j, null); });
+    resetFormulir();
     gantiPeserta(); tutupDaftar(); cari.blur(); pesanStatus('');
     tampil('form');
   });
@@ -552,7 +635,7 @@ input[type=text]:focus,textarea:focus{border-color:var(--violet);box-shadow:0 0 
       if (!r.ok) { lupakanKunci(); return terkunci(dariKetikan ? 'Kodenya belum cocok. Coba ketik lagi ya.' : 'Ketik kode dari Coach Riki untuk membuka formulir.'); }
       ingatKunci();
       peserta = r.data.peserta || [];
-      pulihDraft();
+      try { localStorage.removeItem('rg-draft-v1'); } catch (e) {}   // draf lama (satu untuk semua anak)
       tampil('form');
     }).catch(function () { terkunci('Tidak bisa terhubung. Cek internetmu lalu muat ulang halaman ini.'); });
   }

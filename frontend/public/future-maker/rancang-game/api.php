@@ -3,11 +3,17 @@
   API.PHP  |  Otak formulir "Rancang Game Impianmu!" (Future Makers).
 
   Satu berkas melayani lima aksi:
-    GET  ?aksi=peserta   daftar nama peserta untuk kolom pencarian   (kunci formulir)
-    POST ?aksi=kirim     simpan isian + tiga foto dari formulir      (kunci formulir)
-    GET  ?aksi=daftar    semua isian + prompt yang sudah terisi      (kunci hasil)
-    GET  ?aksi=foto      satu foto (id, jenis)                       (kunci hasil)
-    POST ?aksi=hapus     hapus satu isian beserta fotonya            (kunci hasil)
+    GET  ?aksi=peserta   daftar nama + status (sudah mengisi / revisi dibuka)   (kunci formulir)
+    POST ?aksi=kirim     simpan isian + tiga foto dari formulir                 (kunci formulir)
+    GET  ?aksi=ambil     isian terakhir, HANYA bila revisi anak itu dibuka       (kunci formulir)
+    GET  ?aksi=daftar    semua isian + prompt yang sudah terisi                 (kunci hasil)
+    GET  ?aksi=foto      satu foto (id, jenis)                                  (kunci hasil)
+    POST ?aksi=hapus     hapus satu isian beserta fotonya                       (kunci hasil)
+    POST ?aksi=izinkan   buka / tutup izin revisi untuk satu peserta            (kunci hasil)
+
+  ATURAN ISI: tiap peserta hanya boleh mengisi SEKALI. Setelah itu formulir menolaknya (409)
+  sampai Coach Riki menekan "Buka revisi" di halaman hasil. Satu kali kirim revisi memakai
+  izin itu, lalu terkunci lagi. Menghapus semua isian seorang anak otomatis membukanya lagi.
 
   KUNCI dikirim lewat header  X-Kunci  (bukan lewat alamat gambar), dan ada dua:
     KUNCI_FORM   dibagikan ke anak / orang yang menginput. Hanya bisa mengirim.
@@ -89,6 +95,22 @@ function idValid(string $id): bool {
     return (bool)preg_match('/^\d{8}-\d{6}-[A-Z0-9]+-[0-9a-f]{4}$/', $id);
 }
 
+// Kode peserta tanpa titik/strip, dipakai di nama berkas (FM.B1-005 -> FMB1005).
+function kodeBerkas(string $no): string {
+    return preg_replace('/[^A-Z0-9]/', '', strtoupper($no));
+}
+
+// Berkas isian seorang peserta, yang terbaru di urutan pertama.
+function berkasEntri(string $data, string $no): array {
+    $f = glob($data . '/entri/*-' . kodeBerkas($no) . '-????.json') ?: [];
+    rsort($f);
+    return $f;
+}
+
+function izinRevisi(string $data, string $no): bool {
+    return is_file($data . '/izin/' . kodeBerkas($no));
+}
+
 function pastikanFolder(string $dir): void {
     if (!is_dir($dir) && !@mkdir($dir, 0750, true) && !is_dir($dir)) {
         keluar(500, ['error' => 'Server tidak bisa menyimpan data. Hubungi Coach Riki.']);
@@ -142,8 +164,21 @@ if (!$bolehForm) {
 // ---------------- AKSI: peserta ----------------
 if ($aksi === 'peserta' && $metode === 'GET') {
     $daftar = [];
-    foreach (PESERTA as $no => $nama) $daftar[] = ['no' => $no, 'nama' => $nama];
+    foreach (PESERTA as $no => $nama) {
+        $sudah = (bool)berkasEntri($data, $no);
+        $daftar[] = ['no' => $no, 'nama' => $nama, 'sudah' => $sudah, 'revisi' => $sudah && izinRevisi($data, $no)];
+    }
     keluar(200, ['peserta' => $daftar, 'pilihan' => ['waktu' => PILIHAN_WAKTU, 'akhir' => PILIHAN_AKHIR]]);
+}
+
+// ---------------- AKSI: ambil (isian lama untuk direvisi) ----------------
+if ($aksi === 'ambil' && $metode === 'GET') {
+    $no = (string)($_GET['no'] ?? '');
+    if (!isset(PESERTA[$no])) keluar(400, ['error' => 'Peserta tidak dikenal.']);
+    $berkas = berkasEntri($data, $no);
+    if (!$berkas || !izinRevisi($data, $no)) keluar(403, ['error' => 'Revisi belum dibuka oleh Coach Riki.']);
+    $e = json_decode((string)file_get_contents($berkas[0]), true) ?: [];
+    keluar(200, ['jawaban' => $e['jawaban'] ?? [], 'foto' => array_map(fn($f) => $f !== null, $e['foto'] ?? [])]);
 }
 
 // ---------------- AKSI: kirim ----------------
@@ -188,6 +223,16 @@ if ($aksi === 'kirim' && $metode === 'POST') {
     pastikanFolder($data . '/entri');
     pastikanFolder($data . '/foto');
 
+    // Satu peserta, satu kali isi. Pemeriksaan dan penulisan dilindungi kunci berkas supaya dua
+    // kiriman bersamaan dari anak yang sama tidak lolos keduanya. Kunci dilepas otomatis saat skrip selesai.
+    $fk = fopen($data . '/kirim.lock', 'c');
+    if ($fk) flock($fk, LOCK_EX);
+    $entriLama = berkasEntri($data, $no);
+    $revisi    = $entriLama && izinRevisi($data, $no);
+    if ($entriLama && !$revisi) {
+        keluar(409, ['error' => 'Kamu sudah mengisi formulir ini. Kalau mau merevisi, minta Coach Riki membukanya dulu ya.', 'kode' => 'sudah_mengisi']);
+    }
+
     // Rem harian per IP dan total.
     $berkasLimit = $data . '/limit-' . date('Ymd') . '.json';
     $fh = fopen($berkasLimit, 'c+');
@@ -208,7 +253,19 @@ if ($aksi === 'kirim' && $metode === 'POST') {
         if ($lama !== $berkasLimit && filemtime($lama) < time() - 3 * 86400) @unlink($lama);
     }
 
-    $id = date('Ymd-His') . '-' . preg_replace('/[^A-Z0-9]/', '', strtoupper($no)) . '-' . bin2hex(random_bytes(2));
+    $id = date('Ymd-His') . '-' . kodeBerkas($no) . '-' . bin2hex(random_bytes(2));
+    // Revisi: foto yang tidak diganti disalin dari versi sebelumnya (disalin, bukan dibagi,
+    // supaya menghapus satu versi tidak merusak versi lain).
+    if ($revisi) {
+        $lama = json_decode((string)file_get_contents($entriLama[0]), true) ?: [];
+        foreach (JENIS_FOTO as $j) {
+            $nm = $lama['foto'][$j] ?? null;
+            if (isset($isiFoto[$j]) || !$nm || !preg_match('/^[0-9A-Za-z-]+\.(jpg|png|webp)$/', $nm) || !is_file($data . '/foto/' . $nm)) continue;
+            $ext  = pathinfo($nm, PATHINFO_EXTENSION);
+            $baru = "$id-$j.$ext";
+            if (@copy($data . '/foto/' . $nm, $data . '/foto/' . $baru)) $foto[$j] = $baru;
+        }
+    }
     foreach ($isiFoto as $j => [$biner, $ext]) {
         $nama = "$id-$j.$ext";
         if (file_put_contents($data . '/foto/' . $nama, $biner) === false) {
@@ -220,11 +277,12 @@ if ($aksi === 'kirim' && $metode === 'POST') {
     if (file_put_contents($data . '/entri/' . $id . '.json', json_encode($entri, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) === false) {
         keluar(500, ['error' => 'Isian gagal disimpan. Coba kirim ulang.']);
     }
-    keluar(200, ['ok' => true, 'id' => $id]);
+    if ($revisi) @unlink($data . '/izin/' . kodeBerkas($no));   // satu izin = satu kali revisi
+    keluar(200, ['ok' => true, 'id' => $id, 'revisi' => (bool)$revisi]);
 }
 
 // Tiga aksi di bawah ini khusus pemegang kunci hasil.
-if (in_array($aksi, ['foto', 'hapus', 'daftar'], true) && !$bolehHasil) keluar(403, ['error' => 'kunci_salah']);
+if (in_array($aksi, ['foto', 'hapus', 'daftar', 'izinkan'], true) && !$bolehHasil) keluar(403, ['error' => 'kunci_salah']);
 
 // ---------------- AKSI: foto ----------------
 if ($aksi === 'foto' && $metode === 'GET') {
@@ -255,7 +313,22 @@ if ($aksi === 'hapus' && $metode === 'POST') {
         if ($nama && preg_match('/^[0-9A-Za-z-]+\.(jpg|png|webp)$/', $nama)) @unlink($data . '/foto/' . $nama);
     }
     @unlink($berkas);
+    if (!empty($entri['no']) && !berkasEntri($data, $entri['no'])) {   // tidak ada isian tersisa: anak itu boleh mengisi lagi
+        @unlink($data . '/izin/' . kodeBerkas($entri['no']));
+    }
     keluar(200, ['ok' => true]);
+}
+
+// ---------------- AKSI: izinkan (buka / tutup revisi) ----------------
+if ($aksi === 'izinkan' && $metode === 'POST') {
+    $no   = (string)($_POST['no'] ?? '');
+    $buka = ($_POST['buka'] ?? '') === '1';
+    if (!isset(PESERTA[$no])) keluar(400, ['error' => 'Peserta tidak dikenal.']);
+    if ($buka && !berkasEntri($data, $no)) keluar(400, ['error' => 'Anak ini belum mengisi, jadi tidak perlu dibuka.']);
+    $berkasIzin = $data . '/izin/' . kodeBerkas($no);
+    if ($buka) { pastikanFolder($data . '/izin'); file_put_contents($berkasIzin, date('c')); }
+    else @unlink($berkasIzin);
+    keluar(200, ['ok' => true, 'revisi' => $buka]);
 }
 
 // ---------------- AKSI: daftar (isian + prompt jadi) ----------------
@@ -316,7 +389,7 @@ if ($aksi === 'daftar' && $metode === 'GET') {
                 ],
             ];
         }
-        $hasil[] = ['no' => $no, 'nama' => $nama, 'entri' => $entriOut];
+        $hasil[] = ['no' => $no, 'nama' => $nama, 'revisi' => (bool)$versi && izinRevisi($data, $no), 'entri' => $entriOut];
     }
     keluar(200, ['peserta' => $hasil]);
 }
