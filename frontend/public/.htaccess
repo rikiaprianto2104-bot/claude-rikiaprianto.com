@@ -65,6 +65,11 @@ RewriteRule ^pixi/?$ /pixi/index.html [L]
 # langsung karena tidak cocok dengan pola ini.
 RewriteRule ^future-maker/?$ /index.html [L]
 
+# Formulir internal "Rancang Game" (tidak ditautkan dari mana pun, lihat
+# future-maker/rancang-game/.htaccess). Alasannya sama dengan /pixi: tanpa garis
+# miring, DirectorySlash Off membuat Apache tidak mengalihkan ke folder-nya.
+RewriteRule ^future-maker/rancang-game/?$ /future-maker/rancang-game/index.html [L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]

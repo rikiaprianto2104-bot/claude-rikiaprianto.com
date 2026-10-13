@@ -1,0 +1,23 @@
+# ============================================================================
+#  .htaccess KHUSUS folder /future-maker/rancang-game/ — formulir internal
+#  "Rancang Game Impianmu!" dan halaman hasilnya.
+#
+#  Halaman ini TIDAK untuk publik: tidak ditautkan dari menu mana pun, tidak
+#  masuk sitemap, dan di sini ditambah larangan indeks untuk mesin pencari.
+#  Aturan CSP / Permissions-Policy diwarisi dari future-maker/.htaccess (skrip
+#  inline diizinkan di sana), jadi tidak diulang di sini.
+# ============================================================================
+
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header always set Cache-Control "no-store"
+</IfModule>
+
+Options -Indexes
+
+# Sama seperti pixi/.htaccess: jangan biarkan LiteSpeed menyimpan salinan halaman
+# di server. Isinya kecil dan harus selalu versi terbaru.
+<IfModule LiteSpeed>
+  RewriteEngine On
+  RewriteRule .* - [E=Cache-Control:no-cache]
+</IfModule>

@@ -117,3 +117,6 @@ Pixi/pixi-chat.php
 # Berkas kerja Meshy (model mentah, pratinjau, catatan tugas). Yang dipakai situs
 # hanya hasil akhirnya di frontend/public/pixi/pixi-v2.glb.
 Pixi/meshy/
+
+# Kunci formulir Rancang Game (disalin manual ke server, lihat RANCANG-GAME-PASANG.md)
+/rancang-game-secret.php
