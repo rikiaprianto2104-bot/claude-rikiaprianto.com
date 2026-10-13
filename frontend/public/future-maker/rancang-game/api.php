@@ -67,9 +67,11 @@ const KOLOM = [
     'judul'          => ['Judul game', 120],
     'nama_hero'      => ['Nama tokoh utama', 80],
     'kekuatan_hero'  => ['Kekuatan spesial tokoh utama', 300],
+    'warna_hero'     => ['Warna tokoh utama', 150],
     'nama_musuh'     => ['Nama musuh', 80],
     'alasan_musuh'   => ['Alasan menjadi musuh', 400],
     'kekuatan_musuh' => ['Kekuatan spesial musuh', 300],
+    'warna_musuh'    => ['Warna tokoh musuh', 150],
     'dunia'          => ['Tempat petualangan', 300],
     'rintangan'      => ['Rintangan', 300],
     'masalah'        => ['Masalah yang harus diselesaikan', 400],
@@ -406,14 +408,24 @@ if ($aksi === 'daftar' && $metode === 'GET') {
             $akhir       = $a['akhir'] === 'Bebaskan Claude memilih' ? 'Bebas, Claude boleh memilih akhir cerita yang paling cocok.' : $a['akhir'];
 
             $umum = ['JUDUL_GAME' => $a['judul'], 'DUNIA_GAME' => $a['dunia'], 'RINTANGAN' => $a['rintangan']];
+            // Warna disebut tegas: gambar anak difoto di atas kertas, dan tanpa keterangan ini
+            // pembuat gambar sering meniru warna kertas (abu-abu/putih). Isian lama (sebelum ada
+            // kolom warna) memakai kalimat cadangan.
+            $barisWarna = function (string $w): string {
+                return $w !== ''
+                    ? "- Warna: $w"
+                    : '- Warna: sesuai warna yang digambar anak pada gambar referensi (abaikan warna kertas dan latar foto).';
+            };
             $tentangHero = "- Peran dalam game: Tokoh utama (pahlawan) dalam game \"{$a['judul']}\"\n"
                 . "- Nama: {$a['nama_hero']}\n"
-                . "- Bentuk dan warna: ikuti persis gambar referensi yang saya unggah.\n"
+                . "- Bentuk: ikuti persis gambar referensi yang saya unggah.\n"
+                . $barisWarna($a['warna_hero'] ?? '') . "\n"
                 . "- Kekuatan super: {$a['kekuatan_hero']}";
             $tentangMusuh = "- Peran dalam game: Tokoh musuh (lawan) dalam game \"{$a['judul']}\"\n"
                 . "- Nama: {$a['nama_musuh']}\n"
                 . "- Alasan menjadi musuh: {$a['alasan_musuh']}\n"
-                . "- Bentuk dan warna: ikuti persis gambar referensi yang saya unggah.\n"
+                . "- Bentuk: ikuti persis gambar referensi yang saya unggah.\n"
+                . $barisWarna($a['warna_musuh'] ?? '') . "\n"
                 . "- Kekuatan super: {$a['kekuatan_musuh']}";
 
             $entriOut[] = [

@@ -469,8 +469,9 @@ dialog.tanya[open]{animation:muncul .18s ease-out}
 
     // Ringkasan jawaban
     var j = e.jawaban;
-    var baris = [['Judul game', j.judul], ['Tokoh utama', j.nama_hero], ['Kekuatan tokoh utama', j.kekuatan_hero],
-      ['Musuh', j.nama_musuh], ['Alasan jadi musuh', j.alasan_musuh], ['Kekuatan musuh', j.kekuatan_musuh],
+    var belum = '(belum diisi, isian lama)';
+    var baris = [['Judul game', j.judul], ['Tokoh utama', j.nama_hero], ['Kekuatan tokoh utama', j.kekuatan_hero], ['Warna tokoh utama', j.warna_hero || belum],
+      ['Musuh', j.nama_musuh], ['Alasan jadi musuh', j.alasan_musuh], ['Kekuatan musuh', j.kekuatan_musuh], ['Warna musuh', j.warna_musuh || belum],
       ['Tempat petualangan', j.dunia], ['Waktu', j.waktu_game], ['Rintangan', j.rintangan],
       ['Masalah utama', j.masalah], ['Akhir cerita', j.akhir]];
     var dl = el('dl');

@@ -237,9 +237,11 @@ dialog.tanya[open]{animation:muncul .18s ease-out}
     { grup:'game',  k:'judul',          no:1,  q:'Apa judul game kamu?',               contoh:'Petualangan PIXI di Hutan Ajaib', tipe:'teks' },
     { grup:'game',  k:'nama_hero',      no:2,  q:'Siapa nama tokoh utama kamu?',       contoh:'PIXI', tipe:'teks' },
     { grup:'game',  k:'kekuatan_hero',  no:3,  q:'Apa kekuatan spesial tokoh utama?',  contoh:'Menembakkan petir dan teleportasi', tipe:'area' },
+    { grup:'game',  k:'warna_hero',     no:0,  q:'Apa warna tokoh utama kamu?',        contoh:'Kuning, dengan sedikit abu-abu', tipe:'teks' },
     { grup:'musuh', k:'nama_musuh',     no:4,  q:'Siapa nama musuhnya?',               contoh:'ROCKY', tipe:'teks' },
     { grup:'musuh', k:'alasan_musuh',   no:5,  q:'Mengapa dia menjadi musuh?',         contoh:'Dia mencuri kristal ajaib dari desa.', tipe:'area' },
     { grup:'musuh', k:'kekuatan_musuh', no:6,  q:'Apa kekuatan spesial musuh?',        contoh:'Memiliki palu yang bisa membesar.', tipe:'area' },
+    { grup:'musuh', k:'warna_musuh',    no:0,  q:'Apa warna musuhnya?',                contoh:'Hitam, dengan mata merah', tipe:'teks' },
     { grup:'dunia', k:'dunia',          no:7,  q:'Di mana petualangan berlangsung?',   contoh:'Hutan ajaib dengan sungai dan pegunungan.', tipe:'area' },
     { grup:'dunia', k:'waktu_game',     no:8,  q:'Kapan petualangan berlangsung?',     tipe:'pilih',
       opsi:[['Siang','☀️'],['Malam','🌙'],['Matahari terbenam','🌅'],['Bebaskan Claude memilih','🎲']] },
@@ -311,7 +313,8 @@ dialog.tanya[open]{animation:muncul .18s ease-out}
   var fotoLama = {};                                      // foto yang sudah tersimpan saat revisi
 
   function bangunSoal() {
-    SOAL.forEach(function (s) {
+    SOAL.forEach(function (s, urutan) {
+      s.no = urutan + 1;    // nomor mengikuti urutan, jadi menambah pertanyaan tidak perlu menomori ulang
       var card = document.querySelector('[data-grup="' + s.grup + '"]');
       var q = el('div', { class: 'q', id: 'q-' + s.k + (s.tipe === 'foto' ? '-foto' : '') });
       var wajib = s.tipe === 'foto'

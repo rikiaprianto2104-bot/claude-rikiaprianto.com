@@ -189,6 +189,7 @@ Saya akan mengunggah sebuah gambar referensi {{PERAN}} untuk game 3D saya. Tugas
 
 ## 1. ATURAN UTAMA DESAIN
 - Gunakan gambar yang saya unggah sebagai referensi utama.
+- Gambar referensi adalah foto gambar tangan di atas kertas. Abaikan warna kertas, latar, bayangan, dan pencahayaan foto. Warna karakter harus mengikuti keterangan "Warna" pada bagian TENTANG TOKOH; jika ada beberapa warna, ikuti pembagian warna pada gambar referensi.
 - Pertahankan identitas visual karakter, termasuk bentuk kepala, wajah, warna, pakaian, aksesori, proporsi tubuh, dan ciri khasnya.
 - Jangan mengubah desain asli secara berlebihan atau menciptakan karakter baru yang berbeda.
 - Jika gambar referensi memiliki bagian yang tidak terlihat, lengkapi secara logis dan konsisten dengan desain aslinya.
