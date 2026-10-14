@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixi joget</title>
+<!--
+  PIXI JOGET - dipakai di slide terakhir materi Pertemuan 1.
+
+  Halaman ini SENGAJA terpisah dari slide-nya. Model 3D Pixi butuh three.js,
+  GLTFLoader, dan sisipan shader tersendiri; kalau semuanya ditumpuk ke dalam
+  satu berkas slide, satu kesalahan kecil di situ bisa mematikan seluruh
+  presentasi di depan kelas. Dengan dipisah, kegagalan apa pun di sini paling
+  buruk hanya membuat Pixi tidak muncul - slide-nya tetap jalan, dan gambar
+  Pixi yang diam tetap terlihat di belakangnya.
+
+  Model, bahan, pencahayaan, dan cara menekuk tangan serta kaki diambil dari
+  halaman /pixi/ supaya Pixi di kelas sama persis dengan Pixi yang ditemui anak
+  di rumah. Yang berbeda hanya gerakannya: di sini ia menari, bukan mengobrol.
+-->
+<style>
+  /* color-scheme WAJIB ada. Tanpa ini Chrome memberi dokumen di dalam bingkai
+     alas putih bawaan, walaupun html dan body sudah transparan, sehingga Pixi
+     terlihat berdiri di dalam kotak putih di tengah slide yang gelap. */
+  :root{color-scheme:dark}
+  html,body{height:100%;margin:0;background:transparent;overflow:hidden}
+  #stage{position:fixed;inset:0}
+  #stage canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/DecalGeometry.js"></script>
+<script>
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setClearColor(0x000000, 0);          // latar tembus pandang, ikut warna slide
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+
+// Lingkungan studio mini (softbox) supaya permukaan Pixi punya kilau lembut seperti mainan
+(function(){
+  const es = new THREE.Scene();
+  es.add(new THREE.Mesh(new THREE.SphereGeometry(20, 32, 16), new THREE.MeshBasicMaterial({color:0x5a4fc8, side:THREE.BackSide})));
+  const kotak = (x, y, z, w, hh, s) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, hh), new THREE.MeshBasicMaterial({color:new THREE.Color(s, s, s), side:THREE.DoubleSide}));
+    m.position.set(x, y, z); m.lookAt(0, 0, 0); es.add(m);
+  };
+  kotak(-8, 9, 9, 7, 5, 4); kotak(9, 4, 6, 3, 6, 2.2); kotak(0, 6, -10, 10, 3, 2);
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(es, 0.03).texture;
+  pm.dispose();
+})();
+
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb9aeff, .75));
+const kunci = new THREE.DirectionalLight(0xffffff, .55); kunci.position.set(3, 5, 6); scene.add(kunci);
+const isi   = new THREE.DirectionalLight(0xe2dcff, .3);  isi.position.set(-3, -2, 4); scene.add(isi);
+const tepi  = new THREE.DirectionalLight(0xc8bfff, .6);  tepi.position.set(-4, 3, -3); scene.add(tepi);
+
+const pixi = new THREE.Group(); scene.add(pixi);
+let glbG = null, glbParts = null;
+
+// ---- Model 3D Pixi (GLB): satu bentuk utuh, tangan & kaki ditekuk lewat shader ----
+// Disalin dari /pixi/ supaya Pixi-nya sama persis. Penekukan dikerjakan di kartu
+// grafis, bukan di JavaScript: model ini punya puluhan ribu titik, dan menghitung
+// ulang semuanya tiap frame terlalu berat. Lewat shader yang dikirim hanya
+// beberapa angka sudut per frame.
+(function(){
+  const kanvas = (w, hh, gambar) => {
+    const c = document.createElement('canvas'); c.width = w; c.height = hh; gambar(c.getContext('2d'), w, hh);
+    const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+  };
+  const bahanStiker = (map, urutan) => new THREE.MeshStandardMaterial({
+    map, transparent:true, roughness:.55, metalness:0, envMapIntensity:.3,
+    depthWrite:false, polygonOffset:true,
+    polygonOffsetFactor:-4 - urutan * 2, polygonOffsetUnits:-4 - urutan * 2});
+  const tambalPutih = () => kanvas(128, 128, (x, w, hh) => {
+    const g = x.createRadialGradient(w/2, hh/2, 0, w/2, hh/2, w/2);
+    g.addColorStop(0, 'rgb(250,249,252)'); g.addColorStop(.7, 'rgb(250,249,252)'); g.addColorStop(1, 'rgba(250,249,252,0)');
+    x.fillStyle = g; x.fillRect(0, 0, w, hh);
+  });
+  const teksMata = () => kanvas(96, 136, (x, w, hh) => {
+    const g = x.createLinearGradient(0, 0, 0, hh); g.addColorStop(0, '#1d1655'); g.addColorStop(1, '#0a0726');
+    x.fillStyle = g; x.beginPath(); x.ellipse(w/2, hh/2, w * .44, hh * .44, 0, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#fff'; x.beginPath(); x.ellipse(w * .62, hh * .3, w * .15, hh * .11, -.3, 0, Math.PI * 2); x.fill();
+    x.beginPath(); x.ellipse(w * .36, hh * .68, w * .06, hh * .045, 0, 0, Math.PI * 2); x.fill();
+  });
+  // Pelat punggung. Dulu Pixi tidak pernah diputar penuh karena punggungnya
+  // polos - sekarang diputar penuh, jadi punggungnya diberi lencana Future
+  // Makers supaya sisi belakangnya ikut enak dilihat, bukan sekadar bulatan ungu.
+  const teksPunggung = () => kanvas(256, 256, (x, w, hh) => {
+    const p = w / 2;
+    // Pelat bundar ungu muda dengan tepi yang melembut ke luar, supaya
+    // sambungannya tidak terlihat sebagai lingkaran yang dipotong tajam.
+    const g = x.createRadialGradient(p, p, p * .2, p, p, p * .5);
+    g.addColorStop(0, 'rgba(139,124,255,.95)'); g.addColorStop(.72, 'rgba(124,108,245,.9)');
+    g.addColorStop(.93, 'rgba(110,94,235,.45)'); g.addColorStop(1, 'rgba(110,94,235,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(p, p, p * .5, 0, Math.PI * 2); x.fill();
+    // Cincin tipis
+    x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = w * .012;
+    x.beginPath(); x.arc(p, p, p * .4, 0, Math.PI * 2); x.stroke();
+    // Bintang kuning di tengah, bentuknya sama dengan bintang di antena
+    x.fillStyle = '#FFC93C'; x.beginPath();
+    for(let i = 0; i < 10; i++){
+      const r = (i % 2 ? .1 : .25) * w, a = -Math.PI / 2 + i * Math.PI / 5;
+      const px = p + Math.cos(a) * r, py = p + Math.sin(a) * r;
+      i ? x.lineTo(px, py) : x.moveTo(px, py);
+    }
+    x.closePath(); x.fill();
+    // Tiga titik kecil di bawah bintang, seperti lampu robot
+    x.fillStyle = 'rgba(255,255,255,.5)';
+    [-1, 0, 1].forEach(i => { x.beginPath(); x.arc(p + i * w * .075, p + w * .33, w * .017, 0, Math.PI * 2); x.fill(); });
+  });
+
+  const teksMulut = () => kanvas(160, 90, (x, w, hh) => {
+    x.save(); x.beginPath(); x.moveTo(w * .12, hh * .28); x.lineTo(w * .88, hh * .28);
+    x.bezierCurveTo(w * .88, hh * .96, w * .12, hh * .96, w * .12, hh * .28); x.closePath(); x.clip();
+    x.fillStyle = '#7d1a3a'; x.fillRect(0, 0, w, hh);
+    x.fillStyle = '#ff7d95'; x.beginPath(); x.ellipse(w * .5, hh * .84, w * .19, hh * .16, 0, 0, Math.PI * 2); x.fill(); x.restore();
+  });
+
+  // Letak wajah pada model, dalam satuan model sebelum diskalakan. Angka-angka
+  // ini diukur dari modelnya di /pixi/, jadi jangan diubah sebelah sini saja.
+  const WAJAH = {
+    z: .645, cx: .013,
+    mataX: .16, mataY: .034, mataL: .22, mataT: .30,
+    mulutY: -.222, mulutL: .20, mulutT: .12,
+    tambalMataL: .31, tambalMataT: .40, tambalMulutL: .33, tambalMulutT: .21
+  };
+  const BOBOT_DALAM = .58, BOBOT_LUAR = .88;   // batas tekukan tangan
+  const KAKI_ATAS = -.62, KAKI_BAWAH = -.92;   // batas tekukan kaki
+
+  if(!THREE.GLTFLoader) return;
+  try{
+    new THREE.GLTFLoader().load('/pixi/pixi-v2.glb', gltf => {
+      const m = gltf.scene;
+      let mesh = null; m.traverse(o => { if(o.isMesh && !mesh) mesh = o; });
+      if(!mesh) return;
+
+      const geo = mesh.geometry, pos = geo.attributes.position;
+      const bobot = new Float32Array(pos.count);
+      const jumlahY = [0, 0], cacah = [0, 0];
+      for(let i = 0; i < pos.count; i++){
+        const x = pos.getX(i);
+        let t = (Math.abs(x) - BOBOT_DALAM) / (BOBOT_LUAR - BOBOT_DALAM);
+        t = Math.max(0, Math.min(1, t));
+        bobot[i] = t * t * (3 - 2 * t);
+        if(bobot[i] > 0){ const s = x < 0 ? 0 : 1; jumlahY[s] += pos.getY(i); cacah[s]++; }
+      }
+      geo.setAttribute('aBobot', new THREE.BufferAttribute(bobot, 1));
+
+      const bobotKaki = new Float32Array(pos.count);
+      const jumlahX = [0, 0], cacahK = [0, 0];
+      for(let i = 0; i < pos.count; i++){
+        const y = pos.getY(i);
+        let t = (KAKI_ATAS - y) / (KAKI_ATAS - KAKI_BAWAH);
+        t = Math.max(0, Math.min(1, t));
+        bobotKaki[i] = t * t * (3 - 2 * t);
+        if(bobotKaki[i] > 0){ const sK = pos.getX(i) < 0 ? 0 : 1; jumlahX[sK] += pos.getX(i); cacahK[sK]++; }
+      }
+      geo.setAttribute('aBobotKaki', new THREE.BufferAttribute(bobotKaki, 1));
+
+      const seragam = {
+        uKiri:  {value: 0}, uKanan: {value: 0},
+        uBahuKiri:  {value: new THREE.Vector3(-BOBOT_DALAM, cacah[0] ? jumlahY[0] / cacah[0] : 0, 0)},
+        uBahuKanan: {value: new THREE.Vector3( BOBOT_DALAM, cacah[1] ? jumlahY[1] / cacah[1] : 0, 0)},
+        uKakiKiri:  {value: 0}, uKakiKanan: {value: 0},
+        uPinggulKiri:  {value: new THREE.Vector3(cacahK[0] ? jumlahX[0] / cacahK[0] : -.22, KAKI_ATAS, 0)},
+        uPinggulKanan: {value: new THREE.Vector3(cacahK[1] ? jumlahX[1] / cacahK[1] :  .22, KAKI_ATAS, 0)}
+      };
+
+      mesh.material.onBeforeCompile = (shader) => {
+        Object.assign(shader.uniforms, seragam);
+        shader.vertexShader = shader.vertexShader
+          .replace('#include <common>', [
+            '#include <common>',
+            'attribute float aBobot; attribute float aBobotKaki;',
+            'uniform float uKiri; uniform float uKanan;',
+            'uniform vec3 uBahuKiri; uniform vec3 uBahuKanan;',
+            'uniform float uKakiKiri; uniform float uKakiKanan;',
+            'uniform vec3 uPinggulKiri; uniform vec3 uPinggulKanan;',
+            'vec3 ayunZ(vec3 p, vec3 pv, float a){ vec3 d = p - pv; float c = cos(a), s = sin(a);',
+            '  return vec3(d.x*c - d.y*s, d.x*s + d.y*c, d.z) + pv; }',
+            'vec3 ayunX(vec3 p, vec3 pv, float a){ vec3 d = p - pv; float c = cos(a), s = sin(a);',
+            '  return vec3(d.x, d.y*c - d.z*s, d.y*s + d.z*c) + pv; }'
+          ].join('\n'))
+          .replace('#include <beginnormal_vertex>', [
+            '#include <beginnormal_vertex>',
+            '{ float at = (position.x < 0.0 ? uKiri : uKanan) * aBobot;',
+            '  float ak = (position.x < 0.0 ? uKakiKiri : uKakiKanan) * aBobotKaki;',
+            '  objectNormal = ayunZ(objectNormal, vec3(0.0), at);',
+            '  objectNormal = ayunX(objectNormal, vec3(0.0), ak); }'
+          ].join('\n'))
+          .replace('#include <begin_vertex>', [
+            '#include <begin_vertex>',
+            '{ float at = (position.x < 0.0 ? uKiri : uKanan) * aBobot;',
+            '  float ak = (position.x < 0.0 ? uKakiKiri : uKakiKanan) * aBobotKaki;',
+            '  transformed = ayunZ(transformed, position.x < 0.0 ? uBahuKiri : uBahuKanan, at);',
+            '  transformed = ayunX(transformed, position.x < 0.0 ? uPinggulKiri : uPinggulKanan, ak); }'
+          ].join('\n'));
+      };
+      // Tanpa kunci sendiri, Three.js bisa memakai ulang program shader yang sudah
+      // ter-cache untuk material sejenis, dan sisipan di atas terabaikan.
+      mesh.material.customProgramCacheKey = () => 'pixi-lentur';
+      mesh.material.needsUpdate = true;
+      const lentur = (tKiri, tKanan, kKiri, kKanan) => {
+        seragam.uKiri.value = tKiri; seragam.uKanan.value = tKanan;
+        seragam.uKakiKiri.value = kKiri || 0; seragam.uKakiKanan.value = kKanan || 0;
+      };
+
+      // ---- Wajah: tambalan menutup wajah bawaan, lalu mata & mulut yang bisa bergerak ----
+      let mataKiri = null, mataKanan = null, mulutM = null;
+      if(THREE.DecalGeometry){
+        const stiker = (cx, cy, w, hh, tekstur, urutan) => {
+          const g = new THREE.DecalGeometry(mesh, new THREE.Vector3(cx, cy, WAJAH.z), new THREE.Euler(0, 0, 0), new THREE.Vector3(w, hh, .6));
+          g.translate(-cx, -cy, -WAJAH.z);
+          const me = new THREE.Mesh(g, bahanStiker(tekstur, urutan));
+          me.position.set(cx, cy, WAJAH.z); me.renderOrder = urutan; m.add(me); return me;
+        };
+        const kiriX = WAJAH.cx - WAJAH.mataX, kananX = WAJAH.cx + WAJAH.mataX;
+        const tp = tambalPutih();
+        stiker(kiriX,    WAJAH.mataY,  WAJAH.tambalMataL,  WAJAH.tambalMataT,  tp, 1);
+        stiker(kananX,   WAJAH.mataY,  WAJAH.tambalMataL,  WAJAH.tambalMataT,  tp, 1);
+        stiker(WAJAH.cx, WAJAH.mulutY, WAJAH.tambalMulutL, WAJAH.tambalMulutT, tp, 1);
+        const tm = teksMata();
+        mataKiri  = stiker(kiriX,  WAJAH.mataY, WAJAH.mataL, WAJAH.mataT, tm, 2);
+        mataKanan = stiker(kananX, WAJAH.mataY, WAJAH.mataL, WAJAH.mataT, tm, 2);
+        mulutM    = stiker(WAJAH.cx, WAJAH.mulutY, WAJAH.mulutL, WAJAH.mulutT, teksMulut(), 2);
+
+        // Lencana punggung. Letak Z-nya DIUKUR dari modelnya, bukan dikira-kira,
+        // supaya tetap menempel kalau modelnya suatu saat diganti.
+        geo.computeBoundingBox();
+        const zBelakang = geo.boundingBox.min.z * .92;
+        const gB = new THREE.DecalGeometry(mesh, new THREE.Vector3(WAJAH.cx, -.02, zBelakang),
+                                           new THREE.Euler(0, Math.PI, 0), new THREE.Vector3(.62, .62, .7));
+        gB.translate(-WAJAH.cx, .02, -zBelakang);
+        const meB = new THREE.Mesh(gB, bahanStiker(teksPunggung(), 1));
+        meB.position.set(WAJAH.cx, -.02, zBelakang); meB.renderOrder = 1; m.add(meB);
+      }
+
+      // ---- Skala & letak ----
+      m.updateMatrixWorld(true);
+      const kotak = new THREE.Box3().setFromObject(m);
+      const ukuran = kotak.getSize(new THREE.Vector3()), tengah = kotak.getCenter(new THREE.Vector3());
+      const sk = 3.2 / ukuran.y;
+      m.scale.setScalar(sk);
+      m.position.set(-tengah.x * sk, -1.6 - kotak.min.y * sk, -tengah.z * sk);
+      m.traverse(o => { if(o.isMesh && o.material && o.material.isMeshStandardMaterial && o.material.map){ o.material.envMapIntensity = .3; } });
+
+      glbG = new THREE.Group(); glbG.position.y = .28; glbG.add(m);
+      glbParts = {lentur, mataL:mataKiri, mataR:mataKanan, mulutM,
+                  dasar:{L:[WAJAH.cx - WAJAH.mataX, WAJAH.mataY], R:[WAJAH.cx + WAJAH.mataX, WAJAH.mataY]}};
+      pixi.add(glbG);
+
+      // Slide-nya menunggu kabar ini sebelum menukar gambar Pixi yang diam dengan
+      // Pixi yang menari. Kalau kabarnya tidak pernah datang (model gagal dimuat,
+      // tidak ada internet untuk three.js, atau kartu grafisnya tidak mendukung
+      // WebGL), slide tetap menampilkan gambar yang diam - jadi tidak pernah kosong.
+      try{ parent.postMessage('pixi-joget-siap', location.origin); }catch(e){}
+    }, undefined, err => console.error(err));
+  }catch(e){ console.error(e); }
+})();
+
+/* =====================================================================
+   JOGET
+   Delapan ketukan per putaran. Empat ketukan pertama Pixi bergoyang
+   kiri-kanan, empat berikutnya ia berputar sambil melompat kecil. Semua
+   gerakan dihitung dari satu jam yang sama, jadi tangan, kaki, badan, dan
+   lompatannya selalu jatuh pada ketukan yang sama.
+   ===================================================================== */
+const BPM = 112;
+const jam = new THREE.Clock();
+let kedipBerikut = 2.5, kedipMulai = -1;
+
+// Pixi hanya menari kalau lagunya dinyalakan. Slide-nya yang memegang lagu,
+// jadi slide itu yang mengabari halaman ini lewat postMessage saat lagu mulai
+// dan berhenti. Di luar itu Pixi bernapas tenang saja, tidak diam seperti patung.
+//
+// seru naik pelan ke 1 saat musik menyala dan turun pelan ke 0 saat berhenti,
+// supaya Pixi tidak tiba-tiba menyentak dari diam ke joget penuh. Semua
+// kekuatan gerakan di bawah dikalikan dengannya.
+let musik = false, seru = 0;
+// ketukJoget dihitung terpisah dari jam utama supaya jogetnya SELALU mulai dari
+// ketukan pertama waktu musiknya dinyalakan, bukan melanjutkan hitungan yang
+// sudah jalan sejak slide dibuka.
+let ketukJoget = 0;
+addEventListener('message', e => {
+  if(e.origin !== location.origin) return;
+  if(e.data === 'joget-mulai'){ musik = true; ketukJoget = 0; }
+  else if(e.data === 'joget-stop'){ musik = false; }
+});
+
+function ukur(){
+  const w = stage.clientWidth, h = Math.max(stage.clientHeight, 120);
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  // Ruang yang disediakan sedikit lebih lega daripada di halaman /pixi/, karena
+  // di sini Pixi melompat dan berputar - kalau pas-pasan, kepalanya terpotong.
+  const jarakTinggi = (4.6 / 2) / t;
+  const jarakLebar  = (4.3 / 2) / (t * camera.aspect);
+  camera.position.set(0, .35, Math.max(jarakTinggi, jarakLebar));
+  camera.lookAt(0, .25, 0);
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', ukur); ukur();
+if('ResizeObserver' in window){ new ResizeObserver(ukur).observe(stage); }
+
+let tSebelum = 0;
+function gerak(){
+  requestAnimationFrame(gerak);
+  const t = jam.getElapsedTime();
+  const dt = Math.min(.1, t - tSebelum); tSebelum = t;
+
+  // Peralihan diam <-> joget: sekitar setengah detik, jadi terasa Pixi ikut
+  // bersemangat waktu musiknya mulai, bukan langsung menyentak.
+  seru += ((musik ? 1 : 0) - seru) * Math.min(1, dt * 4);
+  if(seru > .002) ketukJoget += dt * BPM / 60;
+
+  if(glbG && glbParts){
+    const ketuk = ketukJoget;                // nomor ketukan, pecahan ikut terbawa
+    const putaran = ketuk % 8;               // di mana kita dalam satu putaran
+    const babakKedua = putaran >= 4;         // ketukan 5-8: berputar penuh & melompat
+
+    // Hentakan: naik cepat di awal tiap ketukan lalu turun, supaya terasa ada
+    // tekanannya - bukan sekadar naik-turun rata seperti gelombang.
+    const dalamKetuk = ketuk % 1;
+    const hentak = Math.pow(1 - dalamKetuk, 2.2);
+
+    // Goyang kiri-kanan: satu lambaian penuh tiap dua ketukan.
+    const goyang = Math.sin(ketuk * Math.PI);
+
+    // Saat musiknya mati Pixi bernapas tenang: naik-turun pelan, tanpa ketukan.
+    const napas = Math.sin(t * 1.25) * .035;
+
+    // Naik-turun badan + lompatan kecil di babak kedua.
+    const pantul = Math.abs(Math.sin(ketuk * Math.PI)) * .13 + hentak * .05;
+    const lompat = babakKedua ? Math.max(0, Math.sin((putaran - 4) * Math.PI / 2)) * .3 : 0;
+    glbG.position.y = .28 + napas * (1 - seru) + (pantul + lompat) * seru;
+
+    // Badan: miring mengikuti goyangan, berputar penuh di babak kedua,
+    // dan sedikit condong ke depan saat menghentak.
+    // Putaran penuh satu kali dalam empat ketukan. Ini baru enak dilihat setelah
+    // punggungnya diberi lencana di atas; sebelum itu sisi belakangnya polos.
+    // Putarannya diperhalus di ujung (easing) supaya terasa seperti pirouette
+    // yang berhenti manis menghadap penonton, bukan berputar rata seperti mesin.
+    const majuPutar = babakKedua ? (putaran - 4) / 4 : 0;
+    const putarBadan = babakKedua
+      ? (majuPutar < .5 ? 4 * majuPutar ** 3 : 1 - (-2 * majuPutar + 2) ** 3 / 2) * Math.PI * 2
+      : goyang * .28;
+    glbG.rotation.set((hentak * .07 - .02) * seru, putarBadan * seru, goyang * -.22 * seru);
+
+    // Tangan berayun bergantian, lebar, dengan hentakan di tiap ketukan.
+    // Angka dasarnya mengikuti /pixi/: tangan kanan condong negatif, kiri positif.
+    // Saat diam, tangannya tetap berayun pelan seperti di halaman /pixi/, supaya
+    // Pixi tidak pernah terlihat kaku walaupun musiknya belum dinyalakan.
+    const ayunTenang = Math.sin(t * 1.3) * .17;
+    const ayun = (goyang * .62 + hentak * .18) * seru + ayunTenang * (1 - seru);
+    const tKanan = -.35 * 2.1 + ayun;
+    const tKiri  =  .35 * 2.1 + ayun;
+
+    // Kaki melangkah bergantian, maju-mundur, dua kali lebih cepat dari goyangan.
+    const langkah = Math.sin(ketuk * Math.PI * 2) * .26 * seru + Math.sin(t * 1.5) * .05 * (1 - seru);
+
+    glbParts.lentur(tKiri, tKanan, -langkah, langkah);
+
+    // Mata berkedip sesekali supaya tidak terlihat seperti patung.
+    if(kedipMulai < 0 && t > kedipBerikut){ kedipMulai = t; kedipBerikut = t + 2.5 + Math.random() * 3; }
+    let kedip = 1;
+    if(kedipMulai >= 0){
+      const k = (t - kedipMulai) / .16;
+      if(k >= 1){ kedipMulai = -1; } else { kedip = Math.abs(k * 2 - 1); }
+    }
+    if(glbParts.mataL){
+      [['mataL', 'L'], ['mataR', 'R']].forEach(([k, s]) => {
+        const e = glbParts[k], d = glbParts.dasar[s];
+        // Mata ikut melirik ke arah goyangan, seperti orang menikmati musiknya.
+        e.position.x = d[0] + goyang * .012 * seru;
+        e.position.y = d[1];
+        e.scale.y = Math.max(.06, kedip);
+      });
+      // Mulut membuka-menutup mengikuti ketukan, seperti ikut bernyanyi.
+      // Mulut hanya ikut menyanyi kalau ada musiknya.
+      glbParts.mulutM.scale.y = 1 + hentak * .45 * seru;
+      glbParts.mulutM.scale.x = 1 + hentak * .12 * seru;
+    }
+  }
+  renderer.render(scene, camera);
+}
+gerak();
+</script>
+</body>
+</html>
