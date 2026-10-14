@@ -52,6 +52,19 @@
 # dilewati, supaya tidak berputar-putar mengarahkan dirinya sendiri.
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # PENTING. Menyalakan RewriteEngine di sini membuat aturan mod_rewrite milik
+  # .htaccess induk TIDAK lagi berlaku untuk folder ini - mod_rewrite memang
+  # tidak mewariskan aturan ke bawah. Salah satu yang hilang adalah aturan yang
+  # menyajikan halaman React untuk alamat "/future-maker/" itu sendiri. Tanpa
+  # penggantinya, Apache mencari berkas indeks di folder ini, tidak menemukan
+  # apa pun, dan menjawab 403 Forbidden. Jadi aturan itu ditulis ulang di sini.
+  RewriteRule ^$ /index.html [L]
+
+  # Alamat materi yang ditulis tangan sering memakai huruf besar, misalnya
+  # "/future-maker/Pertemuan-3/". Server Linux membedakan besar-kecil huruf,
+  # jadi folder itu tidak ketemu dan yang terlihat halaman putih kosong.
+  # Syarat di bawah melewatkan alamat yang SUDAH benar supaya tidak berputar.
   RewriteCond %{REQUEST_URI} !^/future-maker/pertemuan-[0-9]+/$
   RewriteRule ^pertemuan-([0-9]+)/?$ /future-maker/pertemuan-$1/ [R=302,L,NC]
 </IfModule>
