@@ -4,7 +4,7 @@
   Dibaca oleh api.php (bukan dibuka langsung). Ganti teksnya kapan saja; yang
   ditulis {{SEPERTI_INI}} diisi otomatis dari jawaban formulir.
 
-  game      -> prompt untuk Claude (membuat game 3D)         sumber: PromptClaude.md
+  game      -> prompt untuk Claude (membuat game 3D)         sumber: prompt-future-makers-v2.txt
   karakter  -> prompt ChatGPT gambar tokoh utama DAN musuh   sumber: PROMPT CHAT GPT.docx
   dunia     -> prompt ChatGPT gambar dunia game              sumber: PROMPT CHAT GPT.docx
 */
@@ -13,36 +13,22 @@ if (!defined('GAME_API')) { http_response_code(403); exit; }
 return [
 
 'game' => <<<'TXT'
-# FUTURE MAKERS — CREATE MY OWN 3D GAME
+# FUTURE MAKERS — BUAT GAME 3D-KU
 
-## PERAN KAMU
+## TUGAS
+Kamu adalah developer game 3D sekaligus seniman visual. Buat SATU game 3D yang bisa dimainkan, berdasarkan 3 gambar referensi dan ide anak (usia 6–12 tahun) di bawah.
+Putuskan semua hal teknis sendiri. Jangan bertanya kecuali gambar tidak bisa dibaca. Jangan menulis rencana panjang; langsung kerjakan.
 
-Bertindaklah sebagai Senior 3D Game Developer, Game Designer, 3D Artist, Animator, Sound Designer, dan Programmer.
+## GAMBAR REFERENSI
+- GAMBAR 1 = tokoh utama, GAMBAR 2 = musuh, GAMBAR 3 = dunia game.
+Sebelum menulis kode, lakukan langkah singkat ini:
+1. Lihat ketiga gambar. Catat maksimal 8 baris: bentuk kepala/badan, warna (kode hex), aksesori, dan proporsi tiap karakter.
+2. Ambil palet dunia dari GAMBAR 3 (langit atas, langit horizon, matahari, daun, batang, tanah, air, kabut) sebagai kode hex. Pakai Python/PIL jika tersedia.
+3. Buat LATAR PANORAMA dari GAMBAR 3: potong bagian atasnya saja (± 55% teratas: langit, gunung, hutan jauh; buang sungai dan tepi depan), kecilkan ke lebar ± 1600 px, simpan JPEG kualitas ± 80, lalu sematkan sebagai base64 di dalam HTML.
+   Pasang pada silinder besar tanpa tutup yang mengelilingi dunia (BackSide, fog:false, mengikuti posisi kamera, MirroredRepeatWrapping agar tanpa sambungan terlihat). Di atasnya beri kubah langit gradasi. Warna kabut dunia = warna horizon gambar. Hasilnya: dari sudut mana pun, latar terlihat seperti lukisan Gambar 3.
+4. Karakter dibuat dari geometri 3D yang mengikuti Gambar 1 dan 2 (bentuk, warna, aksesori, ciri khas). Wajah dari gambar boleh dipotong kecil untuk ikon di HUD.
 
-Buat game 3D yang benar-benar dapat dimainkan berdasarkan tiga gambar referensi dan ide anak di bawah ini.
-
-Anak yang menggunakan prompt ini berusia 6–12 tahun dan sedang belajar membuat game. Karena itu, kerjakan secara mandiri, buat keputusan teknis sendiri, dan jangan mengajukan pertanyaan tambahan kecuali benar-benar diperlukan.
-
-Jangan hanya memberikan tutorial atau potongan kode. Bangun game yang dapat dijalankan, sediakan file proyek, dan tampilkan preview jika lingkunganmu mendukungnya.
-
-## BAGIAN 1 — GAMBAR REFERENSI
-
-Saya akan mengunggah tiga gambar:
-
-- GAMBAR 1: Tokoh utama (Hero).
-- GAMBAR 2: Tokoh musuh (Enemy).
-- GAMBAR 3: Dunia game (Game World).
-
-Gunakan ketiga gambar sebagai referensi utama untuk game yang sama.
-
-Pertahankan identitas visual karakter, bentuk, warna, aksesori, serta ciri khasnya. Kembangkan sketsa dunia menjadi lingkungan 3D yang dapat dijelajahi.
-
-Jangan mengganti desain asli dengan karakter atau lingkungan generik. Jika gambar hanya berupa gambar tangan, buat representasi 3D yang mendekati desain tersebut.
-
-Jika model 3D asli belum tersedia, gunakan geometri 3D, material, dan animasi prosedural untuk menghasilkan representasi yang sesuai.
-
-## BAGIAN 2 — IDE GAME SAYA
-
+## IDE GAME SAYA
 **Judul game:** {{JUDUL_GAME}}
 
 ### Tokoh utama
@@ -63,118 +49,52 @@ Jika model 3D asli belum tersedia, gunakan geometri 3D, material, dan animasi pr
 - Masalah utama: {{MASALAH}}
 - Akhir yang diinginkan: {{AKHIR_CERITA}}
 
-Kembangkan informasi ini menjadi cerita dan gameplay yang menarik.
+Lengkapi sendiri hal yang belum ditentukan secara kreatif. Jangan mengubah nama, kekuatan, atau ide utama anak.
 
-Buat pembukaan yang menjelaskan masalah, perjalanan melewati rintangan, interaksi dengan musuh, serta penyelesaian yang sesuai dengan tujuan anak.
+## GAMEPLAY (wajib)
+- Halaman awal: judul, cerita singkat 2–3 kalimat, tombol Mulai.
+- Level lurus pendek dalam 3 zona: awal, zona rintangan, arena musuh utama. Panjang jalur ± 90–120 unit.
+- Setiap rintangan yang disebut anak harus menjadi objek nyata yang berfungsi (sungai, jembatan, serangan hewan, dan sebagainya).
+- Tiga tombol aksi: Serang dasar, Kekuatan 2, Kekuatan 3. Turunkan dari "Kekuatan spesial" anak. Jika kurang dari tiga, tambahkan yang cocok. Setiap aksi punya efek visual, suara, dan cooldown.
+- Musuh kecil dan musuh utama punya perilaku (patroli, mengejar, menyerang dengan tanda peringatan). Musuh utama menampilkan kekuatan khasnya dan bar nyawa.
+- Nyawa 5–6 hati, hati pemulih, checkpoint. Jatuh ke jurang/air = kembali ke checkpoint tanpa mengurangi nyawa.
+- Tujuan selalu tampil di layar. Ada layar menang, layar kalah, tombol Main Lagi, jeda, dan tombol suara.
+- Musik latar dan efek suara dibuat dengan WebAudio (tanpa file). Mulai setelah sentuhan/klik pertama.
 
-Jika ada informasi yang belum ditentukan, lengkapi sendiri secara kreatif. Jangan mengubah nama dan kekuatan yang sudah ditentukan atau mengabaikan ide utama anak.
+## KAMERA 360° (wajib)
+- Kamera orbit penuh 360° mengelilingi pemain: drag mouse, atau geser jari di sisi kanan layar. Batasi sudut atas-bawah. Scroll/pinch untuk zoom dekat-jauh.
+- Gerak pemain mengikuti arah kamera (maju = menjauhi kamera). Kamera tidak boleh tembus tanah.
+- Joystick di kiri bawah dan tombol aksi di kanan bawah tidak boleh mengganggu drag kamera. Dukung multi-touch dengan pointer id.
 
-## BAGIAN 3 — RANCANG DAN BANGUN GAME
+## KONTROL
+- Komputer: WASD/panah, Spasi lompat, J/K/L untuk aksi, Esc jeda, mouse untuk kamera.
+- HP/tablet: joystick virtual, tombol lompat, 3 tombol aksi, tombol jeda dan suara. Tombol besar, tidak menutupi area penting.
 
-Tentukan gameplay yang paling cocok dengan gambar dan cerita. Game dapat berupa petualangan 3D, platformer 3D, eksplorasi, atau pertarungan sederhana.
+## KUALITAS VISUAL (bagian terpenting)
+Targetnya: terlihat seperti game animasi berkualitas, bukan balok polos.
+- Pencahayaan: matahari hangat bersudut rendah sesuai "Waktu" anak, cahaya hemisphere, bayangan lembut yang mengikuti pemain, fog warna horizon, ACESFilmic tone mapping.
+- Pohon: batang meruncing dengan akar; 3–5 gumpalan daun icosahedron detail 2 dengan shading HALUS (jangan flatShading); warna per-vertex gradasi (bawah gelap, atas terang); ukuran dan warna bervariasi. Tinggi 6–10 unit saja dan jauh dari jalur (radius bebas ± 6 unit) supaya tidak menutupi pemain dan kamera. Pakai InstancedMesh.
+- Tanah: bukan satu warna datar. Pakai variasi warna per-vertex, bukit landai di sisi jalur, jalan setapak, ratusan rumput/semak, bunga, batu bulat halus.
+- Air: bergerak (gelombang), warna dari palet Gambar 3, ada busa di tepi, batu di dalamnya.
+- Karakter: bentuk membulat (RoundedBox/Capsule), material toon atau standar dengan outline tipis (inverted hull), sedikit emissive pada bagian bercahaya. Tinggi sekitar 2 unit.
+- Atmosfer: awan bergerak, partikel (kunang-kunang/debu/daun), efek cahaya additive pada kekuatan spesial, getar kamera pelan saat serangan keras.
+- Hindari: warna rata tanpa variasi, bentuk kotak telanjang, objek raksasa yang menutupi layar, dunia kosong.
+- Performa: pixelRatio maksimal 1.5 di HP, shadow map 1024 di HP, gunakan instancing, targetkan 60 fps.
 
-Buat game dengan fitur berikut:
+## FILE KELUARAN
+- Hasil akhir: SATU file `.html` mandiri (CSS, JS, gambar latar base64, three.js semuanya di dalamnya) supaya mudah diunggah ke website. Tanpa ZIP, tanpa file lain, tanpa README.
+- Cara memasukkan three.js: paling baik pasang `three` dan `esbuild` lewat npm, bundle ke satu IIFE (minify), lalu sisipkan inline. Jika npm tidak tersedia, pakai `<script type="importmap">` ke `https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js` dan sebutkan di akhir bahwa game butuh internet.
+- Kirim file tersebut sebagai file yang bisa diunduh.
 
-1. Halaman awal dengan judul game dan tombol Mulai.
-2. Dunia 3D sesuai gambar ketiga.
-3. Tokoh utama dan musuh sesuai gambar pertama dan kedua.
-4. Kamera yang nyaman mengikuti pemain.
-5. Gerakan karakter, lompatan, dan animasi yang sesuai.
-6. Kekuatan spesial yang dapat digunakan pemain.
-7. Rintangan dan interaksi yang sesuai dengan dunia game.
-8. Musuh yang memiliki perilaku dan dapat berinteraksi dengan pemain.
-9. Sistem kesehatan atau nyawa yang jelas.
-10. Tujuan permainan dan kondisi menang.
-11. Kondisi kalah serta tombol bermain kembali.
-12. Efek visual yang menarik dan sesuai dengan kekuatan karakter.
-13. Musik latar dan efek suara.
-14. Antarmuka yang ramah anak.
+## HEMAT TOKEN (wajib, kuota terbatas)
+- Tulis kode lengkap SEKALI. Perbaikan kecil pakai edit, jangan menulis ulang seluruh file.
+- Kode padat, target ≤ 1.400 baris, komentar seperlunya. Jangan menampilkan kode di chat.
+- Jangan membuat file tambahan (README, ZIP, skrip uji besar).
+- Pengujian ringkas saja: (1) cek sintaks/bundle lolos, (2) satu uji logika headless singkat (≤ 40 baris) untuk mulai → bergerak → serang → menang/kalah. Jika ada browser headless, ambil 1 screenshot tampilan awal. Jangan mengulang pengujian yang sudah lulus.
+- Jangan menyatakan fitur sudah diuji jika tidak diuji; tulis jujur apa yang belum.
+- Balasan akhir maksimal 10 baris: nama file, cara main (komputer dan HP), daftar kontrol, dan hal yang belum diuji.
 
-Jangan membuat dunia kosong tanpa tujuan. Pemain harus mengetahui apa yang perlu dilakukan untuk menyelesaikan game.
-
-Sesuaikan kompleksitas game agar realistis untuk dikembangkan dan tetap menyenangkan dimainkan.
-
-## BAGIAN 4 — KONTROL
-
-Game harus mendukung komputer dan perangkat mobile.
-
-**Komputer**
-- WASD atau tombol panah untuk bergerak.
-- Spasi untuk melompat.
-- Tombol serang atau kemampuan khusus sesuai gameplay.
-- Mouse untuk menu jika diperlukan.
-
-**HP dan tablet**
-- Joystick virtual atau tombol arah.
-- Tombol lompat.
-- Tombol serang atau kemampuan khusus.
-- Tombol jeda.
-
-Gunakan tombol yang mudah dipahami, cukup besar untuk layar sentuh, dan tidak menutupi area permainan yang penting.
-
-Pastikan input keyboard dan layar sentuh bekerja dengan baik.
-
-## BAGIAN 5 — GRAFIS DAN AUDIO
-
-Gunakan HTML, CSS, dan JavaScript dengan Three.js atau teknologi WebGL yang sesuai untuk membangun game 3D.
-
-Buat gaya visual 3D stylized yang menarik, penuh warna, konsisten, dan sesuai dengan desain anak.
-
-Gunakan pencahayaan, material, bayangan, efek partikel, serta animasi lingkungan sesuai kebutuhan.
-
-Tambahkan musik dan efek suara untuk tindakan penting, seperti melompat, menyerang, menggunakan kekuatan, menerima kerusakan, menang, dan kalah.
-
-Sediakan kontrol suara. Tangani aturan autoplay browser dengan benar.
-
-Utamakan performa yang baik pada komputer dan HP. Jika dibutuhkan, sederhanakan detail lingkungan dan efek tanpa menghilangkan ciri khas gambar.
-
-## BAGIAN 6 — TEKNIS DAN FILE
-
-Buat proyek yang dapat dijalankan melalui browser.
-
-Gunakan struktur file yang sederhana dan mudah dikelola, misalnya:
-- index.html
-- style.css
-- game.js
-- Folder assets jika diperlukan.
-
-Gunakan library dan aset yang benar-benar tersedia. Jangan mengandalkan file yang belum dibuat atau URL aset yang tidak valid.
-
-Jika memungkinkan, sediakan proyek dalam ZIP agar mudah diunduh.
-
-Jelaskan cara menjalankan game dengan bahasa sederhana. Jika proyek memerlukan server lokal atau koneksi internet, jelaskan secara singkat.
-
-Jangan menjanjikan bahwa satu file HTML dapat berjalan sepenuhnya offline jika game masih menggunakan dependensi eksternal.
-
-## BAGIAN 7 — PENGUJIAN
-
-Sebelum menyatakan game selesai, periksa fungsi utama:
-
-- Game dapat dimulai.
-- Karakter dapat bergerak dan melompat.
-- Kamera dan collision bekerja.
-- Kekuatan spesial dapat digunakan.
-- Musuh dan rintangan berfungsi.
-- Kondisi menang dan kalah dapat dicapai.
-- Tombol menu, jeda, dan suara bekerja.
-- Kontrol mobile dan keyboard berfungsi.
-- Tampilan menyesuaikan ukuran layar.
-
-Lakukan pengujian jika lingkungan mendukungnya. Jangan menyatakan suatu fitur telah diuji jika belum benar-benar diuji.
-
-Jika ada fitur yang gagal, perbaiki atau gunakan alternatif yang masuk akal sebelum menyelesaikan proyek.
-
-## BAGIAN 8 — HASIL AKHIR
-
-Saya ingin mendapatkan game 3D yang dapat dimainkan, bukan hanya gambar atau konsep.
-
-Selesaikan implementasi sebanyak mungkin dalam lingkungan yang tersedia. Jika didukung, tampilkan preview dan sediakan seluruh file yang dibutuhkan untuk menjalankan game.
-
-Berikan petunjuk penggunaan singkat untuk anak.
-
-Jangan berhenti pada tahap perencanaan. Ambil keputusan kreatif dan teknis yang diperlukan secara mandiri.
-
-**Mulailah dengan menganalisis ketiga gambar dan ide game saya, lalu langsung bangun game 3D yang menarik dan dapat dimainkan.**
+**Mulai sekarang: analisis gambar → bangun → uji ringkas → kirim satu file .html.**
 TXT,
 
 'karakter' => <<<'TXT'

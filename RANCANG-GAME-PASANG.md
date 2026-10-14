@@ -45,7 +45,8 @@ Ganti nilai di `rancang-game-secret.php` **di server**, lalu bagikan kode baru. 
 - **Daftar peserta**: konstanta `PESERTA` di `api.php` (satu-satunya sumber; kolom pencarian nama
   di formulir mengambilnya dari sini).
 - **Teks prompt**: `templates.php`. `{{SEPERTI_INI}}` diisi otomatis dari jawaban anak.
-  Prompt game = `PromptClaude.md`; prompt tokoh & dunia = `PROMPT CHAT GPT.docx` yang sudah dirapikan.
+  Prompt game (Claude) = `prompt-future-makers-v2.txt`; prompt tokoh & dunia = `PROMPT CHAT GPT.docx`
+  yang sudah dirapikan.
 - **Pilihan Waktu / Akhir cerita**: `PILIHAN_WAKTU` dan `PILIHAN_AKHIR` di `api.php`
   (tambahkan juga ikon di array `SOAL` pada `index.html`).
 
