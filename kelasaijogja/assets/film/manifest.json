@@ -1,0 +1,31 @@
+{
+  "clips": [
+    {
+      "name": "masuk",
+      "dir": "assets/film/masuk/",
+      "count": 80,
+      "digits": 4,
+      "ext": "webp",
+      "from": 0.35,
+      "to": 2.0
+    },
+    {
+      "name": "ruang",
+      "dir": "assets/film/ruang/",
+      "count": 80,
+      "digits": 4,
+      "ext": "webp",
+      "from": 2.0,
+      "to": 5.0
+    },
+    {
+      "name": "keluar",
+      "dir": "assets/film/keluar/",
+      "count": 80,
+      "digits": 4,
+      "ext": "webp",
+      "from": 5.0,
+      "to": 6.0
+    }
+  ]
+}

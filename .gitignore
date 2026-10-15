@@ -120,3 +120,6 @@ Pixi/meshy/
 
 # Kunci formulir Rancang Game (disalin manual ke server, lihat RANCANG-GAME-PASANG.md)
 /rancang-game-secret.php
+
+# Aset mentah Kelas AI Jogja (video, gambar, GLB besar)
+tools/kelasaijogja/aset-mentah/

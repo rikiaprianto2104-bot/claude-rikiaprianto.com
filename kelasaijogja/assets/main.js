@@ -4,7 +4,36 @@
 
   var WA_NUMBER = '6288809234347';
 
-  // Menu ponsel
+  // Bar atas & menu besar
+  var bar = document.getElementById('bar'), menu = document.getElementById('menu'), mbtn = document.querySelector('.bar-menu');
+  var filmEl = document.getElementById('film');
+  function barState() {
+    if (!bar) return;
+    var open = menu && menu.classList.contains('open');
+    var solid = !filmEl || filmEl.getBoundingClientRect().bottom < 90;
+    bar.classList.toggle('solid', solid && !open);
+    document.body.classList.toggle('past-film', solid);
+  }
+  function setMenu(open) {
+    menu.classList.toggle('open', open);
+    menu.setAttribute('aria-hidden', String(!open));
+    mbtn.setAttribute('aria-expanded', String(open));
+    mbtn.querySelector('.bm-text').textContent = open ? 'TUTUP' : 'MENU';
+    document.body.classList.toggle('menu-open', open);
+    menu.querySelectorAll('a').forEach(function (a) { a.tabIndex = open ? 0 : -1; });
+    barState();
+    if (open) { var first = menu.querySelector('a'); if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 450); } else mbtn.focus({ preventScroll: true });
+  }
+  if (bar && menu && mbtn) {
+    mbtn.addEventListener('click', function () { setMenu(!menu.classList.contains('open')); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false); });
+    menu.addEventListener('click', function (e) { var a = e.target.closest('a'); if (a && a.getAttribute('href').indexOf('#') === 0) setMenu(false); });
+    window.addEventListener('scroll', barState, { passive: true });
+    window.addEventListener('resize', barState);
+    barState();
+  }
+
+  // Menu ponsel (lama)
   var toggle = document.querySelector('.nav-toggle');
   var links = document.getElementById('nav-links');
   if (toggle && links) {
