@@ -6,7 +6,7 @@
 <title>Kelas AI untuk Anak di Yogyakarta | Kelas AI Jogja — Future Makers</title>
 <meta name="description" content="Kelas AI offline di Yogyakarta untuk anak 6–15 tahun. Belajar Claude dan ChatGPT, bikin game dan website sendiri, kelas kecil maksimal 8 anak. Ramah untuk orang tua.">
 <link rel="canonical" href="https://kelasaijogja.rikiaprianto.com/">
-<meta name="theme-color" content="#2f6bff">
+<meta name="theme-color" content="#6c5ce7">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Kelas AI Jogja — Future Makers">
 <meta property="og:title" content="Kelas AI untuk Anak di Yogyakarta | Kelas AI Jogja — Future Makers">
@@ -18,16 +18,21 @@
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <script type="application/ld+json">[{"@context":"https://schema.org","@type":"EducationalOrganization","name":"Kelas AI Jogja — Future Makers","url":"https://kelasaijogja.rikiaprianto.com/","description":"Kelas AI offline di Yogyakarta untuk anak usia 6–15 tahun: belajar Claude dan ChatGPT untuk membuat game dan website sendiri.","email":"riki.markethink@rikiaprianto.com","telephone":"+6288809234347","address":{"@type":"PostalAddress","addressLocality":"Yogyakarta","addressCountry":"ID"},"founder":{"@type":"Person","name":"Riki MarkeThink","url":"https://rikiaprianto.com"}},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Anak saya belum pernah coding, apakah boleh ikut?","acceptedAnswer":{"@type":"Answer","text":"Boleh. Kelas ini dirancang untuk pemula. Semua langkah dipandu mentor, dan materinya disesuaikan dengan usia masing-masing anak."}},{"@type":"Question","name":"Usia 6 dan 15 tahun digabung dalam satu kelas?","acceptedAnswer":{"@type":"Answer","text":"Satu kelas, tetapi tingkat tantangan tiap anak disesuaikan. Karena pesertanya hanya 8, mentor bisa memberi materi yang pas untuk anak yang lebih kecil maupun yang lebih besar."}},{"@type":"Question","name":"Apakah anak perlu membawa laptop sendiri?","acceptedAnswer":{"@type":"Answer","text":"Sangat disarankan agar anak terbiasa dengan perangkatnya sendiri. Kalau tidak ada, sampaikan saat mendaftar lewat WhatsApp supaya kami siapkan solusinya."}},{"@type":"Question","name":"Bagaimana cara pembayarannya?","acceptedAnswer":{"@type":"Answer","text":"Pembayaran lewat transfer bank. Setelah Anda konfirmasi seat lewat WhatsApp, kami kirimkan detail rekening dan instruksinya. Seat baru terkunci setelah pembayaran diterima."}},{"@type":"Question","name":"Di mana lokasinya?","acceptedAnswer":{"@type":"Answer","text":"Kelas diadakan secara offline di Yogyakarta. Alamat lengkap dan titik lokasi dikirim lewat WhatsApp setelah pendaftaran dikonfirmasi."}},{"@type":"Question","name":"Kalau anak berhalangan hadir di salah satu pertemuan?","acceptedAnswer":{"@type":"Answer","text":"Sampaikan ke mentor sebelum hari H. Kami bantu anak menyusul materinya di pertemuan berikutnya supaya karyanya tetap selesai sebelum Demo Day."}}]}]</script>
+<link rel="preload" href="assets/pixi-v2.glb" as="fetch" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/DecalGeometry.js" defer></script>
+<script src="assets/pixi-stage.js" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#isi">Lompat ke isi halaman</a>
 <header class="site-header">
   <div class="wrap nav">
     <a class="brand" href="index.html" aria-label="Kelas AI Jogja, ke beranda">
-      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="14" fill="#2f6bff"/><rect x="9" y="12" width="30" height="24" rx="9" fill="#fff"/><circle cx="18" cy="23" r="3.2" fill="#1b2a4a"/><circle cx="30" cy="23" r="3.2" fill="#1b2a4a"/><path d="M18 29.5c2 2.2 10 2.2 12 0" stroke="#1b2a4a" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M24 12V7" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="6" r="3" fill="#ffc83d"/></svg>
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><radialGradient id="pg" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#9a8ff5"/><stop offset="1" stop-color="#4a3fc0"/></radialGradient></defs><path d="M24 9V4" stroke="#6c5ce7" stroke-width="2.6" stroke-linecap="round"/><path d="M24 .4l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.5-2.6 1.5.5-3-2.2-2.1 3-.4z" fill="#ffc83d"/><circle cx="24" cy="28" r="18.5" fill="url(#pg)"/><ellipse cx="24" cy="29" rx="12.5" ry="11" fill="#fff"/><circle cx="19.6" cy="27.5" r="2.5" fill="#2a2270"/><circle cx="28.4" cy="27.5" r="2.5" fill="#2a2270"/><circle cx="20.4" cy="26.6" r=".8" fill="#fff"/><circle cx="29.2" cy="26.6" r=".8" fill="#fff"/><circle cx="16.4" cy="31" r="2" fill="#ff7fa6" opacity=".6"/><circle cx="31.6" cy="31" r="2" fill="#ff7fa6" opacity=".6"/><path d="M21 32.6c1.6 2 4.4 2 6 0" stroke="#2a2270" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
       <span class="brand-text">Kelas AI Jogja<small>Future Makers</small></span>
     </a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Buka menu"><span></span></button>
@@ -47,8 +52,8 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/></svg> Kelas AI untuk anak 6–15 tahun · Yogyakarta</span>
-      <h1>Anak belajar AI, lalu <span class="mk">membuat</span> <span class="hl">karyanya sendiri</span></h1>
+      <p class="hero-kicker">Kelas AI offline untuk anak 6–15 tahun di Yogyakarta</p>
+      <h1>Anak belajar AI, lalu membuat karyanya sendiri</h1>
       <p class="hero-lead">Di Future Makers, anak tidak hanya memakai teknologi. Mereka belajar mengobrol dengan Claude dan ChatGPT untuk membuat game dan website pertamanya, dipandu mentor dalam kelas kecil yang hangat.</p>
       <div class="hero-cta">
         <a class="btn btn-wa" href="https://wa.me/6288809234347?text=Halo%20Kak%20Riki%2C%20saya%20mau%20daftar%20Kelas%20Group%20Future%20Makers%20batch%20November%202026.%0A%0ANama%20anak%3A%0AUsia%20anak%3A%0ANama%20orang%20tua%3A%0ADomisili%3A" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.2 17.6L2 22l4.5-1.2A11 11 0 1 0 20.5 3.5Zm-8.4 17a9 9 0 0 1-4.6-1.3l-.3-.2-2.7.7.7-2.6-.2-.3a9 9 0 1 1 7.1 3.7Zm5-6.7c-.3-.1-1.6-.8-1.9-.9s-.5-.1-.7.1-.8.9-.9 1.1-.3.2-.6.1a7.4 7.4 0 0 1-3.7-3.2c-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.4 3.4 14.7 14.7 0 0 0 5.6 4.9c2 .8 2.8.9 3.8.7a3.2 3.2 0 0 0 2.1-1.5 2.6 2.6 0 0 0 .2-1.5c-.1-.1-.3-.2-.6-.3Z"/></svg> Daftar via WhatsApp</a>
@@ -60,32 +65,16 @@
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg> Pemula boleh ikut</li>
       </ul>
     </div>
-    <div class="hero-art">
-      <svg class="bot" viewBox="0 0 400 430" role="img" aria-label="Maskot robot Future Makers sedang melambai">
-<ellipse cx="200" cy="410" rx="120" ry="14" fill="#1b2a4a" opacity=".1"/>
-<line x1="200" y1="62" x2="200" y2="30" stroke="#1b2a4a" stroke-width="8" stroke-linecap="round"/>
-<circle cx="200" cy="24" r="16" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6"/>
-<rect x="88" y="150" width="26" height="62" rx="13" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6"/>
-<rect x="286" y="150" width="26" height="62" rx="13" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6"/>
-<rect x="104" y="62" width="192" height="168" rx="52" fill="#2f6bff" stroke="#1b2a4a" stroke-width="7"/>
-<rect x="128" y="94" width="144" height="104" rx="36" fill="#fff" stroke="#1b2a4a" stroke-width="6"/>
-<circle cx="170" cy="138" r="14" fill="#1b2a4a"/><circle cx="230" cy="138" r="14" fill="#1b2a4a"/>
-<circle cx="175" cy="133" r="5" fill="#fff"/><circle cx="235" cy="133" r="5" fill="#fff"/>
-<circle cx="150" cy="168" r="9" fill="#ff6b6b" opacity=".55"/><circle cx="250" cy="168" r="9" fill="#ff6b6b" opacity=".55"/>
-<path d="M176 166c10 14 38 14 48 0" stroke="#1b2a4a" stroke-width="7" fill="none" stroke-linecap="round"/>
-<rect x="150" y="238" width="100" height="100" rx="28" fill="#1fb596" stroke="#1b2a4a" stroke-width="7"/>
-<rect x="172" y="260" width="56" height="42" rx="12" fill="#fff" stroke="#1b2a4a" stroke-width="5"/>
-<path d="M184 282h10l6-10 6 14 6-8h8" stroke="#2f6bff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g><rect x="96" y="262" width="62" height="24" rx="12" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6" transform="rotate(24 158 274)"/></g>
-<g transform="rotate(-18 262 268)"><rect x="244" y="256" width="74" height="24" rx="12" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6"/><circle cx="326" cy="262" r="17" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6"/></g>
-<rect x="164" y="340" width="26" height="52" rx="13" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6"/>
-<rect x="210" y="340" width="26" height="52" rx="13" fill="#ffc83d" stroke="#1b2a4a" stroke-width="6"/>
-<rect x="150" y="382" width="52" height="24" rx="12" fill="#ff6b6b" stroke="#1b2a4a" stroke-width="6"/>
-<rect x="198" y="382" width="52" height="24" rx="12" fill="#ff6b6b" stroke="#1b2a4a" stroke-width="6"/>
-</svg>
-      <span class="chip-float a"><i class="dot" style="background:#ffc83d"></i> Bikin game</span>
-      <span class="chip-float b"><i class="dot" style="background:#1fb596"></i> Bikin website</span>
-      <span class="chip-float c"><i class="dot" style="background:#ff6b6b"></i> Demo Day</span>
+    <div class="stage" id="pixi-stage">
+      <div class="stage-glow"></div>
+      <div class="stage-floor"></div>
+      <span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="orb o4"></span>
+      <img class="poster" src="assets/pixi-poster.webp" alt="Pixi, maskot Future Makers: robot bulat ungu dengan antena bintang" width="600" height="624">
+      <p class="pixi-bubble" id="pixi-bubble" aria-live="polite">Halo! Aku Pixi.</p>
+      <div class="stage-actions">
+        <button class="btn btn-ghost btn-sm" id="pixi-sapa" type="button">Sapa Pixi</button>
+        <span class="stage-hint">Klik untuk lompat, geser untuk memutar</span>
+      </div>
     </div>
   </div>
 </section>
@@ -101,44 +90,61 @@
   </div>
 </section>
 
-<section class="section soft">
-  <div class="wrap">
-    <div class="section-head center">
-      <span class="eyebrow mint">Kenapa Future Makers</span>
-      <h2>Dari pengguna teknologi menjadi pembuat karya</h2>
-      <p>Belajar AI bukan soal menghafal istilah. Anak diajak mencoba, salah, memperbaiki, lalu bangga pada hasilnya.</p>
-    </div>
-    <div class="grid c3">
-      <article class="card hover reveal"><span class="icon-badge ib-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.3 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></svg></span><h3>Praktik Langsung</h3><p>Setiap pertemuan anak pulang membawa karya digital buatannya sendiri, bukan sekadar catatan.</p></article>
-      <article class="card hover reveal"><span class="icon-badge ib-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><h3>Melatih Logika</h3><p>Membuat game melatih anak memecah masalah besar menjadi langkah-langkah kecil yang runtut.</p></article>
-      <article class="card hover reveal"><span class="icon-badge ib-mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><h3>Kelas Kecil, Mentor Dekat</h3><p>Hanya 8 anak per kelas, jadi setiap peserta terpantau dan dibantu saat kesulitan.</p></article>
-      <article class="card hover reveal"><span class="icon-badge ib-lilac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg></span><h3>Sertifikat & Portofolio</h3><p>Anak menutup kelas dengan sertifikat dan portofolio digital pertama yang bisa dibagikan.</p></article>
-      <article class="card hover reveal"><span class="icon-badge ib-coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Memakai AI dengan Aman</h3><p>Anak belajar batas dan etika memakai AI: apa yang boleh dibagikan, apa yang harus ditanyakan ke orang tua.</p></article>
-      <article class="card hover reveal"><span class="icon-badge ib-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z"/></svg></span><h3>Ramah untuk Orang Tua</h3><p>Materi mudah diikuti tanpa latar belakang teknis, dan orang tua diundang hadir saat Demo Day.</p></article>
+
+<section class="story" id="alur" data-step="0" aria-labelledby="story-title">
+  <div class="story-track">
+    <div class="story-sticky">
+      <div class="wrap story-grid">
+        <div class="story-copy">
+          <h2 id="story-title">Empat pertemuan, empat misi yang selesai</h2>
+          <p class="story-sub">Alur kelas Group batch November 2026, setiap Minggu pukul 15.00 WIB. Gulir ke bawah dan Pixi akan memandu tiap pertemuan.</p>
+          <div class="story-steps">
+            <article class="story-step on" data-i="0"><span class="num">Pertemuan 1</span><span class="when">Minggu, 8 November 2026</span><h3>Kenalan dengan AI</h3><p>Cara ngobrol dengan Claude dan ChatGPT, menyusun prompt yang jelas, dan aturan aman memakai AI.</p></article>
+            <article class="story-step" data-i="1"><span class="num">Pertemuan 2</span><span class="when">Minggu, 15 November 2026</span><h3>Bikin Game Sendiri</h3><p>Dari ide di kepala jadi game yang benar-benar bisa dimainkan, dibantu AI langkah demi langkah.</p></article>
+            <article class="story-step" data-i="2"><span class="num">Pertemuan 3</span><span class="when">Minggu, 22 November 2026</span><h3>Bangun Website & Portofolio</h3><p>Membuat halaman web pribadi untuk memajang seluruh karya yang sudah dibuat anak.</p></article>
+            <article class="story-step" data-i="3"><span class="num">Pertemuan 4</span><span class="when">Minggu, 29 November 2026</span><h3>Demo Day</h3><p>Anak mempresentasikan karyanya di depan orang tua, lalu menerima sertifikat.</p></article>
+          </div>
+          <ol class="story-dots" aria-label="Pilih pertemuan">
+            <li><button type="button" aria-label="Pertemuan 1: Kenalan dengan AI" aria-current="true"></button></li><li><button type="button" aria-label="Pertemuan 2: Bikin Game Sendiri" aria-current="false"></button></li><li><button type="button" aria-label="Pertemuan 3: Bangun Website & Portofolio" aria-current="false"></button></li><li><button type="button" aria-label="Pertemuan 4: Demo Day" aria-current="false"></button></li>
+          </ol>
+        </div>
+        <div class="story-stage" id="story-stage">
+          <div class="story-ring"></div>
+          <img class="poster" src="assets/pixi-poster.webp" alt="Pixi, maskot Future Makers" width="600" height="624" loading="lazy">
+          <div class="chip chip-prompt" data-for="0" aria-hidden="true"><b>Prompt</b><span>Buatkan cerita kucing yang terbang ke bulan</span></div>
+          <figure class="chip chip-game a" data-for="1" aria-hidden="true"><img src="assets/karya/petualangan-pixi-moko.png" alt="" width="200" height="125" loading="lazy"><figcaption>Petualangan Pixi &amp; Moko</figcaption></figure>
+          <figure class="chip chip-game b" data-for="1" aria-hidden="true"><img src="assets/karya/sky-hopper.png" alt="" width="200" height="125" loading="lazy"><figcaption>Sky Hopper</figcaption></figure>
+          <div class="chip chip-web" data-for="2" aria-hidden="true"><div class="dots"><i></i><i></i><i></i></div><div class="hd"></div><div class="row"><span></span><span></span></div><div class="ln"></div><div class="ln s"></div></div>
+          <div class="chip chip-cert" data-for="3" aria-hidden="true"><b>Sertifikat</b><span>Future Maker</span></div>
+          <span class="conf c0" data-for="3" style="left:8%;animation-delay:0.00s" aria-hidden="true"></span><span class="conf c1" data-for="3" style="left:22%;animation-delay:0.23s" aria-hidden="true"></span><span class="conf c2" data-for="3" style="left:36%;animation-delay:0.46s" aria-hidden="true"></span><span class="conf c0" data-for="3" style="left:50%;animation-delay:0.69s" aria-hidden="true"></span><span class="conf c1" data-for="3" style="left:64%;animation-delay:0.92s" aria-hidden="true"></span><span class="conf c2" data-for="3" style="left:78%;animation-delay:1.15s" aria-hidden="true"></span><span class="conf c0" data-for="3" style="left:90%;animation-delay:1.38s" aria-hidden="true"></span><span class="conf c1" data-for="3" style="left:15%;animation-delay:1.61s" aria-hidden="true"></span><span class="conf c2" data-for="3" style="left:43%;animation-delay:1.84s" aria-hidden="true"></span><span class="conf c0" data-for="3" style="left:70%;animation-delay:2.07s" aria-hidden="true"></span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Alur Belajar</span>
-      <h2>Empat pertemuan, empat misi yang selesai</h2>
-      <p>Contoh alur kelas Group batch November 2026, setiap hari Minggu pukul 15.00 WIB. Satu pertemuan satu misi, sehingga anak selalu pulang membawa hasil.</p>
+    <div class="section-head center">
+      <h2>Dari pengguna teknologi menjadi pembuat karya</h2>
+      <p>Belajar AI bukan soal menghafal istilah. Anak diajak mencoba, salah, memperbaiki, lalu bangga pada hasilnya.</p>
     </div>
-    <div class="grid c4 steps">
-      <article class="card step hover reveal"><span class="num">Pertemuan 1</span><div class="date">08<small>Nov 2026</small></div><span class="icon-badge ib-blue" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/></svg></span><h3>Kenalan dengan AI</h3><p>Cara ngobrol dengan Claude dan ChatGPT, menyusun prompt yang jelas, dan aturan aman memakai AI.</p></article>
-      <article class="card step hover reveal"><span class="num">Pertemuan 2</span><div class="date">15<small>Nov 2026</small></div><span class="icon-badge ib-coral" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h4M8 10v4"/><circle cx="15" cy="13" r="1"/><circle cx="18" cy="11" r="1"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg></span><h3>Bikin Game Sendiri</h3><p>Dari ide di kepala jadi game yang benar-benar bisa dimainkan, dibantu AI langkah demi langkah.</p></article>
-      <article class="card step hover reveal"><span class="num">Pertemuan 3</span><div class="date">22<small>Nov 2026</small></div><span class="icon-badge ib-mint" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg></span><h3>Bangun Website & Portofolio</h3><p>Membuat halaman web pribadi untuk memajang seluruh karya yang sudah dibuat anak.</p></article>
-      <article class="card step hover reveal"><span class="num">Pertemuan 4</span><div class="date">29<small>Nov 2026</small></div><span class="icon-badge ib-sun" style="margin-top:16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></svg></span><h3>Demo Day</h3><p>Anak mempresentasikan karyanya di depan orang tua, lalu menerima sertifikat.</p></article>
+    <div class="bento">
+      <article class="tile t-big"><span class="icon-badge ib-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.3 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></svg></span><h3>Praktik Langsung</h3><p>Setiap pertemuan anak pulang membawa karya digital buatannya sendiri, bukan sekadar catatan.</p><img class="tile-pixi" src="assets/pixi-poster.webp" alt="" width="260" height="270" loading="lazy"></article>
+      <article class="tile t-light"><span class="icon-badge ib-lilac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><h3>Melatih Logika</h3><p>Membuat game melatih anak memecah masalah besar menjadi langkah kecil yang runtut.</p></article>
+      <article class="tile t-num"><b>8</b><h3>anak per kelas</h3><p>Mentor dekat, setiap peserta terpantau dan dibantu saat kesulitan.</p></article>
+      <article class="tile t-star t-wide"><span class="icon-badge ib-lilac"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></svg></span><div><h3>Sertifikat &amp; Portofolio</h3><p>Anak menutup kelas dengan sertifikat dan website portofolio pertamanya yang bisa dibagikan.</p></div></article>
+      <article class="tile t-wide t-light"><span class="icon-badge ib-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><h3>Memakai AI dengan Aman</h3><p>Anak belajar batas dan etika memakai AI: apa yang boleh dibagikan, apa yang harus ditanyakan ke orang tua.</p></div></article>
+      <article class="tile t-blush t-wide"><span class="icon-badge ib-coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z"/></svg></span><div><h3>Ramah untuk Orang Tua</h3><p>Materi mudah diikuti tanpa latar belakang teknis, dan orang tua diundang hadir saat Demo Day.</p></div></article>
     </div>
   </div>
 </section>
 
+
+
 <section class="section soft">
   <div class="wrap">
     <div class="section-head center">
-      <span class="eyebrow coral">Pilihan Kelas</span>
       <h2>Pilih format yang paling cocok untuk si kecil</h2>
     </div>
     <div class="grid c2">
@@ -161,52 +167,22 @@
   </div>
 </section>
 
-<section class="section">
+<section class="section marquee-section">
   <div class="wrap">
     <div class="section-head">
-      <span class="eyebrow sun">Karya</span>
       <h2>Contoh game yang dibuat dengan bantuan AI</h2>
       <p>Silakan mainkan bersama si kecil. Game seperti inilah yang akan dipelajari anak untuk dibuat sendiri.</p>
     </div>
-    <div class="grid c3">
-        <a class="work reveal" data-cat="petualangan" href="https://rikiaprianto.com/projects/petualangan-pixi-moko.html" target="_blank" rel="noopener" aria-label="Mainkan Petualangan Pixi & Moko (buka tab baru)">
-          <div class="thumb"><img src="assets/karya/petualangan-pixi-moko.png" alt="Tampilan game Petualangan Pixi & Moko" width="640" height="400" loading="lazy"></div>
-          <div class="body">
-            <span class="cat cat-petualangan">Petualangan</span>
-            <h3>Petualangan Pixi & Moko</h3>
-            <p>Game petualangan dua sahabat yang dibuat dengan bantuan AI. Contoh yang dipelajari di pertemuan 2.</p>
-            <span class="play">Mainkan <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-          </div>
-        </a>
-        <a class="work reveal" data-cat="petualangan" href="https://rikiaprianto.com/projects/bloops-adventure.html" target="_blank" rel="noopener" aria-label="Mainkan Bloop's Adventure (buka tab baru)">
-          <div class="thumb"><img src="assets/karya/bloops-adventure.png" alt="Tampilan game Bloop's Adventure" width="640" height="400" loading="lazy"></div>
-          <div class="body">
-            <span class="cat cat-petualangan">Petualangan</span>
-            <h3>Bloop's Adventure</h3>
-            <p>Petualangan si Bloop melewati rintangan, dibuat langsung dari ide dan prompt.</p>
-            <span class="play">Mainkan <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-          </div>
-        </a>
-        <a class="work reveal" data-cat="edukasi" href="https://rikiaprianto.com/projects/jelajah-indonesia-quiz.html" target="_blank" rel="noopener" aria-label="Mainkan Jelajah Indonesia Quiz (buka tab baru)">
-          <div class="thumb"><img src="assets/karya/jelajah-indonesia-quiz.png" alt="Tampilan game Jelajah Indonesia Quiz" width="640" height="400" loading="lazy"></div>
-          <div class="body">
-            <span class="cat cat-edukasi">Edukasi</span>
-            <h3>Jelajah Indonesia Quiz</h3>
-            <p>Kuis seru untuk mengenal keindahan dan budaya Indonesia.</p>
-            <span class="play">Mainkan <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-          </div>
-        </a>
-    </div>
-    <p style="margin-top:34px;text-align:center"><a class="btn btn-ghost" href="karya.html">Lihat Semua Karya <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
   </div>
+  <div class="marquee-wrap" role="region" aria-label="Galeri game buatan AI, bergerak otomatis"><div class="marquee" style="--dur:55s" data-dir="l"><div class="m-track"><div class="m-group"><a class="m-card" href="https://rikiaprianto.com/projects/petualangan-pixi-moko.html" target="_blank" rel="noopener"><img src="assets/karya/petualangan-pixi-moko.png" alt="" width="320" height="200" loading="lazy"><span>Petualangan Pixi & Moko</span></a><a class="m-card" href="https://rikiaprianto.com/projects/dinos-lost-world-adventure.html" target="_blank" rel="noopener"><img src="assets/karya/dinos-lost-world-adventure.png" alt="" width="320" height="200" loading="lazy"><span>Dino's Lost World Adventure</span></a><a class="m-card" href="https://rikiaprianto.com/projects/labirin-harta-karun.html" target="_blank" rel="noopener"><img src="assets/karya/labirin-harta-karun.png" alt="" width="320" height="200" loading="lazy"><span>Labirin Harta Karun</span></a><a class="m-card" href="https://rikiaprianto.com/projects/eco-detective-mission.html" target="_blank" rel="noopener"><img src="assets/karya/eco-detective-mission.png" alt="" width="320" height="200" loading="lazy"><span>Eco Detective Mission</span></a><a class="m-card" href="https://rikiaprianto.com/projects/neon-breakout.html" target="_blank" rel="noopener"><img src="assets/karya/neon-breakout.png" alt="" width="320" height="200" loading="lazy"><span>Neon Breakout</span></a><a class="m-card" href="https://rikiaprianto.com/projects/sky-hopper.html" target="_blank" rel="noopener"><img src="assets/karya/sky-hopper.png" alt="" width="320" height="200" loading="lazy"><span>Sky Hopper</span></a><a class="m-card" href="https://rikiaprianto.com/projects/space-explorer-challenge.html" target="_blank" rel="noopener"><img src="assets/karya/space-explorer-challenge.png" alt="" width="320" height="200" loading="lazy"><span>Space Explorer Challenge</span></a></div><div class="m-group" aria-hidden="true"><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/petualangan-pixi-moko.html" target="_blank" rel="noopener"><img src="assets/karya/petualangan-pixi-moko.png" alt="" width="320" height="200" loading="lazy"><span>Petualangan Pixi & Moko</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/dinos-lost-world-adventure.html" target="_blank" rel="noopener"><img src="assets/karya/dinos-lost-world-adventure.png" alt="" width="320" height="200" loading="lazy"><span>Dino's Lost World Adventure</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/labirin-harta-karun.html" target="_blank" rel="noopener"><img src="assets/karya/labirin-harta-karun.png" alt="" width="320" height="200" loading="lazy"><span>Labirin Harta Karun</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/eco-detective-mission.html" target="_blank" rel="noopener"><img src="assets/karya/eco-detective-mission.png" alt="" width="320" height="200" loading="lazy"><span>Eco Detective Mission</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/neon-breakout.html" target="_blank" rel="noopener"><img src="assets/karya/neon-breakout.png" alt="" width="320" height="200" loading="lazy"><span>Neon Breakout</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/sky-hopper.html" target="_blank" rel="noopener"><img src="assets/karya/sky-hopper.png" alt="" width="320" height="200" loading="lazy"><span>Sky Hopper</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/space-explorer-challenge.html" target="_blank" rel="noopener"><img src="assets/karya/space-explorer-challenge.png" alt="" width="320" height="200" loading="lazy"><span>Space Explorer Challenge</span></a></div></div></div><div class="marquee" style="--dur:62s" data-dir="r"><div class="m-track"><div class="m-group"><a class="m-card" href="https://rikiaprianto.com/projects/bloops-adventure.html" target="_blank" rel="noopener"><img src="assets/karya/bloops-adventure.png" alt="" width="320" height="200" loading="lazy"><span>Bloop's Adventure</span></a><a class="m-card" href="https://rikiaprianto.com/projects/robot-chef-magic-kitchen.html" target="_blank" rel="noopener"><img src="assets/karya/robot-chef-magic-kitchen.png" alt="" width="320" height="200" loading="lazy"><span>Robot Chef and the Magic Kitchen</span></a><a class="m-card" href="https://rikiaprianto.com/projects/save-the-rainbow-forest.html" target="_blank" rel="noopener"><img src="assets/karya/save-the-rainbow-forest.png" alt="" width="320" height="200" loading="lazy"><span>Save the Rainbow Forest</span></a><a class="m-card" href="https://rikiaprianto.com/projects/jelajah-indonesia-quiz.html" target="_blank" rel="noopener"><img src="assets/karya/jelajah-indonesia-quiz.png" alt="" width="320" height="200" loading="lazy"><span>Jelajah Indonesia Quiz</span></a><a class="m-card" href="https://rikiaprianto.com/projects/snake-klasik.html" target="_blank" rel="noopener"><img src="assets/karya/snake-klasik.png" alt="" width="320" height="200" loading="lazy"><span>Snake Klasik</span></a><a class="m-card" href="https://rikiaprianto.com/projects/serbuan-galaksi.html" target="_blank" rel="noopener"><img src="assets/karya/serbuan-galaksi.png" alt="" width="320" height="200" loading="lazy"><span>Serbuan Galaksi</span></a></div><div class="m-group" aria-hidden="true"><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/bloops-adventure.html" target="_blank" rel="noopener"><img src="assets/karya/bloops-adventure.png" alt="" width="320" height="200" loading="lazy"><span>Bloop's Adventure</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/robot-chef-magic-kitchen.html" target="_blank" rel="noopener"><img src="assets/karya/robot-chef-magic-kitchen.png" alt="" width="320" height="200" loading="lazy"><span>Robot Chef and the Magic Kitchen</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/save-the-rainbow-forest.html" target="_blank" rel="noopener"><img src="assets/karya/save-the-rainbow-forest.png" alt="" width="320" height="200" loading="lazy"><span>Save the Rainbow Forest</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/jelajah-indonesia-quiz.html" target="_blank" rel="noopener"><img src="assets/karya/jelajah-indonesia-quiz.png" alt="" width="320" height="200" loading="lazy"><span>Jelajah Indonesia Quiz</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/snake-klasik.html" target="_blank" rel="noopener"><img src="assets/karya/snake-klasik.png" alt="" width="320" height="200" loading="lazy"><span>Snake Klasik</span></a><a tabindex="-1" class="m-card" href="https://rikiaprianto.com/projects/serbuan-galaksi.html" target="_blank" rel="noopener"><img src="assets/karya/serbuan-galaksi.png" alt="" width="320" height="200" loading="lazy"><span>Serbuan Galaksi</span></a></div></div></div></div>
+  <p style="margin-top:34px;text-align:center"><a class="btn btn-ghost" href="karya.html">Lihat Semua Karya <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
 </section>
 
 <section class="section soft">
   <div class="wrap mentor">
     <div class="mentor-photo reveal"><img src="assets/riki.jpg" alt="Riki MarkeThink, mentor Kelas AI Jogja" width="680" height="850" loading="lazy"></div>
     <div class="reveal">
-      <span class="eyebrow">Mentor</span>
-      <h2 style="font-size:clamp(1.9rem,3.6vw,2.7rem);margin-top:14px">Dipandu langsung oleh Riki MarkeThink</h2>
+      <h2 style="font-size:clamp(2rem,3.8vw,2.9rem)">Dipandu langsung oleh Riki MarkeThink</h2>
       <p style="margin-top:16px;color:var(--ink-soft)">Riki adalah AI Marketing Strategist asal Indonesia yang sehari-hari memakai AI untuk bekerja. Lewat Future Makers, ia membawa pengalaman itu ke kelas anak dalam bahasa yang sederhana: apa itu AI, bagaimana bertanya dengan baik, dan bagaimana memakainya dengan aman.</p>
       <p style="margin-top:14px;color:var(--ink-soft)">Kelas dibuat kecil dan hangat supaya setiap anak berani bertanya, mencoba, dan bangga pada hasil kerjanya.</p>
       <p style="margin-top:24px"><a class="btn btn-ghost" href="https://rikiaprianto.com" target="_blank" rel="noopener">Kenali Mentor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
@@ -217,7 +193,6 @@
 <section class="section">
   <div class="wrap">
     <div class="section-head center">
-      <span class="eyebrow">Pertanyaan Orang Tua</span>
       <h2>Yang sering ditanyakan</h2>
     </div>
     <div class="faq">
@@ -246,7 +221,7 @@
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="brand" href="index.html"><svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="14" fill="#2f6bff"/><rect x="9" y="12" width="30" height="24" rx="9" fill="#fff"/><circle cx="18" cy="23" r="3.2" fill="#1b2a4a"/><circle cx="30" cy="23" r="3.2" fill="#1b2a4a"/><path d="M18 29.5c2 2.2 10 2.2 12 0" stroke="#1b2a4a" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M24 12V7" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="24" cy="6" r="3" fill="#ffc83d"/></svg><span class="brand-text">Kelas AI Jogja<small>Future Makers</small></span></a>
+        <a class="brand" href="index.html"><svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><defs><radialGradient id="pg" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#9a8ff5"/><stop offset="1" stop-color="#4a3fc0"/></radialGradient></defs><path d="M24 9V4" stroke="#6c5ce7" stroke-width="2.6" stroke-linecap="round"/><path d="M24 .4l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.5-2.6 1.5.5-3-2.2-2.1 3-.4z" fill="#ffc83d"/><circle cx="24" cy="28" r="18.5" fill="url(#pg)"/><ellipse cx="24" cy="29" rx="12.5" ry="11" fill="#fff"/><circle cx="19.6" cy="27.5" r="2.5" fill="#2a2270"/><circle cx="28.4" cy="27.5" r="2.5" fill="#2a2270"/><circle cx="20.4" cy="26.6" r=".8" fill="#fff"/><circle cx="29.2" cy="26.6" r=".8" fill="#fff"/><circle cx="16.4" cy="31" r="2" fill="#ff7fa6" opacity=".6"/><circle cx="31.6" cy="31" r="2" fill="#ff7fa6" opacity=".6"/><path d="M21 32.6c1.6 2 4.4 2 6 0" stroke="#2a2270" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg><span class="brand-text">Kelas AI Jogja<small>Future Makers</small></span></a>
         <p>Kelas AI offline di Yogyakarta untuk anak usia 6–15 tahun. Small Learners, Big Future.</p>
       </div>
       <div>

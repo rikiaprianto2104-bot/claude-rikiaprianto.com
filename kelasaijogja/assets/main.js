@@ -27,6 +27,19 @@
     });
   }
 
+  // Kartu miring 3D mengikuti kursor (hanya perangkat dengan kursor dan tanpa permintaan gerak minimal)
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.work, .class-card, .post-card').forEach(function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        el.style.transform = 'perspective(900px) rotateX(' + (-py * 6).toFixed(2) + 'deg) rotateY(' + (px * 8).toFixed(2) + 'deg) translateY(-4px)';
+      });
+      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+    });
+  }
+
   // Animasi muncul saat di-scroll
   var reveals = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
