@@ -179,5 +179,5 @@
     });
   }
 
-  window.PixiModel = { load: function (cb) { load('assets/pixi-v2.glb', cb); }, env: env };
+  window.PixiModel = { load: function (cb) { load('assets/pixi-v2.glb' + (window.__V ? '?v=' + window.__V : ''), cb); }, env: env };
 })();

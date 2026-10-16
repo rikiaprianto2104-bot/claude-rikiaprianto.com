@@ -14,6 +14,7 @@
   var track = film.querySelector('.film-track');
   var stage = film.querySelector('.film-stage');
   var N = 6;
+  var VQ = window.__V ? '?v=' + window.__V : '';   // versi build: mencegah CSS/JS lama bertemu HTML baru dari cache
   var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
   var smooth = function (x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
   var lerp = function (a, b, t) { return a + (b - a) * t; };
@@ -22,7 +23,8 @@
   var renderer;
   try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' }); }
   catch (e) { fail(); return; }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  var dpr = Math.min(window.devicePixelRatio || 1, innerWidth < 700 ? 1.5 : 1.25);
+  renderer.setPixelRatio(dpr);
   renderer.outputEncoding = THREE.sRGBEncoding;
   var canvas = renderer.domElement;
   canvas.className = 'film-gl';
@@ -62,7 +64,7 @@
   }
 
   /* ---------- latar dunia ---------- */
-  var back = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshBasicMaterial({ map: tex('assets/latar.webp'), depthWrite: false }));
+  var back = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshBasicMaterial({ map: tex('assets/latar.webp' + VQ), depthWrite: false }));
   back.position.z = PZ; back.renderOrder = -10; scene.add(back);
   var latarMap = back.material.map;
 
@@ -74,24 +76,38 @@
   [texA, texB].forEach(function (t) { t.encoding = THREE.sRGBEncoding; t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; });
   var back2 = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshBasicMaterial({ map: texB, transparent: true, opacity: 0, depthWrite: false }));
   back2.position.z = PZ + 0.001; back2.renderOrder = -9; back2.visible = false; scene.add(back2);
-  var clips = [];
-  var hemat = innerWidth < 700 || (navigator.connection && navigator.connection.saveData);   // ponsel: muat setiap frame kedua
-  fetch('assets/film/manifest.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
+  var clips = [], inflight = 0;
+  var hemat = innerWidth < 700 || (navigator.connection && navigator.connection.saveData);   // ponsel: hanya frame genap
+  var MAXF = hemat ? 3 : 5;
+  fetch('assets/film/manifest.json' + VQ, { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
     if (!m || !m.clips || !m.clips.length) return;
     var first = m.clips.reduce(function (a, c) { return c.from < a.from ? c : a; }, m.clips[0]);
     m.clips.forEach(function (c) {
-      var o = { from: c.from, to: c.to, count: c.count, imgs: new Array(c.count), hold: c === first };
+      var o = { from: c.from, to: c.to, count: c.count, imgs: new Array(c.count), hold: c === first, started: c === first, queue: [], c: c };
+      // urutan muat: frame awal dan akhir, lalu setiap ke-8, ke-4, ke-2, sisanya, supaya scrub bisa jalan sebelum semua frame tiba
+      var seen = {}, add = function (k) { if (k >= 0 && k < c.count && !seen[k] && !(hemat && k % 2 === 1 && k !== c.count - 1)) { seen[k] = 1; o.queue.push(k); } };
+      add(0); add(c.count - 1);
+      [8, 4, 2, 1].forEach(function (st) { for (var k = 0; k < c.count; k += st) add(k); });
       clips.push(o);
-      var i = 0, step = hemat ? 2 : 1, pad = function (n) { var t = String(n); while (t.length < (c.digits || 4)) t = '0' + t; return t; };
-      var next = function () {
-        if (i >= c.count) return;
-        var k = i; i += step; if (k >= c.count) return;
-        var im = new Image(); im.onload = function () { o.imgs[k] = im; next(); }; im.onerror = next; im.src = c.dir + pad(k + 1) + '.' + (c.ext || 'webp');
-      };
-      next(); if (c.count > 1) { var last = c.count - 1; var li = new Image(); li.onload = function () { o.imgs[last] = li; }; li.src = c.dir + pad(c.count) + '.' + (c.ext || 'webp'); }
-      for (var j = 0; j < 5; j++) next();
     });
+    pumpClips(0);
   }).catch(function () {});
+  function pumpClips(u) {
+    if (!clips.length) return;
+    for (var i = 0; i < clips.length; i++) if (!clips[i].started && u >= clips[i].from - 1.3) clips[i].started = true;
+    while (inflight < MAXF) {
+      var o = null, j;
+      for (j = 0; j < clips.length; j++) if (clips[j].started && clips[j].queue.length) { o = clips[j]; break; }
+      if (!o) return;
+      var k = o.queue.shift(), c = o.c, im = new Image(), t = String(k + 1);
+      while (t.length < (c.digits || 4)) t = '0' + t;
+      inflight++;
+      im.decoding = 'async';
+      im.onload = (function (o, k, im) { return function () { o.imgs[k] = im; inflight--; pumpClips(U); }; })(o, k, im);
+      im.onerror = function () { inflight--; pumpClips(U); };
+      im.src = c.dir + t + '.' + (c.ext || 'webp') + VQ;
+    }
+  }
   function nearest(c, k) {
     var d, im = null;
     for (d = 0; d < c.count && !im; d++) im = c.imgs[k - d] || c.imgs[k + d] || null;
@@ -237,10 +253,10 @@
   })();
   var games = [];
   GAMES.forEach(function (name, i) {
-    var t = tex('assets/karya/' + name + '.webp');
+    var t = tex('assets/karya/' + name + '.webp' + VQ);
     var m = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.19), new THREE.MeshBasicMaterial({ map: t, alphaMap: roundAlpha, transparent: true, depthWrite: false, opacity: 0 }));
     m.userData.i = i; stageProps.add(m); games.push(m);
-    var img = new Image(); img.src = 'assets/karya/' + name + '.webp'; gameImgs.push(img);
+    var img = new Image(); img.src = 'assets/karya/' + name + '.webp' + VQ; gameImgs.push(img);
   });
 
   /* ---------- properti adegan 4: jendela peramban yang dibangun ---------- */
@@ -314,7 +330,7 @@
     if (!window.MeshoptDecoder) return;
     var ld = new THREE.GLTFLoader(); ld.setMeshoptDecoder(MeshoptDecoder);
     PROP_FILES.forEach(function (n) {
-      ld.load('assets/props/' + n + '.glb', function (g) {
+      ld.load('assets/props/' + n + '.glb' + VQ, function (g) {
         g.scene.traverse(function (o) { if (o.isMesh) { o.material.envMapIntensity = 0.9; o.frustumCulled = false; } });
         propModels[n] = g.scene;
         rebuildProps();
@@ -389,6 +405,7 @@
   var par = { x: 0, y: 0, tx: 0, ty: 0 }, lastPtr = -1e9;
   var U = 0, Us = 0, uTarget = 0, t = 0, kedipNext = 2, kedipStart = -1, hop = -1, hover = false;
   var V = {};   // nilai pose yang dihaluskan
+  var lastFlash = '', lastDive = '';
   var tgt = {};
 
   function setTargets(u, video) {
@@ -449,6 +466,7 @@
     if (performance.now() - lastPtr > 3500) { par.tx = Math.sin(t * 0.4) * 0.35; par.ty = Math.sin(t * 0.27) * 0.15; }
 
     var sc = Math.floor(U), f = U - sc;
+    pumpClips(U);
     var ac = activeClip(U), videoOn = !!ac;
     var outdoor = videoOn ? true : (U < 2 || U >= 5);
     // kamera & latar
@@ -470,8 +488,9 @@
     camera.position.set(cx + par.x * 0.18 * (outdoor ? 1 : 3), cy + par.y * 0.1 * (outdoor ? 1 : 2) + (outdoor ? 0 : Math.sin(t * 0.3) * 0.05), PZ + 10 / cm.s);
     camera.rotation.set(0, outdoor ? -par.x * 0.012 : -par.x * 0.05 + Math.sin(U * 2.2) * 0.04, 0);
     back.visible = outdoor;
-    film.dataset.inner = outdoor ? '0' : '1';
-    film.dataset.video = videoOn ? '1' : '0';
+    var inn = outdoor ? '0' : '1', vid = videoOn ? '1' : '0';
+    if (film.dataset.inner !== inn) film.dataset.inner = inn;
+    if (film.dataset.video !== vid) film.dataset.video = vid;
 
     // awan melayang, dan awan depan menyapu layar saat kamera naik
     for (i = 0; i < clouds.length; i++) {
@@ -568,10 +587,11 @@
     stageProps.position.y = px ? 0 : 0;
 
     // ---- sinkron DOM ----
-    film.style.setProperty('--flash', videoOn ? '0' : flashAt(U).toFixed(3));
+    var fl = videoOn ? '0' : flashAt(U).toFixed(2);
+    if (fl !== lastFlash) { lastFlash = fl; film.style.setProperty('--flash', fl); }
     var dive = (!videoOn && U >= 1.55 && U < 2) ? smooth((U - 1.55) / 0.45) : 0;
-    film.style.setProperty('--dive', dive.toFixed(3));
-    film.style.setProperty('--u', U.toFixed(3));
+    var dv = dive.toFixed(2);
+    if (dv !== lastDive) { lastDive = dv; film.style.setProperty('--dive', dv); }
     if (film.dataset.scene !== String(sc)) {
       film.dataset.scene = String(sc);
       var tx = film.querySelectorAll('.t'); for (i = 0; i < tx.length; i++) tx[i].classList.toggle('on', Number(tx[i].dataset.s) === sc);
@@ -621,12 +641,19 @@
   canvas.addEventListener('pointerdown', function (e) { if (overPixi(e.clientX, e.clientY) && hop < 0) hop = 0; });
 
   /* ---------- loop ---------- */
+  var perfSum = 0, perfN = 0;
   var raf = 0, last = 0, visible = true, debug = location.hash === '#debug';
   function frame(now) {
     raf = requestAnimationFrame(frame);
     var dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
     update(dt, false);
     renderer.render(scene, camera);
+    // jika perangkat terasa berat, turunkan resolusi render bertahap
+    perfSum += dt; perfN++;
+    if (perfN >= 40) {
+      if (perfSum / perfN > 0.032 && dpr > 0.8) { dpr = Math.max(0.75, dpr - 0.25); renderer.setPixelRatio(dpr); resize(); }
+      perfSum = 0; perfN = 0;
+    }
   }
   function start() { if (raf || !loaded) return; last = performance.now(); raf = requestAnimationFrame(frame); }
   function stop() { cancelAnimationFrame(raf); raf = 0; }
