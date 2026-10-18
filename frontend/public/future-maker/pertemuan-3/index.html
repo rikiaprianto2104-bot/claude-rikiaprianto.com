@@ -98,7 +98,7 @@ body.idle .hint{opacity:0}
 /* S3 assistant */
 #s3{background:var(--mintbg)}
 #s3 .burstbig{position:absolute;left:70px;top:160px;width:1000px;height:680px}
-#s3 .burstbig .nm{position:relative;font-weight:700;font-size:128px;color:var(--ink);line-height:1}
+#s3 .burstbig .nm{position:relative;font-weight:700;font-size:82px;color:var(--ink);line-height:1.12}
 #s3 .burstbig .tag{position:relative;margin-top:16px;background:var(--mint);color:#fff}
 #s3 .side{position:absolute;right:96px;top:200px;width:700px}
 #s3 .side h2{font-size:58px;font-weight:700;color:var(--ink);line-height:1.1}
@@ -242,6 +242,29 @@ body.idle .hint{opacity:0}
 #s6 .kelas.siap3d .anak svg .kpl{animation:none!important;transform:none!important}
 #s6 .kelas.siap3d .anak .lbl{animation:munculLabel .45s ease both}
 @keyframes munculLabel{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* --- Kegiatan hari ini: tiga langkah praktikum --- */
+/* Dibuat sebagai tiga kartu besar berjajar, bukan daftar bernomor: anak umur
+   6-12 lebih mudah menangkap "ada tiga tahap" kalau tahapnya terlihat sebagai
+   tiga benda terpisah yang dihubungkan panah. Tiap kartu menyebut SIAPA yang
+   menemani, supaya anak tahu harus bertanya ke siapa di tahap itu. */
+#s11{background:var(--cream)}
+#s11 .title{position:absolute;left:96px;top:116px;font-size:74px}
+#s11 .lead{position:absolute;left:96px;top:226px;width:1500px;font-size:30px;font-weight:600;
+  line-height:1.3;color:var(--ink-2)}
+#s11 .langkah{position:absolute;left:96px;right:96px;top:336px;bottom:114px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:46px}
+#s11 .lk{position:relative;padding:40px 40px;display:flex;flex-direction:column;gap:20px}
+#s11 .lk .n{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;
+  color:#fff;font-size:40px;font-weight:700;flex:none}
+#s11 .lk .ikon{font-size:118px;line-height:1}
+#s11 .lk h3{font-size:44px;font-weight:700;line-height:1.12}
+#s11 .lk p{font-size:30px;line-height:1.4;color:var(--ink-2)}
+#s11 .lk .oleh{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:10px;
+  border-radius:999px;padding:14px 24px;font-size:26px;font-weight:700;line-height:1.25}
+/* Panah penghubung antarkartu. Diletakkan di celah antara dua kartu. */
+#s11 .panah{position:absolute;top:50%;right:-36px;transform:translateY(-50%);
+  font-size:46px;font-weight:700;color:#D9CEF2;z-index:2}
 
 /* --- Pembukaan: Pixi yang memandu absen --- */
 #s6 .pixiarea{position:absolute;inset:0;z-index:5;opacity:0;pointer-events:none;transition:opacity .45s}
@@ -391,12 +414,12 @@ body.idle .hint{opacity:0}
   <span class="chip eyebrow" style="background:var(--mint);color:#fff">Kenalan sama asisten coach</span>
   <div class="burst burstbig" data-fill="#FFFFFF" data-stroke="#1E1550">
     <div style="display:grid;justify-items:center">
-      <div class="nm">Miss. Septi</div>
+      <div class="nm">Miss. Septi<br>&amp; Miss. Merli</div>
       <span class="chip tag">Asisten Coach</span>
     </div>
   </div>
   <div class="side pop-in">
-    <h2 class="d1">Miss Septi siap bantu kamu:</h2>
+    <h2 class="d1">Miss Septi &amp; Miss Merli siap bantu kamu:</h2>
     <div class="helps">
       <div class="card help d2"><b style="background:var(--violet)">1</b>Menyiapkan laptop &amp; perlengkapan kelas</div>
       <div class="card help d3"><b style="background:var(--coral)">2</b>Membantu kalau kamu bingung atau tertinggal</div>
@@ -430,6 +453,43 @@ body.idle .hint{opacity:0}
 </section>
 
 
+
+<!-- 5: kegiatan hari ini -->
+<section class="slide" id="s11" data-name="Kegiatan hari ini">
+  <span class="chip eyebrow" style="background:var(--coral);color:#fff">Kegiatan hari ini</span>
+  <h1 class="title">Hari ini kita bikin <span style="color:var(--violet)">GAME!</span></h1>
+  <p class="lead">Karyamu di Pertemuan 1 dan Pertemuan 2 kita ubah jadi game sungguhan.
+    Cuma tiga langkah, dan di tiap langkah ada yang menemani kamu.</p>
+  <div class="langkah pop-in">
+
+    <div class="card lk d1">
+      <div class="n" style="background:var(--violet)">1</div>
+      <div class="ikon" aria-hidden="true">🎨</div>
+      <h3>Bikin gambar 3D</h3>
+      <p>Tokoh dan benda dari ceritamu digambar jadi 3D pakai ChatGPT.</p>
+      <span class="oleh" style="background:var(--lav);color:var(--violet-d)">🎓 Ditemani Miss. Septi</span>
+      <span class="panah" aria-hidden="true">➔</span>
+    </div>
+
+    <div class="card lk d2">
+      <div class="n" style="background:var(--coral)">2</div>
+      <div class="ikon" aria-hidden="true">🎮</div>
+      <h3>Bikin gamenya</h3>
+      <p>Gambarmu dirangkai jadi game yang bisa dimainkan pakai Claude.</p>
+      <span class="oleh" style="background:var(--peach);color:#B4421F">🎓 Ditemani Coach Riki</span>
+      <span class="panah" aria-hidden="true">➔</span>
+    </div>
+
+    <div class="card lk d3">
+      <div class="n" style="background:var(--cyan)">3</div>
+      <div class="ikon" aria-hidden="true">🎤</div>
+      <h3>Latihan presentasi</h3>
+      <p>Latihan menceritakan gamemu, siap-siap untuk Demo Day minggu depan.</p>
+      <span class="oleh" style="background:var(--sky);color:#0D7E99">🎓 Ditemani Miss. Merli &amp; Miss. Septi</span>
+    </div>
+
+  </div>
+</section>
 
 <!-- 10: selesai -->
 <section class="slide sky" id="s10" data-name="Selesai">
