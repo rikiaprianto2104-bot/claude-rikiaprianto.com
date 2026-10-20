@@ -60,6 +60,53 @@ small.k{display:block;font-size:12px;opacity:.85;margin-top:6px}
 #nogl{position:fixed;inset:0;z-index:40;background:#ffe9b0;color:#5a3410;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:20px;font-weight:700}
 @media(max-height:480px){#toast{bottom:20px}#btns{transform:scale(.8);transform-origin:bottom right}#joy{transform:scale(.85);transform-origin:bottom left}.card{padding:12px 18px}h1{font-size:28px}}
 </style></head><body>
+<!-- Video pembuka: hanya tampil di HP/tablet kecil (9:16). Di laptop dibuang tanpa mengunduh videonya. -->
+<div id="fmOpen" style="display:none" role="dialog" aria-label="Video pembuka">
+<video id="fmVid" playsinline webkit-playsinline preload="none"></video>
+<button id="fmPlay" type="button" hidden aria-label="Putar video pembuka"><span>&#9654;</span><small>Ketuk untuk memulai</small></button>
+<button id="fmSkip" type="button">Lewati &rsaquo;</button>
+</div>
+<style>
+#fmOpen{position:fixed;inset:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .35s;touch-action:manipulation;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+#fmOpen.out{opacity:0;pointer-events:none}
+#fmOpen video{width:100%;height:100%;object-fit:contain;background:#000}
+#fmPlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:0;color:#fff;cursor:pointer;font:inherit;text-shadow:0 2px 6px #000}
+#fmPlay[hidden]{display:none}
+#fmPlay span{width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.92);color:#222;font-size:36px;display:flex;align-items:center;justify-content:center;padding-left:6px;box-shadow:0 6px 22px rgba(0,0,0,.5)}
+#fmPlay small{font-size:15px;font-weight:700}
+#fmSkip{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));background:rgba(0,0,0,.55);color:#fff;border:2px solid rgba(255,255,255,.7);border-radius:22px;padding:8px 16px;font-weight:700;font-size:15px;line-height:1;font-family:inherit;cursor:pointer}
+</style>
+<script>
+(function(){
+  var box=document.getElementById("fmOpen");
+  var phone=(matchMedia("(pointer:coarse)").matches||navigator.maxTouchPoints>0)&&Math.min(innerWidth,innerHeight)<=820;
+  if(!phone){box.parentNode.removeChild(box);return}
+  var v=document.getElementById("fmVid"),play=document.getElementById("fmPlay"),skip=document.getElementById("fmSkip"),done=false,wd=0;
+  function finish(){
+    if(done)return;done=true;clearTimeout(wd);
+    box.classList.add("out");
+    try{v.pause();v.removeAttribute("src");v.load()}catch(e){}
+    setTimeout(function(){if(box.parentNode)box.parentNode.removeChild(box)},400);
+  }
+  function start(){
+    clearTimeout(wd);
+    // kalau video tak kunjung jalan (internet lambat), jangan tahan anak di layar ini
+    wd=setTimeout(function(){if(!v.currentTime)finish()},15000);
+    var p=v.play();
+    if(p&&p.then)p.then(function(){play.hidden=true},function(){clearTimeout(wd);play.hidden=false});
+  }
+  v.addEventListener("ended",finish);
+  v.addEventListener("error",finish);
+  skip.addEventListener("click",finish);
+  play.addEventListener("click",function(){play.hidden=true;start()});
+  box.style.display="flex";
+  v.poster="/future-maker/karya/fm-b1-002/opening.jpg";
+  v.src="/future-maker/karya/fm-b1-002/opening.mp4";
+  v.preload="auto";
+  start();
+})();
+</script>
+
 <canvas id="c"></canvas>
 <div id="hud">
  <div id="tl"><div class="panel row"><canvas class="fc" width="60" height="60" data-b="0"></canvas><div id="hearts"></div></div>

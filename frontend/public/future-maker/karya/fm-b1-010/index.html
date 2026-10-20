@@ -38,6 +38,53 @@ html,body{margin:0;height:100%;overflow:hidden;background:#bcd8f0;font-family:"T
 #bk{right:84px;bottom:88px;width:72px;height:72px;background:linear-gradient(#b9c4d0,#6b7a8c)}#bl{right:6px;bottom:96px;width:76px;height:76px;background:linear-gradient(#5be07a,#1f9a45)}
 @media (max-height:480px){#acts{transform:scale(.8);transform-origin:right bottom}#joy{transform:scale(.8);transform-origin:left bottom}}
 </style></head><body>
+<!-- Video pembuka: hanya tampil di HP/tablet kecil (9:16). Di laptop dibuang tanpa mengunduh videonya. -->
+<div id="fmOpen" style="display:none" role="dialog" aria-label="Video pembuka">
+<video id="fmVid" playsinline webkit-playsinline preload="none"></video>
+<button id="fmPlay" type="button" hidden aria-label="Putar video pembuka"><span>&#9654;</span><small>Ketuk untuk memulai</small></button>
+<button id="fmSkip" type="button">Lewati &rsaquo;</button>
+</div>
+<style>
+#fmOpen{position:fixed;inset:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center;transition:opacity .35s;touch-action:manipulation;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+#fmOpen.out{opacity:0;pointer-events:none}
+#fmOpen video{width:100%;height:100%;object-fit:contain;background:#000}
+#fmPlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:0;color:#fff;cursor:pointer;font:inherit;text-shadow:0 2px 6px #000}
+#fmPlay[hidden]{display:none}
+#fmPlay span{width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.92);color:#222;font-size:36px;display:flex;align-items:center;justify-content:center;padding-left:6px;box-shadow:0 6px 22px rgba(0,0,0,.5)}
+#fmPlay small{font-size:15px;font-weight:700}
+#fmSkip{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));background:rgba(0,0,0,.55);color:#fff;border:2px solid rgba(255,255,255,.7);border-radius:22px;padding:8px 16px;font-weight:700;font-size:15px;line-height:1;font-family:inherit;cursor:pointer}
+</style>
+<script>
+(function(){
+  var box=document.getElementById("fmOpen");
+  var phone=(matchMedia("(pointer:coarse)").matches||navigator.maxTouchPoints>0)&&Math.min(innerWidth,innerHeight)<=820;
+  if(!phone){box.parentNode.removeChild(box);return}
+  var v=document.getElementById("fmVid"),play=document.getElementById("fmPlay"),skip=document.getElementById("fmSkip"),done=false,wd=0;
+  function finish(){
+    if(done)return;done=true;clearTimeout(wd);
+    box.classList.add("out");
+    try{v.pause();v.removeAttribute("src");v.load()}catch(e){}
+    setTimeout(function(){if(box.parentNode)box.parentNode.removeChild(box)},400);
+  }
+  function start(){
+    clearTimeout(wd);
+    // kalau video tak kunjung jalan (internet lambat), jangan tahan anak di layar ini
+    wd=setTimeout(function(){if(!v.currentTime)finish()},15000);
+    var p=v.play();
+    if(p&&p.then)p.then(function(){play.hidden=true},function(){clearTimeout(wd);play.hidden=false});
+  }
+  v.addEventListener("ended",finish);
+  v.addEventListener("error",finish);
+  skip.addEventListener("click",finish);
+  play.addEventListener("click",function(){play.hidden=true;start()});
+  box.style.display="flex";
+  v.poster="/future-maker/karya/fm-b1-010/opening.jpg";
+  v.src="/future-maker/karya/fm-b1-010/opening.mp4";
+  v.preload="auto";
+  start();
+})();
+</script>
+
 <div id="game"></div>
 <div id="hud"><div id="top"><img src="data:image/jpeg;base64,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" alt=""><div><div id="hearts"></div><div id="stats"></div></div></div>
 <div id="mid"><div id="zone"></div><div id="bar"><i style="left:34%"></i><i style="left:80%"></i><div id="dot"></div></div><div id="goal"></div></div>
