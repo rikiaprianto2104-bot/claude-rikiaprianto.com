@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
-import { Sparkles, Mic, ShieldCheck, Lock, Play } from 'lucide-react';
+import { Sparkles, Mic, ShieldCheck, Lock, Play, Gamepad2 } from 'lucide-react';
 
 /*
  * Halaman menu "Future Maker".
  *
- * Dua bagian: banner Pixi di atas, lalu materi tiap pertemuan kelas gratis
- * Oktober 2026 sebagai grid di bawahnya. Portofolio siswa menyusul nanti di
- * halaman ini juga.
+ * Tiga bagian: banner Pixi di atas, materi tiap pertemuan kelas gratis
+ * Oktober 2026 sebagai grid, lalu karya siswa (game buatan anak-anak).
  *
  * Materi tiap pertemuan adalah satu file HTML mandiri di public/future-maker/,
  * bukan route React, karena dipakai sebagai slide proyektor di kelas (butuh
@@ -53,6 +52,104 @@ const PERTEMUAN = [
 ];
 
 const TERBUKA = PERTEMUAN.filter((p) => p.href).length;
+
+/*
+ * Karya siswa batch 1. Tiap anak punya:
+ *   cover - gambar sampul game (sudah memuat nama anak), taruh di
+ *           public/future-maker/karya/fm-b1-XXX/cover.webp
+ *   href  - tujuan tombol Mulai. Sekarang langsung ke game-nya; nanti diganti
+ *           ke halaman video pembuka yang lanjut ke game.
+ * Selama keduanya kosong (null), kartu tampil sebagai template dengan nama dan
+ * nomor peserta, dan belum bisa diklik.
+ */
+const KARYA_SISWA = [
+  { nomor: 'FM.B1-001', nama: 'Gardala Sangjalu GA', cover: null, href: null },
+  { nomor: 'FM.B1-002', nama: 'Al Farras King S.B', cover: '/future-maker/karya/fm-b1-002/cover.webp', href: '/future-maker/karya/fm-b1-002/' },
+  { nomor: 'FM.B1-003', nama: 'Farjana', cover: '/future-maker/karya/fm-b1-003/cover.webp', href: '/future-maker/karya/fm-b1-003/' },
+  { nomor: 'FM.B1-004', nama: 'Muhammad Umar', cover: '/future-maker/karya/fm-b1-004/cover.webp', href: '/future-maker/karya/fm-b1-004/' },
+  { nomor: 'FM.B1-005', nama: 'M. Arsene Putra Kurniawan', cover: null, href: null },
+  { nomor: 'FM.B1-006', nama: 'Arshad Alvaronizam Arrafif', cover: null, href: null },
+  { nomor: 'FM.B1-007', nama: 'Dzaky Almair', cover: '/future-maker/karya/fm-b1-007/cover.webp', href: '/future-maker/karya/fm-b1-007/' },
+  { nomor: 'FM.B1-008', nama: 'M. Althaf Arrayhan', cover: '/future-maker/karya/fm-b1-008/cover.webp', href: '/future-maker/karya/fm-b1-008/' },
+  { nomor: 'FM.B1-009', nama: 'M. Ahnaf Syauqi', cover: '/future-maker/karya/fm-b1-009/cover.webp', href: '/future-maker/karya/fm-b1-009/' },
+  { nomor: 'FM.B1-010', nama: 'Muhammad Aksa', cover: '/future-maker/karya/fm-b1-010/cover.webp', href: '/future-maker/karya/fm-b1-010/' },
+];
+
+/*
+ * Kartu karya siswa: sampul game memenuhi seluruh kotak. Karena sampulnya
+ * sudah memuat nama anak, tombol Play, nama, dan nomor peserta hanya jadi
+ * lapisan tipis di atasnya - lencana Play kecil yang samar, lalu nama + nomor
+ * + Play besar baru muncul saat disorot. Kartu yang sampulnya belum ada
+ * menampilkan template dengan nama dan nomor terlihat jelas.
+ */
+const KartuKarya = ({ item }) => {
+  const dasar = 'relative block aspect-square overflow-hidden rounded-3xl';
+
+  if (!item.href || !item.cover) {
+    return (
+      <div
+        className={`${dasar} border border-dashed border-slate-300 dark:border-white/15 bg-gradient-to-br from-[#f3f0ff] to-[#eaf6ff] dark:from-[#1a1547] dark:to-[#0d2236] flex flex-col items-center justify-center gap-3 p-6 text-center`}
+      >
+        <Gamepad2 size={44} className="text-[#6c5ce7]/50 dark:text-[#a99bff]/50" />
+        <div>
+          <h3 className="text-xl font-extrabold leading-snug text-slate-900 dark:text-white tracking-tight">
+            {item.nama}
+          </h3>
+          <p className="mt-1 text-xs font-light tracking-wide text-slate-500 dark:text-slate-400">
+            {item.nomor}
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-white/70 dark:bg-white/10 px-3 py-1 text-[11px] font-semibold text-slate-500 dark:text-slate-300">
+          <Lock size={11} />
+          Segera
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Mulai game karya ${item.nama}, nomor peserta ${item.nomor}`}
+      className={`group ${dasar} shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#6c5ce7]/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6c5ce7]`}
+    >
+      <img
+        src={item.cover}
+        alt={`Sampul game karya ${item.nama}`}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+
+      {/* Lencana Play samar, selalu ada supaya jelas kartunya bisa diklik. */}
+      <span
+        aria-hidden="true"
+        className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-white backdrop-blur-sm transition-opacity group-hover:opacity-0"
+      >
+        <Play size={14} className="ml-0.5 fill-current" />
+      </span>
+
+      {/* Lapisan saat disorot / difokus: Play besar, nama, nomor peserta. */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/55 px-4 text-center opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
+      >
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-[#6c5ce7] shadow-lg">
+          <Play size={26} className="ml-1 fill-current" />
+        </span>
+        <span>
+          <span className="block text-lg font-extrabold leading-snug text-white tracking-tight">
+            {item.nama}
+          </span>
+          <span className="mt-0.5 block text-xs font-light tracking-wide text-white/70">
+            {item.nomor}
+          </span>
+        </span>
+      </span>
+    </a>
+  );
+};
 
 /*
  * Kartu materi. Yang sudah ada materinya jadi <a>; yang belum sengaja TIDAK
@@ -237,6 +334,31 @@ const FutureMakers = () => {
       <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {PERTEMUAN.map((item) => (
           <KartuPertemuan key={item.no} item={item} />
+        ))}
+      </div>
+
+      {/* -- Karya siswa ---------------------------------------------------
+          10 anak, 3 kolom (2 di HP); anak terakhir di tengah baris bawah. Nanti
+          tiap tombol Mulai membuka video pembuka lalu lanjut ke game-nya. */}
+      <div className="mt-20 max-w-xl">
+        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Karya Siswa
+        </h2>
+        <p className="mt-2 text-slate-600 dark:text-slate-400 leading-relaxed">
+          Game buatan anak-anak Future Makers batch 1. Pilih satu, lalu tekan
+          Mulai untuk memainkannya.
+        </p>
+      </div>
+
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        {KARYA_SISWA.map((item, i) => (
+          // Isi ke-10 sendirian di baris terakhir 3 kolom, jadi ditaruh di tengah.
+          <div
+            key={item.nomor}
+            className={i === KARYA_SISWA.length - 1 && KARYA_SISWA.length % 3 === 1 ? 'md:col-start-2' : ''}
+          >
+            <KartuKarya item={item} />
+          </div>
         ))}
       </div>
     </div>
