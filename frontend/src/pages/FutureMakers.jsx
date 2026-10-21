@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Sparkles, Mic, ShieldCheck, Lock, Play } from 'lucide-react';
+import { Sparkles, Mic, ShieldCheck, Lock, Play, Info } from 'lucide-react';
 
 /*
  * Halaman menu "Future Maker".
@@ -326,6 +326,24 @@ const FutureMakers = () => {
           Mulai untuk memainkannya.
         </p>
       </div>
+
+      {/* Disclaimer: karya anak-anak, bukan produk resmi pihak mana pun. */}
+      <aside
+        role="note"
+        className="mt-5 max-w-3xl flex gap-3 rounded-2xl border border-amber-200 dark:border-amber-400/20 bg-amber-50/70 dark:bg-amber-400/5 p-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300"
+      >
+        <Info size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <p>
+          <strong className="font-bold text-slate-800 dark:text-slate-100">
+            Disclaimer:
+          </strong>{' '}
+          Seluruh game di bagian ini adalah hasil kreativitas dan murni buah
+          pikiran anak-anak peserta Future Makers. Apabila terdapat kesamaan
+          karakter, tokoh, judul, maupun nama dengan karya atau pihak lain, kami
+          memohon maaf yang sebesar-besarnya. Karya ini dibuat semata-mata
+          sebagai ajang kreativitas anak.
+        </p>
+      </aside>
 
       <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {KARYA_TAMPIL.map((item, i) => (
