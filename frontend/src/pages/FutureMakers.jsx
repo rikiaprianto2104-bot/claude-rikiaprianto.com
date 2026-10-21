@@ -38,8 +38,9 @@ const PERTEMUAN = [
     judul: 'Bangun Portofolio',
     tanggal: 'Minggu, 18 Oktober 2026',
     singkat: '18 Okt',
-    ringkas: 'Materi sedang disiapkan.',
-    href: null,
+    ringkas:
+      'Praktek membuat game dari karya Pertemuan 1 dan 2: gambar 3D dengan ChatGPT, gamenya dengan Claude, lalu latihan presentasi.',
+    href: '/future-maker/pertemuan-3/',
   },
   {
     no: 4,
