@@ -244,18 +244,23 @@ const FutureMakers = () => {
         href="/pixi/"
         target="_blank"
         rel="noopener noreferrer"
-        className="group mt-12 flex flex-col md:flex-row md:items-center gap-6 md:gap-8 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-white/[0.03] p-6 md:p-8 transition-all hover:border-[#6c5ce7] hover:shadow-xl hover:shadow-[#6c5ce7]/10"
+        className="group mt-20 flex flex-col md:flex-row md:items-center gap-6 md:gap-8 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-white/[0.03] p-6 md:p-8 transition-all hover:border-[#6c5ce7] hover:shadow-xl hover:shadow-[#6c5ce7]/10"
       >
-        {/* Gambar maskot Pixi (PNG/WebP transparan, tanpa latar putih) di atas
-            kotak gradasi ungu. */}
-        <div className="w-32 h-32 md:w-40 md:h-40 shrink-0 rounded-3xl bg-gradient-to-br from-[#dcd5ff] to-[#f3f0ff] dark:from-[#2a2270] dark:to-[#1a1547] flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+        {/* Maskot Pixi dibuat besar dan sengaja "keluar" dari kotak ungu di
+            belakangnya (tidak ada overflow-hidden) supaya mencolok. WebP-nya
+            transparan, jadi aman di mode terang maupun gelap. */}
+        <div className="relative shrink-0 w-44 h-36 md:w-64 md:h-44 self-start md:self-center">
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-32 md:h-40 rounded-3xl bg-gradient-to-br from-[#dcd5ff] to-[#f3f0ff] dark:from-[#2a2270] dark:to-[#1a1547] transition-transform duration-300 group-hover:scale-105"
+          />
           <img
             src="/future-maker/media/pixi-maskot.webp"
             alt="Pixi, robot bintang maskot kelas Future Makers"
-            width="160"
-            height="160"
+            width="256"
+            height="256"
             decoding="async"
-            className="w-full h-full object-contain p-3 drop-shadow-[0_8px_12px_rgba(76,58,180,0.25)] transition-transform duration-300 group-hover:-rotate-3"
+            className="absolute bottom-1 left-1/2 -translate-x-1/2 h-44 w-44 md:h-60 md:w-60 max-w-none object-contain drop-shadow-[0_10px_14px_rgba(76,58,180,0.3)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:-rotate-3"
           />
         </div>
 
