@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Sparkles, Mic, ShieldCheck, Lock, Play, Info } from 'lucide-react';
+import { Mic, ShieldCheck, Lock, Play, Info } from 'lucide-react';
 
 /*
  * Halaman menu "Future Maker".
@@ -246,11 +246,17 @@ const FutureMakers = () => {
         rel="noopener noreferrer"
         className="group mt-12 flex flex-col md:flex-row md:items-center gap-6 md:gap-8 rounded-3xl border border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-white/[0.03] p-6 md:p-8 transition-all hover:border-[#6c5ce7] hover:shadow-xl hover:shadow-[#6c5ce7]/10"
       >
-        <div
-          aria-hidden="true"
-          className="w-20 h-20 shrink-0 rounded-2xl bg-gradient-to-br from-[#dcd5ff] to-[#f3f0ff] dark:from-[#2a2270] dark:to-[#1a1547] flex items-center justify-center transition-transform group-hover:scale-105"
-        >
-          <Sparkles size={40} className="text-[#6c5ce7] dark:text-[#a99bff]" />
+        {/* Gambar maskot Pixi (PNG/WebP transparan, tanpa latar putih) di atas
+            kotak gradasi ungu. */}
+        <div className="w-32 h-32 md:w-40 md:h-40 shrink-0 rounded-3xl bg-gradient-to-br from-[#dcd5ff] to-[#f3f0ff] dark:from-[#2a2270] dark:to-[#1a1547] flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+          <img
+            src="/future-maker/media/pixi-maskot.webp"
+            alt="Pixi, robot bintang maskot kelas Future Makers"
+            width="160"
+            height="160"
+            decoding="async"
+            className="w-full h-full object-contain p-3 drop-shadow-[0_8px_12px_rgba(76,58,180,0.25)] transition-transform duration-300 group-hover:-rotate-3"
+          />
         </div>
 
         <div className="min-w-0 flex-1">
