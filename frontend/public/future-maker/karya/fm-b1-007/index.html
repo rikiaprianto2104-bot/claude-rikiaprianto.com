@@ -59,8 +59,8 @@ h1{margin:0 0 4px;font-size:clamp(30px,7vw,52px);color:#e8302c;text-shadow:3px 3
 @keyframes sp{to{transform:rotate(360deg)}}
 @media (max-width:700px){#tl img{width:40px;height:40px}#hearts{font-size:16px}#top{top:64px;width:70vw}#boss{top:126px}#keys{display:none}}
 </style></head><body>
-<!-- Video pembuka: hanya tampil di HP/tablet kecil (9:16). Di laptop dibuang tanpa mengunduh videonya. -->
-<div id="fmOpen" style="display:none" role="dialog" aria-label="Video pembuka">
+<!-- Video pembuka. Layar landscape (laptop/PC, HP miring) memakai opening-wide (16:9); layar tegak (HP) memakai opening (9:16). Hanya satu yang diunduh. -->
+<div id="fmOpen" role="dialog" aria-label="Video pembuka">
 <video id="fmVid" playsinline webkit-playsinline preload="none"></video>
 <button id="fmPlay" type="button" hidden aria-label="Putar video pembuka"><span>&#9654;</span><small>Ketuk untuk memulai</small></button>
 <button id="fmSkip" type="button">Lewati &rsaquo;</button>
@@ -77,12 +77,18 @@ h1{margin:0 0 4px;font-size:clamp(30px,7vw,52px);color:#e8302c;text-shadow:3px 3
 </style>
 <script>
 (function(){
-  var box=document.getElementById("fmOpen");
-  var phone=(matchMedia("(pointer:coarse)").matches||navigator.maxTouchPoints>0)&&Math.min(innerWidth,innerHeight)<=820;
-  if(!phone){box.parentNode.removeChild(box);return}
-  var v=document.getElementById("fmVid"),play=document.getElementById("fmPlay"),skip=document.getElementById("fmSkip"),done=false,wd=0;
+  var box=document.getElementById("fmOpen"),v=document.getElementById("fmVid"),play=document.getElementById("fmPlay"),skip=document.getElementById("fmSkip"),done=false,wd=0;
+  var name=innerWidth>=innerHeight?"opening-wide":"opening";
+  if(!matchMedia("(pointer:coarse)").matches)skip.innerHTML="Lewati (Esc) &rsaquo;";
+  function onKey(e){
+    // selama video tampil, game di belakangnya tidak boleh menerima tombol
+    e.stopImmediatePropagation();
+    if(e.code==="Escape"){e.preventDefault();finish()}
+    else if((e.code==="Enter"||e.code==="Space")&&!play.hidden){e.preventDefault();play.click()}
+  }
   function finish(){
     if(done)return;done=true;clearTimeout(wd);
+    removeEventListener("keydown",onKey,true);removeEventListener("keyup",onKey,true);
     box.classList.add("out");
     try{v.pause();v.removeAttribute("src");v.load()}catch(e){}
     setTimeout(function(){if(box.parentNode)box.parentNode.removeChild(box)},400);
@@ -98,9 +104,9 @@ h1{margin:0 0 4px;font-size:clamp(30px,7vw,52px);color:#e8302c;text-shadow:3px 3
   v.addEventListener("error",finish);
   skip.addEventListener("click",finish);
   play.addEventListener("click",function(){play.hidden=true;start()});
-  box.style.display="flex";
-  v.poster="/future-maker/karya/fm-b1-007/opening.jpg";
-  v.src="/future-maker/karya/fm-b1-007/opening.mp4";
+  addEventListener("keydown",onKey,true);addEventListener("keyup",onKey,true);
+  v.poster="/future-maker/karya/fm-b1-007/"+name+".jpg";
+  v.src="/future-maker/karya/fm-b1-007/"+name+".mp4";
   v.preload="auto";
   start();
 })();

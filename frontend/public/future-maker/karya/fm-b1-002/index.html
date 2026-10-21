@@ -60,8 +60,8 @@ small.k{display:block;font-size:12px;opacity:.85;margin-top:6px}
 #nogl{position:fixed;inset:0;z-index:40;background:#ffe9b0;color:#5a3410;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:20px;font-weight:700}
 @media(max-height:480px){#toast{bottom:20px}#btns{transform:scale(.8);transform-origin:bottom right}#joy{transform:scale(.85);transform-origin:bottom left}.card{padding:12px 18px}h1{font-size:28px}}
 </style></head><body>
-<!-- Video pembuka: hanya tampil di HP/tablet kecil (9:16). Di laptop dibuang tanpa mengunduh videonya. -->
-<div id="fmOpen" style="display:none" role="dialog" aria-label="Video pembuka">
+<!-- Video pembuka. Layar landscape (laptop/PC, HP miring) memakai opening-wide (16:9); layar tegak (HP) memakai opening (9:16). Hanya satu yang diunduh. -->
+<div id="fmOpen" role="dialog" aria-label="Video pembuka">
 <video id="fmVid" playsinline webkit-playsinline preload="none"></video>
 <button id="fmPlay" type="button" hidden aria-label="Putar video pembuka"><span>&#9654;</span><small>Ketuk untuk memulai</small></button>
 <button id="fmSkip" type="button">Lewati &rsaquo;</button>
@@ -78,12 +78,18 @@ small.k{display:block;font-size:12px;opacity:.85;margin-top:6px}
 </style>
 <script>
 (function(){
-  var box=document.getElementById("fmOpen");
-  var phone=(matchMedia("(pointer:coarse)").matches||navigator.maxTouchPoints>0)&&Math.min(innerWidth,innerHeight)<=820;
-  if(!phone){box.parentNode.removeChild(box);return}
-  var v=document.getElementById("fmVid"),play=document.getElementById("fmPlay"),skip=document.getElementById("fmSkip"),done=false,wd=0;
+  var box=document.getElementById("fmOpen"),v=document.getElementById("fmVid"),play=document.getElementById("fmPlay"),skip=document.getElementById("fmSkip"),done=false,wd=0;
+  var name=innerWidth>=innerHeight?"opening-wide":"opening";
+  if(!matchMedia("(pointer:coarse)").matches)skip.innerHTML="Lewati (Esc) &rsaquo;";
+  function onKey(e){
+    // selama video tampil, game di belakangnya tidak boleh menerima tombol
+    e.stopImmediatePropagation();
+    if(e.code==="Escape"){e.preventDefault();finish()}
+    else if((e.code==="Enter"||e.code==="Space")&&!play.hidden){e.preventDefault();play.click()}
+  }
   function finish(){
     if(done)return;done=true;clearTimeout(wd);
+    removeEventListener("keydown",onKey,true);removeEventListener("keyup",onKey,true);
     box.classList.add("out");
     try{v.pause();v.removeAttribute("src");v.load()}catch(e){}
     setTimeout(function(){if(box.parentNode)box.parentNode.removeChild(box)},400);
@@ -99,9 +105,9 @@ small.k{display:block;font-size:12px;opacity:.85;margin-top:6px}
   v.addEventListener("error",finish);
   skip.addEventListener("click",finish);
   play.addEventListener("click",function(){play.hidden=true;start()});
-  box.style.display="flex";
-  v.poster="/future-maker/karya/fm-b1-002/opening.jpg";
-  v.src="/future-maker/karya/fm-b1-002/opening.mp4";
+  addEventListener("keydown",onKey,true);addEventListener("keyup",onKey,true);
+  v.poster="/future-maker/karya/fm-b1-002/"+name+".jpg";
+  v.src="/future-maker/karya/fm-b1-002/"+name+".mp4";
   v.preload="auto";
   start();
 })();
