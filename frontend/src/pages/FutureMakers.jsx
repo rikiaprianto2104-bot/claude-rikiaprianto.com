@@ -68,7 +68,7 @@ const KARYA_SISWA = [
   { nomor: 'FM.B1-002', nama: 'Al Farras King S.B', cover: '/future-maker/karya/fm-b1-002/cover.webp', href: '/future-maker/karya/fm-b1-002/' },
   { nomor: 'FM.B1-003', nama: 'Farjana', cover: '/future-maker/karya/fm-b1-003/cover.webp', href: '/future-maker/karya/fm-b1-003/' },
   { nomor: 'FM.B1-004', nama: 'Muhammad Umar', cover: '/future-maker/karya/fm-b1-004/cover.webp', href: '/future-maker/karya/fm-b1-004/' },
-  { nomor: 'FM.B1-005', nama: 'M. Arsene Putra Kurniawan', cover: null, href: null },
+  { nomor: 'FM.B1-005', nama: 'M. Arsene Putra Kurniawan', cover: '/future-maker/karya/fm-b1-005/cover.webp', href: '/future-maker/karya/fm-b1-005/' },
   { nomor: 'FM.B1-006', nama: 'Arshad Alvaronizam Arrafif', cover: null, href: null },
   { nomor: 'FM.B1-007', nama: 'Dzaky Almair', cover: '/future-maker/karya/fm-b1-007/cover.webp', href: '/future-maker/karya/fm-b1-007/' },
   { nomor: 'FM.B1-008', nama: 'M. Althaf Arrayhan', cover: '/future-maker/karya/fm-b1-008/cover.webp', href: '/future-maker/karya/fm-b1-008/' },
@@ -356,16 +356,22 @@ const FutureMakers = () => {
         </p>
       </aside>
 
-      <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        {KARYA_TAMPIL.map((item, i) => (
-          // Kalau sisa 1 sendirian di baris terakhir 3 kolom, taruh di tengah.
-          <div
-            key={item.nomor}
-            className={i === KARYA_TAMPIL.length - 1 && KARYA_TAMPIL.length % 3 === 1 ? 'md:col-start-2' : ''}
-          >
-            <KartuKarya item={item} />
-          </div>
-        ))}
+      {/* Di layar sedang ke atas grid-nya 6 kolom dan tiap kartu memakan 2 kolom
+          (= 3 kartu per baris). Dengan begitu 1 atau 2 kartu sisa di baris
+          terakhir bisa ditaruh tepat di tengah. */}
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-6">
+        {KARYA_TAMPIL.map((item, i) => {
+          const sisa = KARYA_TAMPIL.length % 3;
+          const awalBarisAkhir = KARYA_TAMPIL.length - sisa;
+          let tengah = '';
+          if (i === awalBarisAkhir && sisa === 1) tengah = 'md:col-start-3';
+          if (i === awalBarisAkhir && sisa === 2) tengah = 'md:col-start-2';
+          return (
+            <div key={item.nomor} className={`md:col-span-2 ${tengah}`}>
+              <KartuKarya item={item} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
