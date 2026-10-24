@@ -8,6 +8,8 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#0b1830;font-family:"Trebuchet MS",Verdana,sans-serif;color:#fff;user-select:none}
 #cv{display:block;width:100%;height:100%;touch-action:none}
+/* Joystick & tombol harus bebas dari gestur geser/zoom bawaan browser; kalau tidak, Chrome Android membatalkan sentuhan (pointercancel) dan joystick langsung berhenti. */
+html,body,#hud,#touch,#joy,#btns,.ab{touch-action:none}
 .hide{display:none!important}
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10}
 #tl{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:6px}
