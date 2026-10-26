@@ -11,7 +11,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { blogPosts, futureMakersClass } from '../mock';
-import { kelasLanjutan, rupiah } from '../data/kelasLanjutan';
+import { kelasLanjutan, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
 const Blog = () => {
@@ -62,18 +62,15 @@ const Blog = () => {
                 </span>
               </div>
               <h2 className="mt-4 text-2xl font-extrabold leading-tight">
-                {kelasLanjutan.headline}
+                Kelas Artificial Intelligence Anak Yogyakarta
               </h2>
               <p className="mt-3 leading-relaxed text-white/90">
                 Tiga jalur untuk anak yang sudah mengenal AI: Creator untuk
                 berkarya, Champions untuk kompetisi, dan Private 1-on-1.
               </p>
               <div className="mt-5 flex items-end gap-3">
-                <span className="text-base text-white/60 line-through">
-                  {rupiah(kelasLanjutan.kelas[0].harga.normal)}
-                </span>
                 <span className="text-3xl font-extrabold leading-none">
-                  {rupiah(kelasLanjutan.kelas[0].harga.promo)}
+                  {rupiah(hargaPerAnak('creator'))}
                 </span>
                 <span className="mb-0.5 text-sm text-white/80">mulai dari</span>
               </div>

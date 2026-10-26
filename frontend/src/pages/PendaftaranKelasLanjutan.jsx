@@ -17,6 +17,7 @@ import {
   kelasLanjutan as data,
   hargaPerAnak,
   hargaNormalPerAnak,
+  promoBerjalan,
   rupiah,
 } from '../data/kelasLanjutan';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
@@ -29,6 +30,7 @@ const PendaftaranKelasLanjutan = () => {
   const [namaOrangTua, setNamaOrangTua] = useState('');
   const [metode, setMetode] = useState('lunas');
   const [tersalin, setTersalin] = useState(false);
+  const [promoAktif] = useState(() => promoBerjalan());
 
   useDocumentMeta({
     title: `${data.title} | Riki MarkeThink`,
@@ -71,7 +73,7 @@ const PendaftaranKelasLanjutan = () => {
     () =>
       anak.map((a) => {
         const kelas = data.kelas.find((k) => k.id === a.kelas);
-        const harga = hargaPerAnak(a.kelas, lulusan === true, adaSaudara);
+        const harga = hargaPerAnak(a.kelas, adaSaudara, promoAktif);
         const normal = hargaNormalPerAnak(a.kelas);
         return {
           nama: a.nama,
@@ -113,9 +115,9 @@ const PendaftaranKelasLanjutan = () => {
       );
     });
     baris.push('');
-    if (adaSaudara) {
+    if (adaSaudara || promoAktif) {
       baris.push(
-        `Diskon kakak-adik ${data.diskonSaudaraPersen}% sudah termasuk (kecuali Kelas Private).`
+        `Potongan ${data.promo.persen}% untuk Creator/Champions sudah termasuk (kecuali Kelas Private).`
       );
     }
     baris.push(`Total: ${rupiah(total)}`);
@@ -140,6 +142,7 @@ const PendaftaranKelasLanjutan = () => {
     jumlahAnak,
     rincian,
     adaSaudara,
+    promoAktif,
     total,
     metode,
     perBulan,
@@ -203,7 +206,7 @@ const PendaftaranKelasLanjutan = () => {
               Ya, alumni Future Makers
             </p>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Mendapat harga khusus alumni
+              Nama anak tinggal dipilih dari daftar
             </p>
           </label>
           <label className={labelKartu(lulusan === false)}>
@@ -221,7 +224,7 @@ const PendaftaranKelasLanjutan = () => {
               Belum pernah ikut
             </p>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Berlaku harga normal
+              Nama anak diisi manual
             </p>
           </label>
         </div>
@@ -252,8 +255,8 @@ const PendaftaranKelasLanjutan = () => {
         {adaSaudara && (
           <p className="mt-3 inline-flex items-start gap-2 text-sm text-emerald-700 dark:text-emerald-400">
             <Check size={16} className="mt-0.5 flex-shrink-0" />
-            Diskon kakak-adik kandung {data.diskonSaudaraPersen}% per anak sudah
-            diterapkan. Tidak berlaku untuk Kelas Private.
+            Potongan {data.promo.persen}% per anak sudah diterapkan untuk
+            Kelas Creator dan Champions. Tidak berlaku untuk Kelas Private.
           </p>
         )}
       </section>
@@ -312,7 +315,7 @@ const PendaftaranKelasLanjutan = () => {
               </p>
               <div className="mt-3 space-y-3">
                 {data.kelas.map((k) => {
-                  const harga = hargaPerAnak(k.id, lulusan === true, adaSaudara);
+                  const harga = hargaPerAnak(k.id, adaSaudara, promoAktif);
                   const normal = k.harga.normal;
                   const adaPotongan = harga < normal;
                   return (
@@ -581,8 +584,9 @@ const PendaftaranKelasLanjutan = () => {
       </section>
 
       <p className="mt-10 text-xs text-slate-400 dark:text-slate-500 leading-relaxed text-center">
-        Diskon kakak-adik {data.diskonSaudaraPersen}% berlaku untuk saudara
-        kandung dan tidak berlaku pada Kelas Private. Boleh kombinasi kelas,
+        Potongan {data.promo.persen}% berlaku untuk Kelas Creator dan Champions,
+        baik lewat promo yang sedang berjalan maupun pendaftaran kakak-adik, dan
+        tidak ditumpuk. Kelas Private di luar potongan. Boleh kombinasi kelas,
         misalnya kakak Champions dan adik Creator.
       </p>
     </div>
