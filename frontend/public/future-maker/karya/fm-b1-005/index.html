@@ -4507,7 +4507,7 @@ function setCd(id,k){ var e=E(id).querySelector(".cd"); e.style.height=(sim.cd[k
 
 // ====== KONTROL ======
 var keys={},joy={x:0,y:0,id:null},camDrag={id:null,x:0,y:0};
-var yaw=0,pitch=0.38,dist=11,pinch=0;
+var yaw=Math.PI,pitch=0.38,dist=11,pinch=0; // yaw=PI: kamera di belakang pemain, menghadap +z (arah level)
 addEventListener("keydown",function(e){
   keys[e.code]=true;
   if(e.code==="Escape"){ togglePause(); }
@@ -4638,7 +4638,7 @@ function startGame(){
   boss.position.set(0,0,104); boss.scale.setScalar(1); bossS={mode:"idle",t:0,cycle:0,giant:0,scale:1};
   while(darts.length){ scene.remove(darts[0].m); darts.shift(); }
   shockOn=false; shock.material.opacity=0; warnRing.material.opacity=0;
-  player.position.set(0,0,0); yaw=0; pitch=0.38; dist=11;
+  player.position.set(0,0,0); yaw=Math.PI; pitch=0.38; dist=11;
   drawHearts(); updHUD(); elBossBox.classList.add("hide");
   hide("title"); hide("win"); hide("lose"); hide("pause"); elHUD.classList.remove("hide");
   if(isMobile) elTouch.classList.remove("hide");
@@ -4890,7 +4890,7 @@ function loop(){
     if(keys.KeyA||keys.ArrowLeft)ix-=1; if(keys.KeyD||keys.ArrowRight)ix+=1;
     if(joy.id!==null){ ix+=joy.x; iz-=joy.y; }
     var f=camYawFacing(), sinY=Math.sin(f), cosY=Math.cos(f);
-    var dx=ix*cosY+iz*sinY, dz=-ix*sinY+iz*cosY;
+    var dx=-ix*cosY+iz*sinY, dz=ix*sinY+iz*cosY; // kanan layar = +ix (sebelumnya tertukar)
     var moveAmt=sim.move(dx,dz,dt,8.2);
     if(keys.Space){ if(sim.jump())SFX.jump(); }
     if(keys.KeyJ)doPunch(); if(keys.KeyK)doPetir(); if(keys.KeyL)doLogam();
