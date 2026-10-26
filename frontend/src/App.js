@@ -8,6 +8,7 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import KelasFutureMakers from './pages/KelasFutureMakers';
 import KelasBelajarAI from './pages/KelasBelajarAI';
+import PendaftaranKelasLanjutan from './pages/PendaftaranKelasLanjutan';
 import FutureMakers from './pages/FutureMakers';
 import Profile from './pages/Profile';
 import Research from './pages/Research';
@@ -36,6 +37,12 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/future-maker" element={<FutureMakers />} />
             <Route path="/contact" element={<Contact />} />
+            {/* Tautan tersembunyi: tidak ditautkan dari menu mana pun dan
+                halamannya memasang noindex. Dibagikan manual lewat WhatsApp. */}
+            <Route
+              path="/pendaftaran-kelas-lanjutan"
+              element={<PendaftaranKelasLanjutan />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>
