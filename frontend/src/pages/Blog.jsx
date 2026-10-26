@@ -10,11 +10,8 @@ import {
   Users,
   ArrowRight,
 } from 'lucide-react';
-import {
-  blogPosts,
-  futureMakersClass,
-  futureMakersPaidClass,
-} from '../mock';
+import { blogPosts, futureMakersClass } from '../mock';
+import { kelasLanjutan, rupiah } from '../data/kelasLanjutan';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
 const Blog = () => {
@@ -42,61 +39,61 @@ const Blog = () => {
         </p>
       </div>
 
-      {/* Kartu promo kelas — kelas berbayar & kelas gratis */}
+      {/* Kartu promo kelas — kelas lanjutan berbayar & kelas gratis */}
       <div
         className={`mt-10 grid grid-cols-1 gap-6 ${
-          futureMakersPaidClass.hidden ? "" : "lg:grid-cols-2"
+          kelasLanjutan.landingHidden ? '' : 'lg:grid-cols-2'
         }`}
       >
-        {/* Kelas berbayar - disembunyikan selama hidden: true di mock.js */}
-        {!futureMakersPaidClass.hidden && (
-        <Link
-          to={`/blog/${futureMakersPaidClass.slug}`}
-          className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] text-white p-7 hover:shadow-2xl hover:shadow-[#2563eb]/25 transition-all duration-300 flex flex-col"
-        >
-          <div className="absolute -right-12 -top-12 w-40 h-40 rounded-full bg-white/10" />
-          <div className="relative flex flex-col flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#2563eb] bg-white px-3 py-1.5 rounded-full">
-                <Sparkles size={12} /> Kelas Berbayar
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-300 px-3 py-1.5 rounded-full">
-                <Users size={12} /> {futureMakersPaidClass.quotaCount} Seat
+        {/* Kelas lanjutan — sembunyikan lagi lewat landingHidden di data. */}
+        {!kelasLanjutan.landingHidden && (
+          <Link
+            to={`/blog/${kelasLanjutan.slugLanding}`}
+            className="group relative flex flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] p-7 text-white transition-all duration-300 hover:shadow-2xl hover:shadow-[#2563eb]/25"
+          >
+            <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10" />
+            <div className="relative flex flex-1 flex-col">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#2563eb]">
+                  <Sparkles size={12} /> Kelas Lanjutan
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-300 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-900">
+                  <Users size={12} /> Kursi terbatas
+                </span>
+              </div>
+              <h2 className="mt-4 text-2xl font-extrabold leading-tight">
+                {kelasLanjutan.headline}
+              </h2>
+              <p className="mt-3 leading-relaxed text-white/90">
+                Tiga jalur untuk anak yang sudah mengenal AI: Creator untuk
+                berkarya, Champions untuk kompetisi, dan Private 1-on-1.
+              </p>
+              <div className="mt-5 flex items-end gap-3">
+                <span className="text-base text-white/60 line-through">
+                  {rupiah(kelasLanjutan.kelas[0].harga.normal)}
+                </span>
+                <span className="text-3xl font-extrabold leading-none">
+                  {rupiah(kelasLanjutan.kelas[0].harga.promo)}
+                </span>
+                <span className="mb-0.5 text-sm text-white/80">mulai dari</span>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/85">
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin size={14} /> {kelasLanjutan.lokasi}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar size={14} /> Mulai Januari 2027
+                </span>
+              </div>
+              <span className="mt-6 inline-flex items-center justify-center gap-2 self-start rounded-full bg-white px-6 py-3.5 font-bold text-[#2563eb] transition-colors group-hover:bg-slate-100">
+                Lihat Detail &amp; Daftar
+                <ArrowRight
+                  size={18}
+                  className="transition-transform duration-300 group-hover:translate-x-0.5"
+                />
               </span>
             </div>
-            <h2 className="mt-4 text-2xl font-extrabold leading-tight">
-              Belajar Artificial Intelligence (Claude &amp; ChatGPT)
-            </h2>
-            <p className="mt-3 text-white/90 leading-relaxed">
-              {futureMakersPaidClass.audience}.{' '}
-              {futureMakersPaidClass.period}, ditutup Demo Day di depan orang
-              tua.
-            </p>
-            <div className="mt-5 flex items-end gap-3">
-              <span className="text-base text-white/60 line-through">
-                Rp {futureMakersPaidClass.price.normal.toLocaleString('id-ID')}
-              </span>
-              <span className="text-3xl font-extrabold leading-none">
-                Rp {futureMakersPaidClass.price.promo.toLocaleString('id-ID')}
-              </span>
-            </div>
-            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/85">
-              <span className="inline-flex items-center gap-1.5">
-                <MapPin size={14} /> {futureMakersPaidClass.location}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Calendar size={14} /> November 2026
-              </span>
-            </div>
-            <span className="mt-6 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-white text-[#2563eb] font-bold self-start group-hover:bg-slate-100 transition-colors">
-              Lihat Detail &amp; Daftar
-              <ArrowRight
-                size={18}
-                className="group-hover:translate-x-0.5 transition-transform duration-300"
-              />
-            </span>
-          </div>
-        </Link>
+          </Link>
         )}
 
         {/* Kelas gratis */}

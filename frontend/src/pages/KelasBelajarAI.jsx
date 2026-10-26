@@ -2,113 +2,61 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
 import {
   ChevronLeft,
-  MessageCircle,
   Sparkles,
   Users,
   MapPin,
-  Clock,
   CalendarDays,
-  Gamepad2,
-  Code2,
-  Flag,
-  Lightbulb,
-  Brain,
-  Star,
-  Heart,
-  Shield,
+  Palette,
+  Trophy,
+  UserCheck,
   CheckCircle2,
-  Globe,
+  ArrowRight,
+  Play,
+  Quote,
+  CreditCard,
   Tag,
-  Lightbulb as Idea,
 } from 'lucide-react';
-import WhatsAppCTA from '../components/WhatsAppCTA';
-import GameDemo from '../components/GameDemo';
-import { futureMakersPaidClass as kelas } from '../mock';
+import { kelasLanjutan as kelas, rupiah } from '../data/kelasLanjutan';
+import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
 
 // Parameter event Meta Pixel — hanya info konten, tanpa data pribadi pengunjung.
 const PIXEL_CONTENT = {
-  content_name: 'Kelas Belajar AI untuk Anak (Claude & ChatGPT)',
+  content_name: 'Kelas Lanjutan Future Makers',
   content_category: 'Kelas Anak Berbayar',
 };
 
-const scheduleIcons = {
-  sparkles: Sparkles,
-  gamepad: Gamepad2,
-  code: Code2,
-  flag: Flag,
+const ikonKelas = {
+  creator: Palette,
+  champions: Trophy,
+  private: UserCheck,
 };
 
-const benefitIcons = {
-  lightbulb: Lightbulb,
-  brain: Brain,
-  users: Users,
-  star: Star,
-  shield: Shield,
-  heart: Heart,
-};
+const LINK_DAFTAR = `/${kelas.slug}`;
 
-const rupiah = (n) => `Rp ${n.toLocaleString('id-ID')}`;
-
-const waLink = `https://wa.me/${kelas.whatsapp.number}?text=${encodeURIComponent(
-  kelas.whatsapp.message
-)}`;
-
-const hemat = kelas.price.normal - kelas.price.promo;
-const hematPersen = Math.round((hemat / kelas.price.normal) * 100);
-
-const DaftarButton = ({
-  className = '',
-  label = 'Daftar Sekarang',
-  size = 'lg',
-  position = 'hero',
-  onLead,
-}) => (
-  <WhatsAppCTA
-    href={waLink}
-    label={label}
-    size={size}
-    className={className}
-    onClick={() => onLead(position)}
-  />
+const TombolDaftar = ({ label = 'Daftar Sekarang', className = '', onKlik }) => (
+  <Link
+    to={LINK_DAFTAR}
+    onClick={onKlik}
+    className={`group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#2563eb] px-8 py-4 text-lg font-bold text-white shadow-lg shadow-[#2563eb]/30 transition-all duration-300 hover:bg-[#1d4ed8] hover:shadow-xl hover:shadow-[#2563eb]/40 hover:-translate-y-0.5 ${className}`}
+  >
+    {label}
+    <ArrowRight
+      size={20}
+      className="transition-transform duration-300 group-hover:translate-x-0.5"
+    />
+  </Link>
 );
 
 const KelasBelajarAI = () => {
-  // Selama kelas.hidden masih true, halaman ini tetap bisa dibuka lewat URL
-  // langsung untuk diperbaiki, tapi tidak boleh diindeks mesin pencari.
-  // Hapus blok ini bersamaan dengan hidden: false di mock.js.
-  useEffect(() => {
-    if (!kelas.hidden) return undefined;
-    // index.html sudah memasang <meta name="robots"> sendiri. Kalau kita
-    // menambah tag kedua, tag pertama yang terbaca duluan, jadi nilainya
-    // ditimpa lalu dikembalikan saat pengunjung meninggalkan halaman ini.
-    let meta = document.head.querySelector('meta[name="robots"]');
-    const dibuatDiSini = !meta;
-    const nilaiAwal = meta ? meta.getAttribute('content') : null;
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', 'robots');
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute('content', 'noindex, nofollow');
-    return () => {
-      if (dibuatDiSini) meta.remove();
-      else meta.setAttribute('content', nilaiAwal);
-    };
-  }, []);
-
-  // Sembunyikan CTA melayang saat pembaca sudah sampai ke footer.
   const [ctaVisible, setCtaVisible] = useState(true);
-  // Penanda agar ViewContent hanya dikirim sekali per kunjungan.
   const viewContentSent = useRef(false);
 
   useEffect(() => {
     const onScroll = () => {
       const doc = document.documentElement;
-      const distanceToBottom =
-        doc.scrollHeight - (window.scrollY + window.innerHeight);
-      setCtaVisible(distanceToBottom > 240);
+      setCtaVisible(doc.scrollHeight - (window.scrollY + window.innerHeight) > 240);
 
       // Meta Pixel: ViewContent setelah pengunjung melewati 50% halaman.
       if (viewContentSent.current) return;
@@ -117,11 +65,9 @@ const KelasBelajarAI = () => {
       if (window.scrollY / scrollable < 0.5) return;
 
       viewContentSent.current = true;
-      trackPixelOnce('viewcontent_kelas_belajar_ai', 'ViewContent', {
+      trackPixelOnce('viewcontent_kelas_lanjutan', 'ViewContent', {
         ...PIXEL_CONTENT,
         content_type: 'landing_page',
-        value: kelas.price.promo,
-        currency: kelas.price.currency,
       });
     };
     onScroll();
@@ -133,255 +79,203 @@ const KelasBelajarAI = () => {
     };
   }, []);
 
-  // Meta Pixel: Lead dikirim lebih dulu, baru tab WhatsApp terbuka.
-  const handleLead = useCallback((position) => {
-    trackPixel('Lead', {
+  // Pengunjung menuju formulir pendaftaran — niat mendaftar, bukan sekadar baca.
+  const handleDaftar = useCallback((posisi) => {
+    trackPixel('InitiateCheckout', {
       ...PIXEL_CONTENT,
-      content_type: 'whatsapp_click',
-      // Hanya posisi tombol, bukan data pengunjung.
-      button_position: position,
-      value: kelas.price.promo,
-      currency: kelas.price.currency,
+      content_type: 'buka_formulir',
+      button_position: posisi,
     });
   }, []);
 
   const jsonLd = useMemo(
     () => ({
       '@context': 'https://schema.org',
-      '@type': 'Event',
-      name: `${kelas.title} (${kelas.subtitle})`,
-      description: kelas.excerpt,
-      startDate: '2026-11-08T15:00:00+07:00',
-      endDate: '2026-11-29T17:00:00+07:00',
-      eventStatus: 'https://schema.org/EventScheduled',
-      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-      location: {
-        '@type': 'Place',
-        name: kelas.location,
-        address: {
-          '@type': 'PostalAddress',
-          addressLocality: 'Yogyakarta',
-          addressCountry: 'ID',
-        },
-      },
-      offers: {
-        '@type': 'Offer',
-        price: String(kelas.price.promo),
-        priceCurrency: kelas.price.currency,
-        availability: 'https://schema.org/LimitedAvailability',
-        validThrough: kelas.price.promoDeadlineISO,
-        url: `https://rikiaprianto.com/blog/${kelas.slug}`,
-      },
-      organizer: {
+      '@type': 'Course',
+      name: 'Kelas Lanjutan Future Makers',
+      description:
+        'Kelas lanjutan AI untuk anak: Creator, Champions, dan Private. Anak berkarya, berprestasi, dan membangun portofolio digital.',
+      provider: {
         '@type': 'Person',
-        name: kelas.host.name,
+        name: 'Riki MarkeThink',
         url: 'https://rikiaprianto.com',
       },
-      typicalAgeRange: '6-15',
+      offers: kelas.kelas.map((k) => ({
+        '@type': 'Offer',
+        name: k.nama,
+        price: String(k.harga.promo),
+        priceCurrency: 'IDR',
+        availability: 'https://schema.org/LimitedAvailability',
+        url: `https://rikiaprianto.com/${kelas.slug}`,
+      })),
     }),
     []
   );
 
   useDocumentMeta({
-    title: `${kelas.title} (Claude & ChatGPT) — Kelas Anak 6–15 Tahun di Yogyakarta | Riki MarkeThink`,
-    description: kelas.excerpt,
+    title:
+      'Kelas Lanjutan Future Makers — Creator, Champions & Private | Riki MarkeThink',
+    description:
+      'Kelas lanjutan AI untuk anak di Yogyakarta. Tiga jalur: Creator untuk berkarya, Champions untuk kompetisi, dan Private 1-on-1. Kelas mulai Januari 2027.',
     keywords: [
-      'kelas AI untuk anak',
-      'belajar ChatGPT untuk anak',
-      'belajar Claude untuk anak',
-      'kelas coding anak Yogyakarta',
-      'kursus AI anak',
+      'kelas lanjutan AI anak',
+      'kelas AI anak Yogyakarta',
+      'kompetisi AI anak',
+      'portofolio digital anak',
       'Future Makers',
-      'kelas offline Yogyakarta',
     ],
-    image: kelas.image,
-    url:
-      typeof window !== 'undefined'
-        ? window.location.href
-        : `https://rikiaprianto.com/blog/${kelas.slug}`,
     type: 'article',
     jsonLd,
   });
 
-  const facts = [
-    { icon: Users, label: 'Usia', value: kelas.age },
-    { icon: MapPin, label: 'Lokasi', value: kelas.location },
-    { icon: Clock, label: 'Waktu', value: '15.00 WIB — Selesai' },
-    { icon: CalendarDays, label: 'Jadwal', value: '4x Pertemuan, November 2026' },
-  ];
-
-  const cocokUntuk = [
-    'Anak berusia 6–15 tahun dan penasaran dengan cara kerja AI.',
-    'Orang tua ingin waktu layar anak berubah jadi keterampilan yang terpakai.',
-    'Anak belum pernah coding sama sekali — kelas ini memang untuk pemula.',
-    'Berdomisili di Yogyakarta atau bisa hadir offline setiap Minggu di bulan November 2026.',
-    'Orang tua mencari kelas kecil dengan pendampingan, bukan kelas massal.',
+  const fakta = [
+    { icon: Users, label: '3 jalur kelas', nilai: 'Creator · Champions · Private' },
+    { icon: CalendarDays, label: 'Kelas mulai', nilai: 'Januari 2027' },
+    { icon: MapPin, label: 'Lokasi', nilai: kelas.lokasi },
+    { icon: CreditCard, label: 'Pembayaran', nilai: 'Lunas atau cicilan 5x' },
   ];
 
   return (
     <div className="pb-24 md:pb-0">
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#eef4ff] to-white dark:from-[#101a2e] dark:to-[#0b1220]">
-        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#2563eb]/10 blur-3xl" />
-        <div className="absolute -bottom-32 -left-24 w-80 h-80 rounded-full bg-amber-300/20 dark:bg-amber-400/10 blur-3xl" />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#2563eb]/10 blur-3xl" />
+        <div className="absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-amber-300/20 blur-3xl dark:bg-amber-400/10" />
 
-        <div className="relative max-w-6xl mx-auto px-6 lg:px-8 pt-10 pb-16">
+        <div className="relative mx-auto max-w-6xl px-6 pt-10 pb-16 lg:px-8">
           <Link
             to="/blog"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-[#0d9eff] transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-[#2563eb] dark:text-slate-400"
           >
             <ChevronLeft size={16} /> Kembali ke Blog
           </Link>
 
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-start">
+          <div className="mt-8 grid grid-cols-1 items-start gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white bg-[#2563eb] px-3 py-1.5 rounded-full">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
                   <Sparkles size={12} /> {kelas.brand}
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-300 px-3 py-1.5 rounded-full">
-                  <Users size={12} /> {kelas.quota}
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-300 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-900">
+                  Kelas Lanjutan 2027
                 </span>
               </div>
 
-              <h1 className="mt-5 text-4xl md:text-5xl lg:text-[3.3rem] font-extrabold text-slate-900 dark:text-white leading-[1.1] tracking-tight">
-                Belajar{' '}
-                <span className="text-[#2563eb]">Artificial Intelligence</span>
+              <h1 className="mt-5 text-4xl font-extrabold leading-[1.1] tracking-tight text-slate-900 dark:text-white md:text-5xl lg:text-[3.3rem]">
+                {kelas.headline}
               </h1>
-              <p className="mt-3 inline-block text-xl md:text-2xl font-bold text-slate-900 dark:text-white bg-amber-300 dark:bg-amber-400/90 dark:text-slate-900 px-4 py-1.5 rounded-xl">
-                Claude &amp; ChatGPT
-              </p>
-              <p className="mt-5 inline-flex items-center px-5 py-2 rounded-full border-2 border-slate-300 dark:border-white/20 text-base md:text-lg font-semibold text-slate-800 dark:text-slate-100">
-                {kelas.audience}
-              </p>
-              <p className="mt-5 text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-                Empat pertemuan di bulan November 2026. Anak belajar memakai AI
-                untuk membuat ide, game, dan website sendiri — lalu
-                memamerkannya di Demo Day di depan orang tua.
+              <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">
+                {kelas.intro}
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
-                {kelas.pillars.map((p) => (
-                  <span
-                    key={p}
-                    className="text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
-                  >
-                    {p}
-                  </span>
-                ))}
-              </div>
+              <blockquote className="mt-7 border-l-4 border-[#2563eb] py-1 pl-5">
+                <p className="flex gap-2 text-lg italic leading-relaxed text-slate-800 dark:text-slate-100">
+                  <Quote size={18} className="mt-1.5 flex-shrink-0 text-[#2563eb]" />
+                  {kelas.kutipan.teks}
+                </p>
+                <footer className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  {kelas.kutipan.sumber}
+                </footer>
+              </blockquote>
 
-              <div className="mt-7 flex flex-wrap items-center gap-3">
-                <DaftarButton position="hero" onLead={handleLead} />
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <TombolDaftar onKlik={() => handleDaftar('hero')} />
                 <a
-                  href="#coba-game"
-                  className="inline-flex items-center gap-2 px-7 py-4 rounded-full border-2 border-slate-200 dark:border-white/15 text-slate-700 dark:text-slate-200 font-semibold hover:border-[#2563eb] hover:text-[#2563eb] transition-colors"
+                  href="#karya-anak"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 px-7 py-4 font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-white/15 dark:text-slate-200"
                 >
-                  <Gamepad2 size={20} /> Coba Contoh Gamenya
+                  <Play size={18} /> Lihat Karya Anak-anak
                 </a>
               </div>
             </div>
 
-            {/* Kartu harga */}
-            <div className="rounded-3xl border-2 border-[#2563eb]/25 dark:border-white/10 bg-white dark:bg-white/[0.04] p-7 shadow-xl shadow-slate-900/5">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white bg-rose-500 px-3 py-1.5 rounded-full">
-                <Tag size={12} /> {kelas.price.label}
-              </span>
-
-              <div className="mt-5">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {kelas.price.normalLabel}
-                </p>
-                <p className="text-xl font-semibold text-slate-400 line-through decoration-rose-500 decoration-2">
-                  {rupiah(kelas.price.normal)}
-                </p>
-                <p className="mt-2 text-4xl md:text-5xl font-extrabold text-[#2563eb] leading-none">
-                  {rupiah(kelas.price.promo)}
-                </p>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                  {kelas.price.unit} · hemat {rupiah(hemat)} ({hematPersen}%)
-                </p>
-              </div>
-
-              <p className="mt-4 text-xs leading-relaxed text-rose-600 dark:text-rose-400 font-medium">
-                {kelas.price.promoNote}
+            {/* Kartu fakta */}
+            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-900/5 dark:border-white/10 dark:bg-white/[0.04]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Sekilas Kelas Lanjutan
               </p>
-
-              <div className="mt-6 pt-5 border-t border-slate-100 dark:border-white/5 space-y-4">
-                {facts.map((f) => (
+              <div className="mt-5 space-y-5">
+                {fakta.map((f) => (
                   <div key={f.label} className="flex items-start gap-4">
-                    <span className="w-10 h-10 rounded-xl bg-[#eef4ff] dark:bg-[#2563eb]/10 text-[#2563eb] flex items-center justify-center flex-shrink-0">
-                      <f.icon size={18} />
+                    <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-[#eef4ff] text-[#2563eb] dark:bg-[#2563eb]/10">
+                      <f.icon size={20} />
                     </span>
                     <div>
                       <p className="text-xs uppercase tracking-wider text-slate-400">
                         {f.label}
                       </p>
                       <p className="font-semibold text-slate-900 dark:text-white">
-                        {f.value}
+                        {f.nilai}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-
-              <DaftarButton
-                className="mt-6 w-full"
-                position="kartu_harga"
-                onLead={handleLead}
-              />
-              <p className="mt-3 text-xs text-center text-slate-500 dark:text-slate-400">
-                {kelas.locationNote}
+              <p className="mt-6 border-t border-slate-100 pt-5 text-xs leading-relaxed text-slate-500 dark:border-white/5 dark:text-slate-400">
+                {kelas.jadwalBelajar}. Kursi sangat terbatas: Creator maks 8 anak,
+                Champions maks 6 anak, Private hanya 3 anak.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Jadwal */}
-      <section className="bg-slate-50 dark:bg-white/[0.02] py-16">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+      {/* Tiga kelas */}
+      <section className="bg-slate-50 py-16 dark:bg-white/[0.02]">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="max-w-2xl">
-            <span className="inline-block text-xs font-semibold uppercase tracking-wider text-[#2563eb] bg-[#eef4ff] dark:bg-[#2563eb]/10 px-3 py-1 rounded-full">
-              Materi &amp; Jadwal
+            <span className="inline-block rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
+              Pilih Jalur Anak
             </span>
-            <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              {kelas.period}
+            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              3 Kelas Lanjutan, 3 Masa Depan
             </h2>
-            <p className="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
-              Setiap hari Minggu, pukul 15.00 WIB. Satu pertemuan satu misi yang
-              selesai hari itu juga, sehingga anak selalu pulang membawa hasil.
+            <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
+              Setiap anak berbeda. Pilih kelas yang paling cocok dengan minat dan
+              tujuan si kecil.
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {kelas.schedule.map((s) => {
-              const Icon = scheduleIcons[s.icon] || Sparkles;
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {kelas.kelas.map((k) => {
+              const Icon = ikonKelas[k.id] || Palette;
+              const adaPromo = k.harga.promo < k.harga.normal;
               return (
                 <div
-                  key={s.week}
-                  className="rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.03] p-6 hover:border-[#2563eb]/60 hover:shadow-xl hover:shadow-[#2563eb]/10 hover:-translate-y-1 transition-all duration-300"
+                  key={k.id}
+                  className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-300 hover:border-[#2563eb]/60 hover:shadow-xl hover:shadow-[#2563eb]/10 dark:border-white/5 dark:bg-white/[0.03]"
                 >
-                  <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-white bg-[#2563eb] px-3 py-1 rounded-full">
-                    {s.week}
-                  </span>
-                  <div className="mt-4 flex items-end gap-2">
-                    <span className="text-4xl font-extrabold text-slate-900 dark:text-white leading-none">
-                      {s.date}
-                    </span>
-                    <span className="text-sm font-bold uppercase text-slate-400 mb-1">
-                      {s.month} 2026
-                    </span>
-                  </div>
-                  <span className="mt-5 w-12 h-12 rounded-2xl bg-[#eef4ff] dark:bg-[#2563eb]/10 text-[#2563eb] flex items-center justify-center">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef4ff] text-[#2563eb] dark:bg-[#2563eb]/10">
                     <Icon size={22} />
                   </span>
-                  <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white leading-snug">
-                    {s.title}
+                  <h3 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">
+                    {k.nama}
                   </h3>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    {s.description}
+                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">
+                    {k.ringkas}
                   </p>
+                  <p className="mt-4 flex-1 leading-relaxed text-slate-600 dark:text-slate-400">
+                    {k.deskripsi}
+                  </p>
+                  <p className="mt-4 rounded-xl bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
+                    <strong className="font-bold">Hasil akhir:</strong>{' '}
+                    {k.hasilAkhir}
+                  </p>
+                  <div className="mt-5 border-t border-slate-100 pt-5 dark:border-white/5">
+                    {adaPromo && (
+                      <p className="text-sm text-slate-400 line-through">
+                        {rupiah(k.harga.normal)}
+                      </p>
+                    )}
+                    <p className="text-2xl font-extrabold text-[#2563eb]">
+                      {rupiah(k.harga.promo)}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      {adaPromo
+                        ? 'Harga khusus alumni Kelas Future Makers'
+                        : 'Tanpa promo — hanya 3 kursi'}
+                    </p>
+                  </div>
                 </div>
               );
             })}
@@ -389,186 +283,231 @@ const KelasBelajarAI = () => {
         </div>
       </section>
 
-      {/* Demo game */}
-      <section
-        id="coba-game"
-        className="scroll-mt-24 bg-white dark:bg-[#0b1220] py-16"
-      >
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+      {/* Karya anak-anak */}
+      <section id="karya-anak" className="scroll-mt-24 bg-white py-16 dark:bg-[#0b1220]">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
           <div className="max-w-2xl">
-            <span className="inline-block text-xs font-semibold uppercase tracking-wider text-[#2563eb] bg-[#eef4ff] dark:bg-[#2563eb]/10 px-3 py-1 rounded-full">
-              Contoh Karya
+            <span className="inline-block rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
+              Bukti Nyata
             </span>
-            <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Main Dulu, Baru Bikin Sendiri
+            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              Game Buatan Anak-anak Kelas Sebelumnya
             </h2>
-            <p className="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
-              {kelas.demoGame.description}
+            <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
+              Semua game di bawah ini dibuat sendiri oleh peserta Kelas Future
+              Makers batch 1 dengan bantuan AI. Klik salah satu, mainkan bersama
+              si kecil — ini yang akan anak Anda bisa buat.
             </p>
           </div>
 
-          <div className="mt-10">
-            <GameDemo
-              title={kelas.demoGame.title}
-              description="Dibuat dengan bantuan AI &middot; Bisa dimainkan langsung di halaman ini"
-              url={kelas.demoGame.url}
-              image={kelas.demoGame.image}
+          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {KARYA_TAMPIL.map((item) => (
+              <a
+                key={item.nomor}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Mainkan game karya ${item.nama}`}
+                className="group relative block aspect-square overflow-hidden rounded-2xl shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#2563eb]/25"
+              >
+                <img
+                  src={item.cover}
+                  alt={`Sampul game karya ${item.nama}`}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <span
+                  aria-hidden="true"
+                  className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-white backdrop-blur-sm transition-opacity group-hover:opacity-0"
+                >
+                  <Play size={14} className="ml-0.5 fill-current" />
+                </span>
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/90 to-transparent p-3 pt-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="block text-sm font-bold text-white">
+                    {item.nama}
+                  </span>
+                  <span className="block text-[11px] text-white/70">
+                    {item.nomor}
+                  </span>
+                </span>
+              </a>
+            ))}
+          </div>
+
+          <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">
+            Karya anak-anak usia 6–12 tahun, dibuat dalam 4 pertemuan. Lihat
+            seluruhnya di{' '}
+            <Link to="/future-maker" className="font-medium text-[#2563eb] hover:underline">
+              halaman Future Makers
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      {/* Harga */}
+      <section className="bg-slate-50 py-16 dark:bg-white/[0.02]">
+        <div className="mx-auto max-w-5xl px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
+              <Tag size={12} /> Investasi Pendidikan
+            </span>
+            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              Harga &amp; Cara Pembayaran
+            </h2>
+            <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
+              Alumni Kelas Future Makers mendapat harga khusus. Mendaftarkan
+              kakak dan adik sekaligus menambah potongan {kelas.diskonSaudaraPersen}% per anak.
+            </p>
+          </div>
+
+          {/* overflow-x-auto, bukan overflow-hidden: di layar HP tabel 4 kolom
+              lebih lebar dari layar, jadi digeser bukan dipotong. */}
+          <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.03]">
+            <table className="w-full min-w-[34rem] text-left text-sm">
+              <thead className="bg-slate-100 dark:bg-white/[0.06]">
+                <tr>
+                  <th className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">
+                    Kelas
+                  </th>
+                  <th className="px-5 py-3 text-right font-semibold text-slate-700 dark:text-slate-200">
+                    Harga normal
+                  </th>
+                  <th className="px-5 py-3 text-right font-semibold text-slate-700 dark:text-slate-200">
+                    Alumni
+                  </th>
+                  <th className="px-5 py-3 text-right font-semibold text-slate-700 dark:text-slate-200">
+                    Kakak-adik
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {kelas.kelas.map((k, i) => (
+                  <tr
+                    key={k.id}
+                    className={i % 2 ? 'bg-slate-50 dark:bg-white/[0.02]' : undefined}
+                  >
+                    <td className="px-5 py-3 font-medium text-slate-900 dark:text-white">
+                      {k.nama}
+                    </td>
+                    <td className="px-5 py-3 text-right text-slate-500 dark:text-slate-400">
+                      {rupiah(k.harga.normal)}
+                    </td>
+                    <td className="px-5 py-3 text-right font-bold text-[#2563eb]">
+                      {rupiah(k.harga.promo)}
+                    </td>
+                    <td className="px-5 py-3 text-right text-slate-700 dark:text-slate-300">
+                      {k.tanpaPromo ? '—' : `${rupiah(k.harga.saudaraPromo)} / anak`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+              <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                <CreditCard size={18} className="text-[#2563eb]" /> Cicilan{' '}
+                {kelas.cicilan.jumlah}x tanpa bunga
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                {kelas.cicilan.catatan} Cicilan pertama dibayar{' '}
+                {kelas.cicilan.bulan[0]}, sebelum kelas dimulai.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+              <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                <Users size={18} className="text-[#2563eb]" /> Promo saudara
+                kandung
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                Diskon {kelas.diskonSaudaraPersen}% per anak untuk kakak-adik
+                kandung. Boleh kombinasi kelas, misalnya kakak Champions dan adik
+                Creator. Tidak berlaku untuk Kelas Private.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Coach & cara daftar */}
+      <section className="bg-white py-16 dark:bg-[#0b1220]">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 lg:grid-cols-2 lg:px-8">
+          <div>
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              Siapa yang Membimbing
+            </h2>
+            <p className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
+              {kelas.coach.nama}
+            </p>
+            <p className="text-sm text-[#2563eb]">{kelas.coach.peran}</p>
+            <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
+              {kelas.coach.bio}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
+              Cara Daftar
+            </h2>
+            <ol className="mt-6 space-y-4">
+              {kelas.caraDaftar.map((langkah, i) => (
+                <li key={langkah} className="flex gap-4">
+                  <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#eef4ff] text-sm font-bold text-[#2563eb] dark:bg-[#2563eb]/10">
+                    {i + 1}
+                  </span>
+                  <span className="leading-relaxed text-slate-700 dark:text-slate-300">
+                    {langkah}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <TombolDaftar
+              className="mt-7"
+              onKlik={() => handleDaftar('cara_daftar')}
             />
           </div>
         </div>
       </section>
 
-      {/* Yang didapat + isi paket */}
-      <section className="bg-slate-50 dark:bg-white/[0.02] py-16">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <span className="inline-block text-xs font-semibold uppercase tracking-wider text-[#2563eb] bg-[#eef4ff] dark:bg-[#2563eb]/10 px-3 py-1 rounded-full">
-              Yang Didapat Anak
-            </span>
-            <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              {kelas.motto}
-            </h2>
-            <p className="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
-              Anak diajak berpindah peran: dari pengguna teknologi menjadi
-              pembuat karya.
-            </p>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {kelas.benefits.map((b) => {
-              const Icon = benefitIcons[b.icon] || Star;
-              return (
-                <div
-                  key={b.title}
-                  className="rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.03] p-6 hover:border-[#2563eb]/60 hover:shadow-xl hover:shadow-[#2563eb]/10 transition-all duration-300"
-                >
-                  <span className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-400/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                    <Icon size={22} />
-                  </span>
-                  <h3 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">
-                    {b.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                    {b.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Isi paket */}
-          <div className="mt-10 rounded-3xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 p-7 md:p-9">
-            <h3 className="flex items-center gap-2 text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
-              <Idea size={22} className="text-[#2563eb]" />
-              Yang termasuk dalam biaya {rupiah(kelas.price.promo)}
-            </h3>
-            <ul className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-              {kelas.includes.map((item) => (
-                <li
-                  key={item}
-                  className="flex gap-3 text-slate-700 dark:text-slate-300 leading-relaxed"
-                >
-                  <CheckCircle2
-                    size={20}
-                    className="text-[#2563eb] flex-shrink-0 mt-0.5"
-                  />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Cocok untuk siapa + FAQ */}
-      <section className="bg-white dark:bg-[#0b1220] py-16">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Kelas ini cocok kalau&hellip;
-            </h2>
-            <ul className="mt-7 space-y-4">
-              {cocokUntuk.map((item) => (
-                <li
-                  key={item}
-                  className="flex gap-3 text-slate-700 dark:text-slate-300 leading-relaxed"
-                >
-                  <CheckCircle2
-                    size={20}
-                    className="text-[#2563eb] flex-shrink-0 mt-0.5"
-                  />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Pertanyaan Orang Tua
-            </h2>
-            <div className="mt-7 space-y-3">
-              {kelas.faq.map((f) => (
-                <details
-                  key={f.q}
-                  className="group rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] px-5 py-4"
-                >
-                  <summary className="cursor-pointer list-none font-semibold text-slate-900 dark:text-white flex items-start justify-between gap-4">
-                    {f.q}
-                    <span className="text-[#2563eb] text-xl leading-none flex-shrink-0 group-open:rotate-45 transition-transform duration-300">
-                      +
-                    </span>
-                  </summary>
-                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {f.a}
-                  </p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA akhir */}
-      <section className="bg-slate-50 dark:bg-white/[0.02] py-16">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] p-8 md:p-12 text-white text-center">
-            <div className="absolute -right-16 -top-16 w-52 h-52 rounded-full bg-white/10" />
-            <div className="absolute -left-12 -bottom-12 w-40 h-40 rounded-full bg-white/10" />
+      {/* CTA penutup */}
+      <section className="bg-slate-50 py-16 dark:bg-white/[0.02]">
+        <div className="mx-auto max-w-5xl px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] p-8 text-center text-white md:p-12">
+            <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10" />
+            <div className="absolute -left-12 -bottom-12 h-40 w-40 rounded-full bg-white/10" />
             <div className="relative">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-300 px-3 py-1.5 rounded-full">
-                <Users size={12} /> Hanya {kelas.quotaCount} seat
-              </span>
-              <h2 className="mt-5 text-3xl md:text-4xl font-extrabold leading-tight">
-                {kelas.heroNote}
+              <h2 className="text-3xl font-extrabold leading-tight md:text-4xl">
+                Kursi Sangat Terbatas
               </h2>
-              <div className="mt-5 flex items-center justify-center gap-3">
-                <span className="text-xl text-white/60 line-through">
-                  {rupiah(kelas.price.normal)}
-                </span>
-                <span className="text-3xl md:text-4xl font-extrabold">
-                  {rupiah(kelas.price.promo)}
-                </span>
-              </div>
-              <p className="mt-3 text-white/90 leading-relaxed max-w-xl mx-auto">
-                {kelas.price.promoNote} Klik tombol di bawah, kirim nama anak,
-                usia, dan nama orang tua — kami balas dengan ketersediaan seat
-                dan detail pembayarannya.
+              <p className="mx-auto mt-4 max-w-xl leading-relaxed text-white/90">
+                Creator 8 kursi, Champions 6 kursi, Private hanya 3 kursi.
+                Amankan tempat si kecil sebelum diambil orang lain.
               </p>
+              <ul className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/85">
+                <li className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 size={14} /> Harga khusus alumni
+                </li>
+                <li className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 size={14} /> Diskon kakak-adik {kelas.diskonSaudaraPersen}%
+                </li>
+                <li className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 size={14} /> Bisa dicicil {kelas.cicilan.jumlah}x
+                </li>
+              </ul>
               <div className="mt-8 flex justify-center">
-                <DaftarButton position="cta_penutup" onLead={handleLead} />
-              </div>
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/80">
-                <span className="inline-flex items-center gap-1.5">
-                  <MessageCircle size={14} /> {kelas.whatsapp.display}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Globe size={14} /> {kelas.host.website}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Sparkles size={14} /> {kelas.host.name} &mdash;{' '}
-                  {kelas.host.role}
-                </span>
+                <Link
+                  to={LINK_DAFTAR}
+                  onClick={() => handleDaftar('cta_penutup')}
+                  className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2563eb] transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
+                >
+                  Isi Formulir Pendaftaran
+                  <ArrowRight
+                    size={20}
+                    className="transition-transform duration-300 group-hover:translate-x-0.5"
+                  />
+                </Link>
               </div>
             </div>
           </div>
@@ -577,31 +516,28 @@ const KelasBelajarAI = () => {
 
       {/* CTA melayang (mobile) */}
       <div
-        className={`md:hidden fixed bottom-0 inset-x-0 z-40 px-4 py-3 bg-white/95 dark:bg-[#0b1220]/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 transition-all duration-300 ${
+        className={`fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md transition-all duration-300 md:hidden dark:border-white/10 dark:bg-[#0b1220]/95 ${
           ctaVisible
             ? 'translate-y-0 opacity-100'
-            : 'translate-y-full opacity-0 pointer-events-none'
+            : 'pointer-events-none translate-y-full opacity-0'
         }`}
       >
         <div className="flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
-              <span className="text-slate-400 line-through font-medium">
-                {rupiah(kelas.price.normal)}
-              </span>{' '}
-              {rupiah(kelas.price.promo)}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+              Kelas Lanjutan 2027
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-              {kelas.quotaCount} seat &middot; mulai 8 November 2026
+            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+              Creator · Champions · Private
             </p>
           </div>
-          <DaftarButton
-            size="sm"
-            className="flex-shrink-0"
-            label="Daftar"
-            position="bar_mobile"
-            onLead={handleLead}
-          />
+          <Link
+            to={LINK_DAFTAR}
+            onClick={() => handleDaftar('bar_mobile')}
+            className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-[#2563eb] px-6 py-3 font-bold text-white"
+          >
+            Daftar <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </div>
