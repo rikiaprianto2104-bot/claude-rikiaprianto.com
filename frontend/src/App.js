@@ -9,6 +9,7 @@ import BlogPost from './pages/BlogPost';
 import KelasFutureMakers from './pages/KelasFutureMakers';
 import KelasBelajarAI from './pages/KelasBelajarAI';
 import PendaftaranKelasLanjutan from './pages/PendaftaranKelasLanjutan';
+import KebijakanPrivasi from './pages/KebijakanPrivasi';
 import FutureMakers from './pages/FutureMakers';
 import Profile from './pages/Profile';
 import Research from './pages/Research';
@@ -37,11 +38,26 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/future-maker" element={<FutureMakers />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
             {/* Tautan tersembunyi: tidak ditautkan dari menu mana pun dan
                 halamannya memasang noindex. Dibagikan manual lewat WhatsApp. */}
             <Route
               path="/pendaftaran-kelas-lanjutan"
               element={<PendaftaranKelasLanjutan />}
+            />
+            {/* Satu formulir per kelas, kelasnya sudah terpilih dan pertanyaan
+                alumni dilewati karena pendaftarnya dari iklan, bukan alumni. */}
+            <Route
+              path="/pendaftaran/kelas-creator"
+              element={<PendaftaranKelasLanjutan kelasAwal="creator" tanpaAlumni />}
+            />
+            <Route
+              path="/pendaftaran/kelas-champions"
+              element={<PendaftaranKelasLanjutan kelasAwal="champions" tanpaAlumni />}
+            />
+            <Route
+              path="/pendaftaran/kelas-private"
+              element={<PendaftaranKelasLanjutan kelasAwal="private" tanpaAlumni />}
             />
           </Route>
         </Routes>

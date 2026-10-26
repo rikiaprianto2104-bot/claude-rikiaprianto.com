@@ -22,18 +22,28 @@ import {
 } from '../data/kelasLanjutan';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
-const anakKosong = () => ({ nama: '', kelas: 'creator' });
+const anakKosong = (kelasAwal = 'creator') => ({ nama: '', kelas: kelasAwal });
 
-const PendaftaranKelasLanjutan = () => {
-  const [lulusan, setLulusan] = useState(null); // null = belum memilih
-  const [anak, setAnak] = useState([anakKosong()]);
+/**
+ * Formulir pendaftaran.
+ *  kelasAwal    - id kelas yang langsung terpilih (dari halaman landing).
+ *  tanpaAlumni  - true untuk pendaftar umum: pertanyaan lulusan dilewati,
+ *                 nomor langkahnya ikut bergeser naik satu.
+ */
+const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => {
+  const kelasDefault = kelasAwal || 'creator';
+  const kelasObjAwal = data.kelas.find((k) => k.id === kelasDefault);
+  const namaKelasAwal = kelasObjAwal ? kelasObjAwal.nama : '';
+  const ringkasKelasAwal = kelasObjAwal ? kelasObjAwal.ringkas : '';
+  const [lulusan, setLulusan] = useState(tanpaAlumni ? false : null);
+  const [anak, setAnak] = useState([anakKosong(kelasDefault)]);
   const [namaOrangTua, setNamaOrangTua] = useState('');
   const [metode, setMetode] = useState('lunas');
   const [tersalin, setTersalin] = useState(false);
   const [promoAktif] = useState(() => promoBerjalan());
 
   useDocumentMeta({
-    title: `${data.title} | Riki MarkeThink`,
+    title: `${kelasAwal ? `Pendaftaran ${namaKelasAwal}` : data.title} | Riki MarkeThink`,
     description:
       'Formulir pendaftaran Kelas Lanjutan Future Makers: Creator, Champions, dan Private.',
   });
@@ -55,13 +65,16 @@ const PendaftaranKelasLanjutan = () => {
     };
   }, []);
 
+  // Pertanyaan alumni dilewati -> nomor langkah berikutnya mundur satu.
+  const nomorLangkah = (n) => (tanpaAlumni ? n - 1 : n);
+
   const jumlahAnak = anak.length;
   const adaSaudara = jumlahAnak >= 2;
 
   const ubahJumlahAnak = (n) => {
     setAnak((lama) => {
       const baru = [...lama];
-      while (baru.length < n) baru.push(anakKosong());
+      while (baru.length < n) baru.push(anakKosong(kelasDefault));
       return baru.slice(0, n);
     });
   };
@@ -177,18 +190,21 @@ const PendaftaranKelasLanjutan = () => {
           <Sparkles size={12} /> Future Makers
         </span>
         <h1 className="mt-5 text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          {data.title}
+          {kelasAwal ? `Pendaftaran ${namaKelasAwal}` : data.title}
         </h1>
         <p className="mt-3 text-slate-500 dark:text-slate-400">
-          {data.subtitle}
+          {kelasAwal
+            ? `${ringkasKelasAwal} — kelas mulai Januari 2027`
+            : data.subtitle}
         </p>
       </div>
 
-      {/* 1. Status lulusan */}
+      {/* 1. Status lulusan - hanya untuk alumni Future Makers */}
+      {!tanpaAlumni && (
       <section className="mt-12">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <GraduationCap size={20} className="text-[#2563eb]" />
-          1. Apakah anak lulusan Kelas Future Makers?
+          {nomorLangkah(1)}. Apakah anak lulusan Kelas Future Makers?
         </h2>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className={labelKartu(lulusan === true)}>
@@ -199,7 +215,7 @@ const PendaftaranKelasLanjutan = () => {
               checked={lulusan === true}
               onChange={() => {
                 setLulusan(true);
-                setAnak((lama) => lama.map(() => anakKosong()));
+                setAnak((lama) => lama.map((a) => anakKosong(a.kelas)));
               }}
             />
             <p className="font-bold text-slate-900 dark:text-white">
@@ -217,7 +233,7 @@ const PendaftaranKelasLanjutan = () => {
               checked={lulusan === false}
               onChange={() => {
                 setLulusan(false);
-                setAnak((lama) => lama.map(() => anakKosong()));
+                setAnak((lama) => lama.map((a) => anakKosong(a.kelas)));
               }}
             />
             <p className="font-bold text-slate-900 dark:text-white">
@@ -229,12 +245,13 @@ const PendaftaranKelasLanjutan = () => {
           </label>
         </div>
       </section>
+      )}
 
       {/* 2. Jumlah anak */}
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <Users size={20} className="text-[#2563eb]" />
-          2. Berapa anak yang didaftarkan?
+          {nomorLangkah(2)}. Berapa anak yang didaftarkan?
         </h2>
         <div className="mt-4 flex flex-wrap gap-3">
           {Array.from({ length: data.maksAnak }, (_, i) => i + 1).map((n) => (
@@ -265,9 +282,9 @@ const PendaftaranKelasLanjutan = () => {
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <User size={20} className="text-[#2563eb]" />
-          3. Data anak &amp; kelas yang dipilih
+          {nomorLangkah(3)}. Data anak &amp; kelas yang dipilih
         </h2>
-        {lulusan === null && (
+        {!tanpaAlumni && lulusan === null && (
           <p className="mt-3 inline-flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
             <AlertCircle size={16} /> Pilih dulu status di langkah 1.
           </p>
@@ -373,7 +390,7 @@ const PendaftaranKelasLanjutan = () => {
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <User size={20} className="text-[#2563eb]" />
-          4. Nama orang tua / wali
+          {nomorLangkah(4)}. Nama orang tua / wali
         </h2>
         <input
           type="text"
@@ -388,7 +405,7 @@ const PendaftaranKelasLanjutan = () => {
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <CreditCard size={20} className="text-[#2563eb]" />
-          5. Metode pembayaran
+          {nomorLangkah(5)}. Metode pembayaran
         </h2>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className={labelKartu(metode === 'lunas')}>

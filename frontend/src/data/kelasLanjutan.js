@@ -48,7 +48,7 @@ export const kelasLanjutan = {
   },
   caraDaftar: [
     'Pilih kelas: Creator, Champions, atau Private.',
-    'Isi formulir pendaftaran, cukup 5 menit.',
+    'Klik tombol daftar di kartu kelasnya, formulirnya sudah menyesuaikan.',
     'Pilih bayar lunas atau cicilan 5x.',
     'Transfer, lalu kirim buktinya lewat WhatsApp — kursi anak resmi terkunci.',
   ],
@@ -67,6 +67,8 @@ export const kelasLanjutan = {
       alt: 'Mentor mengajari anak menyusun prompt AI untuk membuat gambar pemandangan' },
     { src: '/future-maker/kelas/kelas-06-coach-dan-anak.webp', w: 1200, h: 900,
       alt: 'Coach Riki Aprianto mendampingi satu anak belajar AI secara personal' },
+    { src: '/future-maker/kelas/kelas-07-foto-bersama.webp', w: 1200, h: 900,
+      alt: 'Foto bersama peserta dan mentor kelas Artificial Intelligence anak Future Makers Yogyakarta' },
   ],
   kalender: {
     judul: 'Kalender Akademik Januari – Mei 2027',
@@ -79,6 +81,25 @@ export const kelasLanjutan = {
     ],
     catatan:
       'Tanggal lengkap tiap pertemuan dikirimkan lewat WhatsApp setelah pendaftaran dikonfirmasi.',
+  },
+  // Tanggal pertemuan 2027. Creator jatuh di hari Sabtu, Champions di hari
+  // Minggu. Ada jeda Februari-Maret menyesuaikan libur.
+  jadwalKelas: {
+    creator: [
+      { bulan: 'Januari 2027', tanggal: [9, 16, 23, 30] },
+      { bulan: 'Februari 2027', tanggal: [6] },
+      { bulan: 'Maret 2027', tanggal: [20, 27] },
+      { bulan: 'April 2027', tanggal: [3, 10, 17, 24] },
+      { bulan: 'Mei 2027', tanggal: [8] },
+    ],
+    champions: [
+      { bulan: 'Januari 2027', tanggal: [10, 17, 24, 31] },
+      { bulan: 'Februari 2027', tanggal: [7] },
+      { bulan: 'Maret 2027', tanggal: [21, 28] },
+      { bulan: 'April 2027', tanggal: [4, 11, 18, 25] },
+      { bulan: 'Mei 2027', tanggal: [9] },
+    ],
+    private: null, // jadwal menyesuaikan permintaan orang tua
   },
   kontak: {
     kota: 'Yogyakarta',
@@ -157,6 +178,7 @@ export const kelasLanjutan = {
   kelas: [
     {
       id: 'creator',
+      slugForm: 'kelas-creator',
       hasilAkhir: 'Anak punya portofolio digital nyata atas namanya sendiri — bekal berharga untuk sekolah lanjutan dan masa depan.',
       nama: 'Kelas Creator',
       ringkas: '12 pertemuan · setiap Sabtu · maks 8 anak',
@@ -167,6 +189,7 @@ export const kelasLanjutan = {
     },
     {
       id: 'champions',
+      slugForm: 'kelas-champions',
       hasilAkhir: 'Anak mengoleksi prestasi, berpeluang meraih hadiah uang dari lomba, dan sertifikat prestasi yang memperkuat jalur masuk perguruan tinggi negeri.',
       nama: 'Kelas Champions',
       ringkas: '12 pertemuan · setiap Minggu · maks 6 anak',
@@ -177,6 +200,7 @@ export const kelasLanjutan = {
     },
     {
       id: 'private',
+      slugForm: 'kelas-private',
       hasilAkhir: 'Perhatian penuh dari coach, progres lebih cepat, dan hari serta jam belajar bisa dipilih sendiri.',
       nama: 'Kelas Private',
       ringkas: '8 pertemuan · 1-on-1 · jadwal by request · hanya 3 kursi',

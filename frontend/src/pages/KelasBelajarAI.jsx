@@ -14,7 +14,6 @@ import {
   Play,
   Quote,
   CreditCard,
-  Clock,
   Mail,
   MessageCircle,
 } from 'lucide-react';
@@ -26,6 +25,7 @@ import {
 } from '../data/kelasLanjutan';
 import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
 import HitungMundurPromo from '../components/HitungMundurPromo';
+import KartuHargaKelas from '../components/KartuHargaKelas';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
 
@@ -35,11 +35,14 @@ const PIXEL_CONTENT = {
 };
 
 const ikonKelas = { creator: Palette, champions: Trophy, private: UserCheck };
-const LINK_DAFTAR = `/${kelas.slug}`;
+// Tombol umum (hero, cara daftar, CTA penutup) belum tahu kelas mana yang
+// diminati, jadi diarahkan ke bagian pemilihan kelas. Formulirnya dibuka dari
+// tombol di kartu kelas masing-masing.
+const LINK_PILIH_KELAS = '#harga';
 
-const TombolDaftar = ({ label = 'Daftar Sekarang', className = '', onKlik }) => (
-  <Link
-    to={LINK_DAFTAR}
+const TombolDaftar = ({ label = 'Pilih Kelas & Daftar', className = '', onKlik }) => (
+  <a
+    href={LINK_PILIH_KELAS}
     onClick={onKlik}
     className={`group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#2563eb] px-8 py-4 text-lg font-bold text-white shadow-lg shadow-[#2563eb]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1d4ed8] hover:shadow-xl hover:shadow-[#2563eb]/40 ${className}`}
   >
@@ -48,7 +51,7 @@ const TombolDaftar = ({ label = 'Daftar Sekarang', className = '', onKlik }) => 
       size={20}
       className="transition-transform duration-300 group-hover:translate-x-0.5"
     />
-  </Link>
+  </a>
 );
 
 const Bagian = ({ id, children, className = '' }) => (
@@ -253,10 +256,10 @@ const KelasBelajarAI = () => {
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <TombolDaftar onKlik={() => handleDaftar('hero')} />
                 <a
-                  href="#harga"
+                  href="#karya-anak"
                   className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 px-7 py-4 font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-white/15 dark:text-slate-200"
                 >
-                  Lihat Harga
+                  <Play size={18} /> Lihat Karya Anak
                 </a>
               </div>
             </div>
@@ -323,66 +326,67 @@ const KelasBelajarAI = () => {
         </div>
       </Bagian>
 
-      {/* Tiga kelas */}
-      <Bagian id="pilihan-kelas" className="bg-slate-50 dark:bg-white/[0.02]">
-        <div className="max-w-2xl">
+      {/* Pilihan kelas + harga */}
+      <Bagian id="harga" className="bg-slate-50 dark:bg-white/[0.02]">
+        <div className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
-            Pilih Jalur Anak
+            Pilih Kelas
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
             Tiga Pilihan Kelas AI untuk Anak
           </h2>
           <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
-            Setiap anak berbeda. Pilih kelas yang paling cocok dengan minat dan
-            tujuan si kecil.
+            Biaya sudah mencakup seluruh pertemuan, modul, akun AI berbayar, dan
+            sertifikat. Tidak ada biaya tersembunyi.
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {kelas.kelas.map((k) => {
-            const Icon = ikonKelas[k.id] || Palette;
-            const harga = hargaPerAnak(k.id, false, promoAktif);
-            const adaDiskon = harga < k.harga.normal;
-            return (
-              <div
-                key={k.id}
-                className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-300 hover:border-[#2563eb]/60 hover:shadow-xl hover:shadow-[#2563eb]/10 dark:border-white/5 dark:bg-white/[0.03]"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef4ff] text-[#2563eb] dark:bg-[#2563eb]/10">
-                  <Icon size={22} />
-                </span>
-                <h3 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">
-                  {k.nama}
-                </h3>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">
-                  {k.ringkas}
-                </p>
-                <p className="mt-4 flex-1 leading-relaxed text-slate-600 dark:text-slate-400">
-                  {k.deskripsi}
-                </p>
-                <p className="mt-4 rounded-xl bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
-                  <strong className="font-bold">Hasil akhir:</strong> {k.hasilAkhir}
-                </p>
-                <div className="mt-5 border-t border-slate-100 pt-5 dark:border-white/5">
-                  {adaDiskon && (
-                    <p className="text-sm text-slate-400 line-through">
-                      {rupiah(k.harga.normal)}
-                    </p>
-                  )}
-                  <p className="text-2xl font-extrabold text-[#2563eb]">
-                    {rupiah(harga)}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    {adaDiskon
-                      ? `Potongan ${kelas.promo.persen}% sedang berjalan`
-                      : 'Harga berlaku untuk seluruh pertemuan'}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+        {promoAktif && (
+          <div className="mx-auto mt-8 max-w-xl">
+            <HitungMundurPromo
+              berakhir={kelas.promo.berakhir}
+              label={kelas.promo.label}
+              onSelesai={matikanPromo}
+            />
+          </div>
+        )}
+
+        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+          {kelas.kelas.map((k) => (
+            <KartuHargaKelas
+              key={k.id}
+              kelas={k}
+              promoAktif={promoAktif}
+              unggulan={k.id === 'creator'}
+              onDaftar={(id) => handleDaftar(`kartu_${id}`)}
+            />
+          ))}
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+            <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+              <CreditCard size={18} className="text-[#2563eb]" /> Cicilan{' '}
+              {kelas.cicilan.jumlah}x tanpa bunga
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+              {kelas.cicilan.catatan} Cicilan pertama dibayar{' '}
+              {kelas.cicilan.bulan[0]}, sebelum kelas dimulai.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+            <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+              <Users size={18} className="text-[#2563eb]" /> Mendaftar kakak-adik
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+              Mendaftarkan dua anak atau lebih juga mendapat potongan{' '}
+              {kelas.promo.persen}% per anak untuk Creator dan Champions.
+              Potongan tidak ditumpuk dengan promo yang sedang berjalan.
+            </p>
+          </div>
         </div>
       </Bagian>
+
 
       {/* Karya anak */}
       <Bagian id="karya-anak" className="bg-white dark:bg-[#0b1220]">
@@ -429,157 +433,6 @@ const KelasBelajarAI = () => {
               </span>
             </a>
           ))}
-        </div>
-      </Bagian>
-
-      {/* Kalender akademik */}
-      <Bagian id="kalender" className="bg-slate-50 dark:bg-white/[0.02]">
-        <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
-            <CalendarDays size={12} /> Jadwal
-          </span>
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
-            {kelas.kalender.judul}
-          </h2>
-          <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
-            {kelas.kalender.ringkas}
-          </p>
-        </div>
-
-        <div className="mt-8 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.03]">
-          <table className="w-full min-w-[32rem] text-left text-sm">
-            <caption className="sr-only">
-              Jadwal pertemuan Kelas Creator, Champions, dan Private
-            </caption>
-            <thead className="bg-slate-100 dark:bg-white/[0.06]">
-              <tr>
-                <th scope="col" className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">Kelas</th>
-                <th scope="col" className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">Hari</th>
-                <th scope="col" className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">Jam</th>
-                <th scope="col" className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">Jumlah</th>
-              </tr>
-            </thead>
-            <tbody>
-              {kelas.kalender.baris.map((b, i) => (
-                <tr key={b.kelas} className={i % 2 ? 'bg-slate-50 dark:bg-white/[0.02]' : undefined}>
-                  <th scope="row" className="px-5 py-3 text-left font-medium text-slate-900 dark:text-white">
-                    {b.kelas}
-                  </th>
-                  <td className="px-5 py-3 text-slate-700 dark:text-slate-300">{b.hari}</td>
-                  <td className="px-5 py-3 text-slate-700 dark:text-slate-300">{b.jam}</td>
-                  <td className="px-5 py-3 text-slate-700 dark:text-slate-300">{b.jumlah}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-4 flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400">
-          <Clock size={16} className="mt-0.5 flex-shrink-0 text-[#2563eb]" />
-          {kelas.kalender.catatan}
-        </p>
-      </Bagian>
-
-      {/* Harga */}
-      <Bagian id="harga" className="bg-white dark:bg-[#0b1220]">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_380px]">
-          <div>
-            <span className="inline-block rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
-              Biaya Kelas
-            </span>
-            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
-              Harga &amp; Cara Pembayaran
-            </h2>
-            <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
-              Biaya di bawah sudah mencakup seluruh pertemuan, modul, akun AI
-              berbayar, dan sertifikat. Tidak ada biaya tersembunyi.
-            </p>
-
-            <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.03]">
-              <table className="w-full min-w-[34rem] text-left text-sm">
-                <caption className="sr-only">Daftar harga kelas</caption>
-                <thead className="bg-slate-100 dark:bg-white/[0.06]">
-                  <tr>
-                    <th scope="col" className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">Kelas</th>
-                    <th scope="col" className="px-5 py-3 font-semibold text-slate-700 dark:text-slate-200">Pertemuan</th>
-                    <th scope="col" className="px-5 py-3 text-right font-semibold text-slate-700 dark:text-slate-200">Harga normal</th>
-                    <th scope="col" className="px-5 py-3 text-right font-semibold text-slate-700 dark:text-slate-200">Harga kini</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {kelas.kelas.map((k, i) => {
-                    const harga = hargaPerAnak(k.id, false, promoAktif);
-                    return (
-                      <tr key={k.id} className={i % 2 ? 'bg-slate-50 dark:bg-white/[0.02]' : undefined}>
-                        <th scope="row" className="px-5 py-3 text-left font-medium text-slate-900 dark:text-white">
-                          {k.nama}
-                        </th>
-                        <td className="px-5 py-3 text-slate-600 dark:text-slate-400">
-                          {k.id === 'private' ? '8x' : '12x'}
-                        </td>
-                        <td className="px-5 py-3 text-right text-slate-500 dark:text-slate-400">
-                          {rupiah(k.harga.normal)}
-                        </td>
-                        <td className="px-5 py-3 text-right font-bold text-[#2563eb]">
-                          {rupiah(harga)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
-                <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                  <CreditCard size={18} className="text-[#2563eb]" /> Cicilan{' '}
-                  {kelas.cicilan.jumlah}x tanpa bunga
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  {kelas.cicilan.catatan} Cicilan pertama dibayar{' '}
-                  {kelas.cicilan.bulan[0]}, sebelum kelas dimulai.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
-                <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                  <Users size={18} className="text-[#2563eb]" /> Mendaftar kakak-adik
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  Mendaftarkan dua anak atau lebih juga mendapat potongan{' '}
-                  {kelas.promo.persen}% per anak untuk Creator dan Champions.
-                  Potongan tidak ditumpuk dengan promo yang sedang berjalan.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Kolom promo + CTA */}
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            {promoAktif && (
-              <HitungMundurPromo
-                berakhir={kelas.promo.berakhir}
-                label={kelas.promo.label}
-                onSelesai={matikanPromo}
-              />
-            )}
-            <div className="mt-5 rounded-2xl border-2 border-[#2563eb]/25 bg-[#eef4ff] p-6 dark:bg-[#2563eb]/[0.08]">
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                Kursi sangat terbatas
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200">
-                {kelas.kelas.map((k) => (
-                  <li key={k.id} className="flex items-center justify-between gap-2">
-                    <span>{k.nama}</span>
-                    <span className="font-bold text-[#2563eb]">{k.kursi} kursi</span>
-                  </li>
-                ))}
-              </ul>
-              <TombolDaftar
-                className="mt-5 w-full"
-                onKlik={() => handleDaftar('kolom_harga')}
-              />
-            </div>
-          </aside>
         </div>
       </Bagian>
 
@@ -712,14 +565,14 @@ const KelasBelajarAI = () => {
               langsung kami kunci.
             </p>
             <div className="mt-8 flex justify-center">
-              <Link
-                to={LINK_DAFTAR}
+              <a
+                href={LINK_PILIH_KELAS}
                 onClick={() => handleDaftar('cta_penutup')}
                 className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2563eb] transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
               >
-                Isi Formulir Pendaftaran
+                Pilih Kelas &amp; Daftar
                 <ArrowRight size={20} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -740,13 +593,13 @@ const KelasBelajarAI = () => {
               Mulai {rupiah(hargaPerAnak('creator', false, promoAktif))}
             </p>
           </div>
-          <Link
-            to={LINK_DAFTAR}
+          <a
+            href={LINK_PILIH_KELAS}
             onClick={() => handleDaftar('bar_mobile')}
             className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-[#2563eb] px-6 py-3 font-bold text-white"
           >
-            Daftar <ArrowRight size={16} />
-          </Link>
+            Pilih Kelas <ArrowRight size={16} />
+          </a>
         </div>
       </div>
     </article>

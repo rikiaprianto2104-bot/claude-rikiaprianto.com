@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Linkedin, Instagram, Youtube, Mail } from 'lucide-react';
 import { profile, socials } from '../mock';
 
@@ -58,7 +59,17 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-6 border-t border-slate-200 dark:border-white/5 text-center text-sm text-slate-500 dark:text-slate-400">
-          © {new Date().getFullYear()} {profile.name}. All rights reserved.
+          <p>
+            © {new Date().getFullYear()} {profile.name}. All rights reserved.
+          </p>
+          <p className="mt-2">
+            <Link
+              to="/kebijakan-privasi"
+              className="hover:text-[#0d9eff] transition-colors"
+            >
+              Kebijakan Privasi
+            </Link>
+          </p>
         </div>
       </div>
     </footer>
