@@ -44,6 +44,14 @@ var NAMA_TAB = 'Invoice';
 /** Ganti dengan kata sandi karangan Anda sendiri. */
 var KUNCI_RAHASIA = 'GANTI-KUNCI-INI';
 
+/**
+ * Penanda versi kode. Naikkan tanggalnya setiap kali berkas ini diubah.
+ * Nilai ini ikut dikirim di jawaban doGet, jadi dengan membuka Web app URL
+ * di peramban kita bisa memastikan deployment-nya sudah memakai kode terbaru
+ * atau masih menjalankan versi lama.
+ */
+var VERSI_SKRIP = '2026-10-27';
+
 /** Kuota kursi tiap kelas. Samakan dengan yang tertulis di situs. */
 var KUOTA = { creator: 8, champions: 6, private: 3 };
 
@@ -111,7 +119,12 @@ function doGet(e) {
     return jawab_({ ok: false, pesan: 'Aksi tidak dikenali.' });
   }
   try {
-    return jawab_({ ok: true, kursi: hitungKursi_(), waktu: new Date().toISOString() });
+    return jawab_({
+      ok: true,
+      versi: VERSI_SKRIP,
+      kursi: hitungKursi_(),
+      waktu: new Date().toISOString(),
+    });
   } catch (err) {
     return jawab_({ ok: false, pesan: String(err) });
   }
@@ -121,8 +134,14 @@ function doGet(e) {
 function doPost(e) {
   try {
     var isi = JSON.parse(e.postData.contents);
-    if (isi.kunci !== KUNCI_RAHASIA) {
-      return jawab_({ ok: false, pesan: 'Kunci tidak cocok.' });
+    // Dibandingkan setelah dirapikan: spasi atau baris baru yang ikut
+    // tersalin saat menempel kunci jangan sampai dianggap kunci berbeda.
+    if (String(isi.kunci || '').trim() !== String(KUNCI_RAHASIA).trim()) {
+      return jawab_({
+        ok: false,
+        pesan: 'Kunci tidak cocok.',
+        versi: VERSI_SKRIP,
+      });
     }
 
     var inv = isi.invoice || {};

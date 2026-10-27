@@ -54,14 +54,17 @@ export const simpanInvoice = async (invoice, token, kunci) => {
   if (!apiTersedia()) {
     return { ok: false, pesan: 'Alamat penyimpanan belum disetel di .env.' };
   }
-  if (!kunci) {
+  // Spasi di awal/akhir ikut terbawa kalau kuncinya disalin-tempel, dan
+  // perbandingan di Apps Script sama persis karakter demi karakter.
+  const kunciBersih = String(kunci || '').trim();
+  if (!kunciBersih) {
     return { ok: false, pesan: 'Kunci penyimpanan belum diisi.' };
   }
   try {
     const res = await fetch(ALAMAT, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ kunci, invoice, token }),
+      body: JSON.stringify({ kunci: kunciBersih, invoice, token }),
       redirect: 'follow',
     });
     if (!res.ok) return { ok: false, pesan: `Server menjawab ${res.status}.` };

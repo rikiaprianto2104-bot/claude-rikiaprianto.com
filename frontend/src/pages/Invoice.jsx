@@ -71,12 +71,26 @@ const Invoice = () => {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 lg:px-8">
-      {/* Saat dicetak, navigasi situs dan tombol tidak ikut terbawa. */}
+      {/*
+        Saat dicetak, navigasi situs dan tombol tidak ikut terbawa.
+
+        Aturan pertama sengaja dibatasi ke kerangka situs saja. Kop dan kaki
+        lembar invoice ini juga memakai <header> dan <footer>, jadi tanpa
+        aturan kedua keduanya ikut hilang saat dicetak — termasuk QR-nya.
+      */}
       <style>{`
         @media print {
           header, footer, nav, .tanpa-cetak { display: none !important; }
+          .lembar-invoice header, .lembar-invoice footer { display: flex !important; }
           body { background: #fff !important; }
           .lembar-invoice { border: none !important; box-shadow: none !important; padding: 0 !important; }
+          /* Lencana status dan kotak rekening ikut berwarna di hasil cetak. */
+          .lembar-invoice, .lembar-invoice * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          /* Satu invoice satu halaman: jangan terpotong di tengah bagian. */
+          .lembar-invoice section, .lembar-invoice footer { break-inside: avoid; }
         }
       `}</style>
 
