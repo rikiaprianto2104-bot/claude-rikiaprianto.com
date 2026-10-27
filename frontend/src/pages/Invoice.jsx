@@ -226,6 +226,11 @@ const Invoice = () => {
             {data.rekening.bank} · {data.rekening.nomor} · a.n.{' '}
             {data.rekening.atasNama}
           </p>
+          {inv.ref && (
+            <p className="mt-3 text-slate-600 dark:text-slate-400">
+              Kode referral: <span className="font-mono">{inv.ref}</span>
+            </p>
+          )}
           {inv.catatan && (
             <p className="mt-3 text-slate-600 dark:text-slate-400">
               Catatan: {inv.catatan}

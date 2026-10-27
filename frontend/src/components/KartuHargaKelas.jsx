@@ -14,10 +14,15 @@ import { kelasLanjutan, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
 /**
  * Kartu harga satu kelas: nama, harga, tombol daftar yang langsung menuju
  * formulir kelas itu, daftar isi kelas, dan jadwal yang terbuka saat diklik.
+ *
+ * `referral` berisi kode resmi yang sudah lolos pencocokan (atau null). Kode
+ * itu dipakai dua kali: untuk memotong harga yang ditampilkan, dan untuk
+ * dititipkan ke formulir lewat ?ref= supaya tidak perlu diketik ulang dan
+ * tetap sampai ke pesan WhatsApp.
  */
 const KartuHargaKelas = ({
   kelas,
-  promoAktif,
+  referral = null,
   unggulan = false,
   onDaftar,
   kursi = null, // {kuota, terisi, sisa} dari Drive; null = belum/ gagal dimuat
@@ -25,8 +30,9 @@ const KartuHargaKelas = ({
 }) => {
   const [jadwalTerbuka, setJadwalTerbuka] = useState(false);
 
-  const harga = hargaPerAnak(kelas.id, { promoAktif });
+  const harga = hargaPerAnak(kelas.id, { referral: !!referral });
   const adaDiskon = harga < kelas.harga.normal;
+  const hemat = kelas.harga.normal - harga;
   const jadwal = kelasLanjutan.jadwalKelas[kelas.id];
   const totalPertemuan = jadwal
     ? jadwal.reduce((n, b) => n + b.tanggal.length, 0)
@@ -35,7 +41,11 @@ const KartuHargaKelas = ({
 
   const penuh = !!kursi && kursi.sisa <= 0;
   const pesanPenuh = encodeURIComponent(
-    `Halo Kak Riki, saya mau mendaftarkan anak ke ${kelas.nama} tapi kursinya sudah penuh. Boleh dimasukkan ke daftar tunggu atau diinfokan kalau ada batch berikutnya?`
+    `Halo Kak Riki, saya mau mendaftarkan anak ke ${kelas.nama} tapi kursinya sudah penuh. Boleh dimasukkan ke daftar tunggu atau diinfokan kalau ada batch berikutnya?${
+      referral ? `
+
+Kode referral: ${referral}` : ''
+    }`
   );
   const tautanTunggu = `https://wa.me/${kelasLanjutan.whatsapp.number}?text=${pesanPenuh}`;
 
@@ -85,7 +95,7 @@ const KartuHargaKelas = ({
               {rupiah(kelas.harga.normal)}
             </span>
             <span className="rounded-md bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
-              Hemat {kelasLanjutan.promo.persen}%
+              Hemat {rupiah(hemat)}
             </span>
           </p>
         )}
@@ -120,7 +130,9 @@ const KartuHargaKelas = ({
         </>
       ) : (
         <Link
-          to={`/pendaftaran/${kelas.slugForm}`}
+          to={`/pendaftaran/${kelas.slugForm}${
+            referral ? `?ref=${encodeURIComponent(referral)}` : ''
+          }`}
           onClick={() => onDaftar && onDaftar(kelas.id)}
           className={`group mt-6 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold transition-all duration-300 hover:-translate-y-0.5 ${
             unggulan

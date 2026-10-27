@@ -13,7 +13,11 @@ import {
   AlertTriangle,
   KeyRound,
 } from 'lucide-react';
-import { kelasLanjutan as data, hargaPerAnak } from '../data/kelasLanjutan';
+import {
+  kelasLanjutan as data,
+  cekReferral,
+  hargaPerAnak,
+} from '../data/kelasLanjutan';
 import { buatToken, rupiah, PENERBIT } from '../lib/invoice';
 import { simpanInvoice, apiTersedia } from '../lib/kursiApi';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
@@ -45,6 +49,7 @@ const BuatInvoice = () => {
   const [ortu, setOrtu] = useState('');
   const [wa, setWa] = useState('');
   const [jalur, setJalur] = useState('umum'); // 'umum' | 'alumni'
+  const [referral, setReferral] = useState('');
   const [anak, setAnak] = useState([{ n: '', k: 'creator' }]);
   const [metode, setMetode] = useState('lunas');
   const [status, setStatus] = useState('lunas');
@@ -95,6 +100,11 @@ const BuatInvoice = () => {
   }, []);
 
   const adaSaudara = anak.length >= 2;
+  const referralBerlaku = cekReferral(referral);
+  const referralSalah = referral.trim() !== '' && !referralBerlaku;
+  // Sama seperti di formulir pendaftaran: harga alumni sudah lebih murah,
+  // jadi kodenya tidak memotong lagi di jalur itu.
+  const referralMemotong = !!referralBerlaku && jalur !== 'alumni';
 
   const rincian = useMemo(
     () =>
@@ -107,11 +117,11 @@ const BuatInvoice = () => {
           harga: hargaPerAnak(a.k, {
             alumni: jalur === 'alumni',
             adaSaudara,
-            promoAktif: jalur === 'umum' ? true : null,
+            referral: referralMemotong,
           }),
         };
       }),
-    [anak, jalur, adaSaudara]
+    [anak, jalur, adaSaudara, referralMemotong]
   );
 
   const total = rincian.reduce((s, r) => s + r.harga, 0);
@@ -127,6 +137,9 @@ const BuatInvoice = () => {
     ortu,
     wa,
     jalur,
+    // Ikut dititipkan di tautan invoice, jadi kode yang dipakai pendaftar
+    // tetap terbaca saat invoicenya dibuka lagi untuk mencocokkan komisi.
+    ref: referralBerlaku || '',
     anak: rincian.map((r) => ({
       n: r.nama,
       k: r.kelasId,
@@ -215,7 +228,7 @@ const BuatInvoice = () => {
         <Label>Jalur harga</Label>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {[
-            { id: 'umum', judul: 'Pendaftar umum', ket: 'Harga normal dengan potongan 20%' },
+            { id: 'umum', judul: 'Pendaftar umum', ket: 'Harga normal; potongan hanya dari kode referral atau kakak-adik' },
             { id: 'alumni', judul: 'Alumni Future Makers', ket: 'Harga khusus alumni' },
           ].map((j) => (
             <label
@@ -239,6 +252,40 @@ const BuatInvoice = () => {
               </p>
             </label>
           ))}
+        </div>
+
+        <div className="mt-5">
+          <Label>Kode referral (kosongkan kalau tidak ada)</Label>
+          <input
+            type="text"
+            value={referral}
+            onChange={(e) => setReferral(e.target.value)}
+            placeholder="Contoh: Future-SPx"
+            autoComplete="off"
+            spellCheck="false"
+            className={`${kelasInput} font-mono tracking-wide`}
+          />
+          <p className="mt-2 text-sm">
+            {referralBerlaku ? (
+              <span className="text-emerald-700 dark:text-emerald-400">
+                Kode {referralBerlaku} berlaku.{' '}
+                {referralMemotong
+                  ? `Potongan ${rupiah(
+                      data.referral.potongan
+                    )} per anak sudah masuk ke harga di bawah.`
+                  : 'Jalur alumni memakai harga khususnya, jadi harga tidak berubah — kodenya tetap tercatat di invoice.'}
+              </span>
+            ) : referralSalah ? (
+              <span className="text-amber-700 dark:text-amber-400">
+                Kode tidak dikenali, jadi tidak ada potongan yang diterapkan.
+              </span>
+            ) : (
+              <span className="text-slate-500 dark:text-slate-400">
+                Kode ini yang dipakai menghitung komisi sales dan ikut tercetak
+                di invoice.
+              </span>
+            )}
+          </p>
         </div>
       </section>
 

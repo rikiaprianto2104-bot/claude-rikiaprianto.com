@@ -19,13 +19,13 @@ import {
 } from 'lucide-react';
 import {
   kelasLanjutan as kelas,
+  cekReferral,
   hargaPerAnak,
-  promoBerjalan,
   rupiah,
 } from '../data/kelasLanjutan';
 import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
-import HitungMundurPromo from '../components/HitungMundurPromo';
 import KartuHargaKelas from '../components/KartuHargaKelas';
+import KodeReferral from '../components/KodeReferral';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
 import { ambilKursi } from '../lib/kursiApi';
@@ -63,13 +63,19 @@ const Bagian = ({ id, children, className = '' }) => (
 
 const KelasBelajarAI = () => {
   const [ctaVisible, setCtaVisible] = useState(true);
-  const [promoAktif, setPromoAktif] = useState(() => promoBerjalan());
+  // Kode referral bisa datang dari dua arah: diketik sendiri di kolomnya, atau
+  // sudah menempel di tautan yang disebar sales (?ref=Future-SPx). Yang kedua
+  // dibaca sekali saat halaman dibuka supaya orang tua tidak perlu mengetik.
+  const [kodeReferral, setKodeReferral] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    const dariTautan = new URLSearchParams(window.location.search).get('ref');
+    return cekReferral(dariTautan) || '';
+  });
+  const referralBerlaku = cekReferral(kodeReferral);
   // Sisa kursi dari spreadsheet di Drive. null = belum/gagal dimuat, dan
   // halaman tetap tampil normal memakai kuota statis.
   const [kursi, setKursi] = useState(null);
   const viewContentSent = useRef(false);
-
-  const matikanPromo = useCallback(() => setPromoAktif(false), []);
 
   useEffect(() => {
     let hidup = true;
@@ -151,7 +157,9 @@ const KelasBelajarAI = () => {
           },
           offers: {
             '@type': 'Offer',
-            price: String(hargaPerAnak(k.id, { promoAktif })),
+            // Harga resmi tanpa potongan: yang dibaca mesin pencari dan
+            // peninjau iklan harus sama dengan yang berlaku untuk semua orang.
+            price: String(hargaPerAnak(k.id)),
             priceCurrency: 'IDR',
             availability: 'https://schema.org/LimitedAvailability',
             url: `https://rikiaprianto.com/${kelas.slug}`,
@@ -177,7 +185,7 @@ const KelasBelajarAI = () => {
         ],
       },
     ],
-    [promoAktif]
+    []
   );
 
   useDocumentMeta({
@@ -361,22 +369,20 @@ const KelasBelajarAI = () => {
           </p>
         </div>
 
-        {promoAktif && (
-          <div className="mx-auto mt-8 max-w-xl">
-            <HitungMundurPromo
-              berakhir={kelas.promo.berakhir}
-              label={kelas.promo.label}
-              onSelesai={matikanPromo}
-            />
-          </div>
-        )}
+        <div className="mx-auto mt-8 max-w-xl">
+          <KodeReferral
+            nilai={kodeReferral}
+            onUbah={setKodeReferral}
+            berlaku={referralBerlaku}
+          />
+        </div>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
           {kelas.kelas.map((k) => (
             <KartuHargaKelas
               key={k.id}
               kelas={k}
-              promoAktif={promoAktif}
+              referral={referralBerlaku}
               unggulan={k.id === 'creator'}
               kursi={kursi ? kursi[k.id] : null}
               onDaftar={(id) => handleDaftar(`kartu_${id}`)}
@@ -407,9 +413,10 @@ const KelasBelajarAI = () => {
               <Users size={18} className="text-[#2563eb]" /> Mendaftar kakak-adik
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-              Mendaftarkan dua anak atau lebih juga mendapat potongan{' '}
-              {kelas.promo.persen}% per anak untuk Creator dan Champions.
-              Potongan tidak ditumpuk dengan promo yang sedang berjalan.
+              Mendaftarkan dua anak atau lebih mendapat potongan{' '}
+              {kelas.diskonSaudara.persen}% per anak untuk Creator dan
+              Champions. Potongan ini tidak ditumpuk dengan kode referral —
+              yang dipakai otomatis yang paling menguntungkan.
             </p>
           </div>
         </div>
@@ -618,7 +625,7 @@ const KelasBelajarAI = () => {
               Kelas AI Anak Yogyakarta
             </p>
             <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-              Mulai {rupiah(hargaPerAnak('creator', { promoAktif }))}
+              Mulai {rupiah(hargaPerAnak('creator', { referral: !!referralBerlaku }))}
             </p>
           </div>
           <a

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   GraduationCap,
   Users,
@@ -12,12 +13,13 @@ import {
   Sparkles,
   Info,
   AlertCircle,
+  Ticket,
 } from 'lucide-react';
 import {
   kelasLanjutan as data,
+  cekReferral,
   hargaPerAnak,
   hargaNormalPerAnak,
-  promoBerjalan,
   rupiah,
 } from '../data/kelasLanjutan';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
@@ -29,6 +31,9 @@ const anakKosong = (kelasAwal = 'creator') => ({ nama: '', kelas: kelasAwal });
  *  kelasAwal    - id kelas yang langsung terpilih (dari halaman landing).
  *  tanpaAlumni  - true untuk pendaftar umum: pertanyaan lulusan dilewati,
  *                 nomor langkahnya ikut bergeser naik satu.
+ *
+ * Kode referral bisa datang lewat ?ref= dari landing page, jadi orang tua yang
+ * sudah mengisinya di sana tidak perlu mengetik ulang di sini.
  */
 const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => {
   const kelasDefault = kelasAwal || 'creator';
@@ -40,7 +45,15 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
   const [namaOrangTua, setNamaOrangTua] = useState('');
   const [metode, setMetode] = useState('lunas');
   const [tersalin, setTersalin] = useState(false);
-  const [promoAktif] = useState(() => promoBerjalan());
+  const [paramUrl] = useSearchParams();
+  const [kodeReferral, setKodeReferral] = useState(
+    () => cekReferral(paramUrl.get('ref')) || ''
+  );
+  const referralBerlaku = cekReferral(kodeReferral);
+  const referralSalah = kodeReferral.trim() !== '' && !referralBerlaku;
+  // Harga alumni sudah di bawah harga normal dikurangi potongan referral,
+  // jadi kodenya tidak memotong lagi — tapi tetap dicatat untuk komisi sales.
+  const referralMemotong = !!referralBerlaku && lulusan !== true;
 
   useDocumentMeta({
     title: `${kelasAwal ? `Pendaftaran ${namaKelasAwal}` : data.title} | Riki MarkeThink`,
@@ -89,7 +102,7 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
         const harga = hargaPerAnak(a.kelas, {
           alumni: lulusan === true,
           adaSaudara,
-          promoAktif,
+          referral: referralMemotong,
         });
         const normal = hargaNormalPerAnak(a.kelas);
         return {
@@ -100,7 +113,7 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
           hemat: normal - harga,
         };
       }),
-    [anak, lulusan, adaSaudara]
+    [anak, lulusan, adaSaudara, referralMemotong]
   );
 
   const total = rincian.reduce((s, r) => s + r.harga, 0);
@@ -122,8 +135,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
       }`,
       `Nama orang tua: ${namaOrangTua || '-'}`,
       `Jumlah anak: ${jumlahAnak}`,
-      '',
     ];
+    // Baris paling penting untuk tim sales: tanpa ini komisinya tidak bisa
+    // ditelusuri, jadi kodenya dikirim walau harganya tidak ikut berubah.
+    if (referralBerlaku) baris.push(`Kode referral: ${referralBerlaku}`);
+    baris.push('');
     rincian.forEach((r, i) => {
       baris.push(
         `${i + 1}. ${r.nama || '(nama anak)'} — ${r.kelas.nama} — ${rupiah(
@@ -132,11 +148,19 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
       );
     });
     baris.push('');
-    if (lulusan || adaSaudara || promoAktif) {
+    if (lulusan) {
       baris.push(
-        lulusan
-          ? 'Harga khusus alumni Kelas Future Makers sudah termasuk (kecuali Kelas Private).'
-          : `Potongan ${data.promo.persen}% untuk Creator/Champions sudah termasuk (kecuali Kelas Private).`
+        'Harga khusus alumni Kelas Future Makers sudah termasuk (kecuali Kelas Private).'
+      );
+    } else if (totalHemat > 0) {
+      baris.push(
+        `Potongan ${rupiah(totalHemat)} sudah termasuk${
+          referralMemotong && adaSaudara
+            ? ' (dihitung dari potongan yang paling menguntungkan antara kode referral dan kakak-adik)'
+            : referralMemotong
+              ? ' dari kode referral'
+              : ' untuk pendaftaran kakak-adik'
+        }, kecuali Kelas Private.`
       );
     }
     baris.push(`Total: ${rupiah(total)}`);
@@ -161,8 +185,10 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
     jumlahAnak,
     rincian,
     adaSaudara,
-    promoAktif,
+    referralBerlaku,
+    referralMemotong,
     total,
+    totalHemat,
     metode,
     perBulan,
   ]);
@@ -253,11 +279,75 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
       </section>
       )}
 
-      {/* 2. Jumlah anak */}
+      {/* 2. Kode referral - boleh dikosongkan */}
+      <section className="mt-10">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+          <Ticket size={20} className="text-[#2563eb]" />
+          {nomorLangkah(2)}. Kode referral{' '}
+          <span className="text-sm font-medium text-slate-400">(opsional)</span>
+        </h2>
+        <input
+          type="text"
+          value={kodeReferral}
+          onChange={(e) => setKodeReferral(e.target.value)}
+          placeholder="Contoh: Future-SPx"
+          autoComplete="off"
+          spellCheck="false"
+          aria-describedby="status-referral"
+          className={`mt-4 w-full rounded-xl border-2 bg-white px-4 py-3 font-mono tracking-wide text-slate-900 outline-none transition-colors placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-400 dark:bg-[#0b1220] dark:text-white ${
+            referralBerlaku
+              ? 'border-emerald-400 dark:border-emerald-500/60'
+              : referralSalah
+                ? 'border-amber-400 dark:border-amber-500/60'
+                : 'border-slate-300 focus:border-[#2563eb] dark:border-white/15'
+          }`}
+        />
+        <p
+          id="status-referral"
+          aria-live="polite"
+          className="mt-3 inline-flex items-start gap-2 text-sm"
+        >
+          {referralBerlaku ? (
+            <>
+              <Check
+                size={16}
+                className="mt-0.5 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
+              />
+              <span className="text-emerald-700 dark:text-emerald-400">
+                Kode {referralBerlaku} berlaku.{' '}
+                {referralMemotong
+                  ? `Potongan ${rupiah(
+                      data.referral.potongan
+                    )} per anak sudah diterapkan untuk Kelas Creator dan Champions.`
+                  : 'Harga khusus alumni sudah lebih murah daripada potongan ini, jadi harganya tidak berubah — kodenya tetap kami catat.'}
+              </span>
+            </>
+          ) : referralSalah ? (
+            <>
+              <AlertCircle
+                size={16}
+                className="mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400"
+              />
+              <span className="text-amber-700 dark:text-amber-400">
+                Kode ini belum dikenali, jadi belum ada potongan. Periksa lagi
+                ejaannya atau kosongkan saja.
+              </span>
+            </>
+          ) : (
+            <span className="text-slate-500 dark:text-slate-400">
+              Punya kode dari tim kami? Masukkan untuk potongan{' '}
+              {rupiah(data.referral.potongan)} per anak, berlaku untuk Kelas
+              Creator dan Champions. Boleh dikosongkan.
+            </span>
+          )}
+        </p>
+      </section>
+
+      {/* 3. Jumlah anak */}
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <Users size={20} className="text-[#2563eb]" />
-          {nomorLangkah(2)}. Berapa anak yang didaftarkan?
+          {nomorLangkah(3)}. Berapa anak yang didaftarkan?
         </h2>
         <div className="mt-4 flex flex-wrap gap-3">
           {Array.from({ length: data.maksAnak }, (_, i) => i + 1).map((n) => (
@@ -280,17 +370,17 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
             <Check size={16} className="mt-0.5 flex-shrink-0" />
             {lulusan
               ? 'Harga kakak-adik khusus alumni sudah diterapkan untuk Kelas Creator dan Champions.'
-              : `Potongan ${data.promo.persen}% per anak sudah diterapkan untuk Kelas Creator dan Champions.`}{' '}
+              : `Potongan ${data.diskonSaudara.persen}% per anak sudah diterapkan untuk Kelas Creator dan Champions.`}{' '}
             Tidak berlaku untuk Kelas Private.
           </p>
         )}
       </section>
 
-      {/* 3. Data anak */}
+      {/* 4. Data anak */}
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <User size={20} className="text-[#2563eb]" />
-          {nomorLangkah(3)}. Data anak &amp; kelas yang dipilih
+          {nomorLangkah(4)}. Data anak &amp; kelas yang dipilih
         </h2>
         {!tanpaAlumni && lulusan === null && (
           <p className="mt-3 inline-flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
@@ -343,7 +433,7 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
                   const harga = hargaPerAnak(k.id, {
                     alumni: lulusan === true,
                     adaSaudara,
-                    promoAktif,
+                    referral: referralMemotong,
                   });
                   const normal = k.harga.normal;
                   const adaPotongan = harga < normal;
@@ -398,11 +488,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
         </div>
       </section>
 
-      {/* 4. Nama orang tua */}
+      {/* 5. Nama orang tua */}
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <User size={20} className="text-[#2563eb]" />
-          {nomorLangkah(4)}. Nama orang tua / wali
+          {nomorLangkah(5)}. Nama orang tua / wali
         </h2>
         <input
           type="text"
@@ -413,11 +503,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
         />
       </section>
 
-      {/* 5. Metode pembayaran */}
+      {/* 6. Metode pembayaran */}
       <section className="mt-10">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
           <CreditCard size={20} className="text-[#2563eb]" />
-          {nomorLangkah(5)}. Metode pembayaran
+          {nomorLangkah(6)}. Metode pembayaran
         </h2>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className={labelKartu(metode === 'lunas')}>
@@ -614,10 +704,12 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
 
       <p className="mt-10 text-xs text-slate-400 dark:text-slate-500 leading-relaxed text-center">
         Alumni Kelas Future Makers memakai harga khusus yang berlaku terus tanpa
-        batas waktu. Pendaftar umum memakai harga normal dengan potongan{' '}
-        {data.promo.persen}% saat promo berjalan atau mendaftarkan kakak-adik,
-        dan potongannya tidak ditumpuk. Kelas Private di luar potongan. Boleh
-        kombinasi kelas, misalnya kakak Champions dan adik Creator.
+        batas waktu. Pendaftar umum memakai harga normal, dengan potongan{' '}
+        {rupiah(data.referral.potongan)} bila membawa kode referral atau{' '}
+        {data.diskonSaudara.persen}% bila mendaftarkan kakak-adik — dipakai
+        yang paling menguntungkan, tidak ditumpuk. Kelas Private di luar
+        potongan. Boleh kombinasi kelas, misalnya kakak Champions dan adik
+        Creator.
       </p>
     </div>
   );

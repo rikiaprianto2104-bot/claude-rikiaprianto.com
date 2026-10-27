@@ -10,13 +10,17 @@
  *    Jalur ini hanya dipakai formulir /pendaftaran-kelas-lanjutan.
  *
  * 2. PENDAFTAR UMUM (dari landing page & iklan) -> harga normal sebagai dasar,
- *    dengan potongan 20% bila promo sedang berjalan ATAU mendaftar 2 anak ke
- *    atas. Potongan tidak ditumpuk, besarnya tetap 20%.
+ *    dengan dua kemungkinan potongan:
+ *      - kode referral dari tim sales: potong Rp 600.000 per anak;
+ *      - mendaftarkan 2 anak atau lebih: potong 20% per anak.
+ *    Keduanya TIDAK ditumpuk. Yang dipakai adalah yang paling murah bagi
+ *    pendaftar, supaya harga yang dilihat orang tua tidak pernah lebih mahal
+ *    dari yang dijanjikan di salah satu jalur.
  *
  * Kelas Private di luar semua potongan, baik untuk alumni maupun umum.
  *
- * promo.berakhir HANYA membatasi potongan jalur umum. Harga alumni tidak
- * pernah ikut kedaluwarsa.
+ * Harga alumni sudah lebih murah daripada harga normal dikurangi potongan
+ * referral, jadi kode referral tidak menambah potongan lagi di jalur alumni.
  */
 
 export const kelasLanjutan = {
@@ -24,15 +28,33 @@ export const kelasLanjutan = {
   slugLanding: 'kelas-belajar-ai-anak',
   // Ubah ke true kalau halaman landing-nya mau disembunyikan lagi dari Blog.
   landingHidden: false,
-  // PROMO
-  // Ubah 'berakhir' ke tanggal dan jam berakhirnya promo yang sebenarnya
-  // (format ISO, zona +07:00). Saat waktu ini lewat, diskon hilang sendiri dan
-  // halaman menampilkan harga normal. Perpanjang promo = ubah tanggal ini.
-  promo: {
+  // KODE REFERRAL
+  // Dipegang tim sales. Pendaftar yang membawa salah satu kode ini mendapat
+  // potongan tetap untuk Kelas Creator dan Champions, dan kodenya ikut
+  // terbawa ke pesan WhatsApp supaya komisi salesnya bisa ditelusuri.
+  //
+  // Menambah atau mencabut kode cukup di daftar ini. Kode dicocokkan tanpa
+  // membedakan huruf besar/kecil.
+  //
+  // Catatan jujur: daftar kode ini ikut terbaca di berkas JavaScript situs,
+  // jadi secara teknis bisa ditemukan orang yang membuka kode halaman.
+  // Pengamannya ada di langkah terakhir — invoice tetap diterbitkan manual,
+  // jadi kode yang dipakai bisa dicocokkan dulu dengan catatan sales.
+  referral: {
     aktif: true,
+    potongan: 600000,
+    label: 'Potongan Rp 600.000 dengan kode referral',
+    kode: [
+      'Future-SP1',
+      'Future-SP2',
+      'Future-SP3',
+      'Future-SP4',
+      'Future-SP5',
+    ],
+  },
+  // Potongan kakak-adik dari proposal: berlaku sendiri, tanpa kode apa pun.
+  diskonSaudara: {
     persen: 20,
-    berakhir: '2026-10-26T23:59:59+07:00',
-    label: 'Diskon 20% Kelas Creator & Champions',
   },
   title: 'Pendaftaran Kelas Lanjutan Future Makers',
   subtitle: 'Creator · Champions · Private — kelas mulai Januari 2027',
@@ -215,7 +237,7 @@ export const kelasLanjutan = {
       kursi: 3,
       tanpaPromo: true,
       catatan:
-        'Kursinya hanya untuk 3 anak karena coach mendampingi penuh dan personal, jadi kelas ini tidak ikut promo maupun diskon kakak-adik.',
+        'Kursinya hanya untuk 3 anak karena coach mendampingi penuh dan personal, jadi kelas ini tidak ikut potongan referral maupun diskon kakak-adik.',
       harga: { normal: 5250000, alumni: 5250000, alumniSaudara: 5250000 },
     },
   ],
@@ -232,10 +254,23 @@ export const kelasLanjutan = {
   },
 };
 
-/** Apakah promo masih berjalan pada saat fungsi ini dipanggil. */
-export const promoBerjalan = () => {
-  if (!kelasLanjutan.promo.aktif) return false;
-  return Date.now() < new Date(kelasLanjutan.promo.berakhir).getTime();
+/**
+ * Cocokkan kode referral yang diketik pendaftar.
+ *
+ * Huruf besar/kecil dan spasi di awal-akhir diabaikan, karena kode ini
+ * disalin dari pesan atau diketik ulang dari selebaran. Yang dikembalikan
+ * adalah kode dengan ejaan resminya, supaya yang masuk ke pesan WhatsApp
+ * selalu seragam dan mudah dicocokkan dengan catatan komisi.
+ *
+ * @returns {string|null} kode resmi, atau null kalau tidak dikenali.
+ */
+export const cekReferral = (kode) => {
+  if (!kelasLanjutan.referral.aktif) return null;
+  const bersih = String(kode || '').trim().toLowerCase();
+  if (!bersih) return null;
+  return (
+    kelasLanjutan.referral.kode.find((k) => k.toLowerCase() === bersih) || null
+  );
 };
 
 /** Kelas yang boleh mendapat diskon — Private selalu harga normal. */
@@ -251,11 +286,11 @@ const bolehDiskon = (kelasId) => {
  * @param {object} opsi
  * @param {boolean} opsi.alumni      peserta alumni Kelas Future Makers
  * @param {boolean} opsi.adaSaudara  mendaftarkan 2 anak atau lebih
- * @param {boolean|null} opsi.promoAktif  status promo jalur umum; null = hitung sendiri
+ * @param {boolean} opsi.referral    membawa kode referral yang cocok
  */
 export const hargaPerAnak = (
   kelasId,
-  { alumni = false, adaSaudara = false, promoAktif = null } = {}
+  { alumni = false, adaSaudara = false, referral = false } = {}
 ) => {
   const k = kelasLanjutan.kelas.find((x) => x.id === kelasId);
   if (!k) return 0;
@@ -263,13 +298,23 @@ export const hargaPerAnak = (
   // Kelas Private di luar semua potongan.
   if (!bolehDiskon(kelasId)) return k.harga.normal;
 
-  // Jalur alumni: harga tetap, tidak terikat masa promo.
+  // Jalur alumni: harga tetap, sudah lebih murah daripada potongan referral.
   if (alumni) return adaSaudara ? k.harga.alumniSaudara : k.harga.alumni;
 
-  // Jalur umum: potongan 20% saat promo berjalan atau mendaftar kakak-adik.
-  const promo = promoAktif === null ? promoBerjalan() : promoAktif;
-  if (!promo && !adaSaudara) return k.harga.normal;
-  return Math.round((k.harga.normal * (100 - kelasLanjutan.promo.persen)) / 100);
+  // Jalur umum. Potongan tidak ditumpuk: dihitung semua kemungkinannya, lalu
+  // diambil yang paling menguntungkan pendaftar.
+  const pilihan = [k.harga.normal];
+  if (adaSaudara) {
+    pilihan.push(
+      Math.round(
+        (k.harga.normal * (100 - kelasLanjutan.diskonSaudara.persen)) / 100
+      )
+    );
+  }
+  if (referral) {
+    pilihan.push(Math.max(0, k.harga.normal - kelasLanjutan.referral.potongan));
+  }
+  return Math.min(...pilihan);
 };
 
 /** Harga tanpa diskon apa pun, dipakai untuk menampilkan angka coretan. */
