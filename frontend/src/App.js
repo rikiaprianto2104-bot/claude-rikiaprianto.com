@@ -10,6 +10,9 @@ import KelasFutureMakers from './pages/KelasFutureMakers';
 import KelasBelajarAI from './pages/KelasBelajarAI';
 import PendaftaranKelasLanjutan from './pages/PendaftaranKelasLanjutan';
 import KebijakanPrivasi from './pages/KebijakanPrivasi';
+import BuatInvoice from './pages/BuatInvoice';
+import Invoice from './pages/Invoice';
+import VerifikasiPeserta from './pages/VerifikasiPeserta';
 import FutureMakers from './pages/FutureMakers';
 import Profile from './pages/Profile';
 import Research from './pages/Research';
@@ -39,6 +42,11 @@ function App() {
             <Route path="/future-maker" element={<FutureMakers />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/kebijakan-privasi" element={<KebijakanPrivasi />} />
+            {/* Invoice: /buat-invoice dipakai sendiri oleh pengelola, dua
+                halaman lain membaca datanya dari parameter ?d= pada alamat. */}
+            <Route path="/buat-invoice" element={<BuatInvoice />} />
+            <Route path="/invoice" element={<Invoice />} />
+            <Route path="/verifikasi" element={<VerifikasiPeserta />} />
             {/* Tautan tersembunyi: tidak ditautkan dari menu mana pun dan
                 halamannya memasang noindex. Dibagikan manual lewat WhatsApp. */}
             <Route
