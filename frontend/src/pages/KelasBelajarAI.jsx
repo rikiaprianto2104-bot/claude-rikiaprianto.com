@@ -137,7 +137,7 @@ const KelasBelajarAI = () => {
           },
           offers: {
             '@type': 'Offer',
-            price: String(hargaPerAnak(k.id, false, promoAktif)),
+            price: String(hargaPerAnak(k.id, { promoAktif })),
             priceCurrency: 'IDR',
             availability: 'https://schema.org/LimitedAvailability',
             url: `https://rikiaprianto.com/${kelas.slug}`,
@@ -590,7 +590,7 @@ const KelasBelajarAI = () => {
               Kelas AI Anak Yogyakarta
             </p>
             <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-              Mulai {rupiah(hargaPerAnak('creator', false, promoAktif))}
+              Mulai {rupiah(hargaPerAnak('creator', { promoAktif }))}
             </p>
           </div>
           <a

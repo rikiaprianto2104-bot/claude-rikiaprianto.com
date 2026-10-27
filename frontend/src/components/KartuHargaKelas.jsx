@@ -16,7 +16,7 @@ import { kelasLanjutan, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
 const KartuHargaKelas = ({ kelas, promoAktif, unggulan = false, onDaftar }) => {
   const [jadwalTerbuka, setJadwalTerbuka] = useState(false);
 
-  const harga = hargaPerAnak(kelas.id, false, promoAktif);
+  const harga = hargaPerAnak(kelas.id, { promoAktif });
   const adaDiskon = harga < kelas.harga.normal;
   const jadwal = kelasLanjutan.jadwalKelas[kelas.id];
   const totalPertemuan = jadwal

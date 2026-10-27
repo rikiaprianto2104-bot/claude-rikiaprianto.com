@@ -86,7 +86,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
     () =>
       anak.map((a) => {
         const kelas = data.kelas.find((k) => k.id === a.kelas);
-        const harga = hargaPerAnak(a.kelas, adaSaudara, promoAktif);
+        const harga = hargaPerAnak(a.kelas, {
+          alumni: lulusan === true,
+          adaSaudara,
+          promoAktif,
+        });
         const normal = hargaNormalPerAnak(a.kelas);
         return {
           nama: a.nama,
@@ -128,9 +132,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
       );
     });
     baris.push('');
-    if (adaSaudara || promoAktif) {
+    if (lulusan || adaSaudara || promoAktif) {
       baris.push(
-        `Potongan ${data.promo.persen}% untuk Creator/Champions sudah termasuk (kecuali Kelas Private).`
+        lulusan
+          ? 'Harga khusus alumni Kelas Future Makers sudah termasuk (kecuali Kelas Private).'
+          : `Potongan ${data.promo.persen}% untuk Creator/Champions sudah termasuk (kecuali Kelas Private).`
       );
     }
     baris.push(`Total: ${rupiah(total)}`);
@@ -222,7 +228,7 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
               Ya, alumni Future Makers
             </p>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Nama anak tinggal dipilih dari daftar
+              Harga khusus alumni, tanpa batas waktu
             </p>
           </label>
           <label className={labelKartu(lulusan === false)}>
@@ -272,8 +278,10 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
         {adaSaudara && (
           <p className="mt-3 inline-flex items-start gap-2 text-sm text-emerald-700 dark:text-emerald-400">
             <Check size={16} className="mt-0.5 flex-shrink-0" />
-            Potongan {data.promo.persen}% per anak sudah diterapkan untuk
-            Kelas Creator dan Champions. Tidak berlaku untuk Kelas Private.
+            {lulusan
+              ? 'Harga kakak-adik khusus alumni sudah diterapkan untuk Kelas Creator dan Champions.'
+              : `Potongan ${data.promo.persen}% per anak sudah diterapkan untuk Kelas Creator dan Champions.`}{' '}
+            Tidak berlaku untuk Kelas Private.
           </p>
         )}
       </section>
@@ -332,7 +340,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
               </p>
               <div className="mt-3 space-y-3">
                 {data.kelas.map((k) => {
-                  const harga = hargaPerAnak(k.id, adaSaudara, promoAktif);
+                  const harga = hargaPerAnak(k.id, {
+                    alumni: lulusan === true,
+                    adaSaudara,
+                    promoAktif,
+                  });
                   const normal = k.harga.normal;
                   const adaPotongan = harga < normal;
                   return (
@@ -601,10 +613,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
       </section>
 
       <p className="mt-10 text-xs text-slate-400 dark:text-slate-500 leading-relaxed text-center">
-        Potongan {data.promo.persen}% berlaku untuk Kelas Creator dan Champions,
-        baik lewat promo yang sedang berjalan maupun pendaftaran kakak-adik, dan
-        tidak ditumpuk. Kelas Private di luar potongan. Boleh kombinasi kelas,
-        misalnya kakak Champions dan adik Creator.
+        Alumni Kelas Future Makers memakai harga khusus yang berlaku terus tanpa
+        batas waktu. Pendaftar umum memakai harga normal dengan potongan{' '}
+        {data.promo.persen}% saat promo berjalan atau mendaftarkan kakak-adik,
+        dan potongannya tidak ditumpuk. Kelas Private di luar potongan. Boleh
+        kombinasi kelas, misalnya kakak Champions dan adik Creator.
       </p>
     </div>
   );
