@@ -28,6 +28,7 @@ import HitungMundurPromo from '../components/HitungMundurPromo';
 import KartuHargaKelas from '../components/KartuHargaKelas';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
+import { ambilKursi } from '../lib/kursiApi';
 
 const PIXEL_CONTENT = {
   content_name: 'Kelas Artificial Intelligence Anak Yogyakarta',
@@ -63,9 +64,22 @@ const Bagian = ({ id, children, className = '' }) => (
 const KelasBelajarAI = () => {
   const [ctaVisible, setCtaVisible] = useState(true);
   const [promoAktif, setPromoAktif] = useState(() => promoBerjalan());
+  // Sisa kursi dari spreadsheet di Drive. null = belum/gagal dimuat, dan
+  // halaman tetap tampil normal memakai kuota statis.
+  const [kursi, setKursi] = useState(null);
   const viewContentSent = useRef(false);
 
   const matikanPromo = useCallback(() => setPromoAktif(false), []);
+
+  useEffect(() => {
+    let hidup = true;
+    ambilKursi().then((hasil) => {
+      if (hidup && hasil) setKursi(hasil);
+    });
+    return () => {
+      hidup = false;
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -192,6 +206,12 @@ const KelasBelajarAI = () => {
       else tag.setAttribute('href', nilaiAwal);
     };
   }, []);
+
+  const semuaPenuh =
+    !!kursi && kelas.kelas.every((k) => kursi[k.id] && kursi[k.id].sisa <= 0);
+  const tautanTungguUmum = `https://wa.me/${kelas.whatsapp.number}?text=${encodeURIComponent(
+    'Halo Kak Riki, kursi Kelas Lanjutan Future Makers sudah penuh. Boleh saya dimasukkan ke daftar tunggu atau diinfokan batch berikutnya?'
+  )}`;
 
   const fakta = [
     { icon: Users, label: 'Untuk anak', nilai: 'Usia 6–15 tahun' },
@@ -358,7 +378,15 @@ const KelasBelajarAI = () => {
               kelas={k}
               promoAktif={promoAktif}
               unggulan={k.id === 'creator'}
+              kursi={kursi ? kursi[k.id] : null}
               onDaftar={(id) => handleDaftar(`kartu_${id}`)}
+              onPenuh={(id) =>
+                trackPixel('Contact', {
+                  ...PIXEL_CONTENT,
+                  content_type: 'daftar_tunggu',
+                  button_position: `penuh_${id}`,
+                })
+              }
             />
           ))}
         </div>
@@ -570,7 +598,7 @@ const KelasBelajarAI = () => {
                 onClick={() => handleDaftar('cta_penutup')}
                 className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2563eb] transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-100"
               >
-                Pilih Kelas &amp; Daftar
+                {semuaPenuh ? 'Tanya Daftar Tunggu' : 'Pilih Kelas & Daftar'}
                 <ArrowRight size={20} className="transition-transform duration-300 group-hover:translate-x-0.5" />
               </a>
             </div>

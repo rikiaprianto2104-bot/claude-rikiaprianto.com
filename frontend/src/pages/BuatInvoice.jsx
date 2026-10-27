@@ -8,9 +8,13 @@ import {
   Check,
   ExternalLink,
   Info,
+  Save,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 import { kelasLanjutan as data, hargaPerAnak } from '../data/kelasLanjutan';
 import { buatToken, rupiah, PENERBIT } from '../lib/invoice';
+import { simpanInvoice, apiTersedia } from '../lib/kursiApi';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
 const hariIni = () => {
@@ -46,6 +50,7 @@ const BuatInvoice = () => {
   const [dibayar, setDibayar] = useState('');
   const [catatan, setCatatan] = useState('');
   const [tersalin, setTersalin] = useState(false);
+  const [simpan, setSimpan] = useState({ status: 'diam', pesan: '' });
 
   useDocumentMeta({
     title: 'Buat Invoice | Future Makers',
@@ -102,7 +107,12 @@ const BuatInvoice = () => {
     ortu,
     wa,
     jalur,
-    anak: rincian.map((r) => ({ n: r.nama, k: r.kelasId, h: r.harga })),
+    anak: rincian.map((r) => ({
+      n: r.nama,
+      k: r.kelasId,
+      kelasNama: r.kelas,
+      h: r.harga,
+    })),
     metode,
     status,
     total,
@@ -379,6 +389,35 @@ const BuatInvoice = () => {
               {tautanInvoice}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
+              {apiTersedia() && (
+                <button
+                  type="button"
+                  disabled={simpan.status === 'kirim'}
+                  onClick={async () => {
+                    setSimpan({ status: 'kirim', pesan: '' });
+                    const hasil = await simpanInvoice(payload, token);
+                    if (hasil.ok) {
+                      setSimpan({
+                        status: 'sukses',
+                        pesan: `Tercatat di Drive. ${hasil.dicatat} kursi terpakai.`,
+                      });
+                    } else {
+                      setSimpan({
+                        status: 'gagal',
+                        pesan: hasil.pesan || 'Gagal menyimpan.',
+                      });
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+                >
+                  {simpan.status === 'kirim' ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Save size={18} />
+                  )}
+                  {simpan.status === 'kirim' ? 'Menyimpan…' : 'Simpan ke Drive'}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={salin}
@@ -398,6 +437,25 @@ const BuatInvoice = () => {
         ) : (
           <p className="mt-2 text-sm text-amber-700 dark:text-amber-400">
             Isi nama orang tua dan nama semua anak dulu.
+          </p>
+        )}
+
+        {simpan.status === 'sukses' && (
+          <p className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            <Check size={16} /> {simpan.pesan}
+          </p>
+        )}
+        {simpan.status === 'gagal' && (
+          <p className="mt-4 inline-flex items-start gap-2 text-sm text-rose-700 dark:text-rose-400">
+            <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+            {simpan.pesan}
+          </p>
+        )}
+        {!apiTersedia() && (
+          <p className="mt-4 inline-flex items-start gap-2 text-sm text-amber-700 dark:text-amber-400">
+            <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+            Penyimpanan ke Drive belum disetel, jadi invoice ini belum
+            mengurangi sisa kursi di landing page.
           </p>
         )}
 

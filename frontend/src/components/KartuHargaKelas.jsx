@@ -6,6 +6,8 @@ import {
   ArrowRight,
   CalendarDays,
   Star,
+  MessageCircle,
+  Users,
 } from 'lucide-react';
 import { kelasLanjutan, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
 
@@ -13,7 +15,14 @@ import { kelasLanjutan, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
  * Kartu harga satu kelas: nama, harga, tombol daftar yang langsung menuju
  * formulir kelas itu, daftar isi kelas, dan jadwal yang terbuka saat diklik.
  */
-const KartuHargaKelas = ({ kelas, promoAktif, unggulan = false, onDaftar }) => {
+const KartuHargaKelas = ({
+  kelas,
+  promoAktif,
+  unggulan = false,
+  onDaftar,
+  kursi = null, // {kuota, terisi, sisa} dari Drive; null = belum/ gagal dimuat
+  onPenuh,
+}) => {
   const [jadwalTerbuka, setJadwalTerbuka] = useState(false);
 
   const harga = hargaPerAnak(kelas.id, { promoAktif });
@@ -24,10 +33,18 @@ const KartuHargaKelas = ({ kelas, promoAktif, unggulan = false, onDaftar }) => {
     : null;
   const perBulan = Math.round(harga / kelasLanjutan.cicilan.jumlah);
 
+  const penuh = !!kursi && kursi.sisa <= 0;
+  const pesanPenuh = encodeURIComponent(
+    `Halo Kak Riki, saya mau mendaftarkan anak ke ${kelas.nama} tapi kursinya sudah penuh. Boleh dimasukkan ke daftar tunggu atau diinfokan kalau ada batch berikutnya?`
+  );
+  const tautanTunggu = `https://wa.me/${kelasLanjutan.whatsapp.number}?text=${pesanPenuh}`;
+
   const fitur = [
     kelas.ringkas.split(' · ')[0],
     kelas.ringkas.split(' · ')[1],
-    `Maksimal ${kelas.kursi} anak per kelas`,
+    kursi
+      ? `${kursi.terisi} dari ${kursi.kuota} kursi sudah terisi`
+      : `Maksimal ${kelas.kursi} anak per kelas`,
     'Akun AI berbayar, modul, dan sertifikat',
     `Bisa dicicil ${kelasLanjutan.cicilan.jumlah}x — ${rupiah(perBulan)}/bulan`,
   ];
@@ -35,15 +52,23 @@ const KartuHargaKelas = ({ kelas, promoAktif, unggulan = false, onDaftar }) => {
   return (
     <div
       className={`relative flex flex-col rounded-3xl border-2 bg-white p-7 transition-shadow dark:bg-white/[0.03] ${
-        unggulan
-          ? 'border-[#2563eb] shadow-2xl shadow-[#2563eb]/20 lg:-mt-4 lg:mb-4'
-          : 'border-slate-200 hover:shadow-xl dark:border-white/10'
+        penuh
+          ? 'border-rose-200 bg-slate-50 dark:border-rose-500/30 dark:bg-white/[0.02]'
+          : unggulan
+            ? 'border-[#2563eb] shadow-2xl shadow-[#2563eb]/20 lg:-mt-4 lg:mb-4'
+            : 'border-slate-200 hover:shadow-xl dark:border-white/10'
       }`}
     >
-      {unggulan && (
-        <span className="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#2563eb] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
-          <Star size={12} className="fill-current" /> Paling Diminati
+      {penuh ? (
+        <span className="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-rose-600 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
+          Kelas Penuh
         </span>
+      ) : (
+        unggulan && (
+          <span className="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#2563eb] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
+            <Star size={12} className="fill-current" /> Paling Diminati
+          </span>
+        )
       )}
 
       <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
@@ -77,21 +102,64 @@ const KartuHargaKelas = ({ kelas, promoAktif, unggulan = false, onDaftar }) => {
         </p>
       </div>
 
-      <Link
-        to={`/pendaftaran/${kelas.slugForm}`}
-        onClick={() => onDaftar && onDaftar(kelas.id)}
-        className={`group mt-6 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold transition-all duration-300 hover:-translate-y-0.5 ${
-          unggulan
-            ? 'bg-[#2563eb] text-white shadow-lg shadow-[#2563eb]/30 hover:bg-[#1d4ed8]'
-            : 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100'
-        }`}
-      >
-        Daftar {kelas.nama}
-        <ArrowRight
-          size={18}
-          className="transition-transform duration-300 group-hover:translate-x-0.5"
-        />
-      </Link>
+      {penuh ? (
+        <>
+          <a
+            href={tautanTunggu}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => onPenuh && onPenuh(kelas.id)}
+            className="group mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 font-bold text-white shadow-lg shadow-[#25D366]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1eb455]"
+          >
+            <MessageCircle size={18} />
+            Tanya Daftar Tunggu
+          </a>
+          <p className="mt-2 text-center text-xs text-rose-700 dark:text-rose-400">
+            Kursi {kelas.nama} sudah habis. Hubungi kami untuk batch berikutnya.
+          </p>
+        </>
+      ) : (
+        <Link
+          to={`/pendaftaran/${kelas.slugForm}`}
+          onClick={() => onDaftar && onDaftar(kelas.id)}
+          className={`group mt-6 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold transition-all duration-300 hover:-translate-y-0.5 ${
+            unggulan
+              ? 'bg-[#2563eb] text-white shadow-lg shadow-[#2563eb]/30 hover:bg-[#1d4ed8]'
+              : 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100'
+          }`}
+        >
+          Daftar {kelas.nama}
+          <ArrowRight
+            size={18}
+            className="transition-transform duration-300 group-hover:translate-x-0.5"
+          />
+        </Link>
+      )}
+
+      {kursi && !penuh && (
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+              <Users size={13} /> Sisa kursi
+            </span>
+            <span
+              className={kursi.sisa <= 2 ? 'text-rose-600' : 'text-[#2563eb]'}
+            >
+              {kursi.sisa} dari {kursi.kuota}
+            </span>
+          </div>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
+            <div
+              className={`h-full rounded-full ${
+                kursi.sisa <= 2 ? 'bg-rose-500' : 'bg-[#2563eb]'
+              }`}
+              style={{
+                width: `${Math.min(100, (kursi.terisi / kursi.kuota) * 100)}%`,
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <ul className="mt-6 space-y-3 border-t border-slate-100 pt-6 dark:border-white/5">
         {fitur.map((f) => (
