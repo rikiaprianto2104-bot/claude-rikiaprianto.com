@@ -291,7 +291,7 @@ const KelasBelajarAI = () => {
                 width={kelas.foto[0].w}
                 height={kelas.foto[0].h}
                 alt={kelas.foto[0].alt}
-                fetchpriority="high"
+                fetchPriority="high"
                 className="aspect-[3/2] w-full rounded-3xl object-cover shadow-xl shadow-slate-900/10"
               />
               <div className="mt-5 grid grid-cols-2 gap-4 rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]">

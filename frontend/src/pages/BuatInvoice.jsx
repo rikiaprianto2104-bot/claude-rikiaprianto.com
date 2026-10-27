@@ -11,6 +11,7 @@ import {
   Save,
   Loader2,
   AlertTriangle,
+  KeyRound,
 } from 'lucide-react';
 import { kelasLanjutan as data, hargaPerAnak } from '../data/kelasLanjutan';
 import { buatToken, rupiah, PENERBIT } from '../lib/invoice';
@@ -51,6 +52,25 @@ const BuatInvoice = () => {
   const [catatan, setCatatan] = useState('');
   const [tersalin, setTersalin] = useState(false);
   const [simpan, setSimpan] = useState({ status: 'diam', pesan: '' });
+  // Kunci penyimpanan hanya tinggal di peramban pengelola, tidak pernah ikut
+  // ke dalam kode situs maupun ke repositori.
+  const [kunci, setKunci] = useState(() => {
+    try {
+      return localStorage.getItem('fm_kunci_invoice') || '';
+    } catch (_) {
+      return '';
+    }
+  });
+
+  const simpanKunci = (nilai) => {
+    setKunci(nilai);
+    try {
+      if (nilai) localStorage.setItem('fm_kunci_invoice', nilai);
+      else localStorage.removeItem('fm_kunci_invoice');
+    } catch (_) {
+      // Peramban menolak localStorage: kunci tetap dipakai untuk sesi ini.
+    }
+  };
 
   useDocumentMeta({
     title: 'Buat Invoice | Future Makers',
@@ -388,14 +408,49 @@ const BuatInvoice = () => {
             <p className="mt-2 break-all rounded-xl bg-slate-100 p-4 font-mono text-xs text-slate-700 dark:bg-white/5 dark:text-slate-300">
               {tautanInvoice}
             </p>
+            {apiTersedia() && (
+              <div className="mt-5 rounded-2xl border border-slate-200 p-4 dark:border-white/10">
+                <Label>
+                  <span className="inline-flex items-center gap-1.5">
+                    <KeyRound size={14} className="text-[#2563eb]" />
+                    Kunci penyimpanan Drive
+                  </span>
+                </Label>
+                <input
+                  type="password"
+                  autoComplete="off"
+                  className={kelasInput}
+                  placeholder="Kunci yang Anda tulis di Apps Script"
+                  value={kunci}
+                  onChange={(e) => simpanKunci(e.target.value)}
+                />
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                  Diketik sekali, lalu tersimpan di peramban ini saja. Tidak
+                  pernah masuk ke kode situs dan tidak terbaca pengunjung lain.
+                  {kunci && (
+                    <>
+                      {' '}
+                      <button
+                        type="button"
+                        onClick={() => simpanKunci('')}
+                        className="font-medium text-rose-600 hover:underline"
+                      >
+                        Hapus kunci dari peramban ini
+                      </button>
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
+
             <div className="mt-4 flex flex-wrap gap-3">
               {apiTersedia() && (
                 <button
                   type="button"
-                  disabled={simpan.status === 'kirim'}
+                  disabled={simpan.status === 'kirim' || !kunci}
                   onClick={async () => {
                     setSimpan({ status: 'kirim', pesan: '' });
-                    const hasil = await simpanInvoice(payload, token);
+                    const hasil = await simpanInvoice(payload, token, kunci);
                     if (hasil.ok) {
                       setSimpan({
                         status: 'sukses',
