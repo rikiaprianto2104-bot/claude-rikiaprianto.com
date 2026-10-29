@@ -1,0 +1,17 @@
+/* Dimuat lewat <noscript> di index.html — hanya berlaku kalau JavaScript mati.
+   Mengembalikan konten statis ke tampilan biasa dan menyembunyikan layar pemuatan
+   (yang tidak akan pernah diganti React tanpa JavaScript). */
+#root > main.prerender {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+}
+
+.boot {
+  display: none;
+}

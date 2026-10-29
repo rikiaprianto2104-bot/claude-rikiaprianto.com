@@ -23,6 +23,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
 
+        <!-- Layar pemuatan + penyembunyian visual konten statis di #root. Lihat boot.css. -->
+        <link rel="stylesheet" href="%PUBLIC_URL%/boot.css" />
+        <noscript><link rel="stylesheet" href="%PUBLIC_URL%/noscript.css" /></noscript>
+
         <!-- ============================================================
              Metadata bisnis.
 
@@ -89,7 +93,12 @@
              Kalau data di sana berubah, samakan juga di sini.
              ============================================================ -->
         <div id="root">
-            <main>
+            <!-- Layar pemuatan: terlihat sampai React mount, lalu diganti bersama isi #root. -->
+            <div class="boot" aria-hidden="true">
+                <div class="boot-name"><span>R</span>iki MarkeThink</div>
+                <div class="boot-spinner"></div>
+            </div>
+            <main class="prerender">
                 <h1>Riki MarkeThink</h1>
                 <p><strong>AI Marketing Strategist</strong> — Indonesia</p>
                 <p>
