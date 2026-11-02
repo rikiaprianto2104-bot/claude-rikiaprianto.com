@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
 #  deploy.sh — build frontend React lalu unggah SELURUH isi frontend/build/
-#              ke Hostinger (public_html) lewat SSH/SFTP.
+#              ke VPS Hostinger (nginx, /var/www/rikiaprianto/public_html)
+#              lewat SSH.
 #
 #  Jalankan dari folder mana pun:   bash deploy.sh
 #  Kredensial dibaca dari file .env di folder yang sama (JANGAN di-commit).
@@ -25,7 +26,11 @@ set -a; . ./.env; set +a
 : "${SFTP_HOST:?SFTP_HOST belum diisi di .env}"
 : "${SFTP_PORT:?SFTP_PORT belum diisi di .env}"
 : "${SFTP_USER:?SFTP_USER belum diisi di .env}"
-: "${SFTP_PASSWORD:?SFTP_PASSWORD belum diisi di .env}"
+# Login: SFTP_KEY (path private key, disarankan) ATAU SFTP_PASSWORD.
+if [[ -z "${SFTP_KEY:-}" ]]; then
+  : "${SFTP_PASSWORD:?isi SFTP_KEY (path private key) atau SFTP_PASSWORD di .env}"
+fi
+# Opsional: SFTP_REMOTE_OWNER (mis. www-data:www-data) = pemilik file hasil unggah.
 : "${SFTP_REMOTE_PATH:?SFTP_REMOTE_PATH belum diisi di .env}"
 
 FRONTEND_DIR="$ROOT/frontend"
@@ -66,26 +71,40 @@ FILE_COUNT="$(find "$BUILD_DIR" -type f | wc -l | tr -d ' ')"
 echo "    build OK — $FILE_COUNT file di $BUILD_DIR"
 
 # ---------------------------------------------------------------------------
-# 2. Autentikasi SSH pakai password tanpa prompt (SSH_ASKPASS)
+# 2. Autentikasi SSH: pakai kunci (SFTP_KEY) kalau ada, kalau tidak password
+#    tanpa prompt (SSH_ASKPASS)
 # ---------------------------------------------------------------------------
-ASKPASS="$(mktemp)"
-printf '#!/usr/bin/env bash\nprintf "%%s\\n" "$SFTP_PASSWORD"\n' > "$ASKPASS"
-chmod +x "$ASKPASS"
-trap 'rm -f "$ASKPASS"' EXIT
+if [[ -n "${SFTP_KEY:-}" ]]; then
+  [[ -f "$SFTP_KEY" ]] || { echo "ERROR: SFTP_KEY tidak ditemukan: $SFTP_KEY" >&2; exit 1; }
+  SSH=(ssh
+    -p "$SFTP_PORT"
+    -i "$SFTP_KEY"
+    -o IdentitiesOnly=yes
+    -o BatchMode=yes
+    -o StrictHostKeyChecking=accept-new
+    -o ConnectTimeout=20
+  )
+else
+  ASKPASS="$(mktemp)"
+  printf '#!/usr/bin/env bash\nprintf "%%s\\n" "$SFTP_PASSWORD"\n' > "$ASKPASS"
+  chmod +x "$ASKPASS"
+  trap 'rm -f "$ASKPASS"' EXIT
 
-export SFTP_PASSWORD
-export SSH_ASKPASS="$ASKPASS"
-export SSH_ASKPASS_REQUIRE=force      # OpenSSH >= 8.4: selalu pakai askpass
-export DISPLAY="${DISPLAY:-:0}"
+  export SFTP_PASSWORD
+  export SSH_ASKPASS="$ASKPASS"
+  export SSH_ASKPASS_REQUIRE=force      # OpenSSH >= 8.4: selalu pakai askpass
+  export DISPLAY="${DISPLAY:-:0}"
 
-SSH=(ssh
-  -p "$SFTP_PORT"
-  -o StrictHostKeyChecking=accept-new
-  -o PubkeyAuthentication=no
-  -o PreferredAuthentications=password
-  -o NumberOfPasswordPrompts=1
-  -o ConnectTimeout=20
-)
+  SSH=(ssh
+    -p "$SFTP_PORT"
+    -o StrictHostKeyChecking=accept-new
+    -o PubkeyAuthentication=no
+    -o PreferredAuthentications=password
+    -o NumberOfPasswordPrompts=1
+    -o ConnectTimeout=20
+  )
+fi
+
 REMOTE="$SFTP_USER@$SFTP_HOST"
 
 # ---------------------------------------------------------------------------
@@ -103,5 +122,12 @@ echo "==> [3/3] Mengunggah $BUILD_DIR  ->  $REMOTE:$SFTP_REMOTE_PATH"
 tar -C "$BUILD_DIR" -czf - . \
   | "${SSH[@]}" "$REMOTE" "mkdir -p '$SFTP_REMOTE_PATH' && tar -C '$SFTP_REMOTE_PATH' -xzf - && echo '    ekstrak selesai'"
 
+# tar dari Windows membawa nomor pemilik file yang asing di server. Rapikan
+# hanya entri milik build (folder lain di docroot, mis. fmvd-media, tidak disentuh).
+if [[ -n "${SFTP_REMOTE_OWNER:-}" ]]; then
+  ITEMS="$(cd "$BUILD_DIR" && ls -A | tr '\n' ' ')"
+  "${SSH[@]}" "$REMOTE" "cd '$SFTP_REMOTE_PATH' && chown '$SFTP_REMOTE_OWNER' . && chown -R '$SFTP_REMOTE_OWNER' $ITEMS && echo '    pemilik file dirapikan ($SFTP_REMOTE_OWNER)'"
+fi
+
 echo
-echo "==> SELESAI. Live: https://$SFTP_HOST/  (atau domain yang mengarah ke public_html)"
+echo "==> SELESAI. Cek: https://rikiaprianto.com/"

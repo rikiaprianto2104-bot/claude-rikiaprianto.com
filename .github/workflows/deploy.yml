@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Document root domain rikiaprianto.com di server Hostinger.
+      # Document root domain rikiaprianto.com di VPS Hostinger (nginx).
       # BUKAN rahasia — ubah di sini kalau docroot pindah.
       # (metode & kredensial upload mengikuti deploy.sh: SSH/SFTP port 65002, auth password)
-      SFTP_REMOTE_PATH: /home/u295189530/domains/rikiaprianto.com/public_html
+      SFTP_REMOTE_PATH: /var/www/rikiaprianto/public_html
 
     steps:
       - name: Checkout
@@ -193,7 +193,7 @@ jobs:
             || echo "  (keyscan tidak mengembalikan kunci — port SSH mungkin diblokir dari runner)"
           echo "-----------------------------------------------------"
 
-      - name: Upload frontend/build ke server (SSH/SFTP, port 65002)
+      - name: Upload frontend/build ke VPS (SSH)
         env:
           SSHPASS:   ${{ secrets.SFTP_PASSWORD }}
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
@@ -257,6 +257,13 @@ jobs:
           tar -C frontend/build -czf - . \
             | "${SSH[@]}" "${REMOTE}" \
                 "tar -C '${SFTP_REMOTE_PATH}' -xzf - && echo 'ekstrak selesai'"
+
+          # tar dari runner membawa nomor pemilik yang asing di server; nginx
+          # berjalan sebagai www-data. Hanya entri milik build yang dirapikan,
+          # folder lain di docroot (mis. fmvd-media) tidak disentuh.
+          ITEMS="$(ls -A frontend/build | tr '\n' ' ')"
+          "${SSH[@]}" "${REMOTE}" \
+            "cd '${SFTP_REMOTE_PATH}' && chown www-data:www-data . && chown -R www-data:www-data ${ITEMS} && echo 'pemilik file dirapikan'"
 
           echo "==> Selesai. https://rikiaprianto.com/"
 
