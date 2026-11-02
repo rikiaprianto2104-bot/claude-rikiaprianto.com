@@ -8,6 +8,8 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import KelasFutureMakers from './pages/KelasFutureMakers';
 import KelasBelajarAI from './pages/KelasBelajarAI';
+import KelasExplorer from './pages/KelasExplorer';
+import PendaftaranKelasExplorer from './pages/PendaftaranKelasExplorer';
 import { varianLanding } from './data/varianLanding';
 import PendaftaranKelasLanjutan from './pages/PendaftaranKelasLanjutan';
 import KebijakanPrivasi from './pages/KebijakanPrivasi';
@@ -42,6 +44,8 @@ function App() {
               path="/blog/les-ai-anak-jogja"
               element={<KelasBelajarAI varian={varianLanding.lesAiJogja} />}
             />
+            {/* Kelas Explorer: kelas 4 pertemuan, harga promo dengan hitung mundur. */}
+            <Route path="/blog/kelas-explorer" element={<KelasExplorer />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/research" element={<Research />} />
@@ -62,6 +66,10 @@ function App() {
             />
             {/* Satu formulir per kelas, kelasnya sudah terpilih dan pertanyaan
                 alumni dilewati karena pendaftarnya dari iklan, bukan alumni. */}
+            <Route
+              path="/pendaftaran/kelas-explorer"
+              element={<PendaftaranKelasExplorer />}
+            />
             <Route
               path="/pendaftaran/kelas-creator"
               element={<PendaftaranKelasLanjutan kelasAwal="creator" tanpaAlumni />}
