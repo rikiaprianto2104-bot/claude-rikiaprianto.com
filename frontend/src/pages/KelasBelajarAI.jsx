@@ -24,16 +24,12 @@ import {
   rupiah,
 } from '../data/kelasLanjutan';
 import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
+import { varianLanding } from '../data/varianLanding';
 import KartuHargaKelas from '../components/KartuHargaKelas';
 import KodeReferral from '../components/KodeReferral';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
 import { ambilKursi } from '../lib/kursiApi';
-
-const PIXEL_CONTENT = {
-  content_name: 'Kelas Artificial Intelligence Anak Yogyakarta',
-  content_category: 'Kelas Anak Berbayar',
-};
 
 const ikonKelas = { creator: Palette, champions: Trophy, private: UserCheck };
 // Tombol umum (hero, cara daftar, CTA penutup) belum tahu kelas mana yang
@@ -61,7 +57,16 @@ const Bagian = ({ id, children, className = '' }) => (
   </section>
 );
 
-const KelasBelajarAI = () => {
+// `varian` hanya mengganti judul, kalimat penawaran, dan metadata SEO. Seluruh
+// isi halaman selebihnya sama, lihat data/varianLanding.js.
+const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
+  const pixelContent = useMemo(
+    () => ({
+      content_name: varian.namaKonten,
+      content_category: 'Kelas Anak Berbayar',
+    }),
+    [varian]
+  );
   const [ctaVisible, setCtaVisible] = useState(true);
   // Kode referral bisa datang dari dua arah: diketik sendiri di kolomnya, atau
   // sudah menempel di tautan yang disebar sales (?ref=Future-SPx). Yang kedua
@@ -99,7 +104,7 @@ const KelasBelajarAI = () => {
 
       viewContentSent.current = true;
       trackPixelOnce('viewcontent_kelas_lanjutan', 'ViewContent', {
-        ...PIXEL_CONTENT,
+        ...pixelContent,
         content_type: 'landing_page',
       });
     };
@@ -110,15 +115,18 @@ const KelasBelajarAI = () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, []);
+  }, [pixelContent]);
 
-  const handleDaftar = useCallback((posisi) => {
-    trackPixel('InitiateCheckout', {
-      ...PIXEL_CONTENT,
-      content_type: 'buka_formulir',
-      button_position: posisi,
-    });
-  }, []);
+  const handleDaftar = useCallback(
+    (posisi) => {
+      trackPixel('InitiateCheckout', {
+        ...pixelContent,
+        content_type: 'buka_formulir',
+        button_position: posisi,
+      });
+    },
+    [pixelContent]
+  );
 
   // Course + FAQPage + Breadcrumb: tiga schema yang paling berguna untuk
   // halaman kelas berbayar di hasil pencarian.
@@ -127,10 +135,10 @@ const KelasBelajarAI = () => {
       {
         '@context': 'https://schema.org',
         '@type': 'Course',
-        name: 'Kelas Artificial Intelligence untuk Anak di Yogyakarta',
-        description: kelas.seo.deskripsi,
-        url: kelas.seo.canonical,
-        image: `https://rikiaprianto.com${kelas.seo.ogImage}`,
+        name: varian.namaKursus,
+        description: varian.seo.deskripsi,
+        url: varian.seo.canonical,
+        image: `https://rikiaprianto.com${varian.seo.ogImage}`,
         inLanguage: 'id-ID',
         educationalLevel: 'Anak usia 6-15 tahun',
         teaches: 'Artificial Intelligence, pembuatan game, karya digital',
@@ -181,19 +189,19 @@ const KelasBelajarAI = () => {
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Beranda', item: 'https://rikiaprianto.com/' },
           { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://rikiaprianto.com/blog' },
-          { '@type': 'ListItem', position: 3, name: 'Kelas Artificial Intelligence Anak Yogyakarta', item: kelas.seo.canonical },
+          { '@type': 'ListItem', position: 3, name: varian.namaBreadcrumb, item: varian.seo.canonical },
         ],
       },
     ],
-    []
+    [varian]
   );
 
   useDocumentMeta({
-    title: kelas.seo.judul,
-    description: kelas.seo.deskripsi,
-    keywords: kelas.seo.kataKunci,
-    image: `https://rikiaprianto.com${kelas.seo.ogImage}`,
-    url: kelas.seo.canonical,
+    title: varian.seo.judul,
+    description: varian.seo.deskripsi,
+    keywords: varian.seo.kataKunci,
+    image: `https://rikiaprianto.com${varian.seo.ogImage}`,
+    url: varian.seo.canonical,
     type: 'article',
     jsonLd,
   });
@@ -208,12 +216,12 @@ const KelasBelajarAI = () => {
       tag.setAttribute('rel', 'canonical');
       document.head.appendChild(tag);
     }
-    tag.setAttribute('href', kelas.seo.canonical);
+    tag.setAttribute('href', varian.seo.canonical);
     return () => {
       if (dibuatDiSini) tag.remove();
       else tag.setAttribute('href', nilaiAwal);
     };
-  }, []);
+  }, [varian]);
 
   const semuaPenuh =
     !!kursi && kelas.kelas.every((k) => kursi[k.id] && kursi[k.id].sisa <= 0);
@@ -255,13 +263,10 @@ const KelasBelajarAI = () => {
               </div>
 
               <h1 className="mt-5 text-4xl font-extrabold leading-[1.12] tracking-tight text-slate-900 dark:text-white md:text-5xl">
-                Kelas Artificial Intelligence untuk Anak di Yogyakarta
+                {varian.judul}
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-                Anak usia 6–15 tahun belajar memakai AI untuk membuat game,
-                gambar, video, dan website sendiri — lalu mengubahnya jadi
-                portofolio dan prestasi. Tiga pilihan kelas: Creator, Champions,
-                dan Private.
+                {varian.pembuka}
               </p>
 
               <ul className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -388,7 +393,7 @@ const KelasBelajarAI = () => {
               onDaftar={(id) => handleDaftar(`kartu_${id}`)}
               onPenuh={(id) =>
                 trackPixel('Contact', {
-                  ...PIXEL_CONTENT,
+                  ...pixelContent,
                   content_type: 'daftar_tunggu',
                   button_position: `penuh_${id}`,
                 })
@@ -592,12 +597,10 @@ const KelasBelajarAI = () => {
           <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10" />
           <div className="relative">
             <h2 className="text-3xl font-extrabold leading-tight md:text-4xl">
-              Amankan Kursi Anak Sekarang
+              {varian.ctaJudul}
             </h2>
             <p className="mx-auto mt-4 max-w-xl leading-relaxed text-white/90">
-              Creator 8 kursi, Champions 6 kursi, Private hanya 3 kursi. Isi
-              formulir pendaftaran, pilih kelas dan cara bayar, lalu kursinya
-              langsung kami kunci.
+              {varian.ctaIsi}
             </p>
             <div className="mt-8 flex justify-center">
               <a
@@ -622,7 +625,7 @@ const KelasBelajarAI = () => {
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
-              Kelas AI Anak Yogyakarta
+              {varian.namaMobile}
             </p>
             <p className="truncate text-xs text-slate-500 dark:text-slate-400">
               Mulai {rupiah(hargaPerAnak('creator', { referral: !!referralBerlaku }))}

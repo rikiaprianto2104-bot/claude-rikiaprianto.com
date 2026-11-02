@@ -8,6 +8,7 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import KelasFutureMakers from './pages/KelasFutureMakers';
 import KelasBelajarAI from './pages/KelasBelajarAI';
+import { varianLanding } from './data/varianLanding';
 import PendaftaranKelasLanjutan from './pages/PendaftaranKelasLanjutan';
 import KebijakanPrivasi from './pages/KebijakanPrivasi';
 import BuatInvoice from './pages/BuatInvoice';
@@ -34,6 +35,12 @@ function App() {
             <Route
               path="/blog/kelas-belajar-ai-anak"
               element={<KelasBelajarAI />}
+            />
+            {/* Landing kembar untuk kata kunci lain: komponen sama, hanya judul
+                dan kalimat penawarannya yang berbeda (data/varianLanding.js). */}
+            <Route
+              path="/blog/les-ai-anak-jogja"
+              element={<KelasBelajarAI varian={varianLanding.lesAiJogja} />}
             />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/profile" element={<Profile />} />
