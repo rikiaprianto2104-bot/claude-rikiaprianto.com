@@ -106,27 +106,31 @@ else
 fi
 
 REMOTE="$SFTP_USER@$SFTP_HOST"
+# Bila login memakai pengguna non-root (root SSH dimatikan di server), perintah
+# yang menyentuh docroot dijalankan lewat sudo.
+RSUDO=""
+[[ "${SFTP_SUDO:-0}" == "1" ]] && RSUDO="sudo "
 
 # ---------------------------------------------------------------------------
 # 3. Unggah: stream tar dari build/ dan ekstrak di server
 # ---------------------------------------------------------------------------
 echo "==> [2/3] Cek koneksi ke $REMOTE:$SFTP_PORT…"
-"${SSH[@]}" "$REMOTE" "echo connected as \$(whoami) && test -d '$SFTP_REMOTE_PATH' || mkdir -p '$SFTP_REMOTE_PATH'"
+"${SSH[@]}" "$REMOTE" "echo connected as \$(whoami) && (test -d '$SFTP_REMOTE_PATH' || ${RSUDO}mkdir -p '$SFTP_REMOTE_PATH')"
 
 if [[ "$DEPLOY_CLEAN" == "1" ]]; then
   echo "    DEPLOY_CLEAN=1 — mengosongkan $SFTP_REMOTE_PATH lebih dulu"
-  "${SSH[@]}" "$REMOTE" "find '$SFTP_REMOTE_PATH' -mindepth 1 -maxdepth 1 -exec rm -rf {} +"
+  "${SSH[@]}" "$REMOTE" "${RSUDO}find '$SFTP_REMOTE_PATH' -mindepth 1 -maxdepth 1 -exec rm -rf {} +"
 fi
 
 echo "==> [3/3] Mengunggah $BUILD_DIR  ->  $REMOTE:$SFTP_REMOTE_PATH"
 tar -C "$BUILD_DIR" -czf - . \
-  | "${SSH[@]}" "$REMOTE" "mkdir -p '$SFTP_REMOTE_PATH' && tar -C '$SFTP_REMOTE_PATH' -xzf - && echo '    ekstrak selesai'"
+  | "${SSH[@]}" "$REMOTE" "${RSUDO}mkdir -p '$SFTP_REMOTE_PATH' && ${RSUDO}tar -C '$SFTP_REMOTE_PATH' -xzf - && echo '    ekstrak selesai'"
 
 # tar dari Windows membawa nomor pemilik file yang asing di server. Rapikan
 # hanya entri milik build (folder lain di docroot, mis. fmvd-media, tidak disentuh).
 if [[ -n "${SFTP_REMOTE_OWNER:-}" ]]; then
   ITEMS="$(cd "$BUILD_DIR" && ls -A | tr '\n' ' ')"
-  "${SSH[@]}" "$REMOTE" "cd '$SFTP_REMOTE_PATH' && chown '$SFTP_REMOTE_OWNER' . && chown -R '$SFTP_REMOTE_OWNER' $ITEMS && echo '    pemilik file dirapikan ($SFTP_REMOTE_OWNER)'"
+  "${SSH[@]}" "$REMOTE" "cd '$SFTP_REMOTE_PATH' && ${RSUDO}chown '$SFTP_REMOTE_OWNER' . && ${RSUDO}chown -R '$SFTP_REMOTE_OWNER' $ITEMS && echo '    pemilik file dirapikan ($SFTP_REMOTE_OWNER)'"
 fi
 
 echo

@@ -10,6 +10,9 @@ import KelasFutureMakers from './pages/KelasFutureMakers';
 import KelasBelajarAI from './pages/KelasBelajarAI';
 import KelasExplorer from './pages/KelasExplorer';
 import PendaftaranKelasExplorer from './pages/PendaftaranKelasExplorer';
+import BuatInvoiceExplorer from './pages/BuatInvoiceExplorer';
+import InvoiceExplorer from './pages/InvoiceExplorer';
+import CekPendaftarExplorer from './pages/CekPendaftarExplorer';
 import { varianLanding } from './data/varianLanding';
 import PendaftaranKelasLanjutan from './pages/PendaftaranKelasLanjutan';
 import KebijakanPrivasi from './pages/KebijakanPrivasi';
@@ -58,6 +61,11 @@ function App() {
             <Route path="/buat-invoice" element={<BuatInvoice />} />
             <Route path="/invoice" element={<Invoice />} />
             <Route path="/verifikasi" element={<VerifikasiPeserta />} />
+            {/* Kelas Explorer: invoice berbasis database, tautan pendek, dan
+                halaman tujuan QR. Terpisah dari invoice kelas lain di atas. */}
+            <Route path="/buat-invoice-explorer" element={<BuatInvoiceExplorer />} />
+            <Route path="/invoice/:kode" element={<InvoiceExplorer />} />
+            <Route path="/cek/:kode" element={<CekPendaftarExplorer />} />
             {/* Tautan tersembunyi: tidak ditautkan dari menu mana pun dan
                 halamannya memasang noindex. Dibagikan manual lewat WhatsApp. */}
             <Route

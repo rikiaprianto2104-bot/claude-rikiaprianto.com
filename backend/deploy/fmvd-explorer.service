@@ -1,0 +1,25 @@
+[Unit]
+Description=API pendaftar Kelas Explorer (Future Makers)
+After=network.target
+
+[Service]
+Type=simple
+User=fmvd-explorer
+Group=fmvd-explorer
+WorkingDirectory=/opt/fmvd-explorer
+EnvironmentFile=/etc/fmvd-explorer.env
+ExecStart=/usr/bin/python3 /opt/fmvd-explorer/explorer_api.py
+Restart=on-failure
+# Berkas database (data pendaftar) hanya terbaca pemiliknya.
+UMask=0077
+RestartSec=3
+
+# Pengerasan: layanan ini hanya perlu menulis ke folder databasenya sendiri.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/fmvd-explorer
+
+[Install]
+WantedBy=multi-user.target

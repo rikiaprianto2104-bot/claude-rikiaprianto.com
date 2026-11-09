@@ -123,3 +123,6 @@ Pixi/meshy/
 
 # Aset mentah Kelas AI Jogja (video, gambar, GLB besar)
 tools/kelasaijogja/aset-mentah/
+
+# Login admin invoice Explorer (dibuat saat pemasangan API, jangan di-commit)
+.login-admin-explorer.txt
