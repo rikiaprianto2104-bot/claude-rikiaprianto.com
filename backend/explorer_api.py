@@ -7,14 +7,20 @@ hanya melayani Kelas Explorer, tidak ada hubungannya dengan kelas lain.
 
 Titik akhir (semua di bawah /api/explorer):
   GET  /health                     cek hidup (publik)
+  POST /admin/masuk                login admin: {pengguna, sandi} -> cookie sesi
+  POST /admin/keluar               hapus cookie sesi
   GET  /admin/sesi                 cek login + jumlah kursi terisi (admin)
   POST /admin/pendaftar            simpan pendaftar baru (admin)
   GET  /admin/pendaftar            daftar pendaftar, terbaru dulu (admin)
   GET  /pendaftar/<kode>           data invoice/verifikasi (publik, kode rahasia)
 
-"Admin" = HTTP Basic. Kata sandinya TIDAK ada di kode: hanya hash PBKDF2 di
-berkas lingkungan layanan (FMVD_ADMIN_USER dan FMVD_ADMIN_HASH). Hash dibuat
-dengan `python buat_sandi_admin.py`.
+"Admin" = cookie sesi yang diterbitkan POST /admin/masuk (HttpOnly, SameSite=
+Strict, kedaluwarsa 12 jam, ditandatangani HMAC). Jawaban 401 sengaja TANPA
+header WWW-Authenticate supaya peramban tidak memunculkan kotak login bawaan;
+formulir login ada di halaman. HTTP Basic tetap diterima untuk curl/skrip.
+Kata sandinya TIDAK ada di kode: hanya hash PBKDF2 di berkas lingkungan layanan
+(FMVD_ADMIN_USER dan FMVD_ADMIN_HASH). Hash dibuat dengan
+`python buat_sandi_admin.py`. Mengganti sandi otomatis mematikan semua sesi.
 
 Pendaftar baru dianggap "terbukti masuk database" hanya setelah ditulis, di-
 commit, lalu dibaca ulang dari database; yang dikembalikan ke pemanggil adalah
@@ -106,6 +112,39 @@ def cocok_hash(sandi, tersimpan):
         harapan = base64.b64decode(hash_b64)
         h = hashlib.pbkdf2_hmac("sha256", sandi.encode("utf-8"), garam, int(iterasi))
         return hmac.compare_digest(h, harapan)
+    except Exception:
+        return False
+
+
+# --------------------------------------------------------------------------
+# Sesi login (cookie bertanda tangan, tanpa penyimpanan di server)
+# --------------------------------------------------------------------------
+NAMA_COOKIE = "fmvd_sesi"
+DURASI_SESI = 12 * 3600
+
+
+def rahasia_sesi(admin_hash):
+    # Diturunkan dari hash sandi: ganti sandi = semua sesi lama otomatis tidak sah.
+    return hashlib.sha256(("sesi-v1:" + admin_hash).encode("utf-8")).digest()
+
+
+def buat_token_sesi(rahasia, pengguna, kedaluwarsa):
+    isi = f"{pengguna}|{int(kedaluwarsa)}".encode("utf-8")
+    tanda = hmac.new(rahasia, isi, hashlib.sha256).hexdigest()
+    return base64.urlsafe_b64encode(isi).decode("ascii").rstrip("=") + "." + tanda
+
+
+def token_sesi_sah(rahasia, token, pengguna_benar, sekarang=None):
+    try:
+        b64, _, tanda = token.partition(".")
+        isi = base64.urlsafe_b64decode(b64 + "=" * (-len(b64) % 4))
+        harapan = hmac.new(rahasia, isi, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(tanda, harapan):
+            return False
+        pengguna, _, kedaluwarsa = isi.decode("utf-8").rpartition("|")
+        if not hmac.compare_digest(pengguna.encode("utf-8"), pengguna_benar.encode("utf-8")):
+            return False
+        return int(kedaluwarsa) > (sekarang if sekarang is not None else time.time())
     except Exception:
         return False
 
@@ -368,6 +407,7 @@ AWAL = "/api/explorer"
 
 def buat_penangan(db, admin_user, admin_hash):
     gagal_login = PembatasLaju(maks=8, jendela=600)
+    rahasia = rahasia_sesi(admin_hash or "")
     baca_publik = PembatasLaju(maks=60, jendela=60)
 
     class Penangan(BaseHTTPRequestHandler):
@@ -404,8 +444,32 @@ def buat_penangan(db, admin_user, admin_hash):
         def _galat(self, status, pesan, kode="galat", tambahan=None):
             self._kirim(status, {"ok": False, "kode": kode, "pesan": pesan}, tambahan)
 
+        def _cookie(self, nama):
+            for bagian in self.headers.get("Cookie", "").split(";"):
+                k, _, v = bagian.strip().partition("=")
+                if k == nama:
+                    return v
+            return ""
+
+        def _asal_sah(self):
+            """Tolak POST lintas-situs: bila ada header Origin, hostnya harus host kita."""
+            asal = self.headers.get("Origin")
+            if not asal:
+                return True
+            return urlsplit(asal).netloc == self.headers.get("Host", "")
+
+        def _cookie_sesi(self, token, umur):
+            aman = "; Secure" if self.headers.get("X-Forwarded-Proto") == "https" else ""
+            return {
+                "Set-Cookie": (
+                    f"{NAMA_COOKIE}={token}; Path={AWAL}; Max-Age={umur}; "
+                    f"HttpOnly; SameSite=Strict{aman}"
+                )
+            }
+
         def _admin(self):
-            """True bila Basic auth benar. Bila tidak, jawaban 401/429 sudah terkirim."""
+            """True bila sesi/Basic sah. Bila tidak, jawaban 401/429 sudah terkirim (tanpa
+            WWW-Authenticate, supaya peramban tidak memunculkan kotak login bawaan)."""
             ip = self._ip()
             if gagal_login.penuh(ip):
                 self._galat(429, "Terlalu banyak percobaan login. Coba lagi nanti.", "terlalu_sering")
@@ -413,6 +477,9 @@ def buat_penangan(db, admin_user, admin_hash):
             if not admin_user or not admin_hash:
                 self._galat(503, "Login admin belum disetel di server.", "belum_disetel")
                 return False
+            token = self._cookie(NAMA_COOKIE)
+            if token and token_sesi_sah(rahasia, token, admin_user):
+                return True
             kepala = self.headers.get("Authorization", "")
             if kepala.startswith("Basic "):
                 try:
@@ -421,20 +488,36 @@ def buat_penangan(db, admin_user, admin_hash):
                     )
                 except Exception:
                     pengguna, sandi = "", ""
-                benar_user = hmac.compare_digest(
-                    pengguna.encode("utf-8"), admin_user.encode("utf-8")
-                )
-                # cocok_hash selalu dihitung supaya waktu jawab tidak membocorkan nama pengguna.
-                benar_sandi = cocok_hash(sandi, admin_hash)
-                if benar_user and benar_sandi:
+                if self._cocok_login(pengguna, sandi):
                     gagal_login.reset(ip)
                     return True
                 gagal_login.catat(ip)
-            self._galat(
-                401, "Perlu login admin.", "perlu_login",
-                {"WWW-Authenticate": 'Basic realm="Admin Kelas Explorer", charset="UTF-8"'},
-            )
+            self._galat(401, "Perlu login admin.", "perlu_login")
             return False
+
+        def _cocok_login(self, pengguna, sandi):
+            benar_user = hmac.compare_digest(
+                str(pengguna).encode("utf-8"), admin_user.encode("utf-8")
+            )
+            # cocok_hash selalu dihitung supaya waktu jawab tidak membocorkan nama pengguna.
+            benar_sandi = cocok_hash(str(sandi), admin_hash)
+            return benar_user and benar_sandi
+
+        def _masuk(self):
+            ip = self._ip()
+            if gagal_login.penuh(ip):
+                return self._galat(429, "Terlalu banyak percobaan login. Coba lagi nanti.", "terlalu_sering")
+            if not admin_user or not admin_hash:
+                return self._galat(503, "Login admin belum disetel di server.", "belum_disetel")
+            body = self._baca_json()
+            if not isinstance(body, dict) or not self._cocok_login(
+                body.get("pengguna", ""), body.get("sandi", "")
+            ):
+                gagal_login.catat(ip)
+                return self._galat(401, "Nama pengguna atau kata sandi salah.", "login_salah")
+            gagal_login.reset(ip)
+            token = buat_token_sesi(rahasia, admin_user, time.time() + DURASI_SESI)
+            return self._kirim(200, {"ok": True}, self._cookie_sesi(token, DURASI_SESI))
 
         def _baca_json(self):
             try:
@@ -487,8 +570,19 @@ def buat_penangan(db, admin_user, admin_hash):
 
         def do_POST(self):
             try:
-                if self._rute() != f"{AWAL}/admin/pendaftar":
+                rute = self._rute()
+                if rute not in (
+                    f"{AWAL}/admin/pendaftar",
+                    f"{AWAL}/admin/masuk",
+                    f"{AWAL}/admin/keluar",
+                ):
                     return self._galat(404, "Tidak ditemukan.", "tidak_ada")
+                if not self._asal_sah():
+                    return self._galat(403, "Permintaan ditolak (asal tidak cocok).", "asal_salah")
+                if rute == f"{AWAL}/admin/masuk":
+                    return self._masuk()
+                if rute == f"{AWAL}/admin/keluar":
+                    return self._kirim(200, {"ok": True}, self._cookie_sesi("", 0))
                 if not self._admin():
                     return
                 body = self._baca_json()

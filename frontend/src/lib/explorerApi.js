@@ -4,9 +4,8 @@
  * Alamatnya relatif (/api/explorer), jadi di server dilayani nginx dan saat
  * pengembangan diteruskan ke localhost:8787 lewat "proxy" di package.json.
  *
- * Login admin memakai HTTP Basic bawaan peramban: saat jawaban 401 datang,
- * peramban sendiri memunculkan kotak login dan mengingatnya selama sesi.
- * Tidak ada kunci atau kata sandi yang ditulis di sini atau di formulir.
+ * Login admin lewat formulir di halaman: server menerbitkan cookie sesi
+ * HttpOnly, jadi kata sandi tidak disimpan di peramban maupun di kode situs.
  */
 
 const AWAL = '/api/explorer';
@@ -39,6 +38,13 @@ const panggil = async (jalur, opsi = {}) => {
     return { ok: false, status: 0, kode: 'jaringan', pesan: 'Tidak bisa menghubungi server. Periksa koneksi internet.' };
   }
 };
+
+/** Login admin: server membalas dengan cookie sesi (HttpOnly), bukan kotak login peramban. */
+export const masuk = (pengguna, sandi) =>
+  panggil('/admin/masuk', { method: 'POST', body: JSON.stringify({ pengguna, sandi }) });
+
+/** Keluar: cookie sesi dihapus. */
+export const keluar = () => panggil('/admin/keluar', { method: 'POST', body: '{}' });
 
 /** Cek login admin + jumlah kursi terisi. */
 export const cekSesi = () => panggil('/admin/sesi');

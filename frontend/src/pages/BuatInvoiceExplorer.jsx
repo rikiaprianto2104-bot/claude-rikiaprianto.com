@@ -11,11 +11,16 @@ import {
   Plus,
   RefreshCw,
   BadgeCheck,
+  Eye,
+  EyeOff,
+  LogOut,
 } from 'lucide-react';
 import { kelasExplorer as kelas } from '../data/kelasExplorer';
 import { rupiah, tanggalPanjang } from '../lib/invoice';
 import {
   cekSesi,
+  masuk,
+  keluar,
   simpanPendaftar,
   daftarPendaftar,
   tautanInvoice,
@@ -55,6 +60,7 @@ const kosong = () => ({ namaAnak: '', usia: '', namaOrtu: '', wa: '', catatan: '
 const BuatInvoiceExplorer = () => {
   const promo = usePromoExplorer();
   const [sesi, setSesi] = useState({ status: 'memeriksa', pesan: '', terisi: 0 });
+  const [login, setLogin] = useState({ pengguna: '', sandi: '', tampil: false, status: 'diam', pesan: '' });
   const [isi, setIsi] = useState(kosong);
   const [tanggal, setTanggal] = useState(hariIni);
   const [harga, setHarga] = useState(() => String(promo.harga));
@@ -107,7 +113,8 @@ const BuatInvoiceExplorer = () => {
       setSesi({ status: 'siap', pesan: '', terisi: r.terisi });
       muatDaftar();
     } else if (r.status === 401 || r.status === 429) {
-      setSesi({ status: 'login', pesan: r.pesan, terisi: 0 });
+      // 401 saat halaman baru dibuka hanya berarti "belum login", bukan kesalahan.
+      setSesi({ status: 'login', pesan: r.status === 429 ? r.pesan : '', terisi: 0 });
     } else {
       setSesi({ status: 'galat', pesan: r.pesan, terisi: 0 });
     }
@@ -116,6 +123,26 @@ const BuatInvoiceExplorer = () => {
   useEffect(() => {
     periksaSesi();
   }, [periksaSesi]);
+
+  const kirimLogin = async (e) => {
+    e.preventDefault();
+    if (login.status === 'kirim') return;
+    setLogin((l) => ({ ...l, status: 'kirim', pesan: '' }));
+    const r = await masuk(login.pengguna.trim(), login.sandi);
+    if (r.ok) {
+      setLogin({ pengguna: login.pengguna, sandi: '', tampil: false, status: 'diam', pesan: '' });
+      periksaSesi();
+    } else {
+      setLogin((l) => ({ ...l, sandi: '', status: 'gagal', pesan: r.pesan || 'Gagal masuk.' }));
+    }
+  };
+
+  const keluarAkun = async () => {
+    await keluar();
+    setHasil(null);
+    setDaftar([]);
+    setSesi({ status: 'login', pesan: '', terisi: 0 });
+  };
 
   const hargaAngka = Number(harga);
   const siap =
@@ -226,16 +253,85 @@ const BuatInvoiceExplorer = () => {
         </p>
       )}
 
-      {(sesi.status === 'login' || sesi.status === 'galat') && (
+      {sesi.status === 'login' && (
+        <form
+          onSubmit={kirimLogin}
+          className="mx-auto mt-10 max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-white/[0.03]"
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef4ff] text-[#2563eb] dark:bg-[#2563eb]/10">
+            <Lock size={22} />
+          </span>
+          <h2 className="mt-4 text-xl font-extrabold text-slate-900 dark:text-white">Masuk sebagai admin</h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Halaman ini hanya untuk pengelola Future Makers.
+          </p>
+
+          <div className="mt-6">
+            <Label>Nama pengguna</Label>
+            <input
+              className={kelasInput}
+              name="username"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck="false"
+              value={login.pengguna}
+              onChange={(e) => setLogin({ ...login, pengguna: e.target.value })}
+              autoFocus
+            />
+          </div>
+          <div className="mt-4">
+            <Label>Kata sandi</Label>
+            <div className="relative">
+              <input
+                className={`${kelasInput} pr-12`}
+                name="password"
+                type={login.tampil ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={login.sandi}
+                onChange={(e) => setLogin({ ...login, sandi: e.target.value })}
+              />
+              <button
+                type="button"
+                onClick={() => setLogin({ ...login, tampil: !login.tampil })}
+                aria-label={login.tampil ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                className="absolute right-3 top-1/2 mt-1 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 hover:text-[#2563eb]"
+              >
+                {login.tampil ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          {(login.pesan || sesi.pesan) && (
+            <p
+              role="alert"
+              className="mt-4 inline-flex items-start gap-2 text-sm text-rose-700 dark:text-rose-400"
+            >
+              <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+              {login.pesan || sesi.pesan}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={login.status === 'kirim' || !login.pengguna.trim() || !login.sandi}
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] px-6 py-3.5 font-bold text-white transition-colors hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {login.status === 'kirim' ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Lock size={18} />
+            )}
+            {login.status === 'kirim' ? 'Memeriksa…' : 'Masuk'}
+          </button>
+        </form>
+      )}
+
+      {sesi.status === 'galat' && (
         <div className="mt-10 rounded-2xl border border-amber-300 bg-amber-50 p-6 text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
           <p className="flex items-center gap-2 font-bold">
-            {sesi.status === 'login' ? <Lock size={18} /> : <AlertTriangle size={18} />}
-            {sesi.status === 'login' ? 'Perlu login admin' : 'Layanan belum bisa dipakai'}
+            <AlertTriangle size={18} /> Layanan belum bisa dipakai
           </p>
-          <p className="mt-2 text-sm">
-            {sesi.pesan ||
-              'Masukkan nama pengguna dan kata sandi admin pada kotak login peramban, lalu coba lagi.'}
-          </p>
+          <p className="mt-2 text-sm">{sesi.pesan}</p>
           <button
             type="button"
             onClick={periksaSesi}
@@ -244,6 +340,16 @@ const BuatInvoiceExplorer = () => {
             <RefreshCw size={15} /> Coba lagi
           </button>
         </div>
+      )}
+
+      {sesi.status === 'siap' && (
+        <button
+          type="button"
+          onClick={keluarAkun}
+          className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-rose-600 dark:text-slate-400"
+        >
+          <LogOut size={14} /> Keluar
+        </button>
       )}
 
       {sesi.status === 'siap' && !hasil && (

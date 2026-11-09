@@ -49,8 +49,9 @@ def contoh(**ubah):
 class TesApi(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
+        self.hash = api.buat_hash(SANDI, 1000)
         self.server, self.db = api.buat_server(
-            os.path.join(self.tmp.name, "uji.db"), "127.0.0.1", 0, "admin", api.buat_hash(SANDI, 1000)
+            os.path.join(self.tmp.name, "uji.db"), "127.0.0.1", 0, "admin", self.hash
         )
         self.port = self.server.server_address[1]
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
@@ -68,7 +69,8 @@ class TesApi(unittest.TestCase):
     def test_tanpa_login_ditolak(self):
         s, b, h = minta(self.port, "POST", "/api/explorer/admin/pendaftar", contoh())
         self.assertEqual(s, 401)
-        self.assertIn("Basic", h.get("WWW-Authenticate", ""))
+        # Tanpa tantangan Basic, peramban tidak memunculkan kotak login bawaan.
+        self.assertNotIn("WWW-Authenticate", h)
         self.assertEqual(self.db.hitung(), 0)
 
     def test_sandi_salah_ditolak(self):
@@ -177,6 +179,97 @@ class TesApi(unittest.TestCase):
         self.assertEqual(minta(self.port, "GET", "/api/explorer/admin/pendaftar")[0], 401)
         s, b, _ = minta(self.port, "GET", "/api/explorer/admin/pendaftar", auth=self.admin)
         self.assertEqual((s, len(b["daftar"]), b["daftar"][0]["wa"]), (200, 1, "0812 3456 7890"))
+
+
+    # -- login lewat cookie sesi --
+    def masuk(self, pengguna="admin", sandi=SANDI, header=None):
+        return minta(self.port, "POST", "/api/explorer/admin/masuk", {"pengguna": pengguna, "sandi": sandi}, header=header)
+
+    def cookie_dari(self, h):
+        return h["Set-Cookie"].split(";")[0]
+
+    def test_masuk_benar_memberi_cookie_aman(self):
+        s, b, h = self.masuk()
+        self.assertEqual((s, b["ok"]), (200, True))
+        sc = h["Set-Cookie"]
+        self.assertTrue(sc.startswith("fmvd_sesi="))
+        for harus in ("HttpOnly", "SameSite=Strict", "Path=/api/explorer", "Max-Age=43200"):
+            self.assertIn(harus, sc)
+        self.assertNotIn("Secure", sc)
+
+    def test_cookie_secure_di_belakang_https(self):
+        _, _, h = self.masuk(header={"X-Forwarded-Proto": "https"})
+        self.assertIn("Secure", h["Set-Cookie"])
+
+    def test_cookie_membuka_akses_admin(self):
+        _, _, h = self.masuk()
+        c = {"Cookie": self.cookie_dari(h)}
+        s, b, _ = minta(self.port, "GET", "/api/explorer/admin/sesi", header=c)
+        self.assertEqual((s, b["kuota"]), (200, 10))
+        s, b, _ = minta(self.port, "POST", "/api/explorer/admin/pendaftar", contoh(), header=c)
+        self.assertEqual(s, 201)
+
+    def test_masuk_salah_tanpa_cookie(self):
+        for pengguna, sandi in [("admin", "salah"), ("bukan-admin", SANDI), ("", "")]:
+            with self.subTest(pengguna=pengguna):
+                s, b, h = self.masuk(pengguna, sandi)
+                self.assertEqual((s, b["kode"]), (401, "login_salah"))
+                self.assertNotIn("Set-Cookie", h)
+                self.assertNotIn("WWW-Authenticate", h)
+
+    def test_cookie_palsu_ditolak(self):
+        for nilai in ["fmvd_sesi=abc", "fmvd_sesi=", "fmvd_sesi=YWRtaW58OTk5OTk5OTk5OQ.0000", "lain=1"]:
+            with self.subTest(nilai=nilai):
+                s, _, _ = minta(self.port, "GET", "/api/explorer/admin/sesi", header={"Cookie": nilai})
+                self.assertEqual(s, 401)
+
+    def test_cookie_kedaluwarsa_atau_pengguna_lain_ditolak(self):
+        rahasia = api.rahasia_sesi(self.hash)
+        lama = api.buat_token_sesi(rahasia, "admin", 1000)
+        lain = api.buat_token_sesi(rahasia, "orang-lain", 9999999999)
+        asing = api.buat_token_sesi(api.rahasia_sesi("hash-lain"), "admin", 9999999999)
+        for token in (lama, lain, asing):
+            with self.subTest(token=token[:12]):
+                s, _, _ = minta(self.port, "GET", "/api/explorer/admin/sesi", header={"Cookie": f"fmvd_sesi={token}"})
+                self.assertEqual(s, 401)
+        sah = api.buat_token_sesi(rahasia, "admin", 9999999999)
+        self.assertEqual(minta(self.port, "GET", "/api/explorer/admin/sesi", header={"Cookie": f"fmvd_sesi={sah}"})[0], 200)
+
+    def test_keluar_menghapus_cookie(self):
+        s, b, h = minta(self.port, "POST", "/api/explorer/admin/keluar", {})
+        self.assertEqual(s, 200)
+        self.assertIn("Max-Age=0", h["Set-Cookie"])
+
+    def test_post_lintas_situs_ditolak(self):
+        s, b, _ = self.masuk(header={"Origin": "https://jahat.example"})
+        self.assertEqual((s, b["kode"]), (403, "asal_salah"))
+        _, _, h = self.masuk()
+        c = {"Cookie": self.cookie_dari(h), "Origin": "https://jahat.example"}
+        s, _, _ = minta(self.port, "POST", "/api/explorer/admin/pendaftar", contoh(), header=c)
+        self.assertEqual(s, 403)
+        self.assertEqual(self.db.hitung(), 0)
+
+    def test_origin_sama_diterima(self):
+        s, _, _ = self.masuk(header={"Origin": f"http://127.0.0.1:{self.port}"})
+        self.assertEqual(s, 200)
+
+    def test_login_salah_berulang_diblokir(self):
+        for _ in range(8):
+            self.masuk("admin", "salah")
+        s, b, _ = self.masuk()
+        self.assertEqual((s, b["kode"]), (429, "terlalu_sering"))
+
+    def test_mengganti_sandi_mematikan_sesi_lama(self):
+        _, _, h = self.masuk()
+        c = {"Cookie": self.cookie_dari(h)}
+        s2, _ = api.buat_server(os.path.join(self.tmp.name, "c.db"), "127.0.0.1", 0, "admin", api.buat_hash("sandi-baru", 1000))
+        threading.Thread(target=s2.serve_forever, daemon=True).start()
+        try:
+            s, _, _ = minta(s2.server_address[1], "GET", "/api/explorer/admin/sesi", header=c)
+            self.assertEqual(s, 401)
+        finally:
+            s2.shutdown()
+            s2.server_close()
 
     def test_hash_sandi(self):
         h = api.buat_hash("rahasia", 1000)
