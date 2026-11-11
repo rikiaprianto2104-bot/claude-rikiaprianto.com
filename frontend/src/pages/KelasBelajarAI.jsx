@@ -252,7 +252,7 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
 
   const fakta = [
     { icon: Users, label: 'Untuk anak', nilai: 'Usia 6–15 tahun' },
-    { icon: CalendarDays, label: 'Kelas mulai', nilai: 'Januari 2027' },
+    { icon: CalendarDays, label: 'Durasi', nilai: `1 semester · ${kelas.semester.rentang}` },
     { icon: MapPin, label: 'Lokasi', nilai: 'Offline Yogyakarta' },
     { icon: CreditCard, label: 'Pembayaran', nilai: 'Lunas atau cicilan 5x' },
   ];
@@ -292,7 +292,7 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
 
               <ul className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {[
-                  '12 pertemuan, kelas kecil maksimal 8 anak',
+                  `Satu semester penuh, ${kelas.semester.rentang} — 12 pertemuan`,
                   'Mentor mendampingi langsung setiap anak',
                   'Anak pulang membawa karya, bukan catatan',
                   'Bisa dicicil 5x tanpa bunga',
@@ -427,8 +427,13 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
             Tiga Pilihan Kelas AI untuk Anak
           </h2>
           <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
-            Biaya sudah mencakup seluruh pertemuan, modul, akun AI berbayar, dan
-            sertifikat. Tidak ada biaya tersembunyi.
+            Kelas ini untuk anak yang serius ingin jago memakai AI, bukan
+            sekadar mencoba. Biayanya dihitung{' '}
+            <strong className="font-semibold text-slate-900 dark:text-white">
+              per semester, {kelas.semester.rentang}
+            </strong>
+            , dan sudah mencakup seluruh pertemuan, modul, akun AI berbayar,
+            serta sertifikat. Tidak ada biaya tersembunyi.
           </p>
         </div>
 

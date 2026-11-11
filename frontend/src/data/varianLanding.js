@@ -37,7 +37,7 @@ const lesAiJogja = {
   seo: {
     judul: 'Les AI Anak Jogja: Buat Game & Karya Sendiri | Future Makers',
     deskripsi:
-      'Les AI anak di Jogja untuk usia 6–15 tahun. Anak membuat game, gambar, dan video dengan AI di kelas kecil maks 8 anak, 12 pertemuan, cicilan 5x. Mulai Januari 2027.',
+      'Les AI anak di Jogja untuk usia 6–15 tahun. Anak membuat game, gambar, dan video dengan AI di kelas kecil maks 8 anak. Satu semester penuh, Januari–Mei 2027, 12 pertemuan, cicilan 5x.',
     kataKunci: [
       'les AI anak Jogja',
       'kursus AI anak Jogja',

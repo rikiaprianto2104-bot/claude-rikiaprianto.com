@@ -49,9 +49,11 @@ Kode referral: ${referral}` : ''
   );
   const tautanTunggu = `https://wa.me/${kelasLanjutan.whatsapp.number}?text=${pesanPenuh}`;
 
+  // Diambil dari bidang masing-masing, bukan dari memotong `ringkas` dengan
+  // pemisah ' · '. Cara lama ikut rusak begitu teks ringkasnya diubah.
   const fitur = [
-    kelas.ringkas.split(' · ')[0],
-    kelas.ringkas.split(' · ')[1],
+    `${kelas.jumlahPertemuan} pertemuan dalam satu semester`,
+    `Belajar ${kelas.hari}${kelas.jam === 'menyesuaikan' ? '' : `, pukul ${kelas.jam}`}`,
     kursi
       ? `${kursi.terisi} dari ${kursi.kuota} kursi sudah terisi`
       : `Maksimal ${kelas.kursi} anak per kelas`,
@@ -107,8 +109,14 @@ Kode referral: ${referral}` : ''
             {harga.toLocaleString('id-ID')}
           </span>
         </p>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {kelas.id === 'private' ? 'untuk 8 pertemuan' : 'untuk 12 pertemuan'}
+        {/* Yang paling ingin diketahui orang tua sebelum angka: ini biaya
+            untuk berapa lama. Durasinya disebut lebih dulu, baru jumlah
+            pertemuannya. */}
+        <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+          {kelas.durasi}
+        </p>
+        <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+          {kelas.jumlahPertemuan} pertemuan · {kelas.hari}
         </p>
       </div>
 
@@ -196,7 +204,7 @@ Kode referral: ${referral}` : ''
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays size={16} />
             {jadwal
-              ? `Lihat jadwal ${totalPertemuan} pertemuan`
+              ? `Lihat tanggal ${totalPertemuan} pertemuan`
               : 'Lihat pengaturan jadwal'}
           </span>
           <ChevronDown
@@ -231,14 +239,17 @@ Kode referral: ${referral}` : ''
                   ))}
                 </ul>
                 <p className="mt-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                  {kelas.ringkas.split(' · ')[1]}, pukul 15.00 WIB. Ada jeda di
-                  Februari dan Maret menyesuaikan libur.
+                  Belajar {kelas.hari}, pukul {kelas.jam}, sepanjang semester{' '}
+                  {kelasLanjutan.semester.rentang}. Ada jeda di Februari dan
+                  Maret menyesuaikan libur sekolah.
                 </p>
               </>
             ) : (
               <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 Hari dan jam belajar ditentukan bersama orang tua setelah
-                pendaftaran, menyesuaikan jadwal anak. Total 8 pertemuan.
+                pendaftaran, menyesuaikan jadwal anak. Total{' '}
+                {kelas.jumlahPertemuan} pertemuan dalam satu semester{' '}
+                {kelasLanjutan.semester.rentang}.
               </p>
             )}
           </div>

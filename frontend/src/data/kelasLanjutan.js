@@ -67,6 +67,13 @@ export const kelasLanjutan = {
     teks: 'Manusia yang pakai AI akan menggantikan yang tidak.',
     sumber: 'Sam Altman, CEO OpenAI',
   },
+  // Durasi kelas dibaca orang tua sebagai "satu semester", bukan sekadar
+  // hitungan pertemuan. Dua label ini dipakai di kartu harga, formulir, dan
+  // FAQ supaya penyebutannya seragam di seluruh halaman.
+  semester: {
+    rentang: 'Januari – Mei 2027',
+    label: 'Per semester (Januari – Mei 2027)',
+  },
   jadwalBelajar: 'Kalender belajar Januari – Mei 2027',
   lokasi: 'Offline Yogyakarta',
   coach: {
@@ -134,11 +141,11 @@ export const kelasLanjutan = {
   kalender: {
     judul: 'Kalender Akademik Januari – Mei 2027',
     ringkas:
-      'Creator dan Champions sama-sama 12 pertemuan, dijalankan sepanjang Januari sampai Mei 2027 dengan jeda saat libur sekolah dan hari besar. Kelas Private 8 pertemuan dengan jadwal menyesuaikan permintaan.',
+      'Kelas berjalan satu semester penuh, Januari sampai Mei 2027. Creator dan Champions sama-sama 12 pertemuan dalam semester itu, dengan jeda saat libur sekolah dan hari besar. Kelas Private 8 pertemuan di rentang semester yang sama, jadwalnya menyesuaikan permintaan.',
     baris: [
-      { kelas: 'Kelas Creator', hari: 'Setiap Sabtu', jam: '15.00 WIB', jumlah: '12 pertemuan' },
-      { kelas: 'Kelas Champions', hari: 'Setiap Minggu', jam: '15.00 WIB', jumlah: '12 pertemuan' },
-      { kelas: 'Kelas Private', hari: 'Hari & jam by request', jam: 'Menyesuaikan', jumlah: '8 pertemuan' },
+      { kelas: 'Kelas Creator', hari: 'Setiap Sabtu', jam: '15.00 WIB', jumlah: '12 pertemuan / semester' },
+      { kelas: 'Kelas Champions', hari: 'Setiap Minggu', jam: '15.00 WIB', jumlah: '12 pertemuan / semester' },
+      { kelas: 'Kelas Private', hari: 'Hari & jam by request', jam: 'Menyesuaikan', jumlah: '8 pertemuan / semester' },
     ],
     catatan:
       'Tanggal lengkap tiap pertemuan dikirimkan lewat WhatsApp setelah pendaftaran dikonfirmasi.',
@@ -189,7 +196,7 @@ export const kelasLanjutan = {
     },
     {
       q: 'Berapa biaya kelasnya dan bisakah dicicil?',
-      a: 'Kelas Creator Rp 3.600.000 untuk 12 pertemuan, Kelas Champions Rp 6.000.000 untuk 12 pertemuan, dan Kelas Private Rp 5.250.000 untuk 8 pertemuan. Semuanya bisa dibayar lunas atau dicicil 5 kali tanpa bunga.',
+      a: 'Biayanya dihitung per semester, Januari sampai Mei 2027. Kelas Creator Rp 3.600.000 untuk 12 pertemuan satu semester, Kelas Champions Rp 6.000.000 untuk 12 pertemuan satu semester, dan Kelas Private Rp 5.250.000 untuk 8 pertemuan. Semuanya bisa dibayar lunas atau dicicil 5 kali tanpa bunga.',
     },
     {
       q: 'Apakah anak perlu membawa laptop sendiri?',
@@ -200,7 +207,7 @@ export const kelasLanjutan = {
     judul:
       'Kelas Artificial Intelligence Anak Yogyakarta | Future Makers',
     deskripsi:
-      'Kelas Artificial Intelligence untuk anak usia 6–15 tahun di Yogyakarta. Tiga pilihan: Creator, Champions, dan Private. 12 pertemuan, kelas kecil, bisa dicicil 5x. Daftar sekarang.',
+      'Kelas Artificial Intelligence untuk anak usia 6–15 tahun di Yogyakarta. Satu semester penuh, Januari–Mei 2027, 12 pertemuan. Tiga pilihan: Creator, Champions, dan Private. Kelas kecil, bisa dicicil 5x. Daftar sekarang.',
     kataKunci: [
       'kelas artificial intelligence Yogyakarta',
       'kelas AI untuk anak Yogyakarta',
@@ -242,7 +249,11 @@ export const kelasLanjutan = {
       slugForm: 'kelas-creator',
       hasilAkhir: 'Anak punya portofolio digital nyata atas namanya sendiri — bekal berharga untuk sekolah lanjutan dan masa depan.',
       nama: 'Kelas Creator',
-      ringkas: '12 pertemuan · setiap Sabtu · maks 8 anak',
+      ringkas: 'Per semester (Januari – Mei 2027) · 12 pertemuan · setiap Sabtu · maks 8 anak',
+      durasi: 'Per semester (Januari – Mei 2027)',
+      jumlahPertemuan: 12,
+      hari: 'setiap Sabtu',
+      jam: '15.00 WIB',
       deskripsi:
         'Memakai berbagai AI untuk membuat gambar, cerita, video, musik, dan mini project. Setiap karya dipublikasikan, sehingga anak punya portofolio digital atas namanya sendiri.',
       kursi: 8,
@@ -253,7 +264,11 @@ export const kelasLanjutan = {
       slugForm: 'kelas-champions',
       hasilAkhir: 'Anak mengoleksi prestasi, berpeluang meraih hadiah uang dari lomba, dan sertifikat prestasi yang memperkuat jalur masuk perguruan tinggi negeri.',
       nama: 'Kelas Champions',
-      ringkas: '12 pertemuan · setiap Minggu · maks 6 anak',
+      ringkas: 'Per semester (Januari – Mei 2027) · 12 pertemuan · setiap Minggu · maks 6 anak',
+      durasi: 'Per semester (Januari – Mei 2027)',
+      jumlahPertemuan: 12,
+      hari: 'setiap Minggu',
+      jam: '15.00 WIB',
       deskripsi:
         'Dilatih khusus untuk kompetisi AI dan teknologi tingkat nasional maupun internasional, dengan bimbingan lebih intensif dan proyek yang menantang.',
       kursi: 6,
@@ -264,7 +279,11 @@ export const kelasLanjutan = {
       slugForm: 'kelas-private',
       hasilAkhir: 'Perhatian penuh dari coach, progres lebih cepat, dan hari serta jam belajar bisa dipilih sendiri.',
       nama: 'Kelas Private',
-      ringkas: '8 pertemuan · 1-on-1 · jadwal by request · hanya 3 kursi',
+      ringkas: 'Per semester (Januari – Mei 2027) · 8 pertemuan · 1-on-1 · jadwal by request · hanya 3 kursi',
+      durasi: 'Per semester (Januari – Mei 2027)',
+      jumlahPertemuan: 8,
+      hari: 'hari & jam by request',
+      jam: 'menyesuaikan',
       deskripsi:
         'Metode belajar disesuaikan dengan minat dan bakat anak. Orang tua bebas menentukan arah belajar: karya, kompetisi, coding, atau tujuan lain.',
       kursi: 3,
