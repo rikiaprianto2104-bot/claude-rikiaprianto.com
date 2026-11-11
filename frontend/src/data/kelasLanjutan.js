@@ -223,12 +223,12 @@ export const kelasLanjutan = {
     negara: 'Indonesia',
     email: 'riki.markethink@rikiaprianto.com',
     catatanAlamat:
-      'Kelas diadakan offline di Yogyakarta, bergantian di dua tempat di bawah ini. Tempat untuk setiap pertemuan diinfokan lewat WhatsApp sebelum kelas berjalan.',
+      'Kelas diadakan offline di Yogyakarta, di salah satu dari dua tempat berikut. Lokasi akhirnya diinfokan lewat WhatsApp H-7 sebelum kelas dimulai.',
   },
   faq: [
     {
       q: 'Kelas Artificial Intelligence untuk anak ini diadakan di mana?',
-      a: 'Kelas diadakan secara offline di Yogyakarta. Alamat lengkapnya dikirimkan lewat WhatsApp setelah pendaftaran dikonfirmasi, supaya lokasi tetap terjaga untuk peserta terdaftar.',
+      a: 'Kelas diadakan secara offline di Yogyakarta, di salah satu dari dua tempat: Lumio Space (Kotabaru) atau Internet Learning Cafe Timoho (Umbulharjo). Lokasi akhirnya dipastikan dan diinfokan lewat WhatsApp H-7 sebelum kelas dimulai.',
     },
     {
       q: 'Berapa usia anak yang bisa ikut?',
