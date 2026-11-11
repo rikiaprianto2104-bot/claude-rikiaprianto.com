@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { Printer, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Printer, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import { kelasLanjutan as data } from '../data/kelasLanjutan';
 import { bacaToken, rupiah, tanggalPanjang, PENERBIT } from '../lib/invoice';
+import { ambilInvoice } from '../lib/lanjutanApi';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
 const LABEL_STATUS = {
@@ -22,10 +23,73 @@ const namaKelas = (id) => {
   return k ? k.nama : id;
 };
 
+/**
+ * Samakan bentuk invoice dari server dengan bentuk lama yang dulu dititipkan
+ * di dalam tautan, supaya tampilan lembarnya tidak perlu ditulis dua kali.
+ */
+const dariServer = (i) => ({
+  kode: i.kode,
+  no: i.nomor,
+  tgl: i.tanggal,
+  ortu: i.nama_ortu,
+  wa: i.wa,
+  jalur: i.jalur,
+  ref: i.referral,
+  metode: i.metode,
+  status: i.status,
+  total: i.total,
+  dibayar: i.dibayar,
+  catatan: i.catatan,
+  anak: (i.peserta || []).map((p) => ({ n: p.nama, k: p.kelas, h: p.harga })),
+});
+
+/**
+ * Lembar invoice Kelas Lanjutan.
+ *
+ * Dua cara membukanya, dan keduanya harus tetap jalan:
+ *
+ *  - /invoice/<kode>  isinya dibaca dari server (cara baru).
+ *  - /invoice?d=<token>  isinya ada di dalam tautannya sendiri (cara lama).
+ *    Tautan model ini sudah terlanjur dikirim ke orang tua sebelum datanya
+ *    pindah ke server, jadi tidak boleh mati.
+ */
 const Invoice = () => {
+  const { kode = '' } = useParams();
   const [params] = useSearchParams();
   const token = params.get('d');
-  const { ok, data: inv, alasan } = bacaToken(token);
+
+  const [server, setServer] = useState(
+    kode ? { status: 'muat', inv: null, pesan: '' } : { status: 'diam', inv: null, pesan: '' }
+  );
+
+  useEffect(() => {
+    if (!kode) return undefined;
+    let hidup = true;
+    setServer({ status: 'muat', inv: null, pesan: '' });
+    ambilInvoice(kode).then((r) => {
+      if (!hidup) return;
+      if (r.ok && r.invoice) {
+        setServer({ status: 'ok', inv: dariServer(r.invoice), pesan: '' });
+      } else {
+        setServer({
+          status: 'galat',
+          inv: null,
+          pesan:
+            r.status === 404
+              ? 'Kode invoice ini tidak terdaftar. Periksa lagi tautan yang dikirimkan.'
+              : r.pesan,
+        });
+      }
+    });
+    return () => {
+      hidup = false;
+    };
+  }, [kode]);
+
+  const lama = kode ? { ok: false, data: null, alasan: '' } : bacaToken(token);
+  const ok = kode ? server.status === 'ok' : lama.ok;
+  const inv = kode ? server.inv : lama.data;
+  const alasan = kode ? server.pesan : lama.alasan;
 
   useDocumentMeta({
     title: ok ? `Invoice ${inv.no} | Future Makers` : 'Invoice | Future Makers',
@@ -48,6 +112,15 @@ const Invoice = () => {
     };
   }, []);
 
+  if (kode && server.status === 'muat') {
+    return (
+      <p className="mx-auto max-w-xl px-6 py-24 text-center text-slate-500">
+        <Loader2 size={20} className="mx-auto animate-spin" />
+        <span className="mt-3 block">Memuat invoice…</span>
+      </p>
+    );
+  }
+
   if (!ok) {
     return (
       <div className="mx-auto max-w-xl px-6 py-24 text-center">
@@ -67,7 +140,11 @@ const Invoice = () => {
   const status = labelStatus(inv.status);
   const sisa = Math.max(0, (inv.total || 0) - (inv.dibayar || 0));
   const asal = typeof window !== 'undefined' ? window.location.origin : '';
-  const tautanVerifikasi = `${asal}/verifikasi?d=${token}`;
+  // QR mengarah ke halaman verifikasi: kode pendek untuk invoice yang tersimpan
+  // di server, tautan lama untuk invoice yang datanya ada di dalam tautan.
+  const tautanVerifikasi = kode
+    ? `${asal}/cek/${kode}`
+    : `${asal}/verifikasi?d=${token}`;
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 lg:px-8">
@@ -268,7 +345,7 @@ const Invoice = () => {
         <span>
           Status pendaftaran bisa diperiksa kapan saja lewat{' '}
           <Link
-            to={`/verifikasi?d=${token}`}
+            to={kode ? `/cek/${kode}` : `/verifikasi?d=${token}`}
             className="font-medium text-[#2563eb] hover:underline"
           >
             halaman verifikasi

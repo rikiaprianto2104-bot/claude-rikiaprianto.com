@@ -1,8 +1,16 @@
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { BadgeCheck, AlertCircle, CalendarDays, User, Wallet } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import {
+  BadgeCheck,
+  AlertCircle,
+  CalendarDays,
+  User,
+  Wallet,
+  Loader2,
+} from 'lucide-react';
 import { kelasLanjutan as data } from '../data/kelasLanjutan';
 import { bacaToken, rupiah, tanggalPanjang, PENERBIT } from '../lib/invoice';
+import { ambilInvoice } from '../lib/lanjutanApi';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
 const namaKelas = (id) => {
@@ -18,10 +26,61 @@ const ketStatus = (s) => {
   return `Cicilan ke-${ke} diterima`;
 };
 
+/** Samakan bentuk data server dengan bentuk token lama. */
+const dariServer = (i) => ({
+  no: i.nomor,
+  tgl: i.tanggal,
+  ortu: i.nama_ortu,
+  status: i.status,
+  total: i.total,
+  dibayar: i.dibayar,
+  anak: (i.peserta || []).map((p) => ({ n: p.nama, k: p.kelas, h: p.harga })),
+});
+
+/**
+ * Halaman tujuan QR di invoice.
+ *
+ *  - /cek/<kode>        status dibaca dari server (cara baru).
+ *  - /verifikasi?d=...  status dibaca dari tautannya sendiri (cara lama,
+ *                       tetap dilayani karena QR-nya sudah tercetak).
+ */
 const VerifikasiPeserta = () => {
+  const { kode = '' } = useParams();
   const [params] = useSearchParams();
   const token = params.get('d');
-  const { ok, data: inv, alasan } = bacaToken(token);
+
+  const [server, setServer] = useState(
+    kode ? { status: 'muat', inv: null, pesan: '' } : { status: 'diam', inv: null, pesan: '' }
+  );
+
+  useEffect(() => {
+    if (!kode) return undefined;
+    let hidup = true;
+    setServer({ status: 'muat', inv: null, pesan: '' });
+    ambilInvoice(kode).then((r) => {
+      if (!hidup) return;
+      if (r.ok && r.invoice) {
+        setServer({ status: 'ok', inv: dariServer(r.invoice), pesan: '' });
+      } else {
+        setServer({
+          status: 'galat',
+          inv: null,
+          pesan:
+            r.status === 404
+              ? 'Kode ini tidak terdaftar. Periksa lagi QR atau tautan yang dipindai.'
+              : r.pesan,
+        });
+      }
+    });
+    return () => {
+      hidup = false;
+    };
+  }, [kode]);
+
+  const lama = kode ? { ok: false, data: null, alasan: '' } : bacaToken(token);
+  const ok = kode ? server.status === 'ok' : lama.ok;
+  const inv = kode ? server.inv : lama.data;
+  const alasan = kode ? server.pesan : lama.alasan;
 
   useDocumentMeta({
     title: 'Verifikasi Pendaftaran | Future Makers',
@@ -43,6 +102,15 @@ const VerifikasiPeserta = () => {
       else meta.setAttribute('content', awal);
     };
   }, []);
+
+  if (kode && server.status === 'muat') {
+    return (
+      <p className="mx-auto max-w-xl px-6 py-24 text-center text-slate-500">
+        <Loader2 size={20} className="mx-auto animate-spin" />
+        <span className="mt-3 block">Memeriksa status pendaftaran…</span>
+      </p>
+    );
+  }
 
   if (!ok) {
     return (

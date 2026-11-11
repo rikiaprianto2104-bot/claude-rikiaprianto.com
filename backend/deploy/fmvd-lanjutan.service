@@ -1,0 +1,25 @@
+[Unit]
+Description=API invoice & kursi Kelas Lanjutan (Future Makers)
+After=network.target
+
+[Service]
+Type=simple
+User=fmvd-lanjutan
+Group=fmvd-lanjutan
+WorkingDirectory=/opt/fmvd-lanjutan
+EnvironmentFile=/etc/fmvd-lanjutan.env
+ExecStart=/usr/bin/python3 /opt/fmvd-lanjutan/lanjutan_api.py
+Restart=on-failure
+# Berkas database (nama anak, nomor orang tua) hanya terbaca pemiliknya.
+UMask=0077
+RestartSec=3
+
+# Pengerasan: layanan ini hanya perlu menulis ke folder databasenya sendiri.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/fmvd-lanjutan
+
+[Install]
+WantedBy=multi-user.target

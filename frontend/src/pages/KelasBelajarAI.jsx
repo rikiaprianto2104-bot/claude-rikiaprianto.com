@@ -31,7 +31,7 @@ import KartuVideoTestimoni from '../components/KartuVideoTestimoni';
 import KodeReferral from '../components/KodeReferral';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
-import { ambilKursi } from '../lib/kursiApi';
+import { ambilKursi } from '../lib/lanjutanApi';
 
 const ikonKelas = { creator: Palette, champions: Trophy, private: UserCheck };
 // Tombol umum (hero, cara daftar, CTA penutup) belum tahu kelas mana yang
