@@ -9,18 +9,22 @@
  *    kakak-adik sekaligus, memakai harga alumniSaudara.
  *    Jalur ini hanya dipakai formulir /pendaftaran-kelas-lanjutan.
  *
- * 2. PENDAFTAR UMUM (dari landing page & iklan) -> harga normal sebagai dasar,
- *    dengan dua kemungkinan potongan:
- *      - kode referral dari tim sales: potong Rp 600.000 per anak;
- *      - mendaftarkan 2 anak atau lebih: potong 20% per anak.
- *    Keduanya TIDAK ditumpuk. Yang dipakai adalah yang paling murah bagi
- *    pendaftar, supaya harga yang dilihat orang tua tidak pernah lebih mahal
- *    dari yang dijanjikan di salah satu jalur.
+ * 2. PENDAFTAR UMUM (dari landing page & iklan) -> harga mengikuti GELOMBANG
+ *    pendaftaran:
+ *      - Gelombang 1 dan 2 memakai harga promo (harga.gelombang);
+ *      - Gelombang 3 kembali ke harga normal (harga.normal).
+ *    Kode referral memotong Rp 150.000 lagi dari harga yang sedang berlaku.
  *
- * Kelas Private di luar semua potongan, baik untuk alumni maupun umum.
+ * Kelas Private di luar semua potongan, baik untuk alumni maupun umum:
+ * harganya tetap, kursinya cuma tiga.
  *
- * Harga alumni sudah lebih murah daripada harga normal dikurangi potongan
- * referral, jadi kode referral tidak menambah potongan lagi di jalur alumni.
+ * Harga alumni sudah lebih murah daripada harga gelombang, jadi kode referral
+ * tidak menambah potongan lagi di jalur alumni.
+ *
+ * CATATAN PERUBAHAN: potongan kakak-adik 20% untuk jalur umum dihapus karena
+ * bertabrakan dengan harga gelombang — 20% dari harga normal Champions
+ * (Rp 4.800.000) justru lebih murah daripada harga promonya sendiri. Jalur
+ * alumni tetap punya harga kakak-adiknya sendiri (harga.alumniSaudara).
  */
 
 export const kelasLanjutan = {
@@ -42,8 +46,8 @@ export const kelasLanjutan = {
   // jadi kode yang dipakai bisa dicocokkan dulu dengan catatan sales.
   referral: {
     aktif: true,
-    potongan: 600000,
-    label: 'Potongan Rp 600.000 dengan kode referral',
+    potongan: 150000,
+    label: 'Potongan Rp 150.000 dengan kode referral',
     kode: [
       'Future-SP1',
       'Future-SP2',
@@ -52,10 +56,38 @@ export const kelasLanjutan = {
       'Future-SP5',
     ],
   },
-  // Potongan kakak-adik dari proposal: berlaku sendiri, tanpa kode apa pun.
-  diskonSaudara: {
-    persen: 20,
-  },
+  // GELOMBANG PENDAFTARAN
+  // Gelombang 1 dan 2 memakai harga promo; begitu Gelombang 2 tutup, harga
+  // kembali normal. Hitung mundur di halaman mengarah ke `selesai` gelombang
+  // promo terakhir — bukan ke akhir Gelombang 1 — karena di situlah harganya
+  // benar-benar naik. Hitung mundur ke tanggal yang tidak mengubah apa pun
+  // adalah janji palsu, dan itu juga melanggar kebijakan Google Ads.
+  gelombang: [
+    {
+      nomor: 1,
+      mulai: '2026-11-01T00:00:00+07:00',
+      selesai: '2026-11-30T23:59:59+07:00',
+      label: '1 – 30 November 2026',
+      labelSelesai: '30 November 2026',
+      hargaPromo: true,
+    },
+    {
+      nomor: 2,
+      mulai: '2026-12-01T00:00:00+07:00',
+      selesai: '2026-12-31T23:59:59+07:00',
+      label: '1 – 31 Desember 2026',
+      labelSelesai: '31 Desember 2026',
+      hargaPromo: true,
+    },
+    {
+      nomor: 3,
+      mulai: '2027-01-01T00:00:00+07:00',
+      selesai: '2027-01-08T23:59:59+07:00',
+      label: '1 – 8 Januari 2027',
+      labelSelesai: '8 Januari 2027',
+      hargaPromo: false,
+    },
+  ],
   title: 'Pendaftaran Kelas Lanjutan Future Makers',
   subtitle: 'Creator · Champions · Private — kelas mulai Januari 2027',
   brand: 'Future Makers',
@@ -169,13 +201,29 @@ export const kelasLanjutan = {
     ],
     private: null, // jadwal menyesuaikan permintaan orang tua
   },
+  // Dua tempat kelas berjalan. Ditampilkan terbuka di halaman: orang tua
+  // memilih kelas juga berdasarkan jaraknya dari rumah.
+  lokasiKelas: [
+    {
+      nama: 'Lumio Space',
+      alamat:
+        'Jl. Sabirin No. 17, Kotabaru, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55224',
+      peta: 'https://www.google.com/maps/search/?api=1&query=Lumio+Space+Jl.+Sabirin+No.17+Kotabaru+Yogyakarta',
+    },
+    {
+      nama: 'Internet Learning Cafe — Timoho',
+      alamat:
+        'Jl. Ipda Tut Harsono, Muja Muju, Kec. Umbulharjo, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55165',
+      peta: 'https://www.google.com/maps/search/?api=1&query=Internet+Learning+Cafe+Timoho+Jl.+Ipda+Tut+Harsono+Yogyakarta',
+    },
+  ],
   kontak: {
     kota: 'Yogyakarta',
     wilayah: 'Daerah Istimewa Yogyakarta',
     negara: 'Indonesia',
     email: 'riki.markethink@rikiaprianto.com',
     catatanAlamat:
-      'Kelas diadakan offline di Yogyakarta. Alamat lengkap dan titik lokasi dikirimkan lewat WhatsApp setelah pendaftaran dikonfirmasi.',
+      'Kelas diadakan offline di Yogyakarta, bergantian di dua tempat di bawah ini. Tempat untuk setiap pertemuan diinfokan lewat WhatsApp sebelum kelas berjalan.',
   },
   faq: [
     {
@@ -196,7 +244,7 @@ export const kelasLanjutan = {
     },
     {
       q: 'Berapa biaya kelasnya dan bisakah dicicil?',
-      a: 'Biayanya dihitung per semester, Januari sampai Mei 2027. Kelas Creator Rp 3.600.000 untuk 12 pertemuan satu semester, Kelas Champions Rp 6.000.000 untuk 12 pertemuan satu semester, dan Kelas Private Rp 5.250.000 untuk 8 pertemuan. Semuanya bisa dibayar lunas atau dicicil 5 kali tanpa bunga.',
+      a: 'Biayanya dihitung per semester, Januari sampai Mei 2027. Selama Gelombang 1 dan 2, Kelas Creator Rp 3.599.000 (harga normal Rp 4.500.000) dan Kelas Champions Rp 5.199.000 (harga normal Rp 6.000.000), keduanya untuk 12 pertemuan satu semester. Kelas Private Rp 5.250.000 untuk 8 pertemuan dan tidak ikut harga promo. Setelah Gelombang 2 ditutup, harga kembali normal. Semuanya bisa dibayar lunas atau dicicil 5 kali tanpa bunga.',
     },
     {
       q: 'Apakah anak perlu membawa laptop sendiri?',
@@ -257,7 +305,13 @@ export const kelasLanjutan = {
       deskripsi:
         'Memakai berbagai AI untuk membuat gambar, cerita, video, musik, dan mini project. Setiap karya dipublikasikan, sehingga anak punya portofolio digital atas namanya sendiri.',
       kursi: 8,
-      harga: { normal: 3600000, alumni: 2499000, alumniSaudara: 2000000 },
+      harga: { normal: 4500000, gelombang: 3599000, alumni: 2499000, alumniSaudara: 2000000 },
+      fasilitas: [
+        'Belajar di VIP Room',
+        'Kelas kecil, hanya 8 anak',
+        'Akses aplikasi Pixi Robot AI',
+        'Dibimbing 2 mentor (1 Coach + 1 Assistant)',
+      ],
     },
     {
       id: 'champions',
@@ -272,7 +326,13 @@ export const kelasLanjutan = {
       deskripsi:
         'Dilatih khusus untuk kompetisi AI dan teknologi tingkat nasional maupun internasional, dengan bimbingan lebih intensif dan proyek yang menantang.',
       kursi: 6,
-      harga: { normal: 6000000, alumni: 4999000, alumniSaudara: 4000000 },
+      harga: { normal: 6000000, gelombang: 5199000, alumni: 4999000, alumniSaudara: 4000000 },
+      fasilitas: [
+        'Belajar di VIP Room',
+        'Kelas kecil, hanya 6 anak',
+        'Akses aplikasi Pixi Robot AI',
+        'Dibimbing 2 mentor (1 Coach + 1 Assistant)',
+      ],
     },
     {
       id: 'private',
@@ -290,7 +350,14 @@ export const kelasLanjutan = {
       tanpaPromo: true,
       catatan:
         'Kursinya hanya untuk 3 anak karena coach mendampingi penuh dan personal, jadi kelas ini tidak ikut potongan referral maupun diskon kakak-adik.',
-      harga: { normal: 5250000, alumni: 5250000, alumniSaudara: 5250000 },
+      // gelombang: null -> Kelas Private tidak ikut harga promo.
+      harga: { normal: 5250000, gelombang: null, alumni: 5250000, alumniSaudara: 5250000 },
+      fasilitas: [
+        'Belajar di VIP Room',
+        'Hanya 3 kursi, satu anak satu coach',
+        'Akses aplikasi Pixi Robot AI',
+        'Arah belajar dan jadwal diatur sendiri',
+      ],
     },
   ],
   cicilan: {
@@ -325,11 +392,36 @@ export const cekReferral = (kode) => {
   );
 };
 
-/** Kelas yang boleh mendapat diskon — Private selalu harga normal. */
+/** Kelas yang boleh mendapat potongan — Private selalu harga normal. */
 const bolehDiskon = (kelasId) => {
   const k = kelasLanjutan.kelas.find((x) => x.id === kelasId);
   return !!k && !k.tanpaPromo;
 };
+
+/**
+ * Gelombang yang sedang berjalan pada waktu tertentu.
+ * @returns {object|null} salah satu isi kelasLanjutan.gelombang, atau null
+ *   kalau sekarang di luar seluruh rentang gelombang.
+ */
+export const gelombangSaatIni = (waktu = Date.now()) =>
+  kelasLanjutan.gelombang.find(
+    (g) => waktu >= new Date(g.mulai).getTime() && waktu <= new Date(g.selesai).getTime()
+  ) || null;
+
+/**
+ * Batas waktu harga promo: akhir gelombang promo TERAKHIR.
+ *
+ * Sengaja bukan akhir gelombang yang sedang berjalan. Gelombang 1 dan 2
+ * harganya sama, jadi hitung mundur ke akhir Gelombang 1 akan menjanjikan
+ * kenaikan harga yang tidak terjadi.
+ */
+export const akhirHargaPromo = () => {
+  const promo = kelasLanjutan.gelombang.filter((g) => g.hargaPromo);
+  return promo.length ? new Date(promo[promo.length - 1].selesai).getTime() : 0;
+};
+
+/** Apakah harga promo masih berlaku sekarang. */
+export const promoBerjalan = (waktu = Date.now()) => waktu <= akhirHargaPromo();
 
 /**
  * Harga satu anak.
@@ -337,12 +429,13 @@ const bolehDiskon = (kelasId) => {
  * @param {string} kelasId
  * @param {object} opsi
  * @param {boolean} opsi.alumni      peserta alumni Kelas Future Makers
- * @param {boolean} opsi.adaSaudara  mendaftarkan 2 anak atau lebih
+ * @param {boolean} opsi.adaSaudara  mendaftarkan 2 anak atau lebih (jalur alumni)
  * @param {boolean} opsi.referral    membawa kode referral yang cocok
+ * @param {boolean|null} opsi.promoAktif  paksa status promo; null = hitung sendiri
  */
 export const hargaPerAnak = (
   kelasId,
-  { alumni = false, adaSaudara = false, referral = false } = {}
+  { alumni = false, adaSaudara = false, referral = false, promoAktif = null } = {}
 ) => {
   const k = kelasLanjutan.kelas.find((x) => x.id === kelasId);
   if (!k) return 0;
@@ -350,23 +443,16 @@ export const hargaPerAnak = (
   // Kelas Private di luar semua potongan.
   if (!bolehDiskon(kelasId)) return k.harga.normal;
 
-  // Jalur alumni: harga tetap, sudah lebih murah daripada potongan referral.
+  // Jalur alumni: harga tetap, tidak terikat gelombang.
   if (alumni) return adaSaudara ? k.harga.alumniSaudara : k.harga.alumni;
 
-  // Jalur umum. Potongan tidak ditumpuk: dihitung semua kemungkinannya, lalu
-  // diambil yang paling menguntungkan pendaftar.
-  const pilihan = [k.harga.normal];
-  if (adaSaudara) {
-    pilihan.push(
-      Math.round(
-        (k.harga.normal * (100 - kelasLanjutan.diskonSaudara.persen)) / 100
-      )
-    );
-  }
-  if (referral) {
-    pilihan.push(Math.max(0, k.harga.normal - kelasLanjutan.referral.potongan));
-  }
-  return Math.min(...pilihan);
+  // Jalur umum: harga gelombang selama promo berjalan, sesudahnya normal.
+  const promo = promoAktif === null ? promoBerjalan() : promoAktif;
+  let harga = promo && k.harga.gelombang ? k.harga.gelombang : k.harga.normal;
+
+  // Kode referral memotong lagi dari harga yang sedang berlaku.
+  if (referral) harga = Math.max(0, harga - kelasLanjutan.referral.potongan);
+  return harga;
 };
 
 /** Harga tanpa diskon apa pun, dipakai untuk menampilkan angka coretan. */

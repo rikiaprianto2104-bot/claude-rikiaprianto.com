@@ -13,11 +13,46 @@ const isEnabled = () =>
   typeof window !== 'undefined' && typeof window.fbq === 'function';
 
 /**
+ * Teruskan event yang sama ke dataLayer Google tag (Google Ads), supaya satu
+ * titik pemanggilan melapor ke dua platform. Hanya event konversi yang
+ * diteruskan; tanpa data pribadi (parameter hanya nama konten & posisi tombol).
+ * Nama event: meta_<event huruf kecil>, mis. meta_lead, meta_contact.
+ */
+const GOOGLE_EVENTS = ['Lead', 'Contact', 'InitiateCheckout'];
+
+// Conversion action Google Ads (akun Kelas AI Jogja). ID & label bersifat publik.
+const GOOGLE_CONVERSIONS = {
+  InitiateCheckout: 'AW-18569154570/yJV5CNP4srYdEIqgu5ZF', // Klik Daftar
+  Contact: 'AW-18569154570/aJRaCNb4srYdEIqgu5ZF', // WhatsApp Daftar Tunggu
+};
+
+const pushGoogleEvent = (event, params) => {
+  if (typeof window === 'undefined' || !GOOGLE_EVENTS.includes(event)) return;
+  try {
+    if (GOOGLE_CONVERSIONS[event] && typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
+        send_to: GOOGLE_CONVERSIONS[event],
+      });
+    }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: `meta_${event.toLowerCase()}`,
+      content_name: params.content_name,
+      content_type: params.content_type,
+      button_position: params.button_position,
+    });
+  } catch (_) {
+    // abaikan: pelacakan tidak boleh mengganggu halaman
+  }
+};
+
+/**
  * Kirim standard event Meta Pixel.
  * @param {string} event - nama standard event, mis. 'Lead' atau 'ViewContent'.
  * @param {object} [params] - parameter non-personal, mis. content_name.
  */
 export const trackPixel = (event, params = {}) => {
+  pushGoogleEvent(event, params);
   if (!isEnabled()) return false;
   try {
     window.fbq('track', event, params);

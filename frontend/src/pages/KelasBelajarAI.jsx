@@ -17,6 +17,8 @@ import {
   Mail,
   MessageCircle,
   ShieldCheck,
+  Flame,
+  Building2,
 } from 'lucide-react';
 import {
   kelasLanjutan as kelas,
@@ -26,9 +28,11 @@ import {
 } from '../data/kelasLanjutan';
 import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
 import { varianLanding } from '../data/varianLanding';
+import HitungMundur from '../components/HitungMundur';
 import KartuHargaKelas from '../components/KartuHargaKelas';
 import KartuVideoTestimoni from '../components/KartuVideoTestimoni';
 import KodeReferral from '../components/KodeReferral';
+import { useGelombang } from '../hooks/useGelombang';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
 import { ambilKursi } from '../lib/lanjutanApi';
@@ -83,6 +87,8 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
   // halaman tetap tampil normal memakai kuota statis.
   const [kursi, setKursi] = useState(null);
   const viewContentSent = useRef(false);
+  // Status gelombang: menentukan harga yang tampil dan isi hitung mundur.
+  const gelombang = useGelombang();
 
   useEffect(() => {
     let hidup = true;
@@ -250,6 +256,20 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
     'Halo Kak Riki, kursi Kelas Lanjutan Future Makers sudah penuh. Boleh saya dimasukkan ke daftar tunggu atau diinfokan batch berikutnya?'
   )}`;
 
+  // Konsultasi gratis: untuk orang tua yang belum siap mendaftar tapi masih
+  // punya pertanyaan. Tanpa ini mereka menutup halaman tanpa meninggalkan
+  // jejak apa pun.
+  const tautanKonsultasi = `https://wa.me/${kelas.whatsapp.number}?text=${encodeURIComponent(
+    `Halo Kak Riki, saya mau konsultasi gratis dulu soal ${varian.namaKursus} untuk anak saya. Boleh dibantu?`
+  )}`;
+
+  const klikKonsultasi = (posisi) =>
+    trackPixel('Contact', {
+      ...pixelContent,
+      content_type: 'konsultasi_gratis',
+      button_position: posisi,
+    });
+
   const fakta = [
     { icon: Users, label: 'Untuk anak', nilai: 'Usia 6–15 tahun' },
     { icon: CalendarDays, label: 'Durasi', nilai: `1 semester · ${kelas.semester.rentang}` },
@@ -314,6 +334,15 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
                   className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 px-7 py-4 font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-white/15 dark:text-slate-200"
                 >
                   <Play size={18} /> Lihat Testimoni
+                </a>
+                <a
+                  href={tautanKonsultasi}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => klikKonsultasi('hero')}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-7 py-4 font-bold text-white shadow-lg shadow-[#25D366]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1eb455]"
+                >
+                  <MessageCircle size={18} /> Konsultasi Gratis via WhatsApp
                 </a>
                 <a
                   href="#karya-anak"
@@ -437,6 +466,29 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
           </p>
         </div>
 
+        {gelombang.aktif && (
+          <div className="mx-auto mt-8 max-w-3xl overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] p-6 text-center text-white md:p-8">
+            {gelombang.sekarang && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                <Flame size={12} /> Gelombang {gelombang.sekarang.nomor} sedang dibuka
+              </span>
+            )}
+            <h3 className="mt-3 text-xl font-extrabold md:text-2xl">
+              Harga gelombang berakhir {kelas.gelombang[1].labelSelesai}
+            </h3>
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-white/85">
+              Gelombang 1 dan 2 memakai harga yang sama. Begitu Gelombang 2
+              ditutup, Gelombang 3 dibuka dengan{' '}
+              <strong className="font-semibold text-white">harga normal</strong> —
+              Creator {rupiah(kelas.kelas[0].harga.normal)} dan Champions{' '}
+              {rupiah(kelas.kelas[1].harga.normal)}.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <HitungMundur sisa={gelombang.sisa} terang />
+            </div>
+          </div>
+        )}
+
         <div className="mx-auto mt-8 max-w-xl">
           <KodeReferral
             nilai={kodeReferral}
@@ -451,6 +503,7 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
               key={k.id}
               kelas={k}
               referral={referralBerlaku}
+              promoAktif={gelombang.aktif}
               unggulan={k.id === 'creator'}
               kursi={kursi ? kursi[k.id] : null}
               onDaftar={(id) => handleDaftar(`kartu_${id}`)}
@@ -478,14 +531,32 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
             <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-              <Users size={18} className="text-[#2563eb]" /> Mendaftar kakak-adik
+              <Flame size={18} className="text-[#2563eb]" /> Gelombang pendaftaran
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-              Mendaftarkan dua anak atau lebih mendapat potongan{' '}
-              {kelas.diskonSaudara.persen}% per anak untuk Creator dan
-              Champions. Potongan ini tidak ditumpuk dengan kode referral —
-              yang dipakai otomatis yang paling menguntungkan.
-            </p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {kelas.gelombang.map((g) => (
+                <li
+                  key={g.nomor}
+                  className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"
+                >
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Gelombang {g.nomor}
+                    <span className="ml-2 font-normal text-slate-500 dark:text-slate-400">
+                      {g.label}
+                    </span>
+                  </span>
+                  <span
+                    className={
+                      g.hargaPromo
+                        ? 'font-semibold text-emerald-700 dark:text-emerald-400'
+                        : 'font-semibold text-rose-700 dark:text-rose-400'
+                    }
+                  >
+                    {g.hargaPromo ? 'Harga promo' : 'Harga normal'}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </Bagian>
@@ -623,6 +694,32 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
               <MapPin size={18} className="mt-1 flex-shrink-0 text-[#2563eb]" />
               {kelas.kontak.catatanAlamat}
             </p>
+
+            <ul className="mt-5 space-y-4">
+              {kelas.lokasiKelas.map((t) => (
+                <li key={t.nama} className="flex gap-3">
+                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#eef4ff] text-[#2563eb] dark:bg-[#2563eb]/10">
+                    <Building2 size={17} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-bold text-slate-900 dark:text-white">
+                      {t.nama}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      {t.alamat}
+                    </p>
+                    <a
+                      href={t.peta}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-[#2563eb] hover:underline"
+                    >
+                      Lihat di peta <ArrowRight size={14} />
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="space-y-3">
             <p className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
@@ -650,6 +747,15 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
               <Sparkles size={18} className="text-[#2563eb]" />
               Diselenggarakan oleh {kelas.coach.nama}
             </p>
+            <a
+              href={tautanKonsultasi}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => klikKonsultasi('kontak')}
+              className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-bold text-white transition-colors hover:bg-[#1eb455]"
+            >
+              <MessageCircle size={18} /> Konsultasi Gratis via WhatsApp
+            </a>
             <p className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
               <ShieldCheck size={18} className="text-[#2563eb]" />
               <Link
@@ -674,7 +780,16 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
             <p className="mx-auto mt-4 max-w-xl leading-relaxed text-white/90">
               {varian.ctaIsi}
             </p>
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={tautanKonsultasi}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => klikKonsultasi('cta_penutup')}
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/60 px-7 py-4 text-lg font-bold text-white transition-colors hover:bg-white/10"
+              >
+                <MessageCircle size={20} /> Konsultasi Gratis
+              </a>
               <a
                 href={LINK_PILIH_KELAS}
                 onClick={() => handleDaftar('cta_penutup')}
@@ -700,7 +815,13 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
               {varian.namaMobile}
             </p>
             <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-              Mulai {rupiah(hargaPerAnak('creator', { referral: !!referralBerlaku }))}
+              Mulai{' '}
+              {rupiah(
+                hargaPerAnak('creator', {
+                  referral: !!referralBerlaku,
+                  promoAktif: gelombang.aktif,
+                })
+              )}
             </p>
           </div>
           <a

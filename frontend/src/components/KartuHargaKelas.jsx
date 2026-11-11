@@ -23,14 +23,15 @@ import { kelasLanjutan, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
 const KartuHargaKelas = ({
   kelas,
   referral = null,
+  promoAktif = null,
   unggulan = false,
   onDaftar,
-  kursi = null, // {kuota, terisi, sisa} dari Drive; null = belum/ gagal dimuat
+  kursi = null, // {kuota, terisi, sisa} dari server; null = belum/gagal dimuat
   onPenuh,
 }) => {
   const [jadwalTerbuka, setJadwalTerbuka] = useState(false);
 
-  const harga = hargaPerAnak(kelas.id, { referral: !!referral });
+  const harga = hargaPerAnak(kelas.id, { referral: !!referral, promoAktif });
   const adaDiskon = harga < kelas.harga.normal;
   const hemat = kelas.harga.normal - harga;
   const jadwal = kelasLanjutan.jadwalKelas[kelas.id];
@@ -51,12 +52,12 @@ Kode referral: ${referral}` : ''
 
   // Diambil dari bidang masing-masing, bukan dari memotong `ringkas` dengan
   // pemisah ' · '. Cara lama ikut rusak begitu teks ringkasnya diubah.
+  // Urutannya disengaja: yang paling menjawab "saya dapat apa" lebih dulu,
+  // baru jadwal dan cara bayar.
   const fitur = [
+    ...kelas.fasilitas,
     `${kelas.jumlahPertemuan} pertemuan dalam satu semester`,
     `Belajar ${kelas.hari}${kelas.jam === 'menyesuaikan' ? '' : `, pukul ${kelas.jam}`}`,
-    kursi
-      ? `${kursi.terisi} dari ${kursi.kuota} kursi sudah terisi`
-      : `Maksimal ${kelas.kursi} anak per kelas`,
     'Akun AI berbayar, modul, dan sertifikat',
     `Bisa dicicil ${kelasLanjutan.cicilan.jumlah}x — ${rupiah(perBulan)}/bulan`,
   ];
@@ -91,15 +92,19 @@ Kode referral: ${referral}` : ''
       </p>
 
       <div className="mt-5">
-        {adaDiskon && (
-          <p className="flex items-center gap-2">
-            <span className="text-base text-slate-400 line-through">
+        {adaDiskon ? (
+          <p className="flex flex-wrap items-center gap-2">
+            <span className="text-base text-slate-400 line-through decoration-2">
               {rupiah(kelas.harga.normal)}
             </span>
             <span className="rounded-md bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
               Hemat {rupiah(hemat)}
             </span>
           </p>
+        ) : (
+          // Tanpa baris ini, kartu tanpa potongan jadi lebih pendek dan
+          // ketiganya tidak lagi sejajar.
+          <p className="h-6" aria-hidden="true" />
         )}
         <p className="mt-1 flex items-baseline gap-1.5">
           <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">

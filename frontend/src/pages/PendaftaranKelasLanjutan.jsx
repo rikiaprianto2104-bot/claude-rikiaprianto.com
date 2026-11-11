@@ -369,9 +369,8 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
           <p className="mt-3 inline-flex items-start gap-2 text-sm text-emerald-700 dark:text-emerald-400">
             <Check size={16} className="mt-0.5 flex-shrink-0" />
             {lulusan
-              ? 'Harga kakak-adik khusus alumni sudah diterapkan untuk Kelas Creator dan Champions.'
-              : `Potongan ${data.diskonSaudara.persen}% per anak sudah diterapkan untuk Kelas Creator dan Champions.`}{' '}
-            Tidak berlaku untuk Kelas Private.
+              ? 'Harga kakak-adik khusus alumni sudah diterapkan untuk Kelas Creator dan Champions. Tidak berlaku untuk Kelas Private.'
+              : 'Setiap anak dihitung dengan harga gelombang yang sedang berlaku. Boleh beda kelas, misalnya kakak Champions dan adik Creator.'}
           </p>
         )}
       </section>
@@ -704,12 +703,11 @@ const PendaftaranKelasLanjutan = ({ kelasAwal = null, tanpaAlumni = false }) => 
 
       <p className="mt-10 text-xs text-slate-400 dark:text-slate-500 leading-relaxed text-center">
         Alumni Kelas Future Makers memakai harga khusus yang berlaku terus tanpa
-        batas waktu. Pendaftar umum memakai harga normal, dengan potongan{' '}
-        {rupiah(data.referral.potongan)} bila membawa kode referral atau{' '}
-        {data.diskonSaudara.persen}% bila mendaftarkan kakak-adik — dipakai
-        yang paling menguntungkan, tidak ditumpuk. Kelas Private di luar
-        potongan. Boleh kombinasi kelas, misalnya kakak Champions dan adik
-        Creator.
+        batas waktu. Pendaftar umum memakai harga gelombang yang sedang
+        berjalan; setelah Gelombang 2 ditutup, harganya kembali normal. Kode
+        referral memotong {rupiah(data.referral.potongan)} lagi per anak untuk
+        Kelas Creator dan Champions. Kelas Private di luar semua potongan.
+        Boleh kombinasi kelas, misalnya kakak Champions dan adik Creator.
       </p>
     </div>
   );
