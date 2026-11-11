@@ -67,6 +67,14 @@ from urllib.parse import urlsplit
 KUOTA = {"creator": 8, "champions": 6, "private": 3}
 KELAS_SAH = tuple(KUOTA)
 
+# Kode kelas pada nomor invoice: FM-CR/2026/11/001.
+#   FM   penerbitnya (Future Makers)
+#   CR   kelasnya
+#   2026 tahun terbit, 11 bulan terbit
+#   001  nomor urut, dihitung per kode kelas per bulan
+# Kelas Explorer memakai EX lewat layanannya sendiri.
+KODE_KELAS = {"creator": "CR", "champions": "CH", "private": "PR"}
+
 MAKS_PESERTA = 4
 HARGA_MIN, HARGA_MAKS = 1_000, 50_000_000
 TOTAL_MAKS = 200_000_000
@@ -301,7 +309,11 @@ class Basisdata:
                             )
 
                 tahun, bulan = d["tanggal"][:4], d["tanggal"][5:7]
-                awalan = f"FM/{tahun}/{bulan}/"
+                # Satu invoice bisa memuat beberapa anak di kelas berbeda
+                # (kakak Champions, adik Creator). Nomornya mengikuti kelas
+                # anak pertama supaya tetap memakai salah satu kode yang sudah
+                # ditetapkan, bukan kode campuran yang tidak dikenal.
+                awalan = f"FM-{KODE_KELAS[d['peserta'][0]['kelas']]}/{tahun}/{bulan}/"
                 urut = c.execute(
                     "SELECT COUNT(*) FROM invoice WHERE nomor_invoice LIKE ?",
                     (awalan + "%",),

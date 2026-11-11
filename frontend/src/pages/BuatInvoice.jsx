@@ -16,21 +16,26 @@ import {
   Eye,
   EyeOff,
   ShieldCheck,
+  Download,
+  Users,
+  RefreshCw,
 } from 'lucide-react';
 import {
   kelasLanjutan as data,
   cekReferral,
   hargaPerAnak,
 } from '../data/kelasLanjutan';
-import { rupiah, PENERBIT } from '../lib/invoice';
+import { rupiah, tanggalPanjang } from '../lib/invoice';
 import {
   masuk,
   keluar,
   cekSesi,
   simpanInvoice,
+  daftarInvoice,
   tautanInvoice as buatTautanInvoice,
   tautanCek,
 } from '../lib/lanjutanApi';
+import { buatPdfLanjutan, namaBerkas } from '../lib/invoicePdfLanjutan';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 
 const hariIni = () => {
@@ -71,7 +76,11 @@ const BuatInvoice = () => {
   // ini dan disimpan di localStorage. Sekarang server yang menerbitkan cookie
   // sesi HttpOnly, jadi tidak ada rahasia apa pun yang tersimpan di peramban
   // maupun ikut terbawa ke berkas JavaScript situs.
-  const [sesi, setSesi] = useState({ status: 'memeriksa', pesan: '' });
+  const [sesi, setSesi] = useState({ status: 'memeriksa', pesan: '', kursi: null });
+  // Daftar invoice yang sudah terbit, supaya pengelola bisa memeriksa ulang
+  // tanpa membuka database.
+  const [riwayat, setRiwayat] = useState({ status: 'diam', daftar: [] });
+  const [pdf, setPdf] = useState('diam');
   const [login, setLogin] = useState({
     pengguna: '',
     sandi: '',
@@ -108,17 +117,32 @@ const BuatInvoice = () => {
     let hidup = true;
     cekSesi().then((r) => {
       if (!hidup) return;
-      if (r.ok) return setSesi({ status: 'siap', pesan: '' });
+      if (r.ok) {
+        setSesi({ status: 'siap', pesan: '', kursi: r.kursi || null });
+        muatRiwayat();
+        return;
+      }
       if (r.status === 0 || r.status >= 500) {
-        return setSesi({ status: 'galat', pesan: r.pesan });
+        return setSesi({ status: 'galat', pesan: r.pesan, kursi: null });
       }
       // 401 saat halaman baru dibuka hanya berarti "belum login".
-      setSesi({ status: 'login', pesan: r.status === 429 ? r.pesan : '' });
+      setSesi({ status: 'login', pesan: r.status === 429 ? r.pesan : '', kursi: null });
     });
     return () => {
       hidup = false;
     };
   }, []);
+
+  const muatRiwayat = async () => {
+    setRiwayat((r) => ({ ...r, status: 'muat' }));
+    const r = await daftarInvoice();
+    if (r.ok) {
+      setRiwayat({ status: 'siap', daftar: r.daftar || [] });
+      if (r.kursi) setSesi((s) => ({ ...s, kursi: r.kursi }));
+    } else {
+      setRiwayat({ status: 'galat', daftar: [] });
+    }
+  };
 
   const kirimLogin = async (e) => {
     e.preventDefault();
@@ -127,7 +151,8 @@ const BuatInvoice = () => {
     const r = await masuk(login.pengguna.trim(), login.sandi);
     if (r.ok) {
       setLogin({ pengguna: login.pengguna, sandi: '', tampil: false, status: 'diam', pesan: '' });
-      setSesi({ status: 'siap', pesan: '' });
+      setSesi({ status: 'siap', pesan: '', kursi: null });
+      muatRiwayat();
     } else {
       setLogin((l) => ({ ...l, sandi: '', status: 'gagal', pesan: r.pesan || 'Gagal masuk.' }));
     }
@@ -135,8 +160,21 @@ const BuatInvoice = () => {
 
   const kirimKeluar = async () => {
     await keluar();
-    setSesi({ status: 'login', pesan: '' });
+    setSesi({ status: 'login', pesan: '', kursi: null });
+    setRiwayat({ status: 'diam', daftar: [] });
     setHasil(null);
+  };
+
+  const unduhPdf = async (invoice) => {
+    if (pdf === 'buat') return;
+    setPdf('buat');
+    try {
+      const dok = await buatPdfLanjutan(invoice, tautanCek(invoice.kode));
+      dok.save(namaBerkas(invoice));
+      setPdf('diam');
+    } catch (_) {
+      setPdf('galat');
+    }
   };
 
   const adaSaudara = anak.length >= 2;
@@ -209,6 +247,8 @@ const BuatInvoice = () => {
           ? `Invoice ${r.invoice.nomor} tersimpan di server.`
           : `Invoice ${r.invoice.nomor} sudah pernah tersimpan, tidak digandakan.`,
       });
+      if (r.kursi) setSesi((x) => ({ ...x, kursi: r.kursi }));
+      muatRiwayat();
     } else {
       if (r.kode === 'perlu_login') setSesi({ status: 'login', pesan: '' });
       setSimpan({ status: 'gagal', pesan: r.pesan || 'Gagal menyimpan.' });
@@ -336,7 +376,7 @@ const BuatInvoice = () => {
 
       {sesi.status === 'siap' && (
       <>
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           onClick={kirimKeluar}
@@ -344,6 +384,27 @@ const BuatInvoice = () => {
         >
           <LogOut size={15} /> Keluar
         </button>
+        {sesi.kursi && (
+          <div className="flex flex-wrap gap-2">
+            {data.kelas.map((k) => {
+              const s = sesi.kursi[k.id];
+              if (!s) return null;
+              return (
+                <span
+                  key={k.id}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                    s.sisa <= 0
+                      ? 'bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300'
+                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300'
+                  }`}
+                >
+                  <Users size={12} />
+                  {k.nama.replace('Kelas ', '')} {s.terisi}/{s.kuota}
+                </span>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Identitas invoice */}
@@ -678,6 +739,19 @@ const BuatInvoice = () => {
                 {tersalin ? <Check size={18} /> : <Copy size={18} />}
                 {tersalin ? 'Tautan tersalin' : 'Salin tautan invoice'}
               </button>
+              <button
+                type="button"
+                onClick={() => unduhPdf(hasil)}
+                disabled={pdf === 'buat'}
+                className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 font-bold text-white transition-colors hover:bg-slate-800 disabled:opacity-60 dark:bg-white dark:text-slate-900"
+              >
+                {pdf === 'buat' ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Download size={18} />
+                )}
+                {pdf === 'buat' ? 'Menyiapkan…' : 'Unduh PDF invoice'}
+              </button>
               <Link
                 to={`/invoice/${hasil.kode}`}
                 className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-white/15 dark:bg-transparent dark:text-slate-200"
@@ -695,6 +769,83 @@ const BuatInvoice = () => {
           jadi kirimkan tautannya hanya kepada orang tua yang bersangkutan.
           Invoice ini langsung mengurangi sisa kursi di landing page.
         </p>
+      </section>
+      {/* Riwayat invoice */}
+      <section className="mt-12 border-t border-slate-200 pt-8 dark:border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-bold text-slate-900 dark:text-white">
+            Invoice tersimpan ({riwayat.daftar.length})
+          </h2>
+          <button
+            type="button"
+            onClick={muatRiwayat}
+            disabled={riwayat.status === 'muat'}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2563eb] hover:underline disabled:opacity-60"
+          >
+            <RefreshCw size={14} className={riwayat.status === 'muat' ? 'animate-spin' : ''} />
+            Muat ulang
+          </button>
+        </div>
+
+        {riwayat.status === 'galat' && (
+          <p className="mt-3 text-sm text-rose-700 dark:text-rose-400">
+            Daftar invoice tidak bisa dimuat.
+          </p>
+        )}
+
+        {riwayat.status !== 'galat' && riwayat.daftar.length === 0 && (
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            Belum ada invoice yang diterbitkan.
+          </p>
+        )}
+
+        <ul className="mt-4 space-y-3">
+          {riwayat.daftar.map((inv) => (
+            <li
+              key={inv.kode}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4 dark:border-white/10"
+            >
+              <div className="min-w-0">
+                <p className="font-mono text-sm font-semibold text-slate-900 dark:text-white">
+                  {inv.nomor}
+                </p>
+                <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
+                  {inv.nama_ortu} ·{' '}
+                  {(inv.peserta || []).map((p) => p.nama).join(', ') || '-'}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                  {tanggalPanjang(inv.tanggal)} · {rupiah(inv.total)} ·{' '}
+                  {inv.status === 'lunas' ? 'Lunas' : `Status: ${inv.status}`}
+                  {inv.referral ? ` · Referral ${inv.referral}` : ''}
+                </p>
+              </div>
+              <div className="flex flex-shrink-0 flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => unduhPdf(inv)}
+                  disabled={pdf === 'buat'}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] disabled:opacity-60 dark:border-white/15 dark:text-slate-200"
+                >
+                  <Download size={15} /> PDF
+                </button>
+                <Link
+                  to={`/invoice/${inv.kode}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-white/15 dark:text-slate-200"
+                >
+                  <ExternalLink size={15} /> Buka
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {pdf === 'galat' && (
+          <p className="mt-3 inline-flex items-start gap-2 text-sm text-rose-700 dark:text-rose-400">
+            <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+            PDF gagal dibuat. Coba lagi, atau buka halaman invoicenya lalu cetak
+            dari peramban.
+          </p>
+        )}
       </section>
       </>
       )}
