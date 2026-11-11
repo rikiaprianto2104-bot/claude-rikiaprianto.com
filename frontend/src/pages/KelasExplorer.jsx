@@ -25,6 +25,7 @@ import { kelasLanjutan as bersama, rupiah } from '../data/kelasLanjutan';
 import { kelasExplorer as kelas } from '../data/kelasExplorer';
 import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
 import HitungMundur from '../components/HitungMundur';
+import KartuVideoTestimoni from '../components/KartuVideoTestimoni';
 import { usePromoExplorer } from '../hooks/usePromoExplorer';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
@@ -63,62 +64,6 @@ const TombolDaftar = ({ label = 'Daftar Kelas Explorer', className = '', onKlik,
     <ArrowRight size={20} className="transition-transform duration-300 group-hover:translate-x-0.5" />
   </Link>
 );
-
-// Video dimuat hanya saat diklik: poster saja yang diunduh saat halaman dibuka,
-// supaya tiga video (±16 MB) tidak membebani pengunjung yang tidak memutarnya.
-const KartuVideo = ({ item, onPutar }) => {
-  const [putar, setPutar] = useState(false);
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    if (putar && videoRef.current) videoRef.current.play().catch(() => {});
-  }, [putar]);
-
-  return (
-    <figure className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
-      <div className="relative aspect-[1280/570] bg-slate-900">
-        {putar ? (
-          <video
-            ref={videoRef}
-            src={item.src}
-            poster={item.poster}
-            controls
-            playsInline
-            preload="metadata"
-            className="h-full w-full"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              setPutar(true);
-              onPutar(item.nama);
-            }}
-            aria-label={`Putar video testimoni ${item.nama}`}
-            className="group absolute inset-0 block h-full w-full"
-          >
-            <img
-              src={item.poster}
-              alt={`Cuplikan video testimoni ${item.nama}, orang tua peserta kelas AI anak Future Makers`}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover"
-            />
-            <span className="absolute inset-0 bg-slate-900/25 transition-colors group-hover:bg-slate-900/10" />
-            <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#2563eb] shadow-xl transition-transform duration-300 group-hover:scale-110">
-              <Play size={26} className="ml-1 fill-current" />
-            </span>
-          </button>
-        )}
-      </div>
-      <figcaption className="flex items-center gap-2 px-5 py-4 text-sm font-semibold text-slate-900 dark:text-white">
-        <Quote size={15} className="flex-shrink-0 text-[#2563eb]" />
-        {item.nama}
-        <span className="font-normal text-slate-500 dark:text-slate-400">· Testimoni orang tua</span>
-      </figcaption>
-    </figure>
-  );
-};
 
 const Harga = ({ promo, besar = false }) => (
   <div>
@@ -511,7 +456,7 @@ const KelasExplorer = () => {
         </div>
         <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
           {kelas.testimoni.map((t) => (
-            <KartuVideo
+            <KartuVideoTestimoni
               key={t.src}
               item={t}
               onPutar={(nama) =>

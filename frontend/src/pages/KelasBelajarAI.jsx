@@ -16,6 +16,7 @@ import {
   CreditCard,
   Mail,
   MessageCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   kelasLanjutan as kelas,
@@ -26,6 +27,7 @@ import {
 import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
 import { varianLanding } from '../data/varianLanding';
 import KartuHargaKelas from '../components/KartuHargaKelas';
+import KartuVideoTestimoni from '../components/KartuVideoTestimoni';
 import KodeReferral from '../components/KodeReferral';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
@@ -128,8 +130,8 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
     [pixelContent]
   );
 
-  // Course + FAQPage + Breadcrumb: tiga schema yang paling berguna untuk
-  // halaman kelas berbayar di hasil pencarian.
+  // Course + FAQPage + Breadcrumb + VideoObject: schema yang paling berguna
+  // untuk halaman kelas berbayar di hasil pencarian.
   const jsonLd = useMemo(
     () => [
       {
@@ -192,6 +194,25 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
           { '@type': 'ListItem', position: 3, name: varian.namaBreadcrumb, item: varian.seo.canonical },
         ],
       },
+      // Satu VideoObject per video testimoni. Videonya benar-benar ada di
+      // halaman ini, jadi boleh dideklarasikan dan bisa muncul sebagai hasil
+      // video di Google.
+      ...kelas.testimoni.map((t) => ({
+        '@context': 'https://schema.org',
+        '@type': 'VideoObject',
+        name: `Testimoni ${t.nama} — ${varian.namaKursus}`,
+        description: t.ringkas,
+        thumbnailUrl: `https://rikiaprianto.com${t.poster}`,
+        contentUrl: `https://rikiaprianto.com${t.src}`,
+        uploadDate: t.tanggal,
+        inLanguage: 'id-ID',
+        isFamilyFriendly: true,
+        publisher: {
+          '@type': 'Organization',
+          name: kelas.brand,
+          url: 'https://rikiaprianto.com/',
+        },
+      })),
     ],
     [varian]
   );
@@ -289,10 +310,16 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <TombolDaftar onKlik={() => handleDaftar('hero')} />
                 <a
-                  href="#karya-anak"
+                  href="#testimoni"
                   className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 px-7 py-4 font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-white/15 dark:text-slate-200"
                 >
-                  <Play size={18} /> Lihat Karya Anak
+                  <Play size={18} /> Lihat Testimoni
+                </a>
+                <a
+                  href="#karya-anak"
+                  className="inline-flex items-center gap-1.5 px-2 py-4 font-semibold text-[#2563eb] hover:underline"
+                >
+                  Lihat karya anak <ArrowRight size={16} />
                 </a>
               </div>
             </div>
@@ -359,8 +386,39 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
         </div>
       </Bagian>
 
+      {/* Testimoni video orang tua */}
+      <Bagian id="testimoni" className="bg-slate-50 dark:bg-white/[0.02]">
+        <div className="max-w-2xl">
+          <span className="inline-block rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
+            Testimoni
+          </span>
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
+            Kata Orang Tua Setelah Melihat Karya Anaknya
+          </h2>
+          <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
+            Video ini direkam langsung di Demo Day, saat anak-anak menampilkan
+            karyanya di depan orang tua dan teman-teman.
+          </p>
+        </div>
+        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+          {kelas.testimoni.map((t) => (
+            <KartuVideoTestimoni
+              key={t.src}
+              item={t}
+              onPutar={(nama) =>
+                trackPixel('ViewContent', {
+                  ...pixelContent,
+                  content_type: 'putar_testimoni',
+                  content_ids: [nama],
+                })
+              }
+            />
+          ))}
+        </div>
+      </Bagian>
+
       {/* Pilihan kelas + harga */}
-      <Bagian id="harga" className="bg-slate-50 dark:bg-white/[0.02]">
+      <Bagian id="harga" className="bg-white dark:bg-[#0b1220]">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
             Pilih Kelas
@@ -429,7 +487,7 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
 
 
       {/* Karya anak */}
-      <Bagian id="karya-anak" className="bg-white dark:bg-[#0b1220]">
+      <Bagian id="karya-anak" className="bg-slate-50 dark:bg-white/[0.02]">
         <div className="max-w-2xl">
           <span className="inline-block rounded-full bg-[#eef4ff] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb] dark:bg-[#2563eb]/10">
             Bukti Nyata
@@ -477,7 +535,7 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
       </Bagian>
 
       {/* Coach & cara daftar */}
-      <Bagian id="mentor" className="bg-slate-50 dark:bg-white/[0.02]">
+      <Bagian id="mentor" className="bg-white dark:bg-[#0b1220]">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <div>
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
@@ -523,7 +581,7 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
       </Bagian>
 
       {/* FAQ */}
-      <Bagian id="faq" className="bg-white dark:bg-[#0b1220]">
+      <Bagian id="faq" className="bg-slate-50 dark:bg-white/[0.02]">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
             Pertanyaan yang Sering Ditanyakan
@@ -550,7 +608,7 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
       </Bagian>
 
       {/* Lokasi & kontak */}
-      <Bagian id="kontak" className="bg-slate-50 dark:bg-white/[0.02]">
+      <Bagian id="kontak" className="bg-white dark:bg-[#0b1220]">
         <div className="grid grid-cols-1 gap-8 rounded-3xl border border-slate-200 bg-white p-8 dark:border-white/10 dark:bg-white/[0.03] md:grid-cols-2">
           <div>
             <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -587,12 +645,21 @@ const KelasBelajarAI = ({ varian = varianLanding.asli }) => {
               <Sparkles size={18} className="text-[#2563eb]" />
               Diselenggarakan oleh {kelas.coach.nama}
             </p>
+            <p className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <ShieldCheck size={18} className="text-[#2563eb]" />
+              <Link
+                to="/kebijakan-privasi"
+                className="font-semibold text-[#2563eb] hover:underline"
+              >
+                Kebijakan Privasi
+              </Link>
+            </p>
           </div>
         </div>
       </Bagian>
 
       {/* CTA penutup */}
-      <Bagian className="bg-white dark:bg-[#0b1220]">
+      <Bagian className="bg-slate-50 dark:bg-white/[0.02]">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] p-8 text-center text-white md:p-12">
           <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10" />
           <div className="relative">

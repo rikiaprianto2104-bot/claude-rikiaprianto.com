@@ -63,25 +63,9 @@ export const kelasExplorer = {
       pembimbing: '1 Coach + 1 Miss',
     },
   ],
-  // Video testimoni peserta Future Makers, sudah dikompres ke 720p
-  // (public/future-maker/testimoni/).
-  testimoni: [
-    {
-      nama: 'Ibu Dewi',
-      src: '/future-maker/testimoni/testimoni-ibu-dewi.mp4',
-      poster: '/future-maker/testimoni/testimoni-ibu-dewi.webp',
-    },
-    {
-      nama: 'Indra Pratomo',
-      src: '/future-maker/testimoni/testimoni-indra-pratomo.mp4',
-      poster: '/future-maker/testimoni/testimoni-indra-pratomo.webp',
-    },
-    {
-      nama: 'Tri Kusbiyanto',
-      src: '/future-maker/testimoni/testimoni-tri-kusbiyanto.mp4',
-      poster: '/future-maker/testimoni/testimoni-tri-kusbiyanto.webp',
-    },
-  ],
+  // Testimoni orang tua dipakai bersama dengan landing Kelas Lanjutan, jadi
+  // daftarnya hanya ada di satu tempat: data/kelasLanjutan.js.
+  testimoni: kelasLanjutan.testimoni,
   faq: [
     {
       q: 'Kelas Explorer cocok untuk anak usia berapa?',

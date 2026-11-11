@@ -98,6 +98,39 @@ export const kelasLanjutan = {
     { src: '/future-maker/kelas/kelas-07-foto-bersama.webp', w: 1200, h: 900,
       alt: 'Foto bersama peserta dan mentor kelas Artificial Intelligence anak Future Makers Yogyakarta' },
   ],
+  // Video testimoni orang tua, direkam saat Demo Day. Berkasnya sudah
+  // dikompres ke 720p dan ada di public/future-maker/testimoni/.
+  // `tanggal` dipakai untuk schema VideoObject; sesuaikan kalau tanggal
+  // perekamannya ternyata berbeda.
+  testimoni: [
+    {
+      nama: 'Ibu Dewi',
+      peran: 'Orang tua peserta',
+      src: '/future-maker/testimoni/testimoni-ibu-dewi.mp4',
+      poster: '/future-maker/testimoni/testimoni-ibu-dewi.webp',
+      tanggal: '2026-11-02',
+      ringkas:
+        'Ibu Dewi menceritakan perubahan yang ia lihat pada anaknya setelah mengikuti kelas AI Future Makers di Yogyakarta.',
+    },
+    {
+      nama: 'Indra Pratomo',
+      peran: 'Orang tua peserta',
+      src: '/future-maker/testimoni/testimoni-indra-pratomo.mp4',
+      poster: '/future-maker/testimoni/testimoni-indra-pratomo.webp',
+      tanggal: '2026-11-02',
+      ringkas:
+        'Indra Pratomo bercerita tentang pengalaman anaknya membuat karya sendiri dengan AI dan menampilkannya di Demo Day.',
+    },
+    {
+      nama: 'Tri Kusbiyanto',
+      peran: 'Orang tua peserta',
+      src: '/future-maker/testimoni/testimoni-tri-kusbiyanto.mp4',
+      poster: '/future-maker/testimoni/testimoni-tri-kusbiyanto.webp',
+      tanggal: '2026-11-02',
+      ringkas:
+        'Tri Kusbiyanto menyampaikan kesannya setelah melihat anaknya mempresentasikan karya buatannya di depan orang tua lain.',
+    },
+  ],
   kalender: {
     judul: 'Kalender Akademik Januari – Mei 2027',
     ringkas:
