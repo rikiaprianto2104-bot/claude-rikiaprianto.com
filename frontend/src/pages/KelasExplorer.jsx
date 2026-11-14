@@ -67,7 +67,7 @@ const TombolDaftar = ({ label = 'Daftar Kelas Explorer', className = '', onKlik,
 
 // Orang tua yang belum siap mendaftar bisa bertanya dulu lewat WhatsApp.
 const TAUTAN_TANYA = `https://wa.me/${bersama.whatsapp.number}?text=${encodeURIComponent(
-  `Halo Kak Riki, saya mau tanya dulu soal Kelas Explorer (anak usia ${kelas.usia.min}-${kelas.usia.max} tahun, mulai 22 November 2026). Boleh dibantu?`
+  `Halo Kak Riki, saya mau tanya dulu soal Kelas Explorer (anak usia ${kelas.usia.min}-${kelas.usia.max} tahun, mulai ${kelas.mulaiLabel}). Boleh dibantu?`
 )}`;
 
 const TombolTanya = ({ onKlik, className = '', terang = false }) => (
@@ -175,10 +175,10 @@ const KelasExplorer = () => {
         },
         hasCourseInstance: {
           '@type': 'CourseInstance',
-          name: 'Kelas Explorer batch November–Desember 2026',
+          name: 'Kelas Explorer batch Desember 2026',
           courseMode: 'Offline',
-          startDate: '2026-11-22',
-          endDate: '2026-12-20',
+          startDate: kelas.mulai,
+          endDate: kelas.selesai,
           location: {
             '@type': 'Place',
             name: 'Yogyakarta',
@@ -249,7 +249,7 @@ const KelasExplorer = () => {
 
   const fakta = [
     { icon: Users, label: 'Untuk anak', nilai: `Usia ${kelas.usia.min}–${kelas.usia.max} tahun` },
-    { icon: CalendarDays, label: 'Kelas mulai', nilai: `22 November 2026, ${kelas.jam}` },
+    { icon: CalendarDays, label: 'Kelas mulai', nilai: `${kelas.mulaiLabel}, ${kelas.jam}` },
     { icon: MapPin, label: 'Lokasi', nilai: kelas.lokasi },
     { icon: CreditCard, label: 'Pembayaran', nilai: 'Lunas, tanpa cicilan' },
   ];
@@ -697,7 +697,7 @@ const KelasExplorer = () => {
           <div className="relative">
             <h2 className="text-3xl font-extrabold leading-tight md:text-4xl">Amankan Kursi Anak Sekarang</h2>
             <p className="mx-auto mt-4 max-w-xl leading-relaxed text-white/90">
-              Satu kelas hanya {kelas.kuota} anak. Mulai 22 November 2026,{' '}
+              Satu kelas hanya {kelas.kuota} anak. Mulai {kelas.mulaiLabel},{' '}
               {promo.aktif
                 ? `harga promo ${rupiah(promo.harga)} hanya sampai ${kelas.promoSampaiLabel}.`
                 : `biayanya ${rupiah(promo.harga)} untuk 4 pertemuan.`}

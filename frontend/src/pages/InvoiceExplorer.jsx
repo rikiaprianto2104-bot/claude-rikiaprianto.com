@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { Download, Loader2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { kelasLanjutan as bersama } from '../data/kelasLanjutan';
-import { kelasExplorer as kelas } from '../data/kelasExplorer';
+import { kelasExplorer as kelas, teksJadwal } from '../data/kelasExplorer';
 import { rupiah, tanggalPanjang, PENERBIT } from '../lib/invoice';
 import { ambilPendaftar, tautanCek } from '../lib/explorerApi';
 import { buatPdf, namaBerkas } from '../lib/invoicePdf';
@@ -182,7 +182,7 @@ const InvoiceExplorer = () => {
         <section className="mt-6 rounded-2xl bg-slate-50 p-5 text-sm dark:bg-white/[0.04]">
           <p className="font-semibold text-slate-900 dark:text-white">Jadwal kelas</p>
           <p className="mt-1 text-slate-700 dark:text-slate-300">
-            {kelas.jadwal.map((b) => `${b.tanggal.join(' & ')} ${b.bulan}`).join(' · ')}
+            {teksJadwal()}
           </p>
           <p className="text-slate-600 dark:text-slate-400">
             Setiap {kelas.hari} pukul {kelas.jam} · {kelas.lokasi}

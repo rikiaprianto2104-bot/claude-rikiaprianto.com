@@ -9,7 +9,7 @@
  * bahwa pendaftar tersebut memang tercatat di database.
  */
 import { kelasLanjutan as bersama } from '../data/kelasLanjutan';
-import { kelasExplorer as kelas } from '../data/kelasExplorer';
+import { kelasExplorer as kelas, teksJadwal } from '../data/kelasExplorer';
 import { rupiah, tanggalPanjang, PENERBIT } from './invoice';
 
 const BIRU = [37, 99, 235];
@@ -19,8 +19,7 @@ const ABU_MUDA = [148, 163, 184];
 const LATAR = [238, 244, 255];
 const HIJAU = [22, 163, 74];
 
-const jadwalTeks = () =>
-  kelas.jadwal.map((b) => `${b.tanggal.join(' & ')} ${b.bulan}`).join('  ·  ');
+const jadwalTeks = () => teksJadwal();
 
 export const namaBerkas = (p) => `Invoice-${p.nomor.replace(/\//g, '-')}.pdf`;
 

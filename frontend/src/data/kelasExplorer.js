@@ -1,7 +1,7 @@
 import { kelasLanjutan } from './kelasLanjutan';
 
 /**
- * Data landing & pendaftaran Kelas Explorer (batch November–Desember 2026).
+ * Data landing & pendaftaran Kelas Explorer (batch Desember 2026).
  *
  * Kelas Explorer berdiri sendiri: satu kelas, 4 pertemuan, pembayaran hanya
  * lunas (tanpa cicilan, tanpa kode referral, tanpa pendaftaran banyak anak).
@@ -22,16 +22,19 @@ export const kelasExplorer = {
   usia: { min: 7, max: 15 },
   kuota: 10,
   jumlahPertemuan: 4,
-  hari: 'Minggu',
+  hari: 'Sabtu dan Minggu',
   jam: '15.00 WIB',
+  // Hari pertama kelas, dipakai di judul, pesan WhatsApp, dan data terstruktur.
+  mulai: '2026-12-12',
+  mulaiLabel: '12 Desember 2026',
+  selesai: '2026-12-20',
   lokasi: 'Offline Yogyakarta',
   harga: { normal: 750000, promo: 599000 },
-  // Akhir hari Sabtu 21 November 2026, waktu Yogyakarta (WIB), sehari sebelum kelas mulai.
+  // Akhir hari Sabtu 21 November 2026, waktu Yogyakarta (WIB).
   promoSampai: '2026-11-21T23:59:59+07:00',
   promoSampaiLabel: '21 November 2026',
   jadwal: [
-    { bulan: 'November 2026', tanggal: [22, 29] },
-    { bulan: 'Desember 2026', tanggal: [13, 20] },
+    { bulan: 'Desember 2026', tanggal: [12, 13, 19, 20] },
   ],
   pertemuan: [
     {
@@ -77,7 +80,7 @@ export const kelasExplorer = {
     },
     {
       q: 'Kapan jadwal kelasnya?',
-      a: 'Empat pertemuan: 22 dan 29 November 2026, lalu 13 dan 20 Desember 2026. Semua pertemuan pukul 15.00 WIB. Alamat lengkap dikirimkan lewat WhatsApp setelah pendaftaran dikonfirmasi.',
+      a: 'Empat pertemuan dalam dua akhir pekan: 12, 13, 19, dan 20 Desember 2026 (Sabtu dan Minggu). Semua pertemuan pukul 15.00 WIB. Alamat lengkap dikirimkan lewat WhatsApp setelah pendaftaran dikonfirmasi.',
     },
     {
       q: 'Berapa jumlah anak dalam satu kelas?',
@@ -113,6 +116,16 @@ export const kelasExplorer = {
     canonical: `${URL_SITUS}/blog/kelas-explorer`,
   },
 };
+
+/** Jadwal dalam kalimat, mis. "12, 13, 19, dan 20 Desember 2026". */
+export const teksJadwal = () =>
+  kelasExplorer.jadwal
+    .map((b) => {
+      const t = b.tanggal;
+      const daftar = t.length > 1 ? `${t.slice(0, -1).join(', ')}, dan ${t[t.length - 1]}` : `${t[0]}`;
+      return `${daftar} ${b.bulan}`;
+    })
+    .join(' dan ');
 
 /** Waktu (ms) berakhirnya promo. */
 export const promoBerakhirMs = () => new Date(kelasExplorer.promoSampai).getTime();

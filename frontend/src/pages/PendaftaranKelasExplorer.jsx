@@ -17,7 +17,7 @@ import {
   CalendarDays,
 } from 'lucide-react';
 import { kelasLanjutan as bersama, rupiah } from '../data/kelasLanjutan';
-import { kelasExplorer as kelas } from '../data/kelasExplorer';
+import { kelasExplorer as kelas, teksJadwal } from '../data/kelasExplorer';
 import { usePromoExplorer } from '../hooks/usePromoExplorer';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel } from '../lib/metaPixel';
@@ -67,7 +67,7 @@ const PendaftaranKelasExplorer = () => {
 
   const siapKirim = namaAnak.trim() !== '' && usia !== '' && namaOrangTua.trim() !== '';
 
-  const jadwalTeks = kelas.jadwal.map((b) => `${b.tanggal.join(', ')} ${b.bulan}`).join(' dan ');
+  const jadwalTeks = teksJadwal();
 
   const pesanWa = useMemo(() => {
     const baris = [
@@ -112,7 +112,7 @@ const PendaftaranKelasExplorer = () => {
           Pendaftaran {kelas.nama}
         </h1>
         <p className="mt-3 text-slate-500 dark:text-slate-400">
-          {kelas.jumlahPertemuan} pertemuan · setiap {kelas.hari} pukul {kelas.jam} · mulai 22 November 2026
+          {kelas.jumlahPertemuan} pertemuan · setiap {kelas.hari} pukul {kelas.jam} · mulai {kelas.mulaiLabel}
         </p>
       </div>
 
