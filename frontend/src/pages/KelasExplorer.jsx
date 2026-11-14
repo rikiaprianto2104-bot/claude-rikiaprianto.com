@@ -65,6 +65,27 @@ const TombolDaftar = ({ label = 'Daftar Kelas Explorer', className = '', onKlik,
   </Link>
 );
 
+// Orang tua yang belum siap mendaftar bisa bertanya dulu lewat WhatsApp.
+const TAUTAN_TANYA = `https://wa.me/${bersama.whatsapp.number}?text=${encodeURIComponent(
+  `Halo Kak Riki, saya mau tanya dulu soal Kelas Explorer (anak usia ${kelas.usia.min}-${kelas.usia.max} tahun, mulai 22 November 2026). Boleh dibantu?`
+)}`;
+
+const TombolTanya = ({ onKlik, className = '', terang = false }) => (
+  <a
+    href={TAUTAN_TANYA}
+    target="_blank"
+    rel="noopener noreferrer"
+    onClick={onKlik}
+    className={`inline-flex items-center justify-center gap-2 rounded-full border-2 px-7 py-4 font-semibold transition-colors ${
+      terang
+        ? 'border-white/60 text-white hover:bg-white/10'
+        : 'border-[#25D366] text-[#128C4A] hover:bg-[#25D366] hover:text-white dark:text-[#4ade80] dark:hover:text-white'
+    } ${className}`}
+  >
+    <MessageCircle size={18} /> Tanya di WhatsApp
+  </a>
+);
+
 const Harga = ({ promo, besar = false }) => (
   <div>
     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -122,6 +143,16 @@ const KelasExplorer = () => {
     });
   }, []);
 
+  // Tanya dulu lewat WhatsApp: event Contact (bukan Lead), supaya hitungan
+  // pendaftar tetap bersih dan pertanyaan tetap terlacak.
+  const handleTanya = useCallback((posisi) => {
+    trackPixel('Contact', {
+      ...pixelContent,
+      content_type: 'tanya_whatsapp',
+      button_position: posisi,
+    });
+  }, []);
+
   // Harga di data terstruktur mengikuti status promo saat halaman dibuka.
   const hargaSaatIni = promo.harga;
   const jsonLd = useMemo(
@@ -162,7 +193,7 @@ const KelasExplorer = () => {
             '@type': 'Offer',
             price: String(hargaSaatIni),
             priceCurrency: 'IDR',
-            priceValidUntil: '2026-11-14',
+            priceValidUntil: '2026-11-21',
             availability: 'https://schema.org/LimitedAvailability',
             url: kelas.seo.canonical,
           },
@@ -279,13 +310,14 @@ const KelasExplorer = () => {
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <TombolDaftar onKlik={() => handleDaftar('hero')} />
-                <a
-                  href="#testimoni"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-slate-200 px-7 py-4 font-semibold text-slate-700 transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-white/15 dark:text-slate-200"
-                >
-                  <Play size={18} /> Lihat Testimoni
-                </a>
+                <TombolTanya onKlik={() => handleTanya('hero')} />
               </div>
+              <a
+                href="#testimoni"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-[#2563eb] dark:text-slate-300"
+              >
+                <Play size={15} /> Lihat testimoni orang tua
+              </a>
             </div>
 
             <div>
@@ -366,7 +398,10 @@ const KelasExplorer = () => {
                   </li>
                 ))}
               </ul>
-              <TombolDaftar className="mt-7 w-full sm:w-auto" onKlik={() => handleDaftar('kartu_harga')} />
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <TombolDaftar className="w-full sm:w-auto" onKlik={() => handleDaftar('kartu_harga')} />
+                <TombolTanya className="w-full sm:w-auto" onKlik={() => handleTanya('kartu_harga')} />
+              </div>
               <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
                 Pembayaran hanya lunas. Kursi terkunci setelah bukti transfer diterima.
               </p>
@@ -632,9 +667,10 @@ const KelasExplorer = () => {
               <MessageCircle size={18} className="text-[#2563eb]" />
               WhatsApp:{' '}
               <a
-                href={`https://wa.me/${bersama.whatsapp.number}`}
+                href={TAUTAN_TANYA}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => handleTanya('kontak')}
                 className="font-semibold text-[#2563eb] hover:underline"
               >
                 {bersama.whatsapp.display}
@@ -671,8 +707,9 @@ const KelasExplorer = () => {
                 <HitungMundur sisa={promo.sisa} terang />
               </div>
             )}
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <TombolDaftar terang onKlik={() => handleDaftar('cta_penutup')} />
+              <TombolTanya terang onKlik={() => handleTanya('cta_penutup')} />
             </div>
           </div>
         </div>
@@ -694,6 +731,16 @@ const KelasExplorer = () => {
               <span className="font-semibold text-[#2563eb]">{rupiah(promo.harga)}</span>
             </p>
           </div>
+          <a
+            href={TAUTAN_TANYA}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => handleTanya('bar_mobile')}
+            aria-label="Tanya di WhatsApp"
+            className="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white"
+          >
+            <MessageCircle size={22} />
+          </a>
           <Link
             to={LINK_FORMULIR}
             onClick={() => handleDaftar('bar_mobile')}
