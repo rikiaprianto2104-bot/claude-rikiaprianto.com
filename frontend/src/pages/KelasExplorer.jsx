@@ -204,7 +204,7 @@ const KelasExplorer = () => {
             '@type': 'Offer',
             price: String(hargaSaatIni),
             priceCurrency: 'IDR',
-            priceValidUntil: '2026-11-21',
+            priceValidUntil: '2026-12-11',
             availability: 'https://schema.org/LimitedAvailability',
             url: kelas.seo.canonical,
           },

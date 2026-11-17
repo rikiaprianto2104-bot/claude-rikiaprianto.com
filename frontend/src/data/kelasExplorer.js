@@ -30,9 +30,9 @@ export const kelasExplorer = {
   selesai: '2026-12-20',
   lokasi: 'Offline Yogyakarta',
   harga: { normal: 750000, promo: 599000 },
-  // Akhir hari Sabtu 21 November 2026, waktu Yogyakarta (WIB).
-  promoSampai: '2026-11-21T23:59:59+07:00',
-  promoSampaiLabel: '21 November 2026',
+  // Akhir hari Jumat 11 Desember 2026, waktu Yogyakarta (WIB), sehari sebelum kelas mulai.
+  promoSampai: '2026-12-11T23:59:59+07:00',
+  promoSampaiLabel: '11 Desember 2026',
   jadwal: [
     { bulan: 'Desember 2026', tanggal: [12, 13, 19, 20] },
   ],
@@ -76,7 +76,7 @@ export const kelasExplorer = {
     },
     {
       q: 'Berapa biaya Kelas Explorer?',
-      a: 'Harga normal Rp 750.000 untuk 4 pertemuan. Selama masa promo sampai 21 November 2026, harganya Rp 599.000. Pembayaran hanya bisa lunas, tidak ada cicilan.',
+      a: 'Harga normal Rp 750.000 untuk 4 pertemuan. Selama masa promo sampai 11 Desember 2026, harganya Rp 599.000. Pembayaran hanya bisa lunas, tidak ada cicilan.',
     },
     {
       q: 'Kapan jadwal kelasnya?',
@@ -102,7 +102,7 @@ export const kelasExplorer = {
   seo: {
     judul: 'Kelas Explorer: Anak Belajar AI & Buat Game, 4 Pertemuan | Future Makers',
     deskripsi:
-      'Kelas Explorer untuk anak usia 7–15 tahun di Yogyakarta: belajar ChatGPT dan Claude AI, membuat game sendiri, dan Demo Day. 4 pertemuan, maks 10 anak. Promo Rp 599.000 sampai 21 November 2026.',
+      'Kelas Explorer untuk anak usia 7–15 tahun di Yogyakarta: belajar ChatGPT dan Claude AI, membuat game sendiri, dan Demo Day. 4 pertemuan, maks 10 anak. Promo Rp 599.000 sampai 11 Desember 2026.',
     kataKunci: [
       'kelas AI anak Yogyakarta',
       'kelas Explorer Future Makers',
