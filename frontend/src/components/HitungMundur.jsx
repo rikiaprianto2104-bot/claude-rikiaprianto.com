@@ -7,7 +7,7 @@ const dua = (n) => String(n).padStart(2, '0');
  * usePromoExplorer, komponen ini hanya menampilkan.
  * `terang` dipakai di atas latar biru (kartu promo).
  */
-const HitungMundur = ({ sisa, terang = false }) => {
+const HitungMundur = ({ sisa, terang = false, kecil = false }) => {
   const kotak = [
     ['Hari', sisa.hari],
     ['Jam', sisa.jam],
@@ -23,11 +23,15 @@ const HitungMundur = ({ sisa, terang = false }) => {
       {kotak.map(([label, nilai]) => (
         <div
           key={label}
-          className={`flex w-16 flex-col items-center rounded-2xl px-2 py-3 sm:w-20 ${
-            terang ? 'bg-white/15 text-white' : 'bg-slate-900 text-white dark:bg-white/10'
-          }`}
+          className={`flex flex-col items-center rounded-2xl px-2 ${
+            kecil ? 'w-14 py-2.5 sm:w-16' : 'w-16 py-3 sm:w-20'
+          } ${terang ? 'bg-white/15 text-white' : 'bg-slate-900 text-white dark:bg-white/10'}`}
         >
-          <span className="text-2xl font-extrabold tabular-nums leading-none sm:text-3xl">
+          <span
+            className={`font-extrabold tabular-nums leading-none ${
+              kecil ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'
+            }`}
+          >
             {dua(nilai)}
           </span>
           <span className="mt-1.5 text-[10px] font-semibold uppercase tracking-wider opacity-70">

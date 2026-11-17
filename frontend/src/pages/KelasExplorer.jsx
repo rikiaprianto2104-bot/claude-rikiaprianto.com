@@ -13,22 +13,26 @@ import {
   CreditCard,
   Mail,
   MessageCircle,
-  Timer,
   Flame,
   GraduationCap,
   Clapperboard,
   Gamepad2,
   Presentation,
   Wand2,
+  Compass,
+  Rocket,
 } from 'lucide-react';
-import { kelasLanjutan as bersama, rupiah } from '../data/kelasLanjutan';
+import { kelasLanjutan as bersama, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
 import { kelasExplorer as kelas } from '../data/kelasExplorer';
 import { KARYA_TAMPIL } from '../data/karyaFutureMakers';
 import HitungMundur from '../components/HitungMundur';
+import KartuPaketKelas from '../components/KartuPaketKelas';
 import KartuVideoTestimoni from '../components/KartuVideoTestimoni';
 import { usePromoExplorer } from '../hooks/usePromoExplorer';
+import { useGelombang } from '../hooks/useGelombang';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { trackPixel, trackPixelOnce } from '../lib/metaPixel';
+import { ambilKursi } from '../lib/lanjutanApi';
 
 const LINK_FORMULIR = `/pendaftaran/${kelas.slug}`;
 const ikonPertemuan = [Wand2, Gamepad2, Clapperboard, Presentation];
@@ -86,28 +90,26 @@ const TombolTanya = ({ onKlik, className = '', terang = false }) => (
   </a>
 );
 
-const Harga = ({ promo, besar = false }) => (
-  <div>
-    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      {promo.aktif && (
-        <span className="text-lg font-semibold text-slate-400 line-through decoration-2">
-          {rupiah(kelas.harga.normal)}
-        </span>
-      )}
-      <span
-        className={`font-extrabold tracking-tight text-[#2563eb] ${besar ? 'text-5xl md:text-6xl' : 'text-4xl'}`}
-      >
-        {rupiah(promo.harga)}
-      </span>
-    </div>
-    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-      untuk {kelas.jumlahPertemuan} pertemuan · bayar lunas
-    </p>
-  </div>
-);
+const creator = bersama.kelas.find((k) => k.id === 'creator');
 
 const KelasExplorer = () => {
   const promo = usePromoExplorer();
+  // Kelas Creator punya promo dan hitung mundurnya sendiri (gelombang
+  // pendaftaran), terpisah dari promo Explorer.
+  const gelombang = useGelombang();
+  const hargaCreator = hargaPerAnak('creator', { promoAktif: gelombang.aktif });
+  // Sisa kursi Creator dari server yang sama dengan halaman Kelas Creator.
+  // null = belum/gagal dimuat, kartu tetap tampil tanpa bilah kursi.
+  const [kursiCreator, setKursiCreator] = useState(null);
+  useEffect(() => {
+    let hidup = true;
+    ambilKursi().then((hasil) => {
+      if (hidup && hasil && hasil.creator) setKursiCreator(hasil.creator);
+    });
+    return () => {
+      hidup = false;
+    };
+  }, []);
   const [ctaVisible, setCtaVisible] = useState(true);
   const viewContentSent = useRef(false);
 
@@ -140,6 +142,15 @@ const KelasExplorer = () => {
       ...pixelContent,
       content_type: 'buka_formulir',
       button_position: posisi,
+    });
+  }, []);
+
+  const handleDaftarCreator = useCallback(() => {
+    trackPixel('InitiateCheckout', {
+      content_name: 'Kelas Creator Future Makers',
+      content_category: 'Kelas Anak Berbayar',
+      content_type: 'buka_formulir',
+      button_position: 'kartu_creator_dari_explorer',
     });
   }, []);
 
@@ -347,93 +358,85 @@ const KelasExplorer = () => {
         </div>
       </section>
 
-      {/* Harga + hitung mundur promo */}
+      {/* Daftar harga dua kelas: Explorer (pemula) dan Creator (1 semester) */}
       <Bagian id="harga" className="bg-white dark:bg-[#0b1220]">
         <div className="mx-auto max-w-3xl text-center">
-          <Label>Harga &amp; Jadwal</Label>
+          <Label>Pilih Kelas</Label>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-4xl">
-            {promo.aktif ? `Harga Promo Hanya Sampai ${kelas.promoSampaiLabel}` : 'Biaya Kelas Explorer'}
+            Dua Pilihan Kelas AI untuk Anak
           </h2>
           <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
-            Biaya mencakup seluruh {kelas.jumlahPertemuan} pertemuan dan pendampingan Coach dan Miss. Tidak ada
-            biaya tersembunyi.
+            Baru mau mencoba? Mulai dari Explorer, cukup 4 pertemuan. Ingin anak benar-benar jago AI dan punya
+            portofolio? Pilih Creator, satu semester penuh. Setiap kelas punya promo dan batas waktunya sendiri.
           </p>
         </div>
 
-        <div className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-3xl border-2 border-[#2563eb] bg-white shadow-xl shadow-[#2563eb]/10 dark:bg-white/[0.03]">
-          {promo.aktif && (
-            <div className="flex flex-col items-center gap-4 bg-gradient-to-br from-[#2563eb] to-[#1e3a8a] px-6 py-7 text-white md:flex-row md:justify-between md:px-10">
-              <div className="text-center md:text-left">
-                <p className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider md:justify-start">
-                  <Timer size={16} /> Promo berakhir dalam
-                </p>
-                <p className="mt-1 text-sm text-white/80">
-                  Hemat {rupiah(promo.hemat)}. Setelah {kelas.promoSampaiLabel}, harga kembali{' '}
-                  {rupiah(kelas.harga.normal)}.
-                </p>
-              </div>
-              <HitungMundur sisa={promo.sisa} terang />
-            </div>
-          )}
+        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-2">
+          <KartuPaketKelas
+            unggulan
+            lencana="Mulai dari Sini"
+            ciri={{ ikon: Compass, teks: 'Pemula · Hanya 4 Pertemuan', warna: 'hijau' }}
+            nama="Kelas Explorer"
+            hasil="Anak pulang membawa game buatannya sendiri dan mempresentasikannya di Demo Day di depan orang tua."
+            promo={{
+              aktif: promo.aktif,
+              sisa: promo.sisa,
+              label: `Harga promo sampai ${kelas.promoSampaiLabel}. Sesudahnya kembali ${rupiah(kelas.harga.normal)}.`,
+            }}
+            hargaNormal={kelas.harga.normal}
+            harga={promo.harga}
+            durasi={`${kelas.jumlahPertemuan} pertemuan · bayar lunas`}
+            rincian={`${kelas.hari} · ${kelas.jam} · mulai ${kelas.mulaiLabel}`}
+            tombol={{ label: 'Daftar Kelas Explorer', to: LINK_FORMULIR, onKlik: () => handleDaftar('kartu_harga') }}
+            catatanKuota={`Kelas kecil, maks ${kelas.kuota} anak`}
+            fitur={[
+              'Belajar ChatGPT dan Claude AI',
+              'Membuat karakter dan game sendiri',
+              'Demo Day di depan orang tua',
+              `Usia ${kelas.usia.min}–${kelas.usia.max} tahun, tanpa perlu bisa coding`,
+              'Dibimbing 1 Coach dan Miss di setiap pertemuan',
+              'Bayar lunas, kursi terkunci setelah bukti transfer diterima',
+            ]}
+            jadwal={kelas.jadwal}
+            jadwalAwalTerbuka
+            catatanJadwal={`Belajar ${kelas.hari}, pukul ${kelas.jam}, selama dua akhir pekan. Alamat lengkap dikirim lewat WhatsApp setelah pendaftaran dikonfirmasi.`}
+          />
 
-          <div className="grid grid-cols-1 gap-8 p-7 md:grid-cols-2 md:p-10">
-            <div>
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">Kelas Explorer</h3>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                {kelas.jumlahPertemuan} pertemuan · setiap {kelas.hari} · {kelas.jam} · maks {kelas.kuota} anak
-              </p>
-              <div className="mt-6">
-                <Harga promo={promo} besar />
-              </div>
-              <ul className="mt-6 space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
-                {[
-                  'Belajar ChatGPT dan Claude AI',
-                  'Membuat karakter dan game sendiri',
-                  'Demo Day di depan orang tua',
-                  `Usia ${kelas.usia.min}–${kelas.usia.max} tahun, tanpa perlu bisa coding`,
-                ].map((t) => (
-                  <li key={t} className="flex gap-2">
-                    <CheckCircle2 size={17} className="mt-0.5 flex-shrink-0 text-[#2563eb]" />
-                    {t}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <TombolDaftar className="w-full sm:w-auto" onKlik={() => handleDaftar('kartu_harga')} />
-                <TombolTanya className="w-full sm:w-auto" onKlik={() => handleTanya('kartu_harga')} />
-              </div>
-              <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                Pembayaran hanya lunas. Kursi terkunci setelah bukti transfer diterima.
-              </p>
-            </div>
+          <KartuPaketKelas
+            ciri={{ ikon: Rocket, teks: 'Jago AI · Selama 1 Semester', warna: 'ungu' }}
+            nama={creator.nama}
+            hasil={creator.hasilAkhir}
+            promo={{
+              aktif: gelombang.aktif,
+              sisa: gelombang.sisa,
+              label: `Harga gelombang berakhir ${bersama.gelombang[1].labelSelesai}. Sesudahnya ${rupiah(creator.harga.normal)}.`,
+            }}
+            hargaNormal={creator.harga.normal}
+            harga={hargaCreator}
+            durasi={creator.durasi}
+            rincian={`${creator.jumlahPertemuan} pertemuan · ${creator.hari}`}
+            tombol={{ label: `Daftar ${creator.nama}`, to: `/pendaftaran/${creator.slugForm}`, onKlik: handleDaftarCreator }}
+            tautanDetail={{ label: 'Lihat detail lengkap Kelas Creator', to: `/blog/${bersama.slugLanding}` }}
+            kursi={kursiCreator}
+            catatanKuota={`Kelas kecil, maks ${creator.kursi} anak`}
+            fitur={[
+              'Membuat gambar, cerita, video, musik, dan mini project dengan berbagai AI',
+              ...creator.fasilitas,
+              `${creator.jumlahPertemuan} pertemuan dalam satu semester`,
+              `Belajar ${creator.hari}, pukul ${creator.jam}`,
+              'Akun AI berbayar, modul, dan sertifikat',
+              `Bisa dicicil ${bersama.cicilan.jumlah}x, ${rupiah(Math.round(hargaCreator / bersama.cicilan.jumlah))}/bulan`,
+            ]}
+            jadwal={bersama.jadwalKelas.creator}
+            catatanJadwal={`Belajar ${creator.hari}, pukul ${creator.jam}, sepanjang semester ${bersama.semester.rentang}. Ada jeda di Februari dan Maret menyesuaikan libur sekolah.`}
+          />
+        </div>
 
-            <div className="rounded-2xl bg-slate-50 p-6 dark:bg-white/[0.04]">
-              <h3 className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                <CalendarDays size={18} className="text-[#2563eb]" /> Jadwal 4 pertemuan
-              </h3>
-              <div className="mt-4 space-y-4">
-                {kelas.jadwal.map((b) => (
-                  <div key={b.bulan}>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{b.bulan}</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {b.tanggal.map((t) => (
-                        <span
-                          key={t}
-                          className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-lg font-extrabold text-[#2563eb] shadow-sm dark:bg-[#2563eb]/15"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                Semua pertemuan jatuh di hari {kelas.hari} pukul {kelas.jam}. Alamat lengkap dikirim lewat WhatsApp
-                setelah pendaftaran dikonfirmasi.
-              </p>
-            </div>
-          </div>
+        <div className="mx-auto mt-10 flex max-w-xl flex-col items-center gap-3 text-center">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Masih bingung memilih kelas yang cocok untuk anak? Tanyakan dulu, gratis.
+          </p>
+          <TombolTanya onKlik={() => handleTanya('pilih_kelas')} />
         </div>
       </Bagian>
 
