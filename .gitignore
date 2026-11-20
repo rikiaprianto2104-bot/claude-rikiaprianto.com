@@ -127,3 +127,10 @@ tools/kelasaijogja/aset-mentah/
 # Login admin invoice Explorer (dibuat saat pemasangan API, jangan di-commit)
 .login-admin-explorer.txt
 .login-admin-lanjutan.txt
+
+# Produk digital Meta Ads + AI: rahasia pengujian lokal (token, brief nyata, hasil peluncuran)
+produk-digital/**/.env
+produk-digital/**/brief.json
+produk-digital/**/hasil-peluncuran.json
+produk-digital/**/__pycache__/
+produk-digital/**/dist/

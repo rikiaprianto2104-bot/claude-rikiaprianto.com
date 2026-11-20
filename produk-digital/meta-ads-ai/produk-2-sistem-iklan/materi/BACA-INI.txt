@@ -1,0 +1,20 @@
+FOLDER MATERI IKLAN
+===================
+
+Taruh gambar dan video iklan Anda di folder ini.
+
+Ukuran yang dibutuhkan (minimal dua):
+  - 9:16  (1080 x 1920)  untuk Stories dan Reels
+  - 1:1   (1080 x 1080)  untuk Feed Facebook dan Instagram
+  (4:5 dan 4:3 boleh sebagai tambahan)
+
+Penamaan yang memudahkan:
+  testimoni-1-9x16.mp4
+  testimoni-1-1x1.mp4
+  promo-9x16.png
+  promo-1x1.png
+
+Ingat:
+  - Wajah anak di iklan berbayar butuh izin tertulis orang tua yang mencakup iklan.
+  - Musik "bebas hak cipta" belum tentu boleh untuk iklan berbayar. Periksa lisensinya.
+  - Jangan taruh data pribadi, kata sandi, atau token di folder ini.

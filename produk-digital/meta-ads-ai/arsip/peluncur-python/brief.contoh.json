@@ -1,0 +1,51 @@
+{
+  "akun_iklan_id": "ISI_ID_AKUN_IKLAN",
+  "page_id": "ISI_ID_HALAMAN_FACEBOOK",
+  "instagram_id": "ISI_ID_INSTAGRAM_ATAU_KOSONGKAN",
+  "pixel_id": "ISI_ID_PIXEL_ATAU_KOSONGKAN",
+  "link_tujuan": "https://contoh.com/penawaran",
+  "pakai_utm": true,
+  "satuan_terkecil": 1,
+
+  "kampanye": {
+    "nama": "PROMO_DESEMBER_2026",
+    "tujuan": "traffic",
+    "batas_belanja_total": 1000000
+  },
+
+  "set_iklan": [
+    {
+      "nama": "A_DINGIN_LOKAL",
+      "anggaran_harian": 80000,
+      "mulai": "2026-12-01T06:00:00+07:00",
+      "selesai": "2026-12-10T23:45:00+07:00",
+      "lokasi": { "lat": -7.7956, "lng": 110.3695, "radius_km": 25 },
+      "usia_min": 28,
+      "usia_maks": 48,
+      "usia_keras": false,
+      "optimasi": "OFFSITE_CONVERSIONS",
+      "peristiwa": "CONTENT_VIEW"
+    }
+  ],
+
+  "iklan": [
+    {
+      "nama": "TESTIMONI_1",
+      "jenis": "gambar",
+      "file": "materi/testimoni-1x1.png",
+      "teks_utama": "Tulis teks utama iklan di sini. Hanya fakta yang bisa dibuktikan.",
+      "judul": "Judul singkat iklan",
+      "deskripsi": "Deskripsi pendek",
+      "tombol": "LEARN_MORE"
+    },
+    {
+      "nama": "DEMO_VIDEO",
+      "jenis": "video",
+      "file": "materi/demo-9x16.mp4",
+      "gambar_sampul": "materi/demo-sampul.png",
+      "teks_utama": "Teks utama untuk iklan video.",
+      "judul": "Judul video",
+      "tombol": "SIGN_UP"
+    }
+  ]
+}
