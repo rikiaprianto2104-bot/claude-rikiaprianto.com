@@ -9,6 +9,8 @@ import {
   MapPin,
   Users,
   ArrowRight,
+  Download,
+  FileText,
 } from 'lucide-react';
 import { blogPosts, futureMakersClass } from '../mock';
 import { kelasLanjutan, hargaPerAnak, rupiah } from '../data/kelasLanjutan';
@@ -182,6 +184,35 @@ const Blog = () => {
             </span>
           </div>
         </Link>
+      )}
+
+      {/* Unduh jurnal rujukan artikel unggulan */}
+      {featured?.download && (
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-[#0d9eff]/25 bg-[#eaf6ff]/70 dark:bg-[#0d9eff]/[0.08] px-5 py-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <span className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#0d9eff] text-white flex items-center justify-center">
+              <FileText size={20} />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#0d9eff]">
+                Jurnal rujukan
+              </p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white leading-snug">
+                {featured.download.title} · KDD 2024
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {featured.download.meta}
+              </p>
+            </div>
+          </div>
+          <a
+            href={featured.download.href}
+            download={featured.download.filename}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#0d9eff] text-white text-sm font-semibold hover:bg-[#0a8de5] transition-colors"
+          >
+            <Download size={16} /> Download PDF
+          </a>
+        </div>
       )}
 
       {/* Rest */}

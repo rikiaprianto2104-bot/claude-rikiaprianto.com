@@ -174,7 +174,53 @@ export const skillsCompetencies = [
   { name: 'Marketing Automation', level: 83 },
 ];
 
+// Jurnal rujukan artikel riset GEO — file PDF disajikan dari /public/assets.
+export const geoPaper = {
+  href: '/assets/GEO-Generative-Engine-Optimization-KDD-2024.pdf',
+  filename: 'GEO-Generative-Engine-Optimization-KDD-2024.pdf',
+  title: 'GEO: Generative Engine Optimization',
+  authors:
+    'Pranjal Aggarwal, Vishvak Murahari, Tanmay Rajpurohit, Ashwin Kalyan, Karthik Narasimhan, Ameet Deshpande',
+  venue: 'Proceedings of the 30th ACM SIGKDD Conference (KDD 2024), Barcelona',
+  meta: 'PDF · 1,4 MB · 12 halaman',
+  doi: 'https://doi.org/10.1145/3637528.3671900',
+  arxiv: 'https://arxiv.org/abs/2311.09735',
+};
+
 export const blogPosts = [
+  {
+    id: 6,
+    slug: 'riset-geo-generative-engine-optimization-jurnal-kdd-2024',
+    title:
+      'Riset GEO dari Princeton (KDD 2024): Apa yang Benar-Benar Meningkatkan Visibilitas Konten di Mesin Pencari AI?',
+    metaTitle:
+      'Review Jurnal GEO: Generative Engine Optimization (KDD 2024) — Telaah Akademis dan Panduan Praktisi Marketing',
+    excerpt:
+      'Telaah akademis atas jurnal Generative Engine Optimization (Aggarwal dkk., KDD 2024) sekaligus terjemahannya ke pekerjaan praktisi marketing: metode apa yang terbukti menaikkan visibilitas konten di jawaban AI, mana yang tidak, dan bagaimana menerapkannya dengan etis. Jurnal lengkap bisa diunduh.',
+    date: 'Nov 21, 2026',
+    dateISO: '2026-11-21',
+    readTime: '14 min read',
+    tag: 'GEO',
+    image: '/assets/blog-geo-jurnal-akademis.svg',
+    download: geoPaper,
+    keywords: [
+      'GEO',
+      'Generative Engine Optimization',
+      'jurnal GEO',
+      'review jurnal GEO',
+      'GEO-bench',
+      'KDD 2024',
+      'AI search',
+      'optimasi konten AI',
+      'Perplexity',
+      'SEO vs GEO',
+      'digital marketing',
+    ],
+    author: {
+      name: 'Riki MarkeThink',
+      role: 'AI Marketing Strategist',
+    },
+  },
   {
     id: 5,
     slug: 'ai-visibility-tracking-geo-metrics-2026',
@@ -329,6 +375,412 @@ export const blogPosts = [
 // Each section has id (used for TOC and anchor), heading, and a list of blocks.
 // Block types: 'p' (paragraph), 'list', 'ol', 'quote', 'highlight', 'image', 'h3'.
 export const blogContent = {
+  'riset-geo-generative-engine-optimization-jurnal-kdd-2024': {
+    download: geoPaper,
+    intro:
+      'Banyak pembahasan GEO yang beredar di industri bersandar pada pengalaman praktik atau pengamatan terhadap satu-dua platform. Jurnal “GEO: Generative Engine Optimization” karya Aggarwal dan kolega (Princeton University, IIT Delhi) yang dipresentasikan di KDD 2024 berbeda: ini adalah salah satu upaya awal yang memformalkan GEO sebagai masalah riset, membangun benchmark berisi 10.000 query, lalu menguji secara terkontrol metode optimasi mana yang benar-benar menaikkan visibilitas sebuah sumber dalam jawaban mesin generatif. Artikel ini membedah jurnal tersebut dari dua sisi: telaah akademis (kerangka, metodologi, temuan, dan keterbatasannya) dan perspektif praktisi marketing (apa yang bisa langsung dikerjakan, apa yang sebaiknya ditinggalkan, dan di mana batas etikanya). Jurnal lengkapnya dapat diunduh pada tombol di bawah.',
+    sections: [
+      {
+        id: 'ringkasan-jurnal',
+        title: 'Sekilas tentang Jurnal Ini',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Jurnal ini ditulis oleh Pranjal Aggarwal, Vishvak Murahari, Tanmay Rajpurohit, Ashwin Kalyan, Karthik Narasimhan, dan Ameet Deshpande, serta diterbitkan di Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining (KDD 2024) di Barcelona. KDD adalah salah satu forum paling bergengsi di bidang data mining dan machine learning, sehingga makalah ini sudah melewati telaah sejawat, bukan sekadar white paper vendor.',
+          },
+          {
+            type: 'p',
+            text: 'Klaim intinya sederhana namun berani: konten dapat dioptimalkan secara sistematis agar lebih sering dan lebih menonjol dikutip oleh mesin generatif, dengan peningkatan visibilitas hingga sekitar 40% pada benchmark mereka. Para penulis juga menunjukkan bahwa taktik klasik SEO seperti keyword stuffing tidak membantu, bahkan cenderung merugikan.',
+          },
+          {
+            type: 'highlight',
+            text: 'Tiga hal yang perlu diingat sejak awal: (1) hasilnya berasal dari eksperimen terkontrol, bukan jaminan hasil di platform produksi; (2) pengujiannya memakai mesin generatif berbasis GPT-3.5 dan satu mesin komersial, Perplexity.ai; (3) pelajaran paling berharga bagi praktisi justru ada pada pola umumnya, bukan pada angka persisnya.',
+          },
+        ],
+      },
+      {
+        id: 'latar-akademis',
+        title: 'Latar Akademis: Dari Search Engine ke Generative Engine',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Penulis memperkenalkan istilah generative engine (GE) untuk sistem yang menggabungkan dua komponen: mesin pencari yang mengambil dokumen relevan, dan model bahasa besar (LLM) yang merangkum dokumen-dokumen itu menjadi satu jawaban dengan kutipan sumber. BingChat, Google SGE, dan Perplexity.ai dijadikan contoh. Secara formal, GE menerima query beserta informasi pengguna, lalu menghasilkan respons berisi kalimat-kalimat yang masing-masing didukung satu atau beberapa sitasi.',
+          },
+          {
+            type: 'p',
+            text: 'Dari sudut pandang ekonomi digital, para penulis menyebut adanya tiga pemangku kepentingan: pengguna yang mendapat jawaban lebih cepat, pengembang GE yang meningkatkan kepuasan dan pendapatan, dan pemilik situs atau kreator konten yang justru berisiko dirugikan. Ketika jawaban sudah lengkap di dalam antarmuka AI, alasan pengguna untuk membuka situs sumber menyusut, dan kreator hampir tidak punya kendali karena mesin generatif bersifat black-box dan berubah cepat.',
+          },
+          {
+            type: 'p',
+            text: 'Di titik inilah GEO diposisikan: kerangka optimasi yang berpihak pada kreator (creator-centric) dan bersifat black-box, artinya tidak mensyaratkan pengetahuan tentang algoritma internal mesin. Kreator cukup mengubah konten, lalu mengukur apakah visibilitasnya dalam jawaban naik. Argumen utamanya, SEO tradisional tidak otomatis berlaku karena model bahasa tidak sekadar mencocokkan kata kunci; ia “memahami” teks sumber dan pertanyaan secara lebih bernuansa.',
+          },
+        ],
+      },
+      {
+        id: 'kerangka-metrik',
+        title: 'Kerangka Formal dan Metrik Visibilitas',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Kontribusi konseptual yang sering terlewat adalah soal pengukuran. Pada SEO, visibilitas cukup diwakili peringkat rata-rata. Pada GE tidak ada daftar berurutan: sebuah sumber bisa dikutip panjang di awal jawaban, sekilas di tengah, atau berbagi satu kalimat dengan sumber lain. Karena itu penulis merancang metrik “impresi” khusus untuk GE.',
+          },
+          {
+            type: 'list',
+            items: [
+              'Word Count: proporsi kata dalam jawaban yang terkait dengan sitasi ke sumber Anda. Semakin banyak porsi jawaban yang bersandar pada sumber Anda, semakin besar eksposurnya.',
+              'Position-Adjusted Word Count: Word Count yang bobotnya meluruh secara eksponensial menurut posisi kutipan. Kalimat di awal jawaban lebih mungkin dibaca sehingga diberi bobot lebih tinggi. Pilihan fungsi peluruhan ini didasarkan pada studi yang menunjukkan click-through rate mengikuti pola power-law terhadap peringkat.',
+              'Subjective Impression: gabungan tujuh sub-metrik subjektif, yaitu relevansi kutipan terhadap query, pengaruh kutipan pada jawaban, keunikan materi, posisi subjektif, jumlah subjektif, kemungkinan diklik, dan keragaman materi. Penilaian dilakukan memakai G-Eval, yaitu LLM sebagai penilai.',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'Seluruh metrik dinormalisasi agar total impresi semua sitasi dalam satu jawaban bernilai 1, lalu perbandingan antar metode dilaporkan sebagai peningkatan relatif terhadap konten tanpa optimasi. Catatan metodologis: karena skor G-Eval kurang terkalibrasi, penulis menormalkannya ke rata-rata dan varians yang sama dengan Position-Adjusted Word Count agar bisa dibandingkan.',
+          },
+        ],
+      },
+      {
+        id: 'metodologi',
+        title: 'Desain Penelitian: GEO-bench dan Sembilan Metode',
+        blocks: [
+          {
+            type: 'h3',
+            text: 'GEO-bench: benchmark untuk mesin generatif',
+          },
+          {
+            type: 'p',
+            text: 'Karena belum ada dataset yang sesuai, penulis menyusun GEO-bench: 10.000 query dari sembilan sumber, dibagi 8.000 untuk latih, 1.000 validasi, dan 1.000 uji. Sumbernya mencakup query pencarian nyata (MS MARCO, ORCAS-I, Natural Questions) dan query yang lebih sulit dan menuntut sintesis (soal esai All Souls Oxford, LIMA, Davinci-Debate, ELI5, topik Perplexity Discover, serta query hasil rancangan GPT-4). Distribusinya mengikuti dunia nyata: sekitar 80% informasional, masing-masing 10% transaksional dan navigasional. Setiap query dilengkapi teks bersih dari lima hasil teratas Google, mencakup 25 domain, dan diberi tag seperti tingkat kesulitan, sifat query, genre, topik, sensitivitas, intent, dan tipe jawaban.',
+          },
+          {
+            type: 'h3',
+            text: 'Mesin generatif yang diuji',
+          },
+          {
+            type: 'p',
+            text: 'Mesin utama dirancang dua langkah: ambil lima sumber teratas dari Google, lalu minta gpt-3.5-turbo menyusun jawaban dengan sitasi di setiap kalimat. Setiap konfigurasi dijalankan lima kali pada temperature 0,7 untuk menekan variansi. Sebagai uji realitas, metode yang sama dicoba pada Perplexity.ai, mesin generatif komersial dengan basis pengguna besar.',
+          },
+          {
+            type: 'h3',
+            text: 'Sembilan metode GEO yang dievaluasi',
+          },
+          {
+            type: 'p',
+            text: 'Setiap metode adalah transformasi atas konten sumber yang dilakukan oleh LLM berdasarkan instruksi tertentu. Untuk tiap query, satu sumber dipilih acak lalu dimodifikasi dengan masing-masing metode secara terpisah.',
+          },
+          {
+            type: 'ol',
+            items: [
+              'Authoritative: mengubah gaya tulisan menjadi lebih meyakinkan dan berwibawa.',
+              'Statistics Addition: mengganti uraian kualitatif dengan data kuantitatif bila memungkinkan.',
+              'Keyword Stuffing: menambah kata kunci dari query, seperti praktik SEO klasik.',
+              'Cite Sources: menambahkan sitasi ke sumber yang kredibel.',
+              'Quotation Addition: menambahkan kutipan relevan dari sumber tepercaya.',
+              'Easy-to-Understand: menyederhanakan bahasa.',
+              'Fluency Optimization: memperbaiki kelancaran teks.',
+              'Unique Words: menambahkan kosakata yang khas.',
+              'Technical Terms: menambahkan istilah teknis yang relevan.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'temuan-utama',
+        title: 'Temuan Utama',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Tabel berikut merangkum hasil pada GEO-bench (Tabel 1 jurnal). Kolom peningkatan dihitung dari angka jurnal, yaitu skor gabungan Position-Adjusted Word Count dibandingkan konten tanpa optimasi (baseline 19,3).',
+          },
+          {
+            type: 'table',
+            caption:
+              'Dihitung dari Tabel 1 jurnal. Skor lebih tinggi berarti visibilitas lebih besar dalam jawaban.',
+            headers: [
+              'Metode GEO',
+              'Position-Adjusted Word Count',
+              'Subjective Impression (rata-rata)',
+              'Selisih vs baseline',
+            ],
+            rows: [
+              ['Tanpa optimasi (baseline)', '19,3', '19,3', '—'],
+              ['Keyword Stuffing', '17,7', '20,2', '−8%'],
+              ['Unique Words', '20,5', '20,4', '+6%'],
+              ['Authoritative', '21,3', '22,9', '+10%'],
+              ['Easy-to-Understand', '22,0', '20,5', '+14%'],
+              ['Technical Terms', '22,7', '21,4', '+18%'],
+              ['Cite Sources', '24,6', '21,9', '+27%'],
+              ['Fluency Optimization', '24,7', '21,9', '+28%'],
+              ['Statistics Addition', '25,2', '23,7', '+31%'],
+              ['Quotation Addition', '27,2', '24,7', '+41%'],
+            ],
+          },
+          {
+            type: 'list',
+            items: [
+              'Tiga metode yang menambah bukti, yaitu Quotation Addition, Statistics Addition, dan Cite Sources, memberi peningkatan terbesar. Penulis merangkumnya sebagai kenaikan 30–40% pada metrik posisi-kata dan 15–30% pada metrik subjektif, dengan perubahan konten yang relatif kecil.',
+              'Perbaikan gaya penyajian, yaitu Fluency Optimization dan Easy-to-Understand, juga menaikkan visibilitas secara berarti. Artinya mesin generatif tidak hanya menilai isi, tetapi juga cara informasi disajikan.',
+              'Gaya yang lebih persuasif (Authoritative) hanya memberi efek kecil. Penulis menafsirkan bahwa mesin generatif sudah cukup tahan terhadap bujukan gaya bahasa, sehingga fokus sebaiknya pada penyajian dan kredibilitas.',
+              'Keyword Stuffing tidak membantu: skor gabungannya justru di bawah baseline. Taktik andalan SEO era lama tidak otomatis pindah ke era jawaban generatif.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'analisis-lanjutan',
+        title: 'Analisis Lanjutan: Peringkat, Domain, Kombinasi, dan Uji di Perplexity',
+        blocks: [
+          {
+            type: 'h3',
+            text: 'Siapa yang paling diuntungkan? Situs berperingkat rendah',
+          },
+          {
+            type: 'p',
+            text: 'Temuan yang paling menarik secara sosio-ekonomi muncul saat semua sumber dioptimalkan sekaligus dan hasilnya dipecah berdasarkan peringkat di hasil pencarian (Tabel 2 jurnal).',
+          },
+          {
+            type: 'table',
+            caption:
+              'Perubahan visibilitas relatif (%) menurut peringkat sumber di hasil pencarian. Sumber: Tabel 2 jurnal.',
+            headers: ['Metode', 'Peringkat 1', 'Peringkat 2', 'Peringkat 3', 'Peringkat 4', 'Peringkat 5'],
+            rows: [
+              ['Cite Sources', '−30,3', '+2,5', '+20,4', '+15,5', '+115,1'],
+              ['Quotation Addition', '−22,9', '−7,0', '+3,5', '+25,1', '+99,7'],
+              ['Statistics Addition', '−20,6', '−3,9', '+8,1', '+10,0', '+97,9'],
+              ['Authoritative', '−6,0', '+4,1', '−0,6', '+12,6', '+6,1'],
+              ['Fluency Optimization', '−2,0', '+5,2', '+3,6', '−4,4', '+2,2'],
+            ],
+          },
+          {
+            type: 'p',
+            text: 'Situs peringkat lima yang menambahkan sitasi naik 115% dalam visibilitas, sementara situs peringkat satu rata-rata turun 30%. Penulis menafsirkan bahwa karena GE membaca isi, bukan menghitung backlink, kreator kecil yang sulit bersaing pada faktor seperti otoritas domain berpeluang mengejar lewat kualitas konten. Ini argumen kuat bahwa GEO dapat mendemokratisasi ruang digital, sekaligus peringatan bagi pemain peringkat atas: skenario ketika semua pihak melakukan GEO membuat keunggulan lama bisa terkikis.',
+          },
+          {
+            type: 'h3',
+            text: 'Efektivitas bergantung pada domain',
+          },
+          {
+            type: 'list',
+            items: [
+              'Authoritative paling membantu pada query bergaya debat dan topik sejarah, yang memang menuntut gaya argumentatif.',
+              'Cite Sources paling membantu pada pertanyaan faktual dan pernyataan, karena sitasi memberi jalur verifikasi.',
+              'Statistics Addition paling membantu pada domain hukum dan pemerintahan serta pertanyaan berbentuk opini.',
+              'Quotation Addition paling membantu pada topik orang dan masyarakat, penjelasan, dan sejarah, yang sering bertumpu pada narasi dan kesaksian.',
+              'Fluency Optimization menonjol pada query bisnis, sains, dan kesehatan.',
+            ],
+          },
+          {
+            type: 'h3',
+            text: 'Kombinasi metode',
+          },
+          {
+            type: 'p',
+            text: 'Pada subset 200 contoh uji, penulis menguji semua pasangan dari empat metode terbaik. Kombinasi Fluency Optimization dan Statistics Addition menghasilkan kinerja tertinggi, melampaui metode tunggal mana pun lebih dari 5,5%. Cite Sources relatif lemah bila berdiri sendiri, tetapi paling banyak mendongkrak hasil ketika digabung dengan metode lain (rata-rata 31,4%). Implikasinya, optimasi sebaiknya dipandang sebagai paket, bukan satu trik.',
+          },
+          {
+            type: 'h3',
+            text: 'Uji di mesin komersial: Perplexity.ai',
+          },
+          {
+            type: 'table',
+            caption:
+              'Hasil pada Perplexity.ai (subset 200 contoh uji). Sumber: Tabel 5 jurnal.',
+            headers: ['Metode', 'Position-Adjusted Word Count', 'Subjective Impression'],
+            rows: [
+              ['Tanpa optimasi', '24,1', '24,7'],
+              ['Keyword Stuffing', '21,9', '28,1'],
+              ['Quotation Addition', '29,1', '32,1'],
+              ['Statistics Addition', '26,2', '33,9'],
+            ],
+          },
+          {
+            type: 'p',
+            text: 'Pola utamanya bertahan: Quotation Addition unggul pada metrik posisi-kata (sekitar 22% di atas baseline menurut jurnal) dan Statistics Addition menghasilkan lonjakan terbesar pada metrik subjektif (hingga 37%). Keyword Stuffing kembali turun pada metrik posisi-kata, sekitar 10% di bawah baseline. Satu nuansa yang patut dicatat: pada lampiran (Tabel 7), Cite Sources tercatat naik pada metrik posisi-kata tetapi turun pada Subjective Impression di Perplexity, sehingga efek sitasi tampaknya lebih sensitif terhadap cara kerja tiap mesin.',
+          },
+        ],
+      },
+      {
+        id: 'telaah-kritis',
+        title: 'Telaah Kritis: Kekuatan dan Keterbatasan',
+        blocks: [
+          {
+            type: 'h3',
+            text: 'Kekuatan',
+          },
+          {
+            type: 'list',
+            items: [
+              'Formalisasi yang jelas: GE, GEO, dan metrik impresi didefinisikan eksplisit sehingga bisa direplikasi dan dikembangkan peneliti lain. Kode dan data dirilis terbuka.',
+              'Benchmark yang beragam: sembilan sumber, 25 domain, dan berbagai tipe query, bukan satu jenis pertanyaan saja.',
+              'Desain black-box: metode tidak bergantung pada algoritma internal, sehingga relevan bagi kreator yang tidak punya akses ke mesin.',
+              'Validasi silang: pola yang sama tampak di mesin buatan sendiri maupun Perplexity.ai.',
+            ],
+          },
+          {
+            type: 'h3',
+            text: 'Keterbatasan (sebagian diakui penulis sendiri)',
+          },
+          {
+            type: 'list',
+            items: [
+              'Mesin yang diuji terbatas: GPT-3.5 dengan lima sumber, serta satu mesin komersial. Perilaku GE terus berevolusi, sehingga metode perlu menyesuaikan, seperti SEO dahulu.',
+              'Penilaian subjektif memakai LLM (G-Eval) yang skornya kurang terkalibrasi dan harus dinormalisasi. Tag query juga dibuat otomatis oleh GPT-4 dan diakui bisa noisy.',
+              'Eksperimen tertentu hanya memakai 200 contoh karena kendala biaya (uji kombinasi dan Perplexity), dan pada Perplexity sumber diunggah sebagai file, bukan diambil dari web langsung.',
+              'Pada pengujian utama, hanya satu sumber per query yang dioptimalkan, sedangkan sumber lain dibiarkan. Dunia nyata bisa lebih kompetitif.',
+              'Dampak terhadap peringkat di mesin pencari tradisional tidak dievaluasi. Penulis menduga kecil karena yang diubah hanya teks, bukan metadata atau backlink, tetapi itu belum diuji.',
+              'Contoh query dalam benchmark berbahasa Inggris. Generalisasi ke Bahasa Indonesia dan pasar lokal perlu diuji sendiri oleh praktisi.',
+              'Ini adalah studi pengukuran visibilitas, bukan studi konversi atau penjualan. Visibilitas yang naik belum otomatis berarti bisnis yang naik.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'perspektif-praktisi',
+        title: 'Perspektif Praktisi Marketing: Apa Artinya bagi Pekerjaan Sehari-hari?',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Dari kacamata praktisi, nilai jurnal ini bukan pada angka 40%-nya, melainkan pada prinsip yang bisa dijadikan standar kerja tim konten. Berikut terjemahannya.',
+          },
+          {
+            type: 'h3',
+            text: '1. Bukti mengalahkan bujukan',
+          },
+          {
+            type: 'p',
+            text: 'Tiga pengungkit terkuat adalah data, kutipan, dan sumber. Mesin generatif cenderung memilih kalimat yang bisa diverifikasi dan dikutip balik. Artinya, copywriting yang hanya berisi klaim superlatif seperti “terbaik”, “terdepan”, dan “terpercaya” tanpa bukti justru kurang bernilai bagi AI dibanding satu kalimat berisi angka yang bersumber jelas.',
+          },
+          {
+            type: 'h3',
+            text: '2. Tinggalkan kebiasaan keyword stuffing',
+          },
+          {
+            type: 'p',
+            text: 'Pengulangan kata kunci demi kepadatan tertentu tidak membantu di GE dan bahkan menurunkan metrik posisi-kata pada kedua pengujian. Alihkan energi dari menghitung frekuensi kata kunci ke menjawab pertanyaan audiens secara tuntas dan mudah dikutip.',
+          },
+          {
+            type: 'h3',
+            text: '3. Keterbacaan adalah faktor GEO, bukan sekadar UX',
+          },
+          {
+            type: 'p',
+            text: 'Hasil Fluency Optimization dan Easy-to-Understand menunjukkan bahwa kalimat yang lancar, ringkas, dan terstruktur lebih mudah dipakai AI. Paragraf yang berbelit, istilah berlapis tanpa penjelasan, dan kalimat yang tidak berdiri sendiri akan kalah dari penjelasan yang rapi.',
+          },
+          {
+            type: 'h3',
+            text: '4. Cocokkan teknik dengan jenis konten',
+          },
+          {
+            type: 'p',
+            text: 'Karena efektivitas bergantung domain, jangan menerapkan satu resep ke semua halaman. Halaman data dan kebijakan cenderung cocok dengan statistik, halaman edukasi dan profil cocok dengan kutipan dan narasi, halaman faktual cocok dengan sitasi eksplisit. Untuk bisnis jasa dan kesehatan, kejelasan bahasa dan kelancaran memegang peran lebih besar.',
+          },
+          {
+            type: 'h3',
+            text: '5. Peluang nyata bagi UMKM dan situs kecil',
+          },
+          {
+            type: 'p',
+            text: 'Bagi bisnis yang sulit menembus halaman satu Google karena kalah backlink dan otoritas domain, hasil peringkat lima di jurnal ini memberi harapan: kualitas bukti dan kejelasan konten dapat menjadi jalur kejar yang lebih murah dibanding membangun otoritas domain bertahun-tahun. Namun ini peluang, bukan jaminan. Perhatikan juga bahwa situs besar akan ikut mengoptimalkan, sehingga keunggulan ini bersifat sementara.',
+          },
+          {
+            type: 'h3',
+            text: '6. Jangan lepaskan SEO',
+          },
+          {
+            type: 'p',
+            text: 'Jurnal ini mengambil lima sumber teratas dari Google sebagai bahan GE. Dengan kata lain, sumber Anda tetap harus ditemukan lebih dulu agar bisa dikutip. GEO melengkapi SEO, bukan menggantikannya. Untuk cara memantau hasilnya, baca juga artikel AI Visibility Tracking di blog ini.',
+          },
+        ],
+      },
+      {
+        id: 'playbook-geo',
+        title: 'Playbook GEO: Lima Langkah Menerapkan Temuan Jurnal',
+        blocks: [
+          {
+            type: 'ol',
+            items: [
+              'Pilih 10 halaman prioritas: halaman yang menjawab pertanyaan pelanggan paling sering dan paling dekat dengan penjualan (layanan, FAQ, perbandingan, panduan harga).',
+              'Tambahkan bukti: sisipkan angka yang bisa ditelusuri (data internal, riset resmi, regulasi), beri atribusi sumber di dalam kalimat, dan masukkan kutipan ahli atau testimoni nyata dengan izin.',
+              'Rapikan penyajian: awali dengan jawaban langsung, pecah paragraf panjang, jelaskan istilah teknis saat pertama muncul, dan pastikan setiap kalimat penting bisa berdiri sendiri bila dikutip.',
+              'Hapus kebiasaan lama: kurangi pengulangan kata kunci yang dipaksakan dan klaim superlatif tanpa bukti.',
+              'Ukur dan ulangi: jalankan daftar pertanyaan seed di beberapa platform AI secara berkala, catat apakah dan di mana brand Anda dikutip, lalu bandingkan sebelum dan sesudah revisi.',
+            ],
+          },
+          {
+            type: 'example',
+            title: 'Contoh Ilustrasi Sebelum dan Sesudah (angka bersifat placeholder)',
+            text: 'SEBELUM: “Klinik kami adalah klinik gigi terbaik dan terpercaya di Yogyakarta dengan pelayanan terbaik, klinik gigi murah, klinik gigi anak, dan klinik gigi Jogja.”\n\nSESUDAH: “Perawatan saluran akar di klinik kami rata-rata selesai dalam [X] kunjungan. Menurut [nama lembaga/asosiasi, tahun], [angka dan fakta yang bisa diverifikasi]. Drg. [nama], Sp.KG, menjelaskan: “[kutipan asli dengan izin].” Biaya mulai dari Rp [angka] dan dijelaskan di muka sebelum tindakan.”',
+          },
+          {
+            type: 'p',
+            text: 'Versi kedua tidak lebih panjang secara berarti, tetapi setiap klaim punya jangkar yang bisa diverifikasi, dan setiap kalimat mudah dikutip utuh. Ini persis tipe perubahan kecil berdampak besar yang ditunjukkan contoh kualitatif di jurnal.',
+          },
+        ],
+      },
+      {
+        id: 'etika-geo',
+        title: 'Garis Batas Etika: Optimasi atau Manipulasi?',
+        blocks: [
+          {
+            type: 'p',
+            text: 'Metode terkuat dalam jurnal, yaitu menambahkan statistik, kutipan, dan sitasi, adalah metode yang paling mudah disalahgunakan. Mengarang angka, mencatut nama pakar, atau mencantumkan sumber fiktif memang bisa saja menaikkan kemungkinan dikutip, tetapi itu pemalsuan informasi, bukan optimasi. Di sisi lain, para penulis sengaja membedakan pendekatan mereka dari penelitian lain yang memakai teks adversarial untuk memanipulasi rekomendasi produk oleh LLM; GEO yang mereka ajukan bersifat non-adversarial.',
+          },
+          {
+            type: 'list',
+            items: [
+              'Hanya cantumkan angka dan kutipan yang benar-benar ada dan bisa diverifikasi pembaca.',
+              'Beri atribusi jelas: siapa, kapan, dan di mana sumbernya.',
+              'Perbarui konten ketika data berubah. Statistik kedaluwarsa merugikan kepercayaan pembaca.',
+              'Jangan memakai teks tersembunyi atau instruksi terselubung yang ditujukan kepada AI.',
+              'Utamakan kredibilitas jangka panjang daripada lonjakan sesaat: konten yang akurat tetap bernilai bagi pembaca manusia maupun mesin, bahkan ketika algoritma berubah.',
+            ],
+          },
+          {
+            type: 'highlight',
+            text: 'GEO yang sehat bukan membuat AI tertipu, melainkan membuat konten Anda layak dikutip karena benar, jelas, dan terbukti.',
+          },
+        ],
+      },
+      {
+        id: 'faq',
+        title: 'FAQ Seputar Jurnal GEO',
+        blocks: [
+          { type: 'h3', text: '1. Apakah angka 40% pasti terjadi di bisnis saya?' },
+          {
+            type: 'p',
+            text: 'Tidak. Angka itu hasil eksperimen terkontrol pada benchmark dengan mesin generatif tertentu. Anggap sebagai indikasi arah dan urutan efektivitas metode, lalu uji pada konten dan pasar Anda sendiri.',
+          },
+          { type: 'h3', text: '2. Apakah GEO menggantikan SEO?' },
+          {
+            type: 'p',
+            text: 'Tidak. Mesin generatif dalam jurnal mengambil sumber dari hasil pencarian. Sumber yang tidak ditemukan tidak akan dikutip. Keduanya saling melengkapi.',
+          },
+          { type: 'h3', text: '3. Metode mana yang sebaiknya dicoba paling dulu?' },
+          {
+            type: 'p',
+            text: 'Mulai dari kombinasi yang paling murah dan paling terbukti: perjelas dan rapikan bahasa, tambahkan statistik yang bersumber, lalu sisipkan kutipan atau sitasi yang relevan. Kombinasi fluency dan statistik adalah yang terbaik pada uji kombinasi dalam jurnal.',
+          },
+          { type: 'h3', text: '4. Apakah hasil ini berlaku untuk konten berbahasa Indonesia?' },
+          {
+            type: 'p',
+            text: 'Jurnal tidak menguji Bahasa Indonesia secara khusus. Prinsipnya masuk akal untuk diterapkan, tetapi validasi lokal lewat pelacakan sebelum dan sesudah revisi tetap diperlukan.',
+          },
+          { type: 'h3', text: '5. Boleh mengunduh dan membagikan jurnalnya?' },
+          {
+            type: 'p',
+            text: 'Salinan jurnal disediakan di halaman ini untuk kemudahan belajar. Hak cipta tetap pada penulis dan penerbit (ACM). Pemberitahuan izin pada halaman pertama jurnal membolehkan penggunaan pribadi atau pembelajaran tanpa biaya dengan syarat salinan tidak didistribusikan demi keuntungan komersial. Untuk rujukan resmi, gunakan DOI yang tercantum di bawah.',
+          },
+        ],
+      },
+    ],
+    conclusion:
+      'Jurnal GEO dari Princeton dan IIT Delhi memberi dasar empiris pertama yang cukup kuat untuk satu hal yang selama ini hanya diyakini: konten bisa dioptimalkan untuk mesin generatif, dan caranya berbeda dari SEO klasik. Bukti (statistik, kutipan, sitasi) dan penyajian yang lancar menaikkan visibilitas, sedangkan keyword stuffing tidak. Dampaknya paling besar bagi situs berperingkat rendah, dan efektivitas tiap metode bergantung pada jenis konten. Bagi praktisi, pesan intinya adalah menjadikan konten lebih layak dikutip: benar, jelas, dan terbukti. Dengan catatan keterbatasan eksperimen dan kebutuhan validasi di pasar lokal, jadikan temuan ini sebagai hipotesis kerja yang diuji dan diukur, bukan resep yang dianggap pasti.',
+    cta: 'Ingin menerapkan GEO pada konten bisnis Anda secara terukur, mulai dari audit halaman prioritas sampai pelacakan visibilitas di AI? Mari diskusikan strategi yang sesuai dengan skala bisnis Anda.',
+    references: [
+      'Aggarwal, P., Murahari, V., Rajpurohit, T., Kalyan, A., Narasimhan, K., & Deshpande, A. (2024). GEO: Generative Engine Optimization. Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining (KDD 2024). https://doi.org/10.1145/3637528.3671900 (arXiv:2311.09735).',
+      'Kode dan data GEO-bench: https://generative-engines.com/GEO/ dan https://github.com/GEO-optim/GEO.',
+      'Kumar, A., & Lakkaraju, H. (2024). Manipulating Large Language Models to Increase Product Visibility. arXiv:2404.07981.',
+      'Liu, N. F., Zhang, T., & Liang, P. (2023). Evaluating Verifiability in Generative Search Engines. arXiv:2304.09848 (rujukan konsep citation recall dan citation precision yang dipakai jurnal).',
+    ],
+  },
   'ai-visibility-tracking-geo-metrics-2026': {
     intro:
       'Sejak GEO (Generative Engine Optimization) mulai dibahas secara luas, banyak tim marketing bertanya-tanya: bagaimana saya tahu strategi GEO yang saya jalankan benar-benar bekerja? Berbeda dengan SEO klasik yang mengandalkan Google Search Console dan posisi kata kunci, performa brand di ChatGPT, Gemini, Perplexity, atau AI Overview tidak muncul begitu saja di dashboard analitik yang biasa kita pakai sehari-hari. Artikel ini membahas cara praktis mengukur AI visibility — mulai dari metrik yang perlu dipantau, cara melacaknya secara manual maupun dengan bantuan tools, hingga kesalahan umum yang perlu dihindari agar data yang dikumpulkan benar-benar bisa dijadikan dasar keputusan.',

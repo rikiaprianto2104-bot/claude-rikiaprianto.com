@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Ilustrasi riset Generative Engine Optimization: grafik batang peningkatan visibilitas konten">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="55%" stop-color="#0a3a63"/>
+      <stop offset="100%" stop-color="#0d9eff"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0d9eff"/>
+      <stop offset="100%" stop-color="#8fe0ff"/>
+    </linearGradient>
+    <linearGradient id="barTop" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+
+  <!-- dot grid -->
+  <g fill="#ffffff" opacity="0.07">
+    <g id="dotrow">
+      <circle cx="40" cy="40" r="3"/><circle cx="90" cy="40" r="3"/><circle cx="140" cy="40" r="3"/>
+      <circle cx="190" cy="40" r="3"/><circle cx="240" cy="40" r="3"/><circle cx="290" cy="40" r="3"/>
+      <circle cx="340" cy="40" r="3"/><circle cx="390" cy="40" r="3"/><circle cx="440" cy="40" r="3"/>
+      <circle cx="490" cy="40" r="3"/><circle cx="540" cy="40" r="3"/><circle cx="590" cy="40" r="3"/>
+      <circle cx="640" cy="40" r="3"/><circle cx="690" cy="40" r="3"/><circle cx="740" cy="40" r="3"/>
+      <circle cx="790" cy="40" r="3"/><circle cx="840" cy="40" r="3"/><circle cx="890" cy="40" r="3"/>
+      <circle cx="940" cy="40" r="3"/><circle cx="990" cy="40" r="3"/><circle cx="1040" cy="40" r="3"/>
+      <circle cx="1090" cy="40" r="3"/><circle cx="1140" cy="40" r="3"/>
+    </g>
+    <use href="#dotrow" y="50"/>
+    <use href="#dotrow" y="100"/>
+    <use href="#dotrow" y="150"/>
+    <use href="#dotrow" y="200"/>
+    <use href="#dotrow" y="250"/>
+    <use href="#dotrow" y="300"/>
+    <use href="#dotrow" y="350"/>
+    <use href="#dotrow" y="400"/>
+    <use href="#dotrow" y="450"/>
+    <use href="#dotrow" y="500"/>
+    <use href="#dotrow" y="550"/>
+    <use href="#dotrow" y="600"/>
+  </g>
+
+  <circle cx="930" cy="170" r="300" fill="url(#glow)"/>
+
+  <!-- left: title block -->
+  <g font-family="Inter, 'Segoe UI', Arial, sans-serif">
+    <rect x="80" y="96" width="260" height="38" rx="19" fill="#ffffff" opacity="0.14"/>
+    <text x="104" y="121" font-size="18" font-weight="700" fill="#ffffff" letter-spacing="2">JURNAL KDD 2024</text>
+
+    <text x="80" y="268" font-size="150" font-weight="800" fill="#ffffff" letter-spacing="-4">GEO</text>
+    <text x="84" y="322" font-size="34" font-weight="600" fill="#bfe9ff">Generative Engine</text>
+    <text x="84" y="364" font-size="34" font-weight="600" fill="#bfe9ff">Optimization</text>
+
+    <rect x="84" y="404" width="64" height="5" rx="2.5" fill="#0d9eff"/>
+    <text x="84" y="452" font-size="24" fill="#e6f6ff" opacity="0.9">Princeton · IIT Delhi</text>
+    <text x="84" y="486" font-size="24" fill="#e6f6ff" opacity="0.9">Kajian akademis &amp; perspektif praktisi</text>
+
+    <!-- citation chips -->
+    <g>
+      <rect x="84" y="528" width="64" height="44" rx="12" fill="#ffffff" opacity="0.14"/>
+      <text x="116" y="558" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle">[1]</text>
+      <rect x="160" y="528" width="64" height="44" rx="12" fill="#ffffff" opacity="0.14"/>
+      <text x="192" y="558" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle">[2]</text>
+      <rect x="236" y="528" width="64" height="44" rx="12" fill="#ffffff" opacity="0.14"/>
+      <text x="268" y="558" font-size="22" font-weight="700" fill="#ffffff" text-anchor="middle">[3]</text>
+    </g>
+  </g>
+
+  <!-- right: bar chart (visibilitas relatif terhadap baseline) -->
+  <g font-family="Inter, 'Segoe UI', Arial, sans-serif">
+    <rect x="610" y="150" width="520" height="440" rx="28" fill="#0b1220" opacity="0.38"/>
+    <text x="646" y="198" font-size="20" font-weight="700" fill="#ffffff" letter-spacing="1">VISIBILITAS RELATIF</text>
+    <text x="646" y="226" font-size="16" fill="#bfe9ff">dibanding konten tanpa optimasi</text>
+
+    <line x1="646" y1="520" x2="1094" y2="520" stroke="#ffffff" opacity="0.35" stroke-width="2"/>
+
+    <!-- keyword stuffing: turun -->
+    <rect x="662" y="520" width="52" height="22" rx="6" fill="#f87171" opacity="0.9"/>
+    <text x="688" y="566" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.85">Keyword</text>
+    <text x="688" y="584" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.85">stuffing</text>
+    <text x="688" y="608" font-size="17" font-weight="700" fill="#fca5a5" text-anchor="middle">−8%</text>
+
+    <!-- fluency -->
+    <rect x="746" y="383" width="52" height="137" rx="8" fill="url(#bar)" opacity="0.8"/>
+    <text x="772" y="566" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.85">Fluency</text>
+    <text x="772" y="608" font-size="17" font-weight="700" fill="#8fe0ff" text-anchor="middle">+28%</text>
+
+    <!-- cite sources -->
+    <rect x="830" y="388" width="52" height="132" rx="8" fill="url(#bar)" opacity="0.85"/>
+    <text x="856" y="566" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.85">Sitasi</text>
+    <text x="856" y="608" font-size="17" font-weight="700" fill="#8fe0ff" text-anchor="middle">+27%</text>
+
+    <!-- statistics -->
+    <rect x="914" y="368" width="52" height="152" rx="8" fill="url(#bar)" opacity="0.92"/>
+    <text x="940" y="566" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.85">Statistik</text>
+    <text x="940" y="608" font-size="17" font-weight="700" fill="#8fe0ff" text-anchor="middle">+31%</text>
+
+    <!-- quotation -->
+    <rect x="998" y="319" width="52" height="201" rx="8" fill="url(#barTop)"/>
+    <text x="1024" y="566" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.85">Kutipan</text>
+    <text x="1024" y="608" font-size="17" font-weight="700" fill="#fde68a" text-anchor="middle">+41%</text>
+  </g>
+</svg>

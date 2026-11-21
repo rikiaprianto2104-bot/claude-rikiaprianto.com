@@ -17,6 +17,9 @@ import {
   Terminal,
   Sparkles,
   Copy,
+  Download,
+  FileText,
+  ExternalLink,
 } from 'lucide-react';
 import { blogPosts, blogContent, profile } from '../mock';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
@@ -64,8 +67,95 @@ const ExampleBlock = ({ title, text }) => (
   </div>
 );
 
+// Kartu unduhan jurnal/dokumen rujukan artikel.
+const DownloadCard = ({ file }) => (
+  <div className="my-8 rounded-2xl border border-[#0d9eff]/25 bg-[#eaf6ff]/70 dark:bg-[#0d9eff]/[0.08] p-5 md:p-6">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+      <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-[#0d9eff] text-white flex items-center justify-center">
+        <FileText size={26} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#0d9eff]">
+          Jurnal Rujukan
+        </p>
+        <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white leading-snug">
+          {file.title}
+        </p>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300 leading-snug">
+          {file.authors}. {file.venue}.
+        </p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {file.meta}
+        </p>
+      </div>
+    </div>
+    <div className="mt-5 flex flex-wrap items-center gap-3">
+      <a
+        href={file.href}
+        download={file.filename}
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0d9eff] text-white font-semibold hover:bg-[#0a8de5] transition-colors"
+      >
+        <Download size={18} /> Download Jurnal (PDF)
+      </a>
+      {file.doi && (
+        <a
+          href={file.doi}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#0d9eff]/40 text-[#0d9eff] font-medium hover:bg-[#0d9eff]/10 transition-colors"
+        >
+          <ExternalLink size={16} /> Lihat di penerbit (DOI)
+        </a>
+      )}
+    </div>
+  </div>
+);
+
 const Block = ({ block }) => {
   switch (block.type) {
+    case 'table':
+      return (
+        <figure className="my-6">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-white/10">
+            <table className="w-full min-w-[520px] text-left text-sm">
+              <thead className="bg-slate-50 dark:bg-white/[0.04]">
+                <tr>
+                  {block.headers.map((h, i) => (
+                    <th
+                      key={i}
+                      scope="col"
+                      className="px-4 py-3 font-semibold text-slate-900 dark:text-white align-bottom"
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                {block.rows.map((row, ri) => (
+                  <tr key={ri}>
+                    {row.map((cell, ci) => (
+                      <td
+                        key={ci}
+                        className={`px-4 py-3 text-slate-700 dark:text-slate-300 ${
+                          ci === 0 ? 'font-medium text-slate-900 dark:text-white' : ''
+                        }`}
+                      >
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {block.caption && (
+            <figcaption className="mt-2 text-xs italic text-slate-500 dark:text-slate-400">
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
     case 'p':
       return (
         <p className="text-slate-700 dark:text-slate-300 leading-[1.85] text-[17px] text-justify hyphens-auto">
@@ -405,6 +495,9 @@ const BlogPost = () => {
               {content.intro}
             </p>
 
+            {/* Tombol unduh jurnal rujukan */}
+            {content.download && <DownloadCard file={content.download} />}
+
             {/* Inline image */}
             {content.inlineImage && (
               <figure className="my-10">
@@ -468,6 +561,15 @@ const BlogPost = () => {
                     </li>
                   ))}
                 </ol>
+                {content.download && (
+                  <a
+                    href={content.download.href}
+                    download={content.download.filename}
+                    className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0d9eff] text-white font-semibold hover:bg-[#0a8de5] transition-colors"
+                  >
+                    <Download size={18} /> Download Jurnal (PDF)
+                  </a>
+                )}
               </section>
             )}
 
